@@ -1,0 +1,1 @@
+export const COLOR_MODE_KEY = 'COLOR_MODE_KEY'
