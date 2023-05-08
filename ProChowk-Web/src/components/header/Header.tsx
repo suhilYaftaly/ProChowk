@@ -1,38 +1,30 @@
 import Stack from "@mui/joy/Stack";
-import LightModeIcon from "@mui/icons-material/LightMode";
-import DarkModeIcon from "@mui/icons-material/DarkMode";
-import { Box, IconButton } from "@mui/material";
+import { Button, Grid, Box } from "@mui/material";
 
-import logo from "../../assets/Logo.png";
-import { COLOR_MODE_KEY } from "../../constants/localStorageKeys";
+import logo from "../../../public/ProChowkLogo.svg";
+import ColorMode from "./ColorMode";
 
-export type ModeType = "light" | "dark";
-
-interface Props {
-  mode: ModeType;
-  setMode: (mode: ModeType) => void;
-}
-
-export default function Header({ mode, setMode }: Props) {
-  const toggleColorMode = () => {
-    const assignMode = mode === "light" ? "dark" : "light";
-    setMode(assignMode);
-    localStorage.setItem(COLOR_MODE_KEY, assignMode);
-  };
-
+export default function Header() {
   return (
-    <Stack
-      direction="row"
-      alignItems={"center"}
-      justifyContent={"space-between"}
-    >
-      <img src={logo} alt={"logo"} width={70} />
-      <Box>
-        {mode} mode
-        <IconButton sx={{ ml: 1 }} onClick={toggleColorMode} color="inherit">
-          {mode === "dark" ? <DarkModeIcon /> : <LightModeIcon />}
-        </IconButton>
+    <Grid item xs={12}>
+      <Box boxShadow={1} padding={1}>
+        <Stack
+          direction="row"
+          alignItems={"center"}
+          justifyContent={"space-between"}
+        >
+          <img src={logo} alt={"logo"} width={60} />
+          <Stack direction="row" alignItems={"center"} spacing={1}>
+            <Button variant="outlined" style={{ borderRadius: 50 }}>
+              LOGIN
+            </Button>
+            <Button variant="contained" style={{ borderRadius: 50 }}>
+              SIGN UP
+            </Button>
+            <ColorMode />
+          </Stack>
+        </Stack>
       </Box>
-    </Stack>
+    </Grid>
   );
 }
