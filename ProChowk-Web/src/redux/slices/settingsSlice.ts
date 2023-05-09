@@ -12,7 +12,7 @@ const slice = createSlice({
     name: 'settings',
     initialState,
     reducers: {
-        setColorMode(state, action){
+        setColorMode(state, action: PayloadAction<SettingsState['colorMode']>){
             state.colorMode = action.payload
         }
     }
