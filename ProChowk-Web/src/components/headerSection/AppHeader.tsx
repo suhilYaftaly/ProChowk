@@ -13,6 +13,7 @@ export default function AppHeader() {
       style={{
         position: "sticky",
         top: 0,
+        zIndex: 1,
         backgroundColor: theme.palette.background.paper,
       }}
     >
