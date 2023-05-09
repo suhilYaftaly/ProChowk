@@ -15,7 +15,7 @@ export default function App() {
       <Grid container>
         <Header />
         <Grid item xs={12} padding={1}>
-          <Typography>Main Body</Typography>
+          <Typography>Main Body Testing</Typography>
         </Grid>
       </Grid>
     </ThemeProvider>
