@@ -1,9 +1,10 @@
 import { useMemo } from "react";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
-import { CssBaseline, Grid, Typography } from "@mui/material";
+import { CssBaseline } from "@mui/material";
 
-import Header from "./components/header/Header";
+import AppHeader from "./components/headerSection/AppHeader";
 import { useSettingsStates } from "./redux/reduxStates";
+import MainDetailsSection from "./components/detailsSection/MainDetailsSection";
 
 export default function App() {
   const { colorMode: mode } = useSettingsStates();
@@ -12,12 +13,8 @@ export default function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Grid container>
-        <Header />
-        <Grid item xs={12} padding={1}>
-          <Typography>Main Body Testing</Typography>
-        </Grid>
-      </Grid>
+      <AppHeader />
+      <MainDetailsSection />
     </ThemeProvider>
   );
 }
