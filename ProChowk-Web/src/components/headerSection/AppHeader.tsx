@@ -1,10 +1,11 @@
-import { Button, Box, Grid, useTheme } from "@mui/material";
+import { Button, Box, Grid, useTheme, alpha } from "@mui/material";
 
 import logo from "../../../public/ProChowkLogo.svg";
 import ColorMode from "./ColorMode";
 
 export default function AppHeader() {
   const theme = useTheme();
+  const backgroundColor = alpha(theme.palette.background.default, 0.9);
 
   return (
     <Box
@@ -14,12 +15,17 @@ export default function AppHeader() {
         position: "sticky",
         top: 0,
         zIndex: 1,
-        backgroundColor: theme.palette.background.paper,
+        backgroundColor,
       }}
     >
       <Grid container alignItems={"center"} justifyContent={"space-between"}>
         <Grid item>
-          <img src={logo} alt={"logo"} width={45} />
+          <img
+            src={logo}
+            alt={"logo"}
+            width={45}
+            style={{ marginBottom: -7 }}
+          />
         </Grid>
         <Grid item>
           <Grid container alignItems={"center"} spacing={1}>

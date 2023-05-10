@@ -15,6 +15,8 @@ import ShareIcon from "@mui/icons-material/Share";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 
+import "../../../App.css";
+
 interface ExpandMoreProps extends IconButtonProps {
   expand: boolean;
 }
@@ -52,24 +54,40 @@ export default function ServiceCard({
   const handleExpandClick = () => setExpanded(!expanded);
 
   return (
-    <Card sx={{ maxWidth: 320 }}>
+    <Card sx={{ maxWidth: 345 }}>
       <CardHeader
-        avatar={
-          <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
-            {title?.charAt(0)}
-          </Avatar>
-        }
+        // avatar={
+        //   <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
+        //     {title?.charAt(0)}
+        //   </Avatar>
+        // }
         action={
           <IconButton aria-label="settings">
             <MoreVertIcon />
           </IconButton>
         }
-        title={title}
-        subheader={subtitle}
+        title={
+          <Typography variant="subtitle2" className="ellipsis1Line">
+            {title}
+          </Typography>
+        }
+        subheader={
+          <Typography
+            variant="subtitle2"
+            color="text.secondary"
+            className="ellipsis1Line"
+          >
+            {subtitle}
+          </Typography>
+        }
       />
-      <CardMedia component="img" width="194" image={img} alt={imgAlt} />
+      <CardMedia component="img" height="120" image={img} alt={imgAlt} />
       <CardContent>
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          className="ellipsis2Line"
+        >
           {description}
         </Typography>
       </CardContent>
@@ -94,7 +112,9 @@ export default function ServiceCard({
       {moreDesc && (
         <Collapse in={expanded} timeout="auto" unmountOnExit>
           <CardContent>
-            <Typography>{moreDesc}</Typography>
+            <Typography variant="caption" color="text.secondary">
+              {moreDesc}
+            </Typography>
           </CardContent>
         </Collapse>
       )}
