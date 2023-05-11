@@ -13,6 +13,7 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import Rating from "@mui/material/Rating";
 
 import "../../../App.css";
+import { useMemo } from "react";
 
 export interface CardProps {
   title: string;
@@ -38,14 +39,26 @@ export default function RowCard({
   const theme = useTheme();
   const isSmallScreen = useMediaQuery("(max-width: 600px)");
 
+  //return given values for small screen or otherwise. SV=SmallValue, OV=OtherValue
+  const getSSV = useMemo(
+    () => (SV: any, OV: any) => isSmallScreen ? SV : OV,
+    [isSmallScreen]
+  );
+
   return (
-    <Card sx={{ maxWidth: 345, display: isSmallScreen ? "flex" : "block" }}>
+    <Card
+      sx={{
+        maxWidth: getSSV(600, 345),
+        display: getSSV("flex", "block"),
+        width: getSSV("100%", undefined),
+      }}
+    >
       <Box
         boxShadow={1}
         sx={{
           display: "flex",
           justifyContent: "center",
-          maxHeight: !isSmallScreen ? 150 : undefined,
+          maxHeight: getSSV(undefined, 150),
         }}
       >
         <CardMedia
@@ -60,7 +73,7 @@ export default function RowCard({
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          minHeight: !isSmallScreen ? 200 : undefined,
+          minHeight: getSSV(undefined, 200),
         }}
       >
         <CardContent sx={{ padding: 1 }}>
