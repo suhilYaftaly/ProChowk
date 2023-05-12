@@ -1,14 +1,8 @@
-import {
-  Button,
-  Box,
-  Grid,
-  useTheme,
-  alpha,
-  useScrollTrigger,
-} from "@mui/material";
+import { Box, useTheme, alpha, useScrollTrigger, Stack } from "@mui/material";
 
 import logo from "../../../public/ProChowkLogo.svg";
 import ColorMode from "./ColorMode";
+import SignIn from "../signIn/SignIn";
 
 export default function AppHeader() {
   const theme = useTheme();
@@ -28,41 +22,17 @@ export default function AppHeader() {
         transition: "opacity 0.2s ease-in-out",
       }}
     >
-      <Grid container alignItems={"center"} justifyContent={"space-between"}>
-        <Grid item>
-          <img
-            src={logo}
-            alt={"logo"}
-            width={45}
-            style={{ marginBottom: -7 }}
-          />
-        </Grid>
-        <Grid item>
-          <Grid container alignItems={"center"} spacing={1}>
-            <Grid item>
-              <Button
-                variant="outlined"
-                size="small"
-                style={{ borderRadius: 50 }}
-              >
-                LOGIN
-              </Button>
-            </Grid>
-            <Grid item>
-              <Button
-                variant="contained"
-                size="small"
-                style={{ borderRadius: 50 }}
-              >
-                SIGN UP
-              </Button>
-            </Grid>
-            <Grid item>
-              <ColorMode />
-            </Grid>
-          </Grid>
-        </Grid>
-      </Grid>
+      <Stack
+        direction="row"
+        alignItems={"center"}
+        justifyContent={"space-between"}
+      >
+        <img src={logo} alt={"logo"} width={45} />
+        <Stack direction="row" alignItems={"center"}>
+          <SignIn />
+          <ColorMode />
+        </Stack>
+      </Stack>
     </Box>
   );
 }

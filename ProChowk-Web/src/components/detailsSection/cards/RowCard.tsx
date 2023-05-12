@@ -11,9 +11,9 @@ import ShareIcon from "@mui/icons-material/Share";
 import Stack from "@mui/material/Stack";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Rating from "@mui/material/Rating";
+import { useMemo } from "react";
 
 import "../../../App.css";
-import { useMemo } from "react";
 
 export interface CardProps {
   title: string;
