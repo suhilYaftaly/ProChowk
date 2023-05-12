@@ -1,4 +1,7 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, Dispatch, PayloadAction } from "@reduxjs/toolkit";
+import { TypedUseSelectorHook } from "react-redux";
+import { RootState } from "../store";
+import { USER_PROFILE_KEY } from "../../constants/localStorageKeys";
 
 interface UserState {
   googleToken: {
@@ -80,7 +83,15 @@ export const {
   googleTokenSuccess,
   googleTokenError,
   userProfileBegin,
-  userProfileSuccess,
   userProfileError,
 } = slice.actions;
+const { userProfileSuccess } = slice.actions;
 export default slice.reducer;
+
+export const setUserProfile =
+  (payload: UserState["userProfile"]["data"]) => (dispatch: any) => {
+    dispatch(userProfileSuccess(payload));
+    if (payload) {
+      localStorage.setItem(USER_PROFILE_KEY, JSON.stringify(payload));
+    } else localStorage.setItem(USER_PROFILE_KEY, "");
+  };

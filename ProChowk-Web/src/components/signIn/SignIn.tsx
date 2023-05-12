@@ -1,46 +1,38 @@
 import { Box, Button, Modal, SxProps, Theme, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
-import { useGoogleOneTapLogin } from "@react-oauth/google";
 import { googleLogout } from "@react-oauth/google";
 
-import GoogleLoginButton from "../../auth/GoogleLoginButton";
+import GoogleLoginButton from "./google/GoogleLoginButton";
 import logo from "../../../public/ProChowkLogo.svg";
 import { useAppDispatch } from "../../utils/hooks";
-import {
-  googleTokenSuccess,
-  googleTokenError,
-  userProfileSuccess,
-  userProfileError,
-} from "../../redux/slices/userSlice";
+import { setUserProfile } from "../../redux/slices/userSlice";
 import { useUserStates } from "../../redux/reduxStates";
-import { decodeJwtToken } from "../../utils/utilFuncs";
+import { getLocalData } from "../../utils/utilFuncs";
 import labels from "../../constants/labels";
+import { USER_PROFILE_KEY } from "../../constants/localStorageKeys";
+import GoogleOneTapLogin from "./google/GoogleOneTapLogin";
 
 export default function SignIn() {
+  const savedUserProfile = getLocalData(USER_PROFILE_KEY);
   const dispatch = useAppDispatch();
   const { userProfile } = useUserStates();
   const [openModal, setOpenModal] = useState(false);
-
-  useGoogleOneTapLogin({
-    onSuccess: (token) => {
-      dispatch(googleTokenSuccess(token));
-      const decodedToken = decodeJwtToken(token.credential);
-      if (decodedToken) {
-        dispatch(userProfileSuccess({ ...decodedToken, id: decodedToken.sub }));
-      } else dispatch(userProfileError(decodedToken));
-    },
-    onError: () => dispatch(googleTokenError({ error: "unknown error" })),
-  });
+  const [logoutTriggered, setLogoutTriggered] = useState(false);
 
   useEffect(() => {
     if (userProfile) setOpenModal(false);
   }, [userProfile]);
 
+  useEffect(() => {
+    if (savedUserProfile) dispatch(setUserProfile(savedUserProfile));
+  }, []);
+
   const handleOpen = () => setOpenModal(true);
 
   const logOut = () => {
     googleLogout();
-    dispatch(userProfileSuccess(undefined));
+    dispatch(setUserProfile(undefined));
+    setLogoutTriggered(true);
   };
 
   return (
@@ -67,6 +59,7 @@ export default function SignIn() {
           <GoogleLoginButton />
         </Box>
       </Modal>
+      {!savedUserProfile && !logoutTriggered && <GoogleOneTapLogin />}
     </>
   );
 }

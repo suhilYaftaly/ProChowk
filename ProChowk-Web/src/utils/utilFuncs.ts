@@ -15,3 +15,9 @@ export function decodeJwtToken(token: string | undefined) {
   }
   return token;
 }
+
+export const getLocalData = (key: string) => {
+  const saved = localStorage.getItem(key);
+  if (saved && saved != "") return JSON.parse(saved);
+  return "";
+};

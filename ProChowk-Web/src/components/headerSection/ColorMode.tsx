@@ -15,7 +15,7 @@ export default function ColorMode() {
 
   useEffect(() => {
     if (savedMode) dispatch(setColorMode(savedMode));
-  }, [savedMode]);
+  }, []);
 
   const toggleColorMode = () => {
     const assignMode = colorMode === "light" ? "dark" : "light";

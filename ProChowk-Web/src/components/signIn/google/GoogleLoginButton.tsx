@@ -3,14 +3,14 @@ import { useGoogleLogin } from "@react-oauth/google";
 import GoogleIcon from "@mui/icons-material/Google";
 import axios from "axios";
 
-import { useAppDispatch } from "../utils/hooks";
+import { useAppDispatch } from "../../../utils/hooks";
 import {
   googleTokenSuccess,
   googleTokenError,
-  userProfileSuccess,
   userProfileError,
   userProfileBegin,
-} from "../redux/slices/userSlice";
+  setUserProfile,
+} from "../../../redux/slices/userSlice";
 
 export default function GoogleLoginButton() {
   const dispatch = useAppDispatch();
@@ -29,7 +29,7 @@ export default function GoogleLoginButton() {
               },
             }
           )
-          .then((res) => dispatch(userProfileSuccess(res.data)))
+          .then((res) => dispatch(setUserProfile(res.data)))
           .catch((err) => dispatch(userProfileError(err)));
       }
     },
