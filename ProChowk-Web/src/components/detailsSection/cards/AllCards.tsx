@@ -10,7 +10,8 @@ import pixel7 from "../../../assets/serviceImgs/pixel7.jpg";
 import { useUserStates } from "../../../redux/reduxStates";
 
 export default function AllCards() {
-  const { userProfile: UP } = useUserStates();
+  const { userProfile } = useUserStates();
+  const userData = userProfile?.data;
 
   return (
     <Grid
@@ -21,17 +22,18 @@ export default function AllCards() {
       justifyContent={"center"}
       columns={{ sm: 1, md: 4, lg: 12 }}
     >
-      {UP && (
+      {userData && (
         <Grid item>
           <RowCard
             {...{
-              id: UP.id,
-              img: UP.picture,
-              imgAlt: UP.name,
+              id: userData.id,
+              img: userData.picture,
+              imgAlt: userData.name,
               rating: { stars: 5, totalRates: 552255 },
-              title: UP.name,
+              title: userData.name,
               subtitle:
-                UP.email + " - Testing out the google sign in response data ",
+                userData.email +
+                " - Testing out the google sign in response data ",
               price: "99999.99",
             }}
           />

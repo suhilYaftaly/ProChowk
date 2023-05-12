@@ -1,57 +1,46 @@
 import { Box, Button, Modal, SxProps, Theme, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
-// import { useGoogleOneTapLogin } from "@react-oauth/google";
-import axios from "axios";
+import { useGoogleOneTapLogin } from "@react-oauth/google";
 import { googleLogout } from "@react-oauth/google";
 
 import GoogleLoginButton from "../../auth/GoogleLoginButton";
 import logo from "../../../public/ProChowkLogo.svg";
 import { useAppDispatch } from "../../utils/hooks";
 import {
-  //   setGoogleToken,
-  //   setGoogleTokenError,
-  setUserProfile,
-  setUserProfileError,
+  googleTokenSuccess,
+  googleTokenError,
+  userProfileSuccess,
+  userProfileError,
 } from "../../redux/slices/userSlice";
 import { useUserStates } from "../../redux/reduxStates";
+import { decodeJwtToken } from "../../utils/utilFuncs";
+import labels from "../../constants/labels";
 
 export default function SignIn() {
   const dispatch = useAppDispatch();
-  const { googleToken: GT, userProfile } = useUserStates();
+  const { userProfile } = useUserStates();
   const [openModal, setOpenModal] = useState(false);
 
-  //   useGoogleOneTapLogin({
-  //     onSuccess: (token) => dispatch(setGoogleToken(token)),
-  //     onError: () => dispatch(setGoogleTokenError({ error: "unknown error" })),
-  //   });
-
-  const handleOpen = () => setOpenModal(true);
+  useGoogleOneTapLogin({
+    onSuccess: (token) => {
+      dispatch(googleTokenSuccess(token));
+      const decodedToken = decodeJwtToken(token.credential);
+      if (decodedToken) {
+        dispatch(userProfileSuccess({ ...decodedToken, id: decodedToken.sub }));
+      } else dispatch(userProfileError(decodedToken));
+    },
+    onError: () => dispatch(googleTokenError({ error: "unknown error" })),
+  });
 
   useEffect(() => {
     if (userProfile) setOpenModal(false);
   }, [userProfile]);
 
-  useEffect(() => {
-    if (GT?.access_token || GT?.credential) {
-      const token = GT?.access_token ? GT?.access_token : GT?.credential;
-      axios
-        .get(
-          `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${token}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              Accept: "application/json",
-            },
-          }
-        )
-        .then((res) => dispatch(setUserProfile(res.data)))
-        .catch((err) => dispatch(setUserProfileError(err)));
-    }
-  }, [GT]);
+  const handleOpen = () => setOpenModal(true);
 
   const logOut = () => {
     googleLogout();
-    dispatch(setUserProfile(undefined));
+    dispatch(userProfileSuccess(undefined));
   };
 
   return (
@@ -60,9 +49,9 @@ export default function SignIn() {
         variant="outlined"
         size="small"
         sx={{ borderRadius: 50 }}
-        onClick={userProfile ? logOut : handleOpen}
+        onClick={userProfile?.data ? logOut : handleOpen}
       >
-        Sign {userProfile ? "Out" : "In"}
+        Sign {userProfile?.data ? "Out" : "In"}
       </Button>
       <Modal open={openModal} onClose={() => setOpenModal(false)}>
         <Box sx={contentCont}>
@@ -73,7 +62,7 @@ export default function SignIn() {
             component="h2"
             sx={{ marginY: 2 }}
           >
-            Pro Chowk
+            {labels.appName}
           </Typography>
           <GoogleLoginButton />
         </Box>

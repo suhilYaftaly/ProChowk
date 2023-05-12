@@ -5,7 +5,6 @@ export const useSettingsStates = () => {
   return { colorMode };
 };
 export const useUserStates = () => {
-  const { googleToken, googleTokenError, userProfile, userProfileError } =
-    useAppSelector((state) => state.user);
-  return { googleToken, googleTokenError, userProfile, userProfileError };
+  const { googleToken, userProfile } = useAppSelector((state) => state.user);
+  return { googleToken, userProfile };
 };
