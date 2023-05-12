@@ -2,6 +2,7 @@ import { Box, Button, Modal, SxProps, Theme, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 // import { useGoogleOneTapLogin } from "@react-oauth/google";
 import axios from "axios";
+import { googleLogout } from "@react-oauth/google";
 
 import GoogleLoginButton from "../../auth/GoogleLoginButton";
 import logo from "../../../public/ProChowkLogo.svg";
@@ -13,7 +14,6 @@ import {
   setUserProfileError,
 } from "../../redux/slices/userSlice";
 import { useUserStates } from "../../redux/reduxStates";
-import { googleLogout } from "@react-oauth/google";
 
 export default function SignIn() {
   const dispatch = useAppDispatch();
@@ -26,11 +26,6 @@ export default function SignIn() {
   //   });
 
   const handleOpen = () => setOpenModal(true);
-  const handleClose = (event: React.SyntheticEvent, reason: string) => {
-    if (reason === "backdropClick") {
-      setOpenModal(false);
-    }
-  };
 
   useEffect(() => {
     if (userProfile) setOpenModal(false);
@@ -69,7 +64,7 @@ export default function SignIn() {
       >
         Sign {userProfile ? "Out" : "In"}
       </Button>
-      <Modal open={openModal} onClose={handleClose}>
+      <Modal open={openModal} onClose={() => setOpenModal(false)}>
         <Box sx={contentCont}>
           <img src={logo} alt={"logo"} width={45} />
           <Typography
