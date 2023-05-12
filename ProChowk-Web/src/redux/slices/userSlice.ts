@@ -1,6 +1,4 @@
-import { createSlice, Dispatch, PayloadAction } from "@reduxjs/toolkit";
-import { TypedUseSelectorHook } from "react-redux";
-import { RootState } from "../store";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { USER_PROFILE_KEY } from "../../constants/localStorageKeys";
 
 interface UserState {
