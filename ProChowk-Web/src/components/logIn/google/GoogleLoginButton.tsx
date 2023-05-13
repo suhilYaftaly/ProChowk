@@ -9,7 +9,7 @@ import {
   googleTokenError,
   userProfileError,
   userProfileBegin,
-  setUserProfile,
+  logIn,
 } from "../../../redux/slices/userSlice";
 
 export default function GoogleLoginButton() {
@@ -29,7 +29,7 @@ export default function GoogleLoginButton() {
               },
             }
           )
-          .then((res) => dispatch(setUserProfile(res.data)))
+          .then((res) => dispatch(logIn(res.data)))
           .catch((err) => dispatch(userProfileError(err)));
       }
     },
@@ -42,7 +42,7 @@ export default function GoogleLoginButton() {
       onClick={() => login()}
       startIcon={<GoogleIcon />}
     >
-      Sign In with Google
+      Log In with Google
     </Button>
   );
 }

@@ -4,7 +4,7 @@ import { useAppDispatch } from "../../../utils/hooks";
 import {
   googleTokenError,
   googleTokenSuccess,
-  setUserProfile,
+  logIn,
   userProfileError,
 } from "../../../redux/slices/userSlice";
 import { decodeJwtToken } from "../../../utils/utilFuncs";
@@ -17,7 +17,7 @@ export default function GoogleOneTapLogin() {
       dispatch(googleTokenSuccess(token));
       const decodedToken = decodeJwtToken(token.credential);
       if (decodedToken) {
-        dispatch(setUserProfile({ ...decodedToken, id: decodedToken.sub }));
+        dispatch(logIn({ ...decodedToken, id: decodedToken.sub }));
       } else dispatch(userProfileError(decodedToken));
     },
     onError: () => dispatch(googleTokenError({ error: "unknown error" })),

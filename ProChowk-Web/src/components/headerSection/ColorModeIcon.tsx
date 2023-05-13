@@ -8,14 +8,14 @@ import { COLOR_MODE_KEY } from "../../constants/localStorageKeys";
 import { useAppDispatch } from "../../utils/hooks";
 import { setColorMode } from "../../redux/slices/settingsSlice";
 
-export default function ColorMode() {
+export default function ColorModeIcon() {
   const dispatch = useAppDispatch();
   const { colorMode } = useSettingsStates();
   const savedMode = localStorage.getItem(COLOR_MODE_KEY) as typeof colorMode;
 
   useEffect(() => {
     if (savedMode) dispatch(setColorMode(savedMode));
-  }, []);
+  }, [savedMode]);
 
   const toggleColorMode = () => {
     const assignMode = colorMode === "light" ? "dark" : "light";

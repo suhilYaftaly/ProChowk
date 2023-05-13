@@ -1,8 +1,9 @@
 import { Box, useTheme, alpha, useScrollTrigger, Stack } from "@mui/material";
 
-import logo from "../../../public/ProChowkLogo.svg";
-import ColorMode from "./ColorMode";
-import SignIn from "../signIn/SignIn";
+import ColorModeIcon from "./ColorModeIcon";
+import LogInButton from "../logIn/LogInButton";
+import AppLogo from "../reusable.tsx/AppLogo";
+import UserProfileAvatar from "./UserProfileAvatar";
 
 export default function AppHeader() {
   const theme = useTheme();
@@ -27,10 +28,11 @@ export default function AppHeader() {
         alignItems={"center"}
         justifyContent={"space-between"}
       >
-        <img src={logo} alt={"logo"} width={45} />
+        <AppLogo />
         <Stack direction="row" alignItems={"center"}>
-          <SignIn />
-          <ColorMode />
+          <LogInButton />
+          <UserProfileAvatar />
+          <ColorModeIcon />
         </Stack>
       </Stack>
     </Box>

@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { googleLogout } from "@react-oauth/google";
 import { USER_PROFILE_KEY } from "../../constants/localStorageKeys";
 
 interface UserState {
@@ -34,11 +35,13 @@ interface UserState {
     isLoading: boolean;
     error: any;
   };
+  isLoggedOut: boolean | undefined;
 }
 
 const initialState: UserState = {
   googleToken: { data: undefined, isLoading: false, error: undefined },
   userProfile: { data: undefined, isLoading: false, error: undefined },
+  isLoggedOut: undefined,
 };
 
 const slice = createSlice({
@@ -74,6 +77,9 @@ const slice = createSlice({
       state.userProfile.isLoading = false;
       state.userProfile.error = action.payload;
     },
+    setIsLoggedOut(state, action: PayloadAction<UserState["isLoggedOut"]>) {
+      state.isLoggedOut = action.payload;
+    },
   },
 });
 
@@ -83,13 +89,18 @@ export const {
   userProfileBegin,
   userProfileError,
 } = slice.actions;
-const { userProfileSuccess } = slice.actions;
+const { userProfileSuccess, setIsLoggedOut } = slice.actions;
 export default slice.reducer;
 
-export const setUserProfile =
+export const logIn =
   (payload: UserState["userProfile"]["data"]) => (dispatch: any) => {
     dispatch(userProfileSuccess(payload));
-    if (payload) {
-      localStorage.setItem(USER_PROFILE_KEY, JSON.stringify(payload));
-    } else localStorage.setItem(USER_PROFILE_KEY, "");
+    dispatch(setIsLoggedOut(false));
+    localStorage.setItem(USER_PROFILE_KEY, JSON.stringify(payload));
   };
+export const logOut = () => (dispatch: any) => {
+  googleLogout();
+  dispatch(userProfileSuccess(undefined));
+  dispatch(setIsLoggedOut(true));
+  localStorage.setItem(USER_PROFILE_KEY, "");
+};

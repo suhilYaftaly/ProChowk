@@ -1,53 +1,47 @@
 import { Box, Button, Modal, SxProps, Theme, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
-import { googleLogout } from "@react-oauth/google";
 
 import GoogleLoginButton from "./google/GoogleLoginButton";
-import logo from "../../../public/ProChowkLogo.svg";
 import { useAppDispatch } from "../../utils/hooks";
-import { setUserProfile } from "../../redux/slices/userSlice";
+import { logIn } from "../../redux/slices/userSlice";
 import { useUserStates } from "../../redux/reduxStates";
 import { getLocalData } from "../../utils/utilFuncs";
 import labels from "../../constants/labels";
 import { USER_PROFILE_KEY } from "../../constants/localStorageKeys";
 import GoogleOneTapLogin from "./google/GoogleOneTapLogin";
+import AppLogo from "../reusable.tsx/AppLogo";
 
-export default function SignIn() {
+export default function LogInButton() {
   const savedUserProfile = getLocalData(USER_PROFILE_KEY);
   const dispatch = useAppDispatch();
-  const { userProfile } = useUserStates();
+  const { userProfile, isLoggedOut } = useUserStates();
   const [openModal, setOpenModal] = useState(false);
-  const [logoutTriggered, setLogoutTriggered] = useState(false);
 
   useEffect(() => {
     if (userProfile) setOpenModal(false);
   }, [userProfile]);
 
   useEffect(() => {
-    if (savedUserProfile) dispatch(setUserProfile(savedUserProfile));
+    if (savedUserProfile) dispatch(logIn(savedUserProfile));
   }, []);
 
   const handleOpen = () => setOpenModal(true);
 
-  const logOut = () => {
-    googleLogout();
-    dispatch(setUserProfile(undefined));
-    setLogoutTriggered(true);
-  };
-
   return (
     <>
-      <Button
-        variant="outlined"
-        size="small"
-        sx={{ borderRadius: 50 }}
-        onClick={userProfile?.data ? logOut : handleOpen}
-      >
-        Sign {userProfile?.data ? "Out" : "In"}
-      </Button>
+      {!userProfile?.data && (
+        <Button
+          variant="outlined"
+          size="small"
+          sx={{ borderRadius: 50 }}
+          onClick={handleOpen}
+        >
+          Log In
+        </Button>
+      )}
       <Modal open={openModal} onClose={() => setOpenModal(false)}>
         <Box sx={contentCont}>
-          <img src={logo} alt={"logo"} width={45} />
+          <AppLogo />
           <Typography
             id="modal-modal-title"
             variant="h6"
@@ -59,7 +53,7 @@ export default function SignIn() {
           <GoogleLoginButton />
         </Box>
       </Modal>
-      {!savedUserProfile && !logoutTriggered && <GoogleOneTapLogin />}
+      {!savedUserProfile && !isLoggedOut && <GoogleOneTapLogin />}
     </>
   );
 }
