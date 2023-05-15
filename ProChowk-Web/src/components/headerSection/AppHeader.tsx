@@ -8,11 +8,11 @@ import UserProfileAvatar from "./UserProfileAvatar";
 export default function AppHeader() {
   const theme = useTheme();
   const backgroundColor = alpha(theme.palette.background.default, 0.9);
-  const trigger = useScrollTrigger({ threshold: 150 });
+  const trigger = useScrollTrigger({ threshold: 110 });
 
   return (
     <Box
-      boxShadow={1}
+      // boxShadow={1}
       padding={1}
       sx={{
         position: "sticky",

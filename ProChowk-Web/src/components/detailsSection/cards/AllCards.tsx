@@ -26,7 +26,6 @@ export default function AllCards() {
         <Grid item>
           <RowCard
             {...{
-              id: userData.id,
               img: userData.picture,
               imgAlt: userData.name,
               rating: { stars: 5, totalRates: 552255 },

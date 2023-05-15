@@ -1,16 +1,14 @@
 import { useTheme } from "@mui/material/styles";
-import Box from "@mui/material/Box";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
-import CardMedia from "@mui/material/CardMedia";
-import IconButton from "@mui/material/IconButton";
-import Typography from "@mui/material/Typography";
-import CardActions from "@mui/material/CardActions";
-import FavoriteIcon from "@mui/icons-material/Favorite";
-import ShareIcon from "@mui/icons-material/Share";
-import Stack from "@mui/material/Stack";
-import useMediaQuery from "@mui/material/useMediaQuery";
-import Rating from "@mui/material/Rating";
+import {
+  Box,
+  Card,
+  CardContent,
+  CardMedia,
+  Typography,
+  Stack,
+  useMediaQuery,
+  Rating,
+} from "@mui/material";
 import { useMemo } from "react";
 
 import "../../../App.css";
@@ -48,22 +46,20 @@ export default function RowCard({
   return (
     <Card
       sx={{
-        maxWidth: getSSV(600, 345),
+        maxWidth: getSSV(undefined, 250),
         display: getSSV("flex", "block"),
-        width: getSSV("100%", undefined),
       }}
     >
-      <Box
-        boxShadow={1}
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          maxHeight: getSSV(undefined, 150),
-        }}
-      >
+      <Box boxShadow={1} sx={{ display: "flex", justifyContent: "center" }}>
         <CardMedia
           component="img"
-          sx={{ width: 151 }}
+          sx={{
+            width: getSSV(140, 250),
+            height: getSSV(140, 200),
+            minWidth: "100%",
+            minHeight: "100%",
+            objectFit: "cover",
+          }}
           image={img}
           alt={imgAlt}
         />
@@ -73,11 +69,11 @@ export default function RowCard({
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          minHeight: getSSV(undefined, 200),
+          minHeight: getSSV(undefined, 120),
         }}
       >
         <CardContent sx={{ padding: 1 }}>
-          <Typography variant="subtitle2" className="ellipsis2Line">
+          <Typography variant="subtitle2" className="ellipsis1Line">
             {title}
           </Typography>
           <Typography
@@ -88,13 +84,13 @@ export default function RowCard({
             {subtitle}
           </Typography>
         </CardContent>
-        <div>
-          {price && (
-            <Typography variant="h6" sx={{ padding: 1 }}>
+        <Box>
+          {/* {price && (
+            <Typography variant="h6" sx={{ padding: 1, paddingBottom: 0 }}>
               ${price}
             </Typography>
-          )}
-          <Stack direction={"row"} sx={{ paddingX: 1 }}>
+          )} */}
+          <Stack direction={"row"} sx={{ padding: 1 }}>
             <Typography variant="caption" color={theme.palette.primary.main}>
               {rating.stars}
             </Typography>
@@ -110,15 +106,15 @@ export default function RowCard({
               ({rating.totalRates})
             </Typography>
           </Stack>
-          <CardActions disableSpacing sx={{ padding: 0 }}>
+          {/* <CardActions disableSpacing sx={{ padding: 0 }}>
             <IconButton aria-label="add to favorites">
               <FavoriteIcon />
             </IconButton>
             <IconButton aria-label="share">
               <ShareIcon />
             </IconButton>
-          </CardActions>
-        </div>
+          </CardActions> */}
+        </Box>
       </Box>
     </Card>
   );
