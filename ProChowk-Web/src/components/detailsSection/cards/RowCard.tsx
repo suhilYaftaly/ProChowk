@@ -31,7 +31,7 @@ export default function RowCard({
   subtitle,
   img,
   imgAlt,
-  price,
+  // price,
   rating,
 }: CardProps) {
   const theme = useTheme();
