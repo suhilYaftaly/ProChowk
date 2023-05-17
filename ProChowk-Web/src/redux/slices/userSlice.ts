@@ -26,9 +26,11 @@ interface UserState {
           id: string;
           email: string;
           name: string;
-          given_name: string;
-          family_name: string;
+          firstName: string;
+          lastName: string;
           picture: string;
+          verifiedEmail: boolean;
+          dateJoined: string;
           [key: string]: any;
         }
       | undefined;
@@ -77,6 +79,12 @@ const slice = createSlice({
       state.userProfile.isLoading = false;
       state.userProfile.error = action.payload;
     },
+    setUserProfileInfo(
+      state,
+      action: PayloadAction<UserState["userProfile"]["data"]>
+    ) {
+      state.userProfile.data = action.payload;
+    },
     setIsLoggedOut(state, action: PayloadAction<UserState["isLoggedOut"]>) {
       state.isLoggedOut = action.payload;
     },
@@ -88,6 +96,7 @@ export const {
   googleTokenError,
   userProfileBegin,
   userProfileError,
+  setUserProfileInfo,
 } = slice.actions;
 const { userProfileSuccess, setIsLoggedOut } = slice.actions;
 export default slice.reducer;

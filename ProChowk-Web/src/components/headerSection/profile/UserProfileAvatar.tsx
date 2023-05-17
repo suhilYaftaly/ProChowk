@@ -14,12 +14,11 @@ import {
 } from "@mui/material";
 import InboxIcon from "@mui/icons-material/Inbox";
 
-import { useUserStates } from "../../redux/reduxStates";
-import { useAppDispatch } from "../../utils/hooks";
-import { logOut } from "../../redux/slices/userSlice";
+import { useUserStates } from "../../../redux/reduxStates";
+import MyProfile from "./myProfile/MyProfile";
+import LogOut from "./LogOut";
 
 export default function UserProfileAvatar() {
-  const dispatch = useAppDispatch();
   const { user } = useUserStates();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
@@ -33,29 +32,6 @@ export default function UserProfileAvatar() {
 
   const open = Boolean(anchorEl);
   const id = open ? "simple-popover" : undefined;
-
-  const handleLogOut = () => {
-    dispatch(logOut());
-    handleClose();
-  };
-
-  const iconItem = [
-    {
-      label: "My Profile",
-      icon: (
-        <Avatar
-          alt={user?.name}
-          src={user?.picture}
-          sx={{ width: 24, height: 24 }}
-        />
-      ),
-    },
-    {
-      label: "My Inbox",
-      icon: <InboxIcon />,
-    },
-  ];
-  const otherItems = [{ label: "My Ads" }];
 
   if (user) {
     return (
@@ -81,41 +57,36 @@ export default function UserProfileAvatar() {
             sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
           >
             <Box sx={{ padding: "8px 16px" }}>
-              <Typography variant="h6">Welcome, {user?.given_name}</Typography>
+              <Typography variant="h6">Welcome, {user?.firstName}</Typography>
             </Box>
             <Divider />
             <nav aria-label="items with icon">
               <List>
-                {iconItem.map((item) => (
-                  <ListItem disablePadding key={item.label}>
-                    <ListItemButton>
-                      <ListItemIcon>{item.icon}</ListItemIcon>
-                      <ListItemText primary={item.label} />
-                    </ListItemButton>
-                  </ListItem>
-                ))}
+                <MyProfile onScreenClose={handleClose} />
+                <ListItem disablePadding>
+                  <ListItemButton>
+                    <ListItemIcon>
+                      <InboxIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="My Inbox" />
+                  </ListItemButton>
+                </ListItem>
               </List>
             </nav>
             <Divider />
             <nav aria-label="items">
               <List>
-                {otherItems.map((item) => (
-                  <ListItem disablePadding key={item.label}>
-                    <ListItemButton>
-                      <ListItemText primary={item.label} />
-                    </ListItemButton>
-                  </ListItem>
-                ))}
+                <ListItem disablePadding>
+                  <ListItemButton>
+                    <ListItemText primary="My Ads" />
+                  </ListItemButton>
+                </ListItem>
               </List>
             </nav>
             <Divider />
             <nav aria-label="log out">
               <List>
-                <ListItem disablePadding>
-                  <ListItemButton onClick={handleLogOut}>
-                    <ListItemText primary="Log Out" />
-                  </ListItemButton>
-                </ListItem>
+                <LogOut onLogout={handleClose} />
               </List>
             </nav>
           </Box>

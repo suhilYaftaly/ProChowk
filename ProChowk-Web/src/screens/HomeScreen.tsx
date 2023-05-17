@@ -1,8 +1,8 @@
 import { Box, Tab, Tabs } from "@mui/material";
 import { useState } from "react";
-import AllCards from "./cards/AllCards";
+import AllCards from "../components/detailsSection/cards/AllCards";
 
-export default function MainDetailsSection() {
+export default function HomeScreen() {
   const [value, setValue] = useState(0);
 
   const handleChange = (value: number) => setValue(value);

@@ -1,3 +1,5 @@
+import { format } from "date-fns";
+
 export function decodeJwtToken(token: string | undefined) {
   if (token) {
     const base64Url = token.split(".")[1];
@@ -21,3 +23,15 @@ export const getLocalData = (key: string) => {
   if (saved && saved != "") return JSON.parse(saved);
   return "";
 };
+
+export function convertUnixToDate(unixDate: number | string | undefined) {
+  const timestamp = Number(unixDate);
+  if (Number.isNaN(timestamp)) return null;
+
+  const fullDate = new Date(timestamp);
+
+  // Format the date as "MMMM dd, yyyy"
+  const monthDayYear = format(fullDate, "MMMM dd, yyyy");
+
+  return { fullDate, monthDayYear };
+}

@@ -4,7 +4,7 @@ import { CssBaseline } from "@mui/material";
 
 import AppHeader from "./components/headerSection/AppHeader";
 import { useSettingsStates } from "./redux/reduxStates";
-import MainDetailsSection from "./components/detailsSection/MainDetailsSection";
+import HomeScreen from "./screens/HomeScreen";
 
 export default function App() {
   const { colorMode: mode } = useSettingsStates();
@@ -14,7 +14,7 @@ export default function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AppHeader />
-      <MainDetailsSection />
+      <HomeScreen />
     </ThemeProvider>
   );
 }
