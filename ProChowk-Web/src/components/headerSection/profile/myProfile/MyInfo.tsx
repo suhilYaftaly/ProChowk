@@ -4,7 +4,7 @@ import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { useUserStates } from "../../../../redux/reduxStates";
 import { convertUnixToDate } from "../../../../utils/utilFuncs";
 import { useAppDispatch, useGetSSV } from "../../../../utils/hooks";
-import { setUserProfileInfo } from "../../../../redux/slices/userSlice";
+import { setUserProfile } from "../../../../redux/slices/userSlice";
 
 export default function MyInfo() {
   const dispatch = useAppDispatch();
@@ -36,7 +36,7 @@ export default function MyInfo() {
     e.preventDefault();
     if (formData.firstName && formData.lastName && formData.email) {
       dispatch(
-        setUserProfileInfo({
+        setUserProfile({
           ...(user as any),
           firstName: formData.firstName,
           lastName: formData.lastName,

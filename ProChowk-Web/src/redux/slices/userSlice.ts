@@ -96,9 +96,9 @@ export const {
   googleTokenError,
   userProfileBegin,
   userProfileError,
-  setUserProfileInfo,
 } = slice.actions;
-const { userProfileSuccess, setIsLoggedOut } = slice.actions;
+const { userProfileSuccess, setIsLoggedOut, setUserProfileInfo } =
+  slice.actions;
 export default slice.reducer;
 
 export const logIn =
@@ -113,3 +113,8 @@ export const logOut = () => (dispatch: any) => {
   dispatch(setIsLoggedOut(true));
   localStorage.setItem(USER_PROFILE_KEY, "");
 };
+export const setUserProfile =
+  (payload: UserState["userProfile"]["data"]) => (dispatch: any) => {
+    dispatch(setUserProfileInfo(payload));
+    localStorage.setItem(USER_PROFILE_KEY, JSON.stringify(payload));
+  };
