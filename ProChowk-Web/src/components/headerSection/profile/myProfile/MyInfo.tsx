@@ -2,17 +2,22 @@ import { Avatar, Button, Stack, TextField, Typography } from "@mui/material";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 
 import { useUserStates } from "../../../../redux/reduxStates";
-import { convertUnixToDate } from "../../../../utils/utilFuncs";
+import {
+  convertUnixToDate,
+  transformCamelCase,
+  validateEmail,
+} from "../../../../utils/utilFuncs";
 import { useAppDispatch, useGetSSV } from "../../../../utils/hooks";
 import { setUserProfile } from "../../../../redux/slices/userSlice";
 
 export default function MyInfo() {
   const dispatch = useAppDispatch();
   const { user } = useUserStates();
+  const [disableSaveBtn, setDisableSaveBtn] = useState(true);
   const [formData, setFormData] = useState({
-    firstName: user?.firstName,
-    lastName: user?.lastName,
-    email: user?.email,
+    firstName: user?.firstName || "",
+    lastName: user?.lastName || "",
+    email: user?.email || "",
   });
 
   useEffect(() => {
@@ -26,6 +31,7 @@ export default function MyInfo() {
 
   const handleFDataChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
+    setDisableSaveBtn(false);
     setFormData((prevValues) => ({
       ...prevValues,
       [name]: value,
@@ -44,8 +50,32 @@ export default function MyInfo() {
           name: `${formData.firstName} ${formData.lastName}`,
         })
       );
+      setDisableSaveBtn(true);
     }
   };
+
+  const isEmailInvalid = !validateEmail(formData.email);
+
+  interface TFItems {
+    name: keyof typeof formData;
+    isError: boolean;
+    helperText?: string;
+  }
+  const tfItems: TFItems[] = [
+    { name: "firstName", isError: formData.firstName.length < 3 },
+    { name: "lastName", isError: formData.lastName.length < 3 },
+    {
+      name: "email",
+      isError: isEmailInvalid,
+      helperText: isEmailInvalid ? "Invalid email format" : "",
+    },
+  ];
+
+  //if there are any error in the form then disable the save button
+  useEffect(() => {
+    const hasErrors = tfItems.some((item) => item.isError);
+    if (hasErrors) setDisableSaveBtn(hasErrors);
+  }, [formData, tfItems]);
 
   return (
     <>
@@ -74,32 +104,26 @@ export default function MyInfo() {
         autoComplete="off"
         onSubmit={handleSave}
       >
-        <TextField
-          id="first name"
-          label="First Name"
-          variant="outlined"
-          name="firstName"
-          value={formData.firstName}
-          onChange={handleFDataChange}
-        />
-        <TextField
-          id="last name"
-          label="Last Name"
-          variant="outlined"
-          name="lastName"
-          value={formData.lastName}
-          onChange={handleFDataChange}
-        />
-        <TextField
-          id="email"
-          label="Email"
-          variant="outlined"
-          name="email"
-          value={formData.email}
-          onChange={handleFDataChange}
-        />
-        <Button type="submit" variant="contained">
-          Save
+        {tfItems.map((item: TFItems) => {
+          const label = transformCamelCase(item.name.toString());
+          return (
+            <TextField
+              key={label}
+              id={label}
+              label={label}
+              variant="outlined"
+              name={item.name.toString()}
+              value={formData[item.name]}
+              onChange={handleFDataChange}
+              error={item.isError}
+              helperText={
+                item.helperText || (item.isError && "Must be more than 2 chars")
+              }
+            />
+          );
+        })}
+        <Button type="submit" variant="contained" disabled={disableSaveBtn}>
+          Save Changes
         </Button>
       </Stack>
     </>

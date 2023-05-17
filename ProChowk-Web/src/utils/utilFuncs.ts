@@ -35,3 +35,28 @@ export function convertUnixToDate(unixDate: number | string | undefined) {
 
   return { fullDate, monthDayYear };
 }
+
+export function transformCamelCase(input: string): string {
+  // Use a regular expression to split the string at each uppercase letter
+  const words: string[] = input.split(/(?=[A-Z])/);
+
+  // Capitalize the first letter of each word and join them with spaces
+  const formattedString: string = words
+    .map((word: string) => {
+      // Capitalize the first letter of the word
+      const capitalizedWord: string =
+        word.charAt(0).toUpperCase() + word.slice(1);
+      return capitalizedWord;
+    })
+    .join(" ");
+
+  return formattedString;
+}
+
+export function validateEmail(email: string): boolean {
+  // Regular expression pattern for email validation
+  const emailPattern = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+
+  // Test the email against the pattern
+  return emailPattern.test(email);
+}
