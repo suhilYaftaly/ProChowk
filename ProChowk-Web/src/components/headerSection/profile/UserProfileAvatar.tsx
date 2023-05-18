@@ -54,7 +54,7 @@ export default function UserProfileAvatar() {
         >
           <Box
             sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
-            onMouseLeave={closePopover}
+            // onMouseLeave={closePopover}
           >
             <Box sx={{ padding: "8px 16px" }}>
               <Typography variant="h6">Welcome, {user?.firstName}</Typography>

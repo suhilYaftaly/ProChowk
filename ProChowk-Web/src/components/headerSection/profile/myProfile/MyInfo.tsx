@@ -55,7 +55,7 @@ export default function MyInfo() {
   //disable button if any form error exists
   useEffect(() => {
     const hasErrors = tfItems.some((item) => item.error);
-    setDisableSaveBtn(hasErrors);
+    if (hasErrors) setDisableSaveBtn(hasErrors);
   }, [formData, tfItems]);
 
   const handleFDataChange = (e: ChangeEvent<HTMLInputElement>): void => {
