@@ -18,7 +18,7 @@ interface UserState {
         }
       | undefined;
     isLoading: boolean;
-    error: any;
+    error: { message: string; code: number; [key: string]: any } | undefined;
   };
   userProfile: {
     data:
@@ -35,15 +35,21 @@ interface UserState {
         }
       | undefined;
     isLoading: boolean;
-    error: any;
+    error: { message: string; code: number; [key: string]: any } | undefined;
   };
   isLoggedOut: boolean | undefined;
+  userLocation: {
+    data: { lat: number; lng: number; [key: string]: any } | undefined;
+    isLoading: boolean;
+    error: { message: string; code: number; [key: string]: any } | undefined;
+  };
 }
 
 const initialState: UserState = {
   googleToken: { data: undefined, isLoading: false, error: undefined },
   userProfile: { data: undefined, isLoading: false, error: undefined },
   isLoggedOut: undefined,
+  userLocation: { data: undefined, isLoading: false, error: undefined },
 };
 
 const slice = createSlice({
@@ -88,6 +94,22 @@ const slice = createSlice({
     setIsLoggedOut(state, action: PayloadAction<UserState["isLoggedOut"]>) {
       state.isLoggedOut = action.payload;
     },
+    userLocationBegin(state) {
+      state.userLocation.isLoading = true;
+    },
+    userLocationSuccess(
+      state,
+      action: PayloadAction<UserState["userLocation"]["data"]>
+    ) {
+      state.userLocation.data = action.payload;
+      state.userLocation.isLoading = false;
+      state.userLocation.error = undefined;
+    },
+    userLocationError(state, action) {
+      // state.userLocation.data = undefined;
+      state.userLocation.isLoading = false;
+      state.userLocation.error = action.payload;
+    },
   },
 });
 
@@ -96,6 +118,9 @@ export const {
   googleTokenError,
   userProfileBegin,
   userProfileError,
+  userLocationBegin,
+  userLocationSuccess,
+  userLocationError,
 } = slice.actions;
 const { userProfileSuccess, setIsLoggedOut, setUserProfileInfo } =
   slice.actions;

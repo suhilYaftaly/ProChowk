@@ -11,6 +11,8 @@ import {
   Stack,
   SxProps,
   Theme,
+  Typography,
+  Alert,
 } from "@mui/material";
 
 import { useUserStates } from "../../../../redux/reduxStates";
@@ -23,7 +25,7 @@ interface Props {
 }
 
 export default function MyProfile({ onScreenClose }: Props) {
-  const { user } = useUserStates();
+  const { user, userLocation } = useUserStates();
   const [openModal, setOpenModal] = useState(false);
   const [tabsValue, setTabValue] = useState(0);
 
@@ -64,11 +66,30 @@ export default function MyProfile({ onScreenClose }: Props) {
             }}
           >
             <Tab label="My Info" />
-            <Tab label="Item 2" />
+            <Tab label="My Location" />
             <Tab label="Item 3" />
           </Tabs>
           <TabPanel value={tabsValue} index={0}>
             <MyInfo />
+          </TabPanel>
+          <TabPanel value={tabsValue} index={1}>
+            {userLocation?.error?.message ? (
+              <Alert severity="error">
+                {userLocation?.error?.message}. Give permission to see your
+                location details
+              </Alert>
+            ) : (
+              <>
+                <Typography variant="h5">Coordinate</Typography>
+                <Typography>
+                  {userLocation?.data?.lat}, {userLocation?.data?.lng}
+                </Typography>
+                <Typography variant="h5" sx={{ mt: 2 }}>
+                  Address
+                </Typography>
+                <Typography>{userLocation?.data?.display_name}</Typography>
+              </>
+            )}
           </TabPanel>
         </Stack>
       </FullScreenModal>
