@@ -32,11 +32,12 @@ export default function GoogleLoginButton() {
           .then((res) =>
             dispatch(
               logIn({
+                ...res?.data,
                 firstName: res?.data?.given_name,
                 lastName: res?.data?.family_name,
                 verifiedEmail: res?.data?.verified_email,
                 dateJoined: String(Date.now()),
-                ...res?.data,
+                picture: { picture: res?.data?.picture },
               })
             )
           )

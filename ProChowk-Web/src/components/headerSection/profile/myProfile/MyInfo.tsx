@@ -1,9 +1,17 @@
-import { Avatar, Button, Stack, TextField, Typography } from "@mui/material";
+import {
+  Avatar,
+  Button,
+  ButtonBase,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 
 import { useUserStates } from "../../../../redux/reduxStates";
 import {
   convertUnixToDate,
+  processImageFile,
   transformCamelCase,
   validateEmail,
 } from "../../../../utils/utilFuncs";
@@ -18,16 +26,37 @@ export default function MyInfo() {
     firstName: user?.firstName || "",
     lastName: user?.lastName || "",
     email: user?.email || "",
+    picture: user?.picture,
   });
+  const isEmailInvalid = !validateEmail(formData.email);
+
+  const tfItems = [
+    { name: "firstName", error: formData.firstName.length < 3 },
+    { name: "lastName", error: formData.lastName.length < 3 },
+    {
+      name: "email",
+      error: isEmailInvalid,
+      helperText: isEmailInvalid ? "Invalid email format" : "",
+    },
+  ];
 
   useEffect(() => {
-    if (user)
-      setFormData({
-        firstName: user?.firstName,
-        lastName: user?.lastName,
-        email: user?.email,
-      });
+    if (user) {
+      setFormData((prevValues) => ({
+        ...prevValues,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        picture: user.picture,
+      }));
+    }
   }, [user]);
+
+  //disable button if any form error exists
+  useEffect(() => {
+    const hasErrors = tfItems.some((item) => item.error);
+    setDisableSaveBtn(hasErrors);
+  }, [formData, tfItems]);
 
   const handleFDataChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
@@ -41,41 +70,37 @@ export default function MyInfo() {
   const handleSave = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     if (formData.firstName && formData.lastName && formData.email) {
-      dispatch(
-        setUserProfile({
-          ...(user as any),
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          name: `${formData.firstName} ${formData.lastName}`,
-        })
-      );
+      const updatedUser = {
+        ...(user as any),
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        name: `${formData.firstName} ${formData.lastName}`,
+        picture: formData.picture,
+      };
+      dispatch(setUserProfile(updatedUser));
       setDisableSaveBtn(true);
     }
   };
 
-  const isEmailInvalid = !validateEmail(formData.email);
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
 
-  interface TFItems {
-    name: keyof typeof formData;
-    isError: boolean;
-    helperText?: string;
-  }
-  const tfItems: TFItems[] = [
-    { name: "firstName", isError: formData.firstName.length < 3 },
-    { name: "lastName", isError: formData.lastName.length < 3 },
-    {
-      name: "email",
-      isError: isEmailInvalid,
-      helperText: isEmailInvalid ? "Invalid email format" : "",
-    },
-  ];
-
-  //if there are any error in the form then disable the save button
-  useEffect(() => {
-    const hasErrors = tfItems.some((item) => item.isError);
-    if (hasErrors) setDisableSaveBtn(hasErrors);
-  }, [formData, tfItems]);
+    if (file) {
+      processImageFile(file, (imageUrl) => {
+        setFormData((prevValues) => ({
+          ...prevValues,
+          picture: {
+            picture: imageUrl,
+            name: file.name,
+            size: file.size,
+            type: file.type,
+          },
+        }));
+        setDisableSaveBtn(false);
+      });
+    }
+  };
 
   return (
     <>
@@ -84,11 +109,20 @@ export default function MyInfo() {
         sx={{ alignItems: "center" }}
         spacing={2}
       >
-        <Avatar
-          alt={user?.name}
-          src={user?.picture}
-          sx={{ width: 100, height: 100 }}
-        />
+        <ButtonBase component="label" htmlFor="avatar-upload">
+          <Avatar
+            alt={user?.name}
+            src={formData.picture?.picture}
+            sx={{ width: 100, height: 100 }}
+          />
+          <input
+            type="file"
+            id="avatar-upload"
+            accept="image/*"
+            style={{ display: "none" }}
+            onChange={handleImageChange}
+          />
+        </ButtonBase>
         <Stack sx={{ textAlign: useGetSSV("center", "left") }}>
           <Typography>{user?.name}</Typography>
           <Typography>
@@ -104,7 +138,7 @@ export default function MyInfo() {
         autoComplete="off"
         onSubmit={handleSave}
       >
-        {tfItems.map((item: TFItems) => {
+        {tfItems.map((item) => {
           const label = transformCamelCase(item.name.toString());
           return (
             <TextField
@@ -113,11 +147,11 @@ export default function MyInfo() {
               label={label}
               variant="outlined"
               name={item.name.toString()}
-              value={formData[item.name]}
+              value={formData[item.name as keyof typeof formData]}
               onChange={handleFDataChange}
-              error={item.isError}
+              error={item.error}
               helperText={
-                item.helperText || (item.isError && "Must be more than 2 chars")
+                item.helperText || (item.error && "Must be more than 2 chars")
               }
             />
           );

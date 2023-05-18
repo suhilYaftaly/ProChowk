@@ -37,7 +37,7 @@ export default function MyProfile({ onScreenClose }: Props) {
           <ListItemIcon>
             <Avatar
               alt={user?.name}
-              src={user?.picture}
+              src={user?.picture?.picture}
               sx={{ width: 24, height: 24 }}
             />
           </ListItemIcon>

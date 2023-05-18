@@ -19,12 +19,13 @@ export default function GoogleOneTapLogin() {
       if (DT) {
         dispatch(
           logIn({
+            ...DT,
             id: DT.sub,
             firstName: DT.given_name,
             lastName: DT.family_name,
             verifiedEmail: DT.email_verified,
             dateJoined: String(Date.now()),
-            ...DT,
+            picture: { picture: DT.picture },
           })
         );
       } else dispatch(userProfileError(DT));

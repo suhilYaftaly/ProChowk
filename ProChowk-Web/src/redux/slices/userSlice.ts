@@ -28,7 +28,7 @@ interface UserState {
           name: string;
           firstName: string;
           lastName: string;
-          picture: string;
+          picture: { picture: string; size?: number; [key: string]: any };
           verifiedEmail: boolean;
           dateJoined: string;
           [key: string]: any;

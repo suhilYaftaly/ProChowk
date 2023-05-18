@@ -60,3 +60,17 @@ export function validateEmail(email: string): boolean {
   // Test the email against the pattern
   return emailPattern.test(email);
 }
+
+export const processImageFile = (
+  file: File | undefined,
+  onSuccess: (imageUrl: string) => void
+) => {
+  if (file) {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const imageUrl = reader.result as string;
+      onSuccess(imageUrl);
+    };
+    reader.readAsDataURL(file);
+  }
+};

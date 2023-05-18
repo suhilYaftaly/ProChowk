@@ -21,25 +21,24 @@ import LogOut from "./LogOut";
 export default function UserProfileAvatar() {
   const { user } = useUserStates();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-
-  const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
   const open = Boolean(anchorEl);
   const id = open ? "simple-popover" : undefined;
+
+  const openPopover = (event: MouseEvent<HTMLButtonElement>) =>
+    setAnchorEl(event.currentTarget);
+  const closePopover = () => setAnchorEl(null);
 
   if (user) {
     return (
       <>
-        <IconButton aria-describedby={id} onClick={handleClick}>
+        <IconButton
+          aria-describedby={id}
+          onClick={openPopover}
+          // onMouseEnter={openPopover}
+        >
           <Avatar
             alt={user?.name}
-            src={user?.picture}
+            src={user?.picture?.picture}
             sx={{ width: 24, height: 24 }}
           />
         </IconButton>
@@ -47,7 +46,7 @@ export default function UserProfileAvatar() {
           id={id}
           open={open}
           anchorEl={anchorEl}
-          onClose={handleClose}
+          onClose={closePopover}
           anchorOrigin={{
             vertical: "bottom",
             horizontal: "left",
@@ -55,6 +54,7 @@ export default function UserProfileAvatar() {
         >
           <Box
             sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
+            onMouseLeave={closePopover}
           >
             <Box sx={{ padding: "8px 16px" }}>
               <Typography variant="h6">Welcome, {user?.firstName}</Typography>
@@ -62,7 +62,7 @@ export default function UserProfileAvatar() {
             <Divider />
             <nav aria-label="items with icon">
               <List>
-                <MyProfile onScreenClose={handleClose} />
+                <MyProfile onScreenClose={closePopover} />
                 <ListItem disablePadding>
                   <ListItemButton>
                     <ListItemIcon>
@@ -86,7 +86,7 @@ export default function UserProfileAvatar() {
             <Divider />
             <nav aria-label="log out">
               <List>
-                <LogOut onLogout={handleClose} />
+                <LogOut onLogout={closePopover} />
               </List>
             </nav>
           </Box>
