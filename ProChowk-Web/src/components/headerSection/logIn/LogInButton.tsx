@@ -2,14 +2,14 @@ import { Box, Button, Modal, SxProps, Theme, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 
 import GoogleLoginButton from "./google/GoogleLoginButton";
-import { useAppDispatch } from "../../../utils/hooks";
+import { useAppDispatch } from "../../../utils/hooks/hooks";
 import { logIn } from "../../../redux/slices/userSlice";
 import { useUserStates } from "../../../redux/reduxStates";
 import { getLocalData } from "../../../utils/utilFuncs";
 import labels from "../../../constants/labels";
 import { USER_PROFILE_KEY } from "../../../constants/localStorageKeys";
 import GoogleOneTapLogin from "./google/GoogleOneTapLogin";
-import AppLogo from "../../reusable.tsx/AppLogo";
+import AppLogo from "../../reusable/AppLogo";
 
 export default function LogInButton() {
   const savedUserProfile = getLocalData(USER_PROFILE_KEY);

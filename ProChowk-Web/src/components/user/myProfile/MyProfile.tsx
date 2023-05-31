@@ -15,10 +15,10 @@ import {
   Alert,
 } from "@mui/material";
 
-import { useUserStates } from "../../../../redux/reduxStates";
-import FullScreenModal from "../../../reusable.tsx/FullScreenModal";
+import { useUserStates } from "../../../redux/reduxStates";
+import FullScreenModal from "../../reusable/FullScreenModal";
 import MyInfo from "./MyInfo";
-import { useGetSSV } from "../../../../utils/hooks";
+import { useRespVal } from "../../../utils/hooks/hooks";
 
 interface Props {
   onScreenClose: () => void;
@@ -52,16 +52,16 @@ export default function MyProfile({ onScreenClose }: Props) {
         title="My Profile"
         onClose={onScreenClose}
       >
-        <Stack direction={useGetSSV("column", "row")}>
+        <Stack direction={useRespVal("column", "row")}>
           <Tabs
             value={tabsValue}
             onChange={(_, value) => handleTabChange(value)}
             variant="scrollable"
             aria-label="my profile tabs"
-            orientation={useGetSSV("horizontal", "vertical")}
+            orientation={useRespVal("horizontal", "vertical")}
             sx={{
-              borderRight: useGetSSV(undefined, 1),
-              borderBottom: useGetSSV(1, undefined),
+              borderRight: useRespVal(undefined, 1),
+              borderBottom: useRespVal(1, undefined),
               borderColor: "divider",
             }}
           >
@@ -105,7 +105,7 @@ interface TabPanelProps {
 
 function TabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props;
-  const boxStyle: SxProps<Theme> = useGetSSV(
+  const boxStyle: SxProps<Theme> = useRespVal(
     { pt: 3 } as SxProps<Theme>,
     { p: 3 } as SxProps<Theme>
   );

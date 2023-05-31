@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import InboxIcon from "@mui/icons-material/Inbox";
 
-import { useUserStates } from "../../../redux/reduxStates";
+import { useUserStates } from "../../redux/reduxStates";
 import MyProfile from "./myProfile/MyProfile";
 import LogOut from "./LogOut";
 

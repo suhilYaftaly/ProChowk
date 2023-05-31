@@ -1,8 +1,8 @@
 import { Box, useTheme, alpha, useScrollTrigger, Stack } from "@mui/material";
 
 import ColorModeIcon from "./ColorModeIcon";
-import AppLogo from "../reusable.tsx/AppLogo";
-import UserProfileAvatar from "./profile/UserProfileAvatar";
+import AppLogo from "../reusable/AppLogo";
+import UserProfileAvatar from "../user/UserProfileAvatar";
 import LogInButton from "./logIn/LogInButton";
 
 export default function AppHeader() {

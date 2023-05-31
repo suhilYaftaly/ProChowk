@@ -8,15 +8,15 @@ import {
 } from "@mui/material";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 
-import { useUserStates } from "../../../../redux/reduxStates";
+import { useUserStates } from "../../../redux/reduxStates";
 import {
   convertUnixToDate,
   processImageFile,
   transformCamelCase,
   validateEmail,
-} from "../../../../utils/utilFuncs";
-import { useAppDispatch, useGetSSV } from "../../../../utils/hooks";
-import { setUserProfile } from "../../../../redux/slices/userSlice";
+} from "../../../utils/utilFuncs";
+import { useAppDispatch, useRespVal } from "../../../utils/hooks/hooks";
+import { setUserProfile } from "../../../redux/slices/userSlice";
 
 export default function MyInfo() {
   const dispatch = useAppDispatch();
@@ -105,7 +105,7 @@ export default function MyInfo() {
   return (
     <>
       <Stack
-        direction={useGetSSV("column", "row")}
+        direction={useRespVal("column", "row")}
         sx={{ alignItems: "center" }}
         spacing={2}
       >
@@ -123,7 +123,7 @@ export default function MyInfo() {
             onChange={handleImageChange}
           />
         </ButtonBase>
-        <Stack sx={{ textAlign: useGetSSV("center", "left") }}>
+        <Stack sx={{ textAlign: useRespVal("center", "left") }}>
           <Typography>{user?.name}</Typography>
           <Typography>
             Joined {convertUnixToDate(user?.dateJoined)?.monthDayYear}

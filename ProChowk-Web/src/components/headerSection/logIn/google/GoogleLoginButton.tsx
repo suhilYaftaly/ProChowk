@@ -3,7 +3,7 @@ import { useGoogleLogin } from "@react-oauth/google";
 import GoogleIcon from "@mui/icons-material/Google";
 import axios from "axios";
 
-import { useAppDispatch } from "../../../../utils/hooks";
+import { useAppDispatch } from "../../../../utils/hooks/hooks";
 import {
   googleTokenSuccess,
   googleTokenError,

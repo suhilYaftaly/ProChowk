@@ -4,19 +4,19 @@ import { CssBaseline } from "@mui/material";
 
 import AppHeader from "./components/headerSection/AppHeader";
 import { useSettingsStates } from "./redux/reduxStates";
-import HomeScreen from "./screens/HomeScreen";
-import AppComps from "./components/app/AppComps";
+import MainDashboard from "./screens/MainDashboard";
+import useUserLocation from "./components/user/useUserLocation";
 
 export default function App() {
+  useUserLocation();
   const { colorMode: mode } = useSettingsStates();
   const theme = useMemo(() => createTheme({ palette: { mode } }), [mode]);
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <AppComps />
       <AppHeader />
-      <HomeScreen />
+      <MainDashboard />
     </ThemeProvider>
   );
 }

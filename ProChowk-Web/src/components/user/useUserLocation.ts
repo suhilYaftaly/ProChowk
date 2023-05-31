@@ -1,12 +1,12 @@
 import { useEffect } from "react";
-import { useAppDispatch } from "../../../utils/hooks";
+import { useUserStates } from "../../redux/reduxStates";
+import { useAppDispatch } from "../../utils/hooks/hooks";
 import {
   userLocationError,
   userLocationSuccess,
-} from "../../../redux/slices/userSlice";
-import { useUserStates } from "../../../redux/reduxStates";
+} from "../../redux/slices/userSlice";
 
-export default function UserLocation() {
+export default function useUserLocation() {
   const dispatch = useAppDispatch();
   const { userLocation } = useUserStates();
   const lat = userLocation?.data?.lat;
@@ -19,22 +19,20 @@ export default function UserLocation() {
           const { latitude, longitude } = position.coords;
           dispatch(userLocationSuccess({ lat: latitude, lng: longitude }));
         },
-        (error) => {
+        (error) =>
           dispatch(
             userLocationError({
               ...error,
               message: "Location permission denied",
             })
-          );
-        }
+          )
       );
-    } else {
+    } else
       dispatch(
         userLocationError({
           message: "Geolocation is not supported by this browser.",
         })
       );
-    }
   }, []);
 
   useEffect(() => {
@@ -43,14 +41,10 @@ export default function UserLocation() {
         `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
       )
         .then((response) => response.json())
-        .then((data) => {
-          dispatch(userLocationSuccess({ ...userLocation.data, ...data }));
-        })
-        .catch((error) => {
-          dispatch(userLocationError(error));
-        });
+        .then((data) =>
+          dispatch(userLocationSuccess({ ...userLocation.data, ...data }))
+        )
+        .catch((error) => dispatch(userLocationError(error)));
     }
   }, [lat, lng]);
-
-  return <div></div>;
 }

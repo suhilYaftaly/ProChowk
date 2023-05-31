@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 
 import "../../../App.css";
-import { useGetSSV } from "../../../utils/hooks";
+import { useRespVal } from "../../../utils/hooks/hooks";
 
 export interface CardProps {
   title: string;
@@ -38,16 +38,16 @@ export default function RowCard({
   return (
     <Card
       sx={{
-        maxWidth: useGetSSV(undefined, 250),
-        display: useGetSSV("flex", "block"),
+        maxWidth: useRespVal(undefined, 250),
+        display: useRespVal("flex", "block"),
       }}
     >
       <Box boxShadow={1} sx={{ display: "flex", justifyContent: "center" }}>
         <CardMedia
           component="img"
           sx={{
-            width: useGetSSV(140, 250),
-            height: useGetSSV(140, 200),
+            width: useRespVal(140, 250),
+            height: useRespVal(140, 200),
             minWidth: "100%",
             minHeight: "100%",
             objectFit: "cover",
@@ -61,7 +61,7 @@ export default function RowCard({
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          minHeight: useGetSSV(undefined, 120),
+          minHeight: useRespVal(undefined, 120),
         }}
       >
         <CardContent sx={{ padding: 1 }}>

@@ -5,7 +5,7 @@ import { useEffect } from "react";
 
 import { useSettingsStates } from "../../redux/reduxStates";
 import { COLOR_MODE_KEY } from "../../constants/localStorageKeys";
-import { useAppDispatch } from "../../utils/hooks";
+import { useAppDispatch } from "../../utils/hooks/hooks";
 import { setColorMode } from "../../redux/slices/settingsSlice";
 
 export default function ColorModeIcon() {

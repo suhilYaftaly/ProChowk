@@ -1,4 +1,4 @@
-import { useAppSelector } from "../utils/hooks";
+import { useAppSelector } from "../utils/hooks/hooks";
 
 export const useSettingsStates = () => {
   const { colorMode } = useAppSelector((state) => state.settings);

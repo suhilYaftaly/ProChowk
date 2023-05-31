@@ -2,7 +2,7 @@ import { Box, Tab, Tabs } from "@mui/material";
 import { useState } from "react";
 import AllCards from "../components/detailsSection/cards/AllCards";
 
-export default function HomeScreen() {
+export default function MainDashboard() {
   const [value, setValue] = useState(0);
 
   const handleChange = (value: number) => setValue(value);

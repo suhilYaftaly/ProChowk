@@ -1,6 +1,6 @@
 import { useGoogleOneTapLogin } from "@react-oauth/google";
 
-import { useAppDispatch } from "../../../../utils/hooks";
+import { useAppDispatch } from "../../../../utils/hooks/hooks";
 import {
   googleTokenError,
   googleTokenSuccess,

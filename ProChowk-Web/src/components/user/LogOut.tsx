@@ -1,7 +1,7 @@
 import { ListItem, ListItemButton, ListItemText } from "@mui/material";
 
-import { useAppDispatch } from "../../../utils/hooks";
-import { logOut } from "../../../redux/slices/userSlice";
+import { useAppDispatch } from "../../utils/hooks/hooks";
+import { logOut } from "../../redux/slices/userSlice";
 
 interface Props {
   onLogout: () => void;
