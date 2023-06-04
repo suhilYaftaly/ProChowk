@@ -1,0 +1,22 @@
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import path from "path";
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [react()],
+  server: { port: 3000 },
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src/"),
+      "@pages": path.resolve(__dirname, "./src/pages"),
+      "@components": `${path.resolve(__dirname, "./src/components/")}`,
+      "@reusable": `${path.resolve(__dirname, "./src/components/reusable/")}`,
+      "@gqlOps": `${path.resolve(__dirname, "./src/graphql/operations/")}`,
+      "@redux": `${path.resolve(__dirname, "./src/redux/")}`,
+      "@rSlices": `${path.resolve(__dirname, "./src/redux/slices/")}`,
+      "@utils": `${path.resolve(__dirname, "./src/utils/")}`,
+      "@constants": `${path.resolve(__dirname, "./src/constants/")}`,
+    },
+  },
+});

@@ -6,11 +6,15 @@ import {
 import { makeExecutableSchema } from "@graphql-tools/schema";
 import express from "express";
 import http from "http";
+import * as dotenv from "dotenv";
+import { PrismaClient } from "@prisma/client";
 
 import typeDefs from "./graphql/typeDefs";
 import resolvers from "./graphql/resolvers";
+import { GraphQLContext } from "./utils/types";
 
 async function main() {
+  dotenv.config();
   const app = express();
   const httpServer = http.createServer(app);
 
@@ -19,17 +23,28 @@ async function main() {
     resolvers,
   });
 
+  const corsOptions = {
+    origin: process.env.CLIENT_ORIGIN,
+    credentials: true,
+  };
+
+  const prisma = new PrismaClient();
+
   const server = new ApolloServer({
     schema,
     csrfPrevention: true,
     cache: "bounded",
+    context: async ({ req, res }): Promise<GraphQLContext> => ({ req, prisma }),
     plugins: [
       ApolloServerPluginDrainHttpServer({ httpServer }),
-      ApolloServerPluginLandingPageLocalDefault({ embed: true }),
+      ApolloServerPluginLandingPageLocalDefault({
+        embed: true,
+        includeCookies: true,
+      }),
     ],
   });
   await server.start();
-  server.applyMiddleware({ app });
+  server.applyMiddleware({ app, cors: corsOptions });
   await new Promise<void>((resolve) =>
     httpServer.listen({ port: 4000 }, resolve)
   );

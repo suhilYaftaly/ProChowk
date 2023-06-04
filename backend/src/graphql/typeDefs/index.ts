@@ -1,3 +1,3 @@
-import userTypeDefs from "./user";
+import user from "./user";
 
-export default [userTypeDefs];
+export default [user];
