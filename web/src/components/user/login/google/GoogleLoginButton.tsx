@@ -5,21 +5,22 @@ import { useMutation } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
 
 import { useAppDispatch } from "@utils/hooks/hooks";
-import { userProfileError, logIn } from "@redux/slices/userSlice";
-import userOps, { ILoginUserData, IGoogleLoginInput } from "@gqlOps/user";
+import { userProfileError, logIn, userProfileBegin } from "@rSlices/userSlice";
+import userOps, { IGoogleLoginInput, IGoogleLoginData } from "@gqlOps/user";
 
 export default function GoogleLoginButton() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   const [googleLogin, { loading, error }] = useMutation<
-    ILoginUserData,
+    IGoogleLoginData,
     IGoogleLoginInput
   >(userOps.Mutations.googleLogin);
 
   const login = useGoogleLogin({
     onSuccess: async (token) => {
       try {
+        dispatch(userProfileBegin());
         const { data } = await googleLogin({
           variables: { accessToken: token.access_token },
         });

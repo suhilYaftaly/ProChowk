@@ -5,8 +5,9 @@ export const useSettingsStates = () => {
   return { colorMode };
 };
 export const useUserStates = () => {
-  const { googleToken, userProfile, isLoggedOut, userLocation } =
-    useAppSelector((state) => state.user);
+  const { userProfile, isLoggedOut, userLocation } = useAppSelector(
+    (state) => state.user
+  );
   const user = userProfile?.data;
-  return { googleToken, userProfile, user, isLoggedOut, userLocation };
+  return { userProfile, user, isLoggedOut, userLocation };
 };

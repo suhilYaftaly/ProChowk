@@ -8,6 +8,7 @@ import axios from "axios";
 import {
   GraphQLContext,
   IGoogleLoginInput,
+  IGoogleOneTapLoginInput,
   ILoginUserInput,
   IRegisterUserInput,
   IUser,
@@ -19,6 +20,8 @@ import {
 } from "../../utils/validators";
 import checkAuth from "../../utils/checkAuth";
 import { CRED_PROVIDER, GOOGLE_PROVIDER } from "../../utils/constants";
+
+dotenv.config();
 
 export default {
   Query: {
@@ -131,7 +134,6 @@ export default {
       context: GraphQLContext
     ): Promise<IUser> => {
       try {
-        dotenv.config();
         const { prisma } = context;
 
         // get token info
@@ -199,6 +201,58 @@ export default {
         throw gqlError({ msg: error?.message });
       }
     },
+    googleOneTapLogin: async (
+      _: any,
+      { credential }: IGoogleOneTapLoginInput,
+      context: GraphQLContext
+    ): Promise<any> => {
+      const { prisma } = context;
+      const decodedToken = jwt.decode(credential);
+
+      try {
+        if (typeof decodedToken === "object" && decodedToken !== null) {
+          const {
+            aud,
+            email,
+            name,
+            picture,
+            verified_email: emailVerified,
+          } = decodedToken as jwt.JwtPayload;
+
+          if (process.env.GOOGLE_CLIENT_ID !== aud)
+            gqlError({ msg: "Token not verified", code: "FORBIDDEN" });
+
+          const foundUser = await prisma.user.findFirst({
+            where: {
+              email: { equals: email, mode: "insensitive" },
+              provider: GOOGLE_PROVIDER,
+            },
+          });
+
+          if (!foundUser) {
+            const newUser = await prisma.user.create({
+              data: {
+                name,
+                email,
+                provider: GOOGLE_PROVIDER,
+                image: { picture },
+                emailVerified,
+              },
+            });
+
+            const token = generateToken(newUser);
+            return getUserProps(newUser, token);
+          }
+
+          const token = generateToken(foundUser);
+          return getUserProps(foundUser, token);
+        } else {
+          throw gqlError({ msg: "Could not decode credentials" });
+        }
+      } catch (error: any) {
+        throw gqlError({ msg: error?.message });
+      }
+    },
 
     // createUsername: async (
     //   _: any,
@@ -238,15 +292,15 @@ export default {
 };
 
 const generateToken = (user: User) => {
-  dotenv.config();
   const token = jwt.sign(
     {
       id: user.id,
       name: user.name,
       email: user.email,
+      roles: user.roles,
     },
-    process.env.AUTH_SECRET as string
-    // { expiresIn: "12h" }
+    process.env.AUTH_SECRET as string,
+    { expiresIn: "1d" }
   );
 
   if (!token)

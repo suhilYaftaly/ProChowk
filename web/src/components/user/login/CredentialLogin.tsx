@@ -10,11 +10,10 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
-import { ILoginUserData, ILoginUserInput } from "@/graphql/operations/user";
-import { validateEmail } from "@/utils/utilFuncs";
-import userOps from "@gqlOps/user";
-import { useAppDispatch } from "@/utils/hooks/hooks";
-import { logIn, userProfileError } from "@/redux/slices/userSlice";
+import { validateEmail } from "@utils/utilFuncs";
+import userOps, { ILoginUserData, ILoginUserInput } from "@gqlOps/user";
+import { useAppDispatch } from "@utils/hooks/hooks";
+import { logIn, userProfileBegin, userProfileError } from "@rSlices/userSlice";
 
 export default function CredentialLogin() {
   const dispatch = useAppDispatch();
@@ -48,6 +47,7 @@ export default function CredentialLogin() {
     setDisableLoginBtn(true);
 
     try {
+      dispatch(userProfileBegin());
       const { data } = await loginUser({
         variables: { email: formData.email, password: formData.password },
       });
@@ -56,7 +56,6 @@ export default function CredentialLogin() {
         navigate("/");
       } else throw new Error();
     } catch (error: any) {
-      console.log("onSubmit error", error?.message);
       dispatch(userProfileError({ message: error?.message }));
     }
   };

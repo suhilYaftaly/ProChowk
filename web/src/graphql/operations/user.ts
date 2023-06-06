@@ -70,6 +70,24 @@ export default {
         }
       }
     `,
+    googleOneTapLogin: gql`
+      mutation GoogleOneTapLogin($credential: String!) {
+        googleOneTapLogin(credential: $credential) {
+          id
+          name
+          email
+          emailVerified
+          createdAt
+          updatedAt
+          image {
+            picture
+          }
+          token
+          provider
+          roles
+        }
+      }
+    `,
   },
   // Subscriptions: {}
 };
@@ -95,8 +113,15 @@ export interface ILoginUserData {
 export interface IGoogleLoginInput {
   accessToken: string;
 }
-export interface ILoginUserData {
+export interface IGoogleLoginData {
   googleLogin: IUserData;
+}
+
+export interface IGoogleOneTapLoginInput {
+  credential: string;
+}
+export interface IGoogleOneTapLoginData {
+  googleOneTapLogin: IUserData;
 }
 
 export interface IUserData {

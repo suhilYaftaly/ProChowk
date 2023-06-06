@@ -13,7 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { validateEmail } from "@utils/utilFuncs";
 import userOps, { IRegisterUserData, IRegisterUserInput } from "@gqlOps/user";
 import { useAppDispatch } from "@utils/hooks/hooks";
-import { logIn, userProfileError } from "@redux/slices/userSlice";
+import { logIn, userProfileBegin, userProfileError } from "@rSlices/userSlice";
 
 export default function SignUp() {
   const dispatch = useAppDispatch();
@@ -59,6 +59,7 @@ export default function SignUp() {
     setDisableSignUpBtn(true);
 
     try {
+      dispatch(userProfileBegin());
       const { data } = await registerUser({
         variables: {
           name: formData.name,
@@ -71,7 +72,6 @@ export default function SignUp() {
         navigate("/");
       } else throw new Error();
     } catch (error: any) {
-      console.log("onSubmit error", error?.message);
       dispatch(userProfileError({ message: error?.message }));
     }
   };

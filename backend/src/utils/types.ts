@@ -41,3 +41,6 @@ export interface ILoginUserInput {
 export interface IGoogleLoginInput {
   accessToken: string;
 }
+export interface IGoogleOneTapLoginInput {
+  credential: string;
+}

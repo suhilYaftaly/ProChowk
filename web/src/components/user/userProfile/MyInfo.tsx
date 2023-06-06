@@ -8,15 +8,15 @@ import {
 } from "@mui/material";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 
-import { useUserStates } from "../../../redux/reduxStates";
+import { useUserStates } from "@redux/reduxStates";
 import {
   convertUnixToDate,
   processImageFile,
   transformCamelCase,
   validateEmail,
-} from "../../../utils/utilFuncs";
-import { useAppDispatch, useRespVal } from "../../../utils/hooks/hooks";
-import { setUserProfile } from "../../../redux/slices/userSlice";
+} from "@utils/utilFuncs";
+import { useAppDispatch, useRespVal } from "@utils/hooks/hooks";
+import { setUserProfile } from "@rSlices/userSlice";
 
 export default function MyInfo() {
   const dispatch = useAppDispatch();
@@ -25,7 +25,7 @@ export default function MyInfo() {
   const [formData, setFormData] = useState({
     name: user?.name || "",
     email: user?.email || "",
-    image: user?.picture,
+    image: user?.image,
   });
   const isEmailInvalid = !validateEmail(formData.email);
 
@@ -43,7 +43,6 @@ export default function MyInfo() {
       setFormData((prevValues) => ({
         ...prevValues,
         name: user.name,
-        lastName: user.lastName,
         email: user.email,
         image: user.image,
       }));

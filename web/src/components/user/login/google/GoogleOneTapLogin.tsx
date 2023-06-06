@@ -1,35 +1,38 @@
 import { useGoogleOneTapLogin } from "@react-oauth/google";
+import { useMutation } from "@apollo/client";
 
-import { useAppDispatch } from "../../../../utils/hooks/hooks";
-import {
-  googleTokenError,
-  googleTokenSuccess,
-  logIn,
-  userProfileError,
-} from "../../../../redux/slices/userSlice";
-import { decodeJwtToken } from "../../../../utils/utilFuncs";
+import { useAppDispatch } from "@utils/hooks/hooks";
+import { logIn, userProfileBegin, userProfileError } from "@rSlices/userSlice";
+import userOps, {
+  IGoogleOneTapLoginData,
+  IGoogleOneTapLoginInput,
+} from "@gqlOps/user";
 
 export default function GoogleOneTapLogin() {
   const dispatch = useAppDispatch();
+  const [googleOneTapLogin] = useMutation<
+    IGoogleOneTapLoginData,
+    IGoogleOneTapLoginInput
+  >(userOps.Mutations.googleOneTapLogin);
 
   useGoogleOneTapLogin({
-    onSuccess: (token) => {
-      dispatch(googleTokenSuccess(token));
-      const DT = decodeJwtToken(token.credential); //decodedToken
-      if (DT) {
-        dispatch(
-          logIn({
-            ...DT,
-            id: DT.sub,
-            firstName: DT.name,
-            emailVerified: DT.email_verified,
-            dateJoined: String(Date.now()),
-            image: { picture: DT.picture },
-          })
-        );
-      } else dispatch(userProfileError(DT));
+    onSuccess: async (token) => {
+      try {
+        dispatch(userProfileBegin());
+        if (token.credential) {
+          const { data } = await googleOneTapLogin({
+            variables: { credential: token.credential },
+          });
+          if (data?.googleOneTapLogin) {
+            dispatch(logIn(data?.googleOneTapLogin));
+          } else throw new Error();
+        } else throw new Error();
+      } catch (error: any) {
+        dispatch(userProfileError({ message: error?.message }));
+      }
     },
-    onError: () => dispatch(googleTokenError({ error: "unknown error" })),
+    onError: () =>
+      dispatch(userProfileError({ message: "Google One Tap sign in error" })),
   });
 
   return null;

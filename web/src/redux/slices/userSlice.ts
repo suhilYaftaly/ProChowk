@@ -4,25 +4,9 @@ import { USER_PROFILE_KEY } from "../../constants/localStorageKeys";
 import { IUserData } from "@/graphql/operations/user";
 
 interface UserState {
-  googleToken: {
-    data:
-      | {
-          access_token?: string;
-          token_type?: "Bearer" | string;
-          expires_in?: number;
-          scope?: string;
-          prompt?: string;
-          authuser?: string;
-          credential?: string;
-          clientId?: string;
-          [key: string]: any;
-        }
-      | undefined;
-    isLoading: boolean;
-    error: { message: string; [key: string]: any } | undefined;
-  };
   userProfile: {
     data: IUserData | undefined;
+    isLoading: boolean;
     error: { message: string; [key: string]: any } | undefined;
   };
   isLoggedOut: boolean | undefined;
@@ -34,8 +18,7 @@ interface UserState {
 }
 
 const initialState: UserState = {
-  googleToken: { data: undefined, isLoading: false, error: undefined },
-  userProfile: { data: undefined, error: undefined },
+  userProfile: { data: undefined, isLoading: false, error: undefined },
   isLoggedOut: undefined,
   userLocation: { data: undefined, isLoading: false, error: undefined },
 };
@@ -44,27 +27,19 @@ const slice = createSlice({
   name: "user",
   initialState,
   reducers: {
-    googleTokenSuccess(
-      state,
-      action: PayloadAction<UserState["googleToken"]["data"]>
-    ) {
-      state.googleToken.data = action.payload;
-      state.googleToken.isLoading = false;
-      state.googleToken.error = undefined;
-    },
-    googleTokenError(state, action) {
-      state.googleToken.data = undefined;
-      state.googleToken.isLoading = false;
-      state.googleToken.error = action.payload;
+    userProfileBegin(state) {
+      state.userProfile.isLoading = true;
     },
     userProfileSuccess(
       state,
       action: PayloadAction<UserState["userProfile"]["data"]>
     ) {
+      state.userProfile.isLoading = false;
       state.userProfile.data = action.payload;
       state.userProfile.error = undefined;
     },
     userProfileError(state, action) {
+      state.userProfile.isLoading = false;
       state.userProfile.data = undefined;
       state.userProfile.error = action.payload;
     },
@@ -97,8 +72,7 @@ const slice = createSlice({
 });
 
 export const {
-  googleTokenSuccess,
-  googleTokenError,
+  userProfileBegin,
   userProfileError,
   userLocationBegin,
   userLocationSuccess,

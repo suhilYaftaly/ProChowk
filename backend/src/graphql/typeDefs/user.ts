@@ -25,6 +25,7 @@ export default gql`
     ): User!
     loginUser(email: String!, password: String!): User!
     googleLogin(accessToken: String!): User!
+    googleOneTapLogin(credential: String!): User!
   }
 
   type Query {
