@@ -86,7 +86,7 @@ async function main() {
   await new Promise<void>((resolve) =>
     httpServer.listen({ port: PORT }, resolve)
   );
-  console.log(`Server is now running on http://localhost:${PORT}/graphql`);
+  console.log(`Server is no running on http://localhost:${PORT}/graphql`);
 }
 
 main().catch((err) => console.log(err));

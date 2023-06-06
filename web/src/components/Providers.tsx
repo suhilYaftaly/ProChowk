@@ -11,10 +11,8 @@ import { useSettingsStates } from "@redux/reduxStates";
 import useUserLocation from "./user/useUserLocation";
 
 const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-const VITE_API_URL = import.meta.env.VITE_API_URL;
 
 export default function Providers({ children }: { children: ReactNode }) {
-  console.log("VITE_API_URL", VITE_API_URL);
   return (
     <ApolloProvider client={client}>
       <Provider store={store}>
