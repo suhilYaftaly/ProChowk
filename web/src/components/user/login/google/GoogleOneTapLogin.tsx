@@ -21,11 +21,10 @@ export default function GoogleOneTapLogin() {
           logIn({
             ...DT,
             id: DT.sub,
-            firstName: DT.given_name,
-            lastName: DT.family_name,
-            verifiedEmail: DT.email_verified,
+            firstName: DT.name,
+            emailVerified: DT.email_verified,
             dateJoined: String(Date.now()),
-            picture: { picture: DT.picture },
+            image: { picture: DT.picture },
           })
         );
       } else dispatch(userProfileError(DT));

@@ -6,30 +6,37 @@ import {
   Button,
   CircularProgress,
   Alert,
-  Link,
+  Typography,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
-import { ILoginUserData, ILoginUserInput } from "@/graphql/operations/user";
-import { validateEmail } from "@/utils/utilFuncs";
-import userOps from "@gqlOps/user";
-import { useAppDispatch } from "@/utils/hooks/hooks";
-import { logIn, userProfileError } from "@/redux/slices/userSlice";
+import { validateEmail } from "@utils/utilFuncs";
+import userOps, { IRegisterUserData, IRegisterUserInput } from "@gqlOps/user";
+import { useAppDispatch } from "@utils/hooks/hooks";
+import { logIn, userProfileError } from "@redux/slices/userSlice";
 
-export default function CredentialLogin() {
+export default function SignUp() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const [disableLoginBtn, setDisableLoginBtn] = useState(true);
-  const [formData, setFormData] = useState({ email: "", password: "" });
-  const [formError, setFormError] = useState({ email: false, password: false });
-  const [loginUser, { loading, error }] = useMutation<
-    ILoginUserData,
-    ILoginUserInput
-  >(userOps.Mutations.loginUser);
+  const [disableSignUpBtn, setDisableSignUpBtn] = useState(true);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
+  const [formError, setFormError] = useState({
+    name: false,
+    email: false,
+    password: false,
+  });
+  const [registerUser, { loading, error }] = useMutation<
+    IRegisterUserData,
+    IRegisterUserInput
+  >(userOps.Mutations.registerUser);
 
   const handleFDataChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
-    setDisableLoginBtn(false);
+    setDisableSignUpBtn(false);
     setFormError((pv) => ({ ...pv, [name]: false }));
 
     setFormData((pv) => ({ ...pv, [name]: value }));
@@ -37,6 +44,10 @@ export default function CredentialLogin() {
 
   const onLogin = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
+    if (formData.name?.length < 4) {
+      setFormError((pv) => ({ ...pv, name: true }));
+      return;
+    }
     if (!validateEmail(formData.email)) {
       setFormError((pv) => ({ ...pv, email: true }));
       return;
@@ -45,14 +56,18 @@ export default function CredentialLogin() {
       setFormError((pv) => ({ ...pv, password: true }));
       return;
     }
-    setDisableLoginBtn(true);
+    setDisableSignUpBtn(true);
 
     try {
-      const { data } = await loginUser({
-        variables: { email: formData.email, password: formData.password },
+      const { data } = await registerUser({
+        variables: {
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+        },
       });
-      if (data?.loginUser) {
-        dispatch(logIn(data?.loginUser));
+      if (data?.registerUser) {
+        dispatch(logIn(data?.registerUser));
         navigate("/");
       } else throw new Error();
     } catch (error: any) {
@@ -63,6 +78,17 @@ export default function CredentialLogin() {
 
   return (
     <Stack component="form" spacing={1} noValidate onSubmit={onLogin}>
+      <TextField
+        id={"name"}
+        placeholder={"your name"}
+        variant="outlined"
+        name={"name"}
+        value={formData.name}
+        onChange={handleFDataChange}
+        error={formError.name}
+        helperText={formError.name ? "Must be more than 3 chars" : ""}
+        size="small"
+      />
       <TextField
         id={"email"}
         placeholder="yours@example.com"
@@ -87,18 +113,11 @@ export default function CredentialLogin() {
         helperText={formError.password ? "Must be more than 5 chars" : ""}
         size="small"
       />
-      <Link
-        component="button"
-        variant="caption"
-        color="text.secondary"
-        onClick={() => {
-          console.info("Don't remember your password? (TODO)");
-        }}
-      >
-        Don't remember your password?
-      </Link>
-      <Button type="submit" variant="contained" disabled={disableLoginBtn}>
-        {loading ? <CircularProgress size={20} /> : "Log In"}
+      <Typography variant="caption" color="text.secondary" textAlign={"center"}>
+        By signing up, you agree to our terms of service and privacy policy.
+      </Typography>
+      <Button type="submit" variant="contained" disabled={disableSignUpBtn}>
+        {loading ? <CircularProgress size={20} /> : "Sign Up"}
       </Button>
       {error && (
         <Alert severity="error" color="error">

@@ -15,10 +15,10 @@ import {
 import InboxIcon from "@mui/icons-material/Inbox";
 
 import { useUserStates } from "../../redux/reduxStates";
-import MyProfile from "./myProfile/MyProfile";
+import UserProfile from "./userProfile/UserProfile";
 import LogOut from "./LogOut";
 
-export default function UserProfileAvatar() {
+export default function UserProfilePopover() {
   const { user } = useUserStates();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const open = Boolean(anchorEl);
@@ -38,7 +38,7 @@ export default function UserProfileAvatar() {
         >
           <Avatar
             alt={user?.name}
-            src={user?.picture?.picture}
+            src={user?.image?.picture}
             sx={{ width: 24, height: 24 }}
           />
         </IconButton>
@@ -57,12 +57,12 @@ export default function UserProfileAvatar() {
             // onMouseLeave={closePopover}
           >
             <Box sx={{ padding: "8px 16px" }}>
-              <Typography variant="h6">Welcome, {user?.firstName}</Typography>
+              <Typography variant="h6">{user?.name}</Typography>
             </Box>
             <Divider />
             <nav aria-label="items with icon">
               <List>
-                <MyProfile onScreenClose={closePopover} />
+                <UserProfile onScreenClose={closePopover} />
                 <ListItem disablePadding>
                   <ListItemButton>
                     <ListItemIcon>

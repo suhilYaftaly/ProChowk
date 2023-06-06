@@ -24,7 +24,7 @@ interface Props {
   onScreenClose: () => void;
 }
 
-export default function MyProfile({ onScreenClose }: Props) {
+export default function UserProfile({ onScreenClose }: Props) {
   const { user, userLocation } = useUserStates();
   const [openModal, setOpenModal] = useState(false);
   const [tabsValue, setTabValue] = useState(0);
@@ -39,7 +39,7 @@ export default function MyProfile({ onScreenClose }: Props) {
           <ListItemIcon>
             <Avatar
               alt={user?.name}
-              src={user?.picture?.picture}
+              src={user?.image?.picture}
               sx={{ width: 24, height: 24 }}
             />
           </ListItemIcon>

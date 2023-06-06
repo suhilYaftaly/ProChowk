@@ -8,10 +8,12 @@ import {
   Typography,
 } from "@mui/material";
 import { useState } from "react";
+
 import AppLogo from "@reusable/AppLogo";
-import labels from "@/constants/labels";
-import GoogleLoginButton from "@/components/headerSection/logIn/google/GoogleLoginButton";
-import CredentialLogin from "@/components/user/login/CredentialLogin";
+import labels from "@constants/labels";
+import GoogleLoginButton from "@components/user/login/google/GoogleLoginButton";
+import CredentialLogin from "@components/user/login/CredentialLogin";
+import SignUp from "@components/user/signUp/SignUp";
 
 export default function Login() {
   const [value, setValue] = useState(0);
@@ -20,20 +22,23 @@ export default function Login() {
   return (
     <Box sx={pageCont}>
       <Box sx={contentCont} boxShadow={4}>
-        <AppLogo />
-        <Typography
-          id="modal-modal-title"
-          variant="h6"
-          component="h2"
-          sx={{ marginY: 2 }}
-        >
-          {labels.appName}
-        </Typography>
-        <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 5 }}>
+        <Box sx={{ textAlign: "center" }}>
+          <AppLogo />
+          <Typography
+            id="modal-modal-title"
+            variant="h6"
+            component="h2"
+            sx={{ marginY: 2 }}
+          >
+            {labels.appName}
+          </Typography>
+        </Box>
+        <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
           <Tabs
             value={value}
             onChange={(_, value) => handleTabChange(value)}
             aria-label="service category tabs"
+            variant="fullWidth"
           >
             <Tab label="Log In" />
             <Tab label="Sign Up" />
@@ -42,7 +47,8 @@ export default function Login() {
         <Box sx={{ px: 2 }}>
           <GoogleLoginButton />
           <Divider sx={{ my: 3 }}> or </Divider>
-          <CredentialLogin />
+          {value === 0 && <CredentialLogin />}
+          {value === 1 && <SignUp />}
         </Box>
       </Box>
     </Box>
@@ -53,15 +59,14 @@ const pageCont = {
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  minHeight: "70vh",
+  minHeight: "75vh",
 } as SxProps<Theme>;
 
 const contentCont = {
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  justifyContent: "center",
   borderRadius: 2,
   py: 2,
-  //   px: 2,
+  width: 300,
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
 } as SxProps<Theme>;

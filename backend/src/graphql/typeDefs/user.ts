@@ -1,24 +1,30 @@
-import { gql } from "apollo-server-core";
+import { gql } from "graphql-tag";
 
 export default gql`
+  type Image {
+    picture: String
+  }
   type User {
     id: ID!
-    name: ID!
+    name: String!
     email: String!
     emailVerified: Boolean
     token: String!
     createdAt: String!
     updatedAt: String!
-    image: String
+    image: Image
+    provider: String
+    roles: [String]
   }
   type Mutation {
     registerUser(
       name: String!
       password: String!
-      confirmPassword: String!
+      # confirmPassword: String!
       email: String!
     ): User!
     loginUser(email: String!, password: String!): User!
+    googleLogin(accessToken: String!): User!
   }
 
   type Query {

@@ -23,16 +23,14 @@ export default function MyInfo() {
   const { user } = useUserStates();
   const [disableSaveBtn, setDisableSaveBtn] = useState(true);
   const [formData, setFormData] = useState({
-    firstName: user?.firstName || "",
-    lastName: user?.lastName || "",
+    name: user?.name || "",
     email: user?.email || "",
-    picture: user?.picture,
+    image: user?.picture,
   });
   const isEmailInvalid = !validateEmail(formData.email);
 
   const tfItems = [
-    { name: "firstName", error: formData.firstName.length < 3 },
-    { name: "lastName", error: formData.lastName.length < 3 },
+    { name: "name", error: formData.name.length < 3 },
     {
       name: "email",
       error: isEmailInvalid,
@@ -44,13 +42,13 @@ export default function MyInfo() {
     if (user) {
       setFormData((prevValues) => ({
         ...prevValues,
-        firstName: user.firstName,
+        name: user.name,
         lastName: user.lastName,
         email: user.email,
-        picture: user.picture,
+        image: user.image,
       }));
     }
-  }, [user]);
+  }, []);
 
   //disable button if any form error exists
   useEffect(() => {
@@ -69,14 +67,12 @@ export default function MyInfo() {
 
   const handleSave = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
-    if (formData.firstName && formData.lastName && formData.email) {
+    if (formData.name && formData.email) {
       const updatedUser = {
         ...(user as any),
-        firstName: formData.firstName,
-        lastName: formData.lastName,
+        name: formData.name,
         email: formData.email,
-        name: `${formData.firstName} ${formData.lastName}`,
-        picture: formData.picture,
+        image: formData.image,
       };
       dispatch(setUserProfile(updatedUser));
       setDisableSaveBtn(true);
@@ -88,9 +84,9 @@ export default function MyInfo() {
 
     if (file) {
       processImageFile(file, (imageUrl) => {
-        setFormData((prevValues) => ({
-          ...prevValues,
-          picture: {
+        setFormData((pv) => ({
+          ...pv,
+          image: {
             picture: imageUrl,
             name: file.name,
             size: file.size,
@@ -112,7 +108,7 @@ export default function MyInfo() {
         <ButtonBase component="label" htmlFor="avatar-upload">
           <Avatar
             alt={user?.name}
-            src={formData.picture?.picture}
+            src={formData.image?.picture}
             sx={{ width: 100, height: 100 }}
           />
           <input
@@ -126,7 +122,7 @@ export default function MyInfo() {
         <Stack sx={{ textAlign: useRespVal("center", "left") }}>
           <Typography>{user?.name}</Typography>
           <Typography>
-            Joined {convertUnixToDate(user?.dateJoined)?.monthDayYear}
+            Joined {convertUnixToDate(user?.createdAt)?.monthDayYear}
           </Typography>
         </Stack>
       </Stack>

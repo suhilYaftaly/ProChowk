@@ -2,8 +2,8 @@ import { Box, useTheme, alpha, useScrollTrigger, Stack } from "@mui/material";
 
 import ColorModeIcon from "./ColorModeIcon";
 import AppLogo from "../reusable/AppLogo";
-import UserProfileAvatar from "../user/UserProfileAvatar";
-import LogInButton from "./logIn/LogInButton";
+import UserProfilePopover from "../user/UserProfilePopover";
+import LogInButton from "../user/login/LogInButton";
 import { NavLink } from "react-router-dom";
 
 export default function AppHeader() {
@@ -34,7 +34,7 @@ export default function AppHeader() {
         </NavLink>
         <Stack direction="row" alignItems={"center"}>
           <LogInButton />
-          <UserProfileAvatar />
+          <UserProfilePopover />
           <ColorModeIcon />
         </Stack>
       </Stack>

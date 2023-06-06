@@ -4,7 +4,7 @@ import { ILoginUserInput, IRegisterUserInput } from "./types";
 export const validateRegisterInput = ({
   name,
   password,
-  confirmPassword,
+  // confirmPassword,
   email,
 }: IRegisterUserInput) => {
   const getErr = (msg: string) => gqlError({ msg, code: "BAD_USER_INPUT" });
@@ -12,7 +12,7 @@ export const validateRegisterInput = ({
   if (name.trim() === "") return getErr("Name must not be empty");
   if (!validateEmail(email)) return getErr("Invalid email address");
   if (password === "") return getErr("Password must not be empty");
-  if (password !== confirmPassword) return getErr("Password must match");
+  // if (password !== confirmPassword) return getErr("Password must match");
 
   return undefined;
 };

@@ -12,6 +12,28 @@ export default {
     `,
   },
   Mutations: {
+    registerUser: gql`
+      mutation RegisterUser(
+        $name: String!
+        $email: String!
+        $password: String!
+      ) {
+        registerUser(name: $name, email: $email, password: $password) {
+          id
+          name
+          email
+          emailVerified
+          createdAt
+          updatedAt
+          image {
+            picture
+          }
+          token
+          provider
+          roles
+        }
+      }
+    `,
     loginUser: gql`
       mutation LoginUser($email: String!, $password: String!) {
         loginUser(email: $email, password: $password) {
@@ -21,8 +43,30 @@ export default {
           emailVerified
           createdAt
           updatedAt
-          image
+          image {
+            picture
+          }
           token
+          provider
+          roles
+        }
+      }
+    `,
+    googleLogin: gql`
+      mutation GoogleLogin($accessToken: String!) {
+        googleLogin(accessToken: $accessToken) {
+          id
+          name
+          email
+          emailVerified
+          createdAt
+          updatedAt
+          image {
+            picture
+          }
+          token
+          provider
+          roles
         }
       }
     `,
@@ -31,22 +75,43 @@ export default {
 };
 
 //interfaces
+export interface IRegisterUserInput {
+  name: string;
+  email: string;
+  password: string;
+}
+export interface IRegisterUserData {
+  registerUser: IUserData;
+}
+
 export interface ILoginUserInput {
   email: string;
   password: string;
 }
 export interface ILoginUserData {
-  loginUser: {
-    id: string;
-    name: string;
-    email: string;
-    emailVerified: string;
-    createdAt: string;
-    updatedAt: string;
-    image: string;
-    token: string;
-  };
+  loginUser: IUserData;
 }
+
+export interface IGoogleLoginInput {
+  accessToken: string;
+}
+export interface ILoginUserData {
+  googleLogin: IUserData;
+}
+
+export interface IUserData {
+  id: string;
+  name: string;
+  email: string;
+  emailVerified: boolean;
+  createdAt: string;
+  updatedAt: string;
+  image: { picture: string; size?: number; [key: string]: any };
+  token: string;
+  provider: string;
+  roles?: UserRole[];
+}
+type UserRole = "admin" | "superAdmin";
 
 export interface ISearchUserInput {
   username: string;

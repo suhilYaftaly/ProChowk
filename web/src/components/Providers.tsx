@@ -5,10 +5,10 @@ import { ThemeProvider } from "@emotion/react";
 import { createTheme, CssBaseline } from "@mui/material";
 import { ReactNode, useMemo } from "react";
 
-import { GOOGLE_CLIENT_ID } from "../config/tempConfig";
+import { GOOGLE_CLIENT_ID } from "@/config/tempConfig";
 import { client } from "../graphql/apollo-client";
-import { store } from "../redux/store";
-import { useSettingsStates } from "../redux/reduxStates";
+import { store } from "@redux/store";
+import { useSettingsStates } from "@redux/reduxStates";
 import useUserLocation from "./user/useUserLocation";
 
 export default function Providers({ children }: { children: ReactNode }) {

@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { googleLogout } from "@react-oauth/google";
 import { USER_PROFILE_KEY } from "../../constants/localStorageKeys";
+import { IUserData } from "@/graphql/operations/user";
 
 interface UserState {
   googleToken: {
@@ -18,36 +19,23 @@ interface UserState {
         }
       | undefined;
     isLoading: boolean;
-    error: { message: string; code: number; [key: string]: any } | undefined;
+    error: { message: string; [key: string]: any } | undefined;
   };
   userProfile: {
-    data:
-      | {
-          id: string;
-          email: string;
-          name: string;
-          firstName: string;
-          lastName: string;
-          picture: { picture: string; size?: number; [key: string]: any };
-          verifiedEmail: boolean;
-          dateJoined: string;
-          [key: string]: any;
-        }
-      | undefined;
-    isLoading: boolean;
-    error: { message: string; code: number; [key: string]: any } | undefined;
+    data: IUserData | undefined;
+    error: { message: string; [key: string]: any } | undefined;
   };
   isLoggedOut: boolean | undefined;
   userLocation: {
     data: { lat: number; lng: number; [key: string]: any } | undefined;
     isLoading: boolean;
-    error: { message: string; code: number; [key: string]: any } | undefined;
+    error: { message: string; [key: string]: any } | undefined;
   };
 }
 
 const initialState: UserState = {
   googleToken: { data: undefined, isLoading: false, error: undefined },
-  userProfile: { data: undefined, isLoading: false, error: undefined },
+  userProfile: { data: undefined, error: undefined },
   isLoggedOut: undefined,
   userLocation: { data: undefined, isLoading: false, error: undefined },
 };
@@ -69,20 +57,15 @@ const slice = createSlice({
       state.googleToken.isLoading = false;
       state.googleToken.error = action.payload;
     },
-    userProfileBegin(state) {
-      state.userProfile.isLoading = true;
-    },
     userProfileSuccess(
       state,
       action: PayloadAction<UserState["userProfile"]["data"]>
     ) {
       state.userProfile.data = action.payload;
-      state.userProfile.isLoading = false;
       state.userProfile.error = undefined;
     },
     userProfileError(state, action) {
       state.userProfile.data = undefined;
-      state.userProfile.isLoading = false;
       state.userProfile.error = action.payload;
     },
     setUserProfileInfo(
@@ -116,7 +99,6 @@ const slice = createSlice({
 export const {
   googleTokenSuccess,
   googleTokenError,
-  userProfileBegin,
   userProfileError,
   userLocationBegin,
   userLocationSuccess,
@@ -136,7 +118,7 @@ export const logOut = () => (dispatch: any) => {
   googleLogout();
   dispatch(userProfileSuccess(undefined));
   dispatch(setIsLoggedOut(true));
-  localStorage.setItem(USER_PROFILE_KEY, "");
+  localStorage.removeItem(USER_PROFILE_KEY);
 };
 export const setUserProfile =
   (payload: UserState["userProfile"]["data"]) => (dispatch: any) => {

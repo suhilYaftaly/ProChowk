@@ -39,13 +39,15 @@ model User {
     name          String
     email         String    @unique
     emailVerified Boolean   @default(false)
-    image         String?
+    image         Json?
+    roles         Json?
     accounts      Account[]
     sessions      Session[]
     password      String?
     createdAt     DateTime  @default(now())
     updatedAt     DateTime  @updatedAt
     token         String?   @unique
+    provider      String
 }
 
 model VerificationToken {

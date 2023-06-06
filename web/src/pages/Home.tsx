@@ -1,54 +1,15 @@
-import { Box, Button, Stack, Tab, Tabs, TextField } from "@mui/material";
-import { FormEvent, useState } from "react";
-import { useLazyQuery } from "@apollo/client";
+import { Box, Tab, Tabs } from "@mui/material";
+import { useState } from "react";
 
 import AllCards from "../components/detailsSection/cards/AllCards.tsx";
-import {
-  ISearchUserInput,
-  ISearchUsersData,
-} from "../graphql/operations/user.ts";
-import userOps from "../graphql/operations/user.ts";
 
 export default function Home() {
   const [value, setValue] = useState(0);
-  const [username, setUsername] = useState("");
-  const [searchUsers, { data, loading, error }] = useLazyQuery<
-    ISearchUsersData,
-    ISearchUserInput
-  >(userOps.Queries.searchUsers);
-
-  const onSearch = (e: FormEvent<HTMLFormElement>): void => {
-    e.preventDefault();
-    searchUsers({ variables: { username } });
-  };
-  console.log("SEARCHED USER", data);
 
   const handleChange = (value: number) => setValue(value);
 
   return (
     <>
-      <Stack
-        component="form"
-        sx={{ mt: 3 }}
-        spacing={2}
-        noValidate
-        autoComplete="off"
-        width={300}
-        onSubmit={onSearch}
-      >
-        <TextField
-          key={"username"}
-          id={"username"}
-          label={"username"}
-          variant="outlined"
-          name={"username"}
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
-        <Button type="submit" variant="contained" disabled={loading}>
-          Search User
-        </Button>
-      </Stack>
       <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
         <Tabs
           value={value}
