@@ -4,11 +4,10 @@ import {
   HttpLink,
   ApolloLink,
 } from "@apollo/client";
-import { API_URL } from "../config/tempConfig";
 import { store } from "@/redux/store"; // Import your Redux store
 
 const httpLink = new HttpLink({
-  uri: API_URL,
+  uri: import.meta.env.VITE_API_URL,
   credentials: "include",
 });
 
