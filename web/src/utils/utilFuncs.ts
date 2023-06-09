@@ -54,10 +54,7 @@ export function transformCamelCase(input: string): string {
 }
 
 export function validateEmail(email: string): boolean {
-  // Regular expression pattern for email validation
   const emailPattern = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
-
-  // Test the email against the pattern
   return emailPattern.test(email);
 }
 
@@ -73,4 +70,39 @@ export const processImageFile = (
     };
     reader.readAsDataURL(file);
   }
+};
+
+export const processFile = (
+  file: File | undefined,
+  onSuccess: (fileData: string, fileType: string) => void
+) => {
+  if (file) {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const fileData = reader.result as string;
+      const fileType = file.type;
+      onSuccess(fileData, fileType);
+    };
+
+    // Read the file as base64
+    reader.readAsDataURL(file);
+  }
+};
+
+export function validatePhoneNum(phoneNumber: string | undefined): boolean {
+  const pattern = /^\d{3}-\d{3}-\d{4}$/;
+  if (phoneNumber) return pattern.test(phoneNumber);
+  return false;
+}
+
+//format number to include dashes
+export const formatPhoneNum = (phoneNumber: string): string => {
+  const cleanedPhoneNumber = phoneNumber.replace(/\D/g, ""); // Remove non-digit characters
+
+  let formattedPhoneNumber = "";
+  for (let i = 0; i < cleanedPhoneNumber.length; i++) {
+    if (i === 3 || i === 6) formattedPhoneNumber += "-";
+    formattedPhoneNumber += cleanedPhoneNumber.charAt(i);
+  }
+  return formattedPhoneNumber;
 };

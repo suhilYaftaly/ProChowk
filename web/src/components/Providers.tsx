@@ -9,15 +9,18 @@ import { client } from "../graphql/apollo-client";
 import { store } from "@redux/store";
 import { useSettingsStates } from "@redux/reduxStates";
 import useUserLocation from "./user/useUserLocation";
+import PageRoutes from "@/routes/PageRoutes";
 
 const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
-export default function Providers({ children }: { children: ReactNode }) {
+export default function Providers() {
   return (
     <ApolloProvider client={client}>
       <Provider store={store}>
         <GoogleOAuthProvider clientId={clientId}>
-          <MUIProvider>{children}</MUIProvider>
+          <MUIProvider>
+            <PageRoutes />
+          </MUIProvider>
         </GoogleOAuthProvider>
       </Provider>
     </ApolloProvider>

@@ -25,6 +25,8 @@
       "@rSlices/*": ["src/redux/slices/*"],
       "@utils/*": ["src/utils/*"],
       "@constants/*": ["src/constants/*"],
+      "@routes/*": ["src/routes/*"],
+      "@config/*": ["src/config/*"],
     },
 
     /* Linting */

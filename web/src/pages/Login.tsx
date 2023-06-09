@@ -1,5 +1,6 @@
 import {
   Box,
+  Card,
   Divider,
   SxProps,
   Tab,
@@ -7,21 +8,32 @@ import {
   Theme,
   Typography,
 } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import AppLogo from "@reusable/AppLogo";
 import labels from "@constants/labels";
 import GoogleLoginButton from "@components/user/login/google/GoogleLoginButton";
 import CredentialLogin from "@components/user/login/CredentialLogin";
 import SignUp from "@components/user/signUp/SignUp";
+import { useUserStates } from "@redux/reduxStates";
 
 export default function Login() {
+  const navigate = useNavigate();
+  const { user } = useUserStates();
   const [value, setValue] = useState(0);
+
   const handleTabChange = (value: number) => setValue(value);
+
+  useEffect(() => {
+    if (user) {
+      navigate("/");
+    }
+  }, [user]);
 
   return (
     <Box sx={pageCont}>
-      <Box sx={contentCont} boxShadow={4}>
+      <Card sx={{ boxShadow: 4, py: 2, width: 300 }}>
         <Box sx={{ textAlign: "center" }}>
           <AppLogo />
           <Typography
@@ -50,7 +62,7 @@ export default function Login() {
           {value === 0 && <CredentialLogin />}
           {value === 1 && <SignUp />}
         </Box>
-      </Box>
+      </Card>
     </Box>
   );
 }
@@ -60,13 +72,4 @@ const pageCont = {
   justifyContent: "center",
   alignItems: "center",
   minHeight: "75vh",
-} as SxProps<Theme>;
-
-const contentCont = {
-  borderRadius: 2,
-  py: 2,
-  width: 300,
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "center",
 } as SxProps<Theme>;

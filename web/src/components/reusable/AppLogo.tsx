@@ -1,5 +1,5 @@
 import logo from "../../assets/ProChowkLogo.svg";
 
 export default function AppLogo() {
-  return <img src={logo} alt={"logo"} width={45} />;
+  return <img src={logo} alt={"logo"} width={40} />;
 }

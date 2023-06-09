@@ -135,6 +135,7 @@ export interface IUserData {
   token: string;
   provider: string;
   roles?: UserRole[];
+  phoneNum?: string;
 }
 type UserRole = "admin" | "superAdmin";
 

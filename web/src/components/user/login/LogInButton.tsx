@@ -8,6 +8,7 @@ import { useUserStates } from "@redux/reduxStates";
 import { getLocalData } from "@utils/utilFuncs";
 import { USER_PROFILE_KEY } from "@constants/localStorageKeys";
 import GoogleOneTapLogin from "./google/GoogleOneTapLogin";
+import { paths } from "@/routes/PageRoutes";
 
 export default function LogInButton() {
   const savedUserProfile = getLocalData(USER_PROFILE_KEY);
@@ -24,7 +25,7 @@ export default function LogInButton() {
         (userProfile.isLoading ? (
           <CircularProgress size={20} />
         ) : (
-          <NavLink to={"./login"}>
+          <NavLink to={paths.login}>
             <Button
               variant="outlined"
               size="small"

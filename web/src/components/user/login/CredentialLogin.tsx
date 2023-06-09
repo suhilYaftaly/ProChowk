@@ -63,6 +63,7 @@ export default function CredentialLogin() {
   return (
     <Stack component="form" spacing={1} noValidate onSubmit={onLogin}>
       <TextField
+        label="Email"
         id={"email"}
         placeholder="yours@example.com"
         variant="outlined"
@@ -73,8 +74,10 @@ export default function CredentialLogin() {
         error={formError.email}
         helperText={formError.email ? "Invalid email format" : ""}
         size="small"
+        required
       />
       <TextField
+        label="Password"
         id={"password"}
         placeholder={"your password"}
         variant="outlined"
@@ -85,6 +88,7 @@ export default function CredentialLogin() {
         error={formError.password}
         helperText={formError.password ? "Must be more than 5 chars" : ""}
         size="small"
+        required
       />
       <Link
         component="button"

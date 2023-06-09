@@ -79,6 +79,7 @@ export default function SignUp() {
   return (
     <Stack component="form" spacing={1} noValidate onSubmit={onLogin}>
       <TextField
+        label="Name"
         id={"name"}
         placeholder={"your name"}
         variant="outlined"
@@ -88,8 +89,10 @@ export default function SignUp() {
         error={formError.name}
         helperText={formError.name ? "Must be more than 3 chars" : ""}
         size="small"
+        required
       />
       <TextField
+        label="Email"
         id={"email"}
         placeholder="yours@example.com"
         variant="outlined"
@@ -100,8 +103,10 @@ export default function SignUp() {
         error={formError.email}
         helperText={formError.email ? "Invalid email format" : ""}
         size="small"
+        required
       />
       <TextField
+        label="Password"
         id={"password"}
         placeholder={"your password"}
         variant="outlined"
@@ -112,6 +117,7 @@ export default function SignUp() {
         error={formError.password}
         helperText={formError.password ? "Must be more than 5 chars" : ""}
         size="small"
+        required
       />
       <Typography variant="caption" color="text.secondary" textAlign={"center"}>
         By signing up, you agree to our terms of service and privacy policy.

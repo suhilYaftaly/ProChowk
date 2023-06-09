@@ -1,4 +1,4 @@
-import { useState, MouseEvent } from "react";
+import { useState, MouseEvent, ReactNode } from "react";
 import {
   Avatar,
   Box,
@@ -13,12 +13,14 @@ import {
   Typography,
 } from "@mui/material";
 import InboxIcon from "@mui/icons-material/Inbox";
+import { useNavigate } from "react-router-dom";
 
 import { useUserStates } from "@redux/reduxStates";
-import UserProfile from "./userProfile/UserProfile";
 import LogOut from "./LogOut";
+import { paths } from "@routes/PageRoutes";
 
 export default function UserProfilePopover() {
+  const navigate = useNavigate();
   const { user } = useUserStates();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const open = Boolean(anchorEl);
@@ -27,6 +29,11 @@ export default function UserProfilePopover() {
   const openPopover = (event: MouseEvent<HTMLButtonElement>) =>
     setAnchorEl(event.currentTarget);
   const closePopover = () => setAnchorEl(null);
+
+  const openMyProfile = () => {
+    closePopover();
+    navigate(paths.myprofile);
+  };
 
   if (user) {
     return (
@@ -53,8 +60,8 @@ export default function UserProfilePopover() {
           }}
         >
           <Box
-            sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
-            // onMouseLeave={closePopover}
+            sx={{ width: "100%", maxWidth: 360 }}
+            onMouseLeave={closePopover}
           >
             <Box sx={{ padding: "8px 16px" }}>
               <Typography variant="h6">{user?.name}</Typography>
@@ -62,25 +69,30 @@ export default function UserProfilePopover() {
             <Divider />
             <nav aria-label="items with icon">
               <List>
-                <UserProfile onScreenClose={closePopover} />
-                <ListItem disablePadding>
-                  <ListItemButton>
-                    <ListItemIcon>
-                      <InboxIcon />
-                    </ListItemIcon>
-                    <ListItemText primary="My Inbox" />
-                  </ListItemButton>
-                </ListItem>
+                <ListItemComp onClick={openMyProfile}>
+                  <ListItemIcon>
+                    <Avatar
+                      alt={user?.name}
+                      src={user?.image?.picture}
+                      sx={{ width: 24, height: 24 }}
+                    />
+                  </ListItemIcon>
+                  <ListItemText primary="My Profile" />
+                </ListItemComp>
+                <ListItemComp>
+                  <ListItemIcon>
+                    <InboxIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="My Inbox" />
+                </ListItemComp>
               </List>
             </nav>
             <Divider />
             <nav aria-label="items">
               <List>
-                <ListItem disablePadding>
-                  <ListItemButton>
-                    <ListItemText primary="My Ads" />
-                  </ListItemButton>
-                </ListItem>
+                <ListItemComp>
+                  <ListItemText primary="My Ads" />
+                </ListItemComp>
               </List>
             </nav>
             <Divider />
@@ -95,3 +107,15 @@ export default function UserProfilePopover() {
     );
   } else return null;
 }
+
+const ListItemComp = ({
+  children,
+  onClick,
+}: {
+  children: ReactNode;
+  onClick?: () => void;
+}) => (
+  <ListItem disablePadding>
+    <ListItemButton onClick={onClick}>{children}</ListItemButton>
+  </ListItem>
+);

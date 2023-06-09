@@ -1,10 +1,18 @@
-import { Box, useTheme, alpha, useScrollTrigger, Stack } from "@mui/material";
+import {
+  Box,
+  useTheme,
+  alpha,
+  useScrollTrigger,
+  Stack,
+  Card,
+} from "@mui/material";
+import { NavLink } from "react-router-dom";
 
 import ColorModeIcon from "./ColorModeIcon";
-import AppLogo from "../reusable/AppLogo";
+import AppLogo from "@reusable/AppLogo";
 import UserProfilePopover from "../user/UserProfilePopover";
 import LogInButton from "../user/login/LogInButton";
-import { NavLink } from "react-router-dom";
+import { ppx, ppy } from "@config/configConst";
 
 export default function AppHeader() {
   const theme = useTheme();
@@ -12,9 +20,7 @@ export default function AppHeader() {
   const trigger = useScrollTrigger({ threshold: 110 });
 
   return (
-    <Box
-      boxShadow={1}
-      padding={1}
+    <Card
       sx={{
         position: "sticky",
         top: 0,
@@ -22,6 +28,10 @@ export default function AppHeader() {
         backgroundColor,
         opacity: trigger ? 0 : 1,
         transition: "opacity 0.2s ease-in-out",
+        py: ppy,
+        px: ppx,
+        boxShadow: 1,
+        borderRadius: 0,
       }}
     >
       <Stack
@@ -29,7 +39,7 @@ export default function AppHeader() {
         alignItems={"center"}
         justifyContent={"space-between"}
       >
-        <NavLink to={"./"}>
+        <NavLink to={"/"}>
           <AppLogo />
         </NavLink>
         <Stack direction="row" alignItems={"center"}>
@@ -38,6 +48,6 @@ export default function AppHeader() {
           <ColorModeIcon />
         </Stack>
       </Stack>
-    </Box>
+    </Card>
   );
 }

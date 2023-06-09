@@ -30,10 +30,8 @@ async function main() {
   });
   const prisma = new PrismaClient();
   const pubsub = new PubSub();
-
-  //TODO: only allow to our site (origin: process.env.CLIENT_ORIGIN,)
   const corsOptions = {
-    origin: "*",
+    origin: process.env.CLIENT_ORIGIN,
     credentials: true,
   };
 
