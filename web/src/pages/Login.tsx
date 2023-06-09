@@ -1,18 +1,8 @@
-import {
-  Box,
-  Card,
-  Divider,
-  SxProps,
-  Tab,
-  Tabs,
-  Theme,
-  Typography,
-} from "@mui/material";
+import { Box, Card, Divider, SxProps, Tab, Tabs, Theme } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import AppLogo from "@reusable/AppLogo";
-import labels from "@constants/labels";
 import GoogleLoginButton from "@components/user/login/google/GoogleLoginButton";
 import CredentialLogin from "@components/user/login/CredentialLogin";
 import SignUp from "@components/user/signUp/SignUp";
@@ -35,15 +25,7 @@ export default function Login() {
     <Box sx={pageCont}>
       <Card sx={{ boxShadow: 4, py: 2, width: 300 }}>
         <Box sx={{ textAlign: "center" }}>
-          <AppLogo />
-          <Typography
-            id="modal-modal-title"
-            variant="h6"
-            component="h2"
-            sx={{ marginY: 2 }}
-          >
-            {labels.appName}
-          </Typography>
+          <AppLogo size={60} />
         </Box>
         <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
           <Tabs

@@ -1,11 +1,4 @@
-import {
-  Box,
-  useTheme,
-  alpha,
-  useScrollTrigger,
-  Stack,
-  Card,
-} from "@mui/material";
+import { useTheme, alpha, useScrollTrigger, Stack, Card } from "@mui/material";
 import { NavLink } from "react-router-dom";
 
 import ColorModeIcon from "./ColorModeIcon";

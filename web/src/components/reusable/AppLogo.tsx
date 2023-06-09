@@ -1,5 +1,9 @@
-import logo from "../../assets/ProChowkLogo.svg";
+import logo from "../../assets/logo.svg";
 
-export default function AppLogo() {
-  return <img src={logo} alt={"logo"} width={40} />;
+interface Props {
+  size?: number;
+}
+
+export default function AppLogo({ size = 40 }: Props) {
+  return <img src={logo} alt={"logo"} width={size} />;
 }

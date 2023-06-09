@@ -30,7 +30,48 @@ export default function Providers() {
 const MUIProvider = ({ children }: { children: ReactNode }) => {
   useUserLocation();
   const { colorMode: mode } = useSettingsStates();
-  const theme = useMemo(() => createTheme({ palette: { mode } }), [mode]);
+  const theme = useMemo(
+    () =>
+      createTheme({
+        palette: {
+          mode,
+          ...(mode === "light"
+            ? {
+                primary: {
+                  light: "#f15c1c",
+                  main: "#d94f14",
+                  dark: "#b23c0a",
+                  contrastText: "#fff",
+                },
+                secondary: {
+                  light: "#9878dd",
+                  main: "#683dcd",
+                  dark: "#4f30be",
+                  contrastText: "#fff",
+                },
+              }
+            : {
+                background: {
+                  default: "#0A1929",
+                  paper: "#0A1929",
+                },
+                primary: {
+                  light: "#f3723f",
+                  main: "#e75619",
+                  dark: "#cb4811",
+                  contrastText: "#000",
+                },
+                secondary: {
+                  light: "#b6a0e6",
+                  main: "#805ad5",
+                  dark: "#5e38c7",
+                  contrastText: "#000",
+                },
+              }),
+        },
+      }),
+    [mode]
+  );
 
   return (
     <ThemeProvider theme={theme}>
