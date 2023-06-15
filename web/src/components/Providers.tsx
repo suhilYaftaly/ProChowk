@@ -38,9 +38,9 @@ const MUIProvider = ({ children }: { children: ReactNode }) => {
           ...(mode === "light"
             ? {
                 primary: {
-                  light: "#f15c1c",
-                  main: "#d94f14",
-                  dark: "#b23c0a",
+                  light: "#f3723f", //400
+                  main: "#d94f14", //700
+                  dark: "#b23c0a", //900
                   contrastText: "#fff",
                 },
                 secondary: {
@@ -56,9 +56,9 @@ const MUIProvider = ({ children }: { children: ReactNode }) => {
                   paper: "#0A1929",
                 },
                 primary: {
-                  light: "#f3723f",
-                  main: "#e75619",
-                  dark: "#cb4811",
+                  light: "#f8ab8f", //200
+                  main: "#f3723f", //400
+                  dark: "#d94f14", //700
                   contrastText: "#000",
                 },
                 secondary: {

@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { Stack, Box, Modal, Typography, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import AppLogo from "./AppLogo";
 
 interface Props {
   open: boolean;
@@ -41,9 +42,12 @@ export default function FullScreenModal({
             alignItems={"center"}
             justifyContent={"space-between"}
           >
-            <Typography id="modal-modal-title" variant="h6" component="h2">
-              {title}
-            </Typography>
+            <Stack direction={"row"} spacing={1} alignItems={"center"}>
+              <AppLogo />
+              <Typography id="modal-modal-title" variant="h6" component="h2">
+                {title}
+              </Typography>
+            </Stack>
             <IconButton onClick={handleClose} color="inherit">
               <CloseIcon />
             </IconButton>

@@ -7,18 +7,24 @@ import axios from "axios";
 
 import {
   GraphQLContext,
-  IGoogleLoginInput,
-  IGoogleOneTapLoginInput,
   ILoginUserInput,
   IRegisterUserInput,
+  IGetUserAddInput,
+  IUpdateUserInput,
   IUser,
-} from "../../utils/types";
+} from "../../types/userTypes";
 import { gqlError } from "../../utils/funcs";
 import {
+  validateLatAndLng,
   validateLoginInput,
   validateRegisterInput,
-} from "../../utils/validators";
-import checkAuth from "../../utils/checkAuth";
+  validateUpdateUser,
+} from "../../utils/validators/userValidators";
+import checkAuth, {
+  generateToken,
+  isAdmin,
+  isSuperAdmin,
+} from "../../utils/checkAuth";
 import { CRED_PROVIDER, GOOGLE_PROVIDER } from "../../utils/constants";
 
 dotenv.config();
@@ -27,27 +33,39 @@ export default {
   Query: {
     searchUser: async (
       _: any,
-      { email }: any,
+      { id }: { id: string },
       context: GraphQLContext
     ): Promise<IUser> => {
       const { prisma, req } = context;
       const user = checkAuth(req);
-      console.log("USER TOKEN", user);
 
       try {
         const foundUser = await prisma.user.findFirst({
-          where: { email: { equals: email, mode: "insensitive" } },
+          where: { id },
         });
         if (!foundUser) {
-          throw gqlError({
-            msg: "Email not found",
-            code: "BAD_REQUEST",
-          });
+          throw gqlError({ msg: "User not found", code: "BAD_REQUEST" });
         }
 
-        return getUserProps(foundUser, "");
+        return getUserProps(foundUser);
       } catch (error: any) {
         console.log("search user error", error);
+        throw gqlError({ msg: error?.message });
+      }
+    },
+    searchAllUsers: async (
+      _: any,
+      __: any,
+      context: GraphQLContext
+    ): Promise<IUser[]> => {
+      const { prisma, req } = context;
+      const user = checkAuth(req);
+
+      try {
+        const allUsers = await prisma.user.findMany();
+        return allUsers.map((foundUser) => getUserProps(foundUser));
+      } catch (error: any) {
+        console.log("search all users error", error);
         throw gqlError({ msg: error?.message });
       }
     },
@@ -130,7 +148,7 @@ export default {
     },
     googleLogin: async (
       _: any,
-      { accessToken }: IGoogleLoginInput,
+      { accessToken }: { accessToken: string },
       context: GraphQLContext
     ): Promise<IUser> => {
       try {
@@ -145,7 +163,7 @@ export default {
         if (tokenInfoResp.status === 200) {
           const { aud, email } = tokenInfoResp.data;
           if (process.env.GOOGLE_CLIENT_ID !== aud)
-            gqlError({ msg: "Token not verified", code: "FORBIDDEN" });
+            throw gqlError({ msg: "Token not verified", code: "FORBIDDEN" });
 
           // get user info
           const userInfoResp = await axios.get(
@@ -203,9 +221,9 @@ export default {
     },
     googleOneTapLogin: async (
       _: any,
-      { credential }: IGoogleOneTapLoginInput,
+      { credential }: { credential: string },
       context: GraphQLContext
-    ): Promise<any> => {
+    ): Promise<IUser> => {
       const { prisma } = context;
       const decodedToken = jwt.decode(credential);
 
@@ -220,7 +238,7 @@ export default {
           } = decodedToken as jwt.JwtPayload;
 
           if (process.env.GOOGLE_CLIENT_ID !== aud)
-            gqlError({ msg: "Token not verified", code: "FORBIDDEN" });
+            throw gqlError({ msg: "Token not verified", code: "FORBIDDEN" });
 
           const foundUser = await prisma.user.findFirst({
             where: {
@@ -253,66 +271,111 @@ export default {
         throw gqlError({ msg: error?.message });
       }
     },
+    updateUser: async (
+      _: any,
+      { id, name, phoneNum, image, address, bio }: IUpdateUserInput,
+      context: GraphQLContext
+    ): Promise<IUser> => {
+      const { prisma, req } = context;
+      const user = checkAuth(req);
 
-    // createUsername: async (
-    //   _: any,
-    //   args: { username: string },
-    //   context: GraphQLContext
-    // ): Promise<CreateUsernameResponse> => {
-    //   const { username } = args;
-    //   const { prisma, session } = context;
+      if (id !== user.id && !isAdmin(user.roles) && !isSuperAdmin(user.roles)) {
+        throw gqlError({
+          msg: "Unauthorized user. You cannot update someone else's profile",
+          code: "FORBIDDEN",
+        });
+      }
 
-    //   if (!session?.user) return createErrorObj({ error: "Not Authorized" });
+      try {
+        const existingUser = await prisma.user.findUnique({ where: { id } });
 
-    //   const { email } = session.user;
+        if (!existingUser) {
+          throw gqlError({
+            msg: "No user found with the given ID",
+            code: "BAD_REQUEST",
+          });
+        }
 
-    //   try {
-    //     const existingUser = await prisma.user.findUnique({
-    //       where: { username },
-    //     });
-    //     if (existingUser)
-    //       return createErrorObj({
-    //         error: "Username already taken, Try another.",
-    //       });
+        const validate = validateUpdateUser({ name, phoneNum, image, bio });
+        if (validate.error) throw validate.error;
+        const updatedUser = await prisma.user.update({
+          where: { id },
+          data: {
+            ...validate.data,
+            address: { ...(existingUser.address as any), ...address },
+          },
+        });
 
-    //     const updateUser = await prisma.user.update({
-    //       where: { email },
-    //       data: { username },
-    //     });
-    //     console.log("updateUser", updateUser);
+        return getUserProps(updatedUser, user.token);
+      } catch (error: any) {
+        throw gqlError({ msg: error?.message });
+      }
+    },
+    getUserAddress: async (
+      _: any,
+      { id, lat, lng }: IGetUserAddInput,
+      context: GraphQLContext
+    ): Promise<IUser> => {
+      const { prisma, req } = context;
+      const user = checkAuth(req);
 
-    //     return { success: true };
-    //   } catch (error: any) {
-    //     console.log("CreateUsername error", error);
-    //     return createErrorObj({ error: error?.message });
-    //   }
-    // },
+      if (id !== user.id && !isAdmin(user.roles) && !isSuperAdmin(user.roles)) {
+        throw gqlError({
+          msg: "Unauthorized user. You cannot update someone else's profile",
+          code: "FORBIDDEN",
+        });
+      }
+
+      try {
+        const existingUser = await prisma.user.findUnique({ where: { id } });
+
+        if (!existingUser) {
+          throw gqlError({
+            msg: "No user found with the given ID",
+            code: "BAD_REQUEST",
+          });
+        }
+
+        const inputErr = validateLatAndLng(lat, lng);
+        if (inputErr) throw inputErr;
+
+        const response = await axios.get(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
+        );
+        const add = response.data?.address;
+        if (add) {
+          const address = {
+            houseNum: add?.house_number,
+            road: add?.road,
+            neighbourhood: add?.neighbourhood,
+            city: add?.city,
+            municipality: add?.county,
+            region: add?.state_district,
+            province: add?.state,
+            postalCode: add?.postcode,
+            country: add?.country,
+            countryCode: add?.country_code,
+            displayName: response.data?.display_name,
+            lat,
+            lng,
+          };
+
+          const updatedUser = await prisma.user.update({
+            where: { id },
+            data: { address },
+          });
+
+          return getUserProps(updatedUser, user.token);
+        } else throw gqlError({ msg: "Could not retrieve address details" });
+      } catch (error: any) {
+        throw gqlError({ msg: error?.message });
+      }
+    },
   },
   // Subscription:{}
 };
 
-const generateToken = (user: User) => {
-  const token = jwt.sign(
-    {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      roles: user.roles,
-    },
-    process.env.AUTH_SECRET as string,
-    { expiresIn: "1d" }
-  );
-
-  if (!token)
-    throw gqlError({
-      msg: "Error generating token",
-      code: "UNAUTHENTICATED",
-    });
-
-  return token;
-};
-
-const getUserProps = (user: User, token: string) => {
+const getUserProps = (user: User, token = "") => {
   return {
     id: user.id,
     name: user.name,
@@ -324,5 +387,8 @@ const getUserProps = (user: User, token: string) => {
     token,
     provider: user.provider,
     roles: user?.roles,
+    phoneNum: user?.phoneNum,
+    address: user?.address,
+    bio: user?.bio,
   };
 };

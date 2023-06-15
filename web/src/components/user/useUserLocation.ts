@@ -1,23 +1,40 @@
 import { useEffect } from "react";
-import { useUserStates } from "../../redux/reduxStates";
-import { useAppDispatch } from "../../utils/hooks/hooks";
+import { useMutation } from "@apollo/client";
+
+import { useUserStates } from "@redux/reduxStates";
+import { useAppDispatch } from "@utils/hooks/hooks";
 import {
+  logIn,
   userLocationError,
   userLocationSuccess,
-} from "../../redux/slices/userSlice";
+} from "@rSlices/userSlice";
+import userOps, {
+  IGetUserAddressData,
+  IGetUserAddressInput,
+} from "@gqlOps/user";
 
 export default function useUserLocation() {
   const dispatch = useAppDispatch();
-  const { userLocation } = useUserStates();
+  const { userLocation, user } = useUserStates();
   const lat = userLocation?.data?.lat;
   const lng = userLocation?.data?.lng;
+
+  const [getUserAddress] = useMutation<
+    IGetUserAddressData,
+    IGetUserAddressInput
+  >(userOps.Mutations.getUserAddress);
 
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          dispatch(userLocationSuccess({ lat: latitude, lng: longitude }));
+          dispatch(
+            userLocationSuccess({
+              lat: String(latitude),
+              lng: String(longitude),
+            })
+          );
         },
         (error) =>
           dispatch(
@@ -35,16 +52,22 @@ export default function useUserLocation() {
       );
   }, []);
 
-  useEffect(() => {
-    if (lat && lng && !userLocation?.data?.address) {
-      fetch(
-        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
-      )
-        .then((response) => response.json())
-        .then((data) =>
-          dispatch(userLocationSuccess({ ...userLocation.data, ...data }))
-        )
-        .catch((error) => dispatch(userLocationError(error)));
+  const getAddress = async () => {
+    if (lat && lng && !user?.address && user?.id) {
+      try {
+        const { data } = await getUserAddress({
+          variables: { id: user.id, lat, lng },
+        });
+        if (data?.getUserAddress) {
+          dispatch(logIn(data?.getUserAddress));
+        } else throw new Error();
+      } catch (error: any) {
+        console.log("get user address from lt&lng failed:", error.message);
+      }
     }
-  }, [lat, lng]);
+  };
+
+  useEffect(() => {
+    if (lat && lng && !user?.address && user?.id) getAddress();
+  }, [lat, lng, user]);
 }

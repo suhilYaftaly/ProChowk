@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { styled } from "@mui/material/styles";
 import { Typography, TextField, Button, Stack } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import { processImageFile } from "@/utils/utilFuncs";
+import { processImageFile, processPDFFile } from "@/utils/utilFuncs";
 
 interface IFileUpload {
   title?: string;
@@ -86,8 +86,18 @@ export default function FileUpload({ title, onFileUpload }: IFileUpload) {
       const isImage = file.type.startsWith("image/");
       const isPdf = file.type === "application/pdf";
 
-      if (isImage || isPdf) {
+      if (isImage) {
         processImageFile(file, (imageUrl) => {
+          setFileData({
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            picture: imageUrl,
+          });
+        });
+      }
+      if (isPdf) {
+        processPDFFile(file, (imageUrl) => {
           setFileData({
             name: file.name,
             size: file.size,

@@ -6,13 +6,13 @@ import {
 } from "react-router-dom";
 
 import RootLayout from "@/layouts/RootLayout";
-import MyProfile from "@/pages/MyProfile";
 import Home from "@/pages/Home";
 import Login from "@/pages/Login";
+import User from "@/pages/User";
 
 export const paths = {
   login: "/login",
-  myprofile: "/myprofile",
+  user: (nameId: string) => `/user/${nameId}`, //nameId = (suhilmohammad-647edfd209ee1be1232asd)
 };
 
 const router = createBrowserRouter(
@@ -20,7 +20,7 @@ const router = createBrowserRouter(
     <Route path="/" element={<RootLayout />}>
       <Route index element={<Home />} />
       <Route path={paths.login} element={<Login />} />
-      <Route path={paths.myprofile} element={<MyProfile />} />
+      <Route path={paths.user(":nameId")} element={<User />} />
     </Route>
   )
 );

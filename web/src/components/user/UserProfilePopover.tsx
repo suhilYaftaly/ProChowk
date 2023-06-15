@@ -32,7 +32,10 @@ export default function UserProfilePopover() {
 
   const openMyProfile = () => {
     closePopover();
-    navigate(paths.myprofile);
+    if (user?.name && user?.id) {
+      const username = `${user.name}-${user.id}`.replace(/\s/g, "");
+      navigate(paths.user(username));
+    }
   };
 
   if (user) {

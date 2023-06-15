@@ -1,11 +1,10 @@
 import { useTheme, alpha, useScrollTrigger, Stack, Card } from "@mui/material";
-import { NavLink } from "react-router-dom";
 
 import ColorModeIcon from "./ColorModeIcon";
 import AppLogo from "@reusable/AppLogo";
 import UserProfilePopover from "../user/UserProfilePopover";
 import LogInButton from "../user/login/LogInButton";
-import { ppx, ppy } from "@config/configConst";
+import { pp } from "@config/configConst";
 
 export default function AppHeader() {
   const theme = useTheme();
@@ -21,8 +20,7 @@ export default function AppHeader() {
         backgroundColor,
         opacity: trigger ? 0 : 1,
         transition: "opacity 0.2s ease-in-out",
-        py: ppy,
-        px: ppx,
+        p: pp,
         boxShadow: 1,
         borderRadius: 0,
       }}
@@ -32,9 +30,7 @@ export default function AppHeader() {
         alignItems={"center"}
         justifyContent={"space-between"}
       >
-        <NavLink to={"/"}>
-          <AppLogo />
-        </NavLink>
+        <AppLogo />
         <Stack direction="row" alignItems={"center"}>
           <LogInButton />
           <UserProfilePopover />

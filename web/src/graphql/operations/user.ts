@@ -2,11 +2,70 @@ import { gql } from "@apollo/client";
 
 export default {
   Queries: {
-    searchUsers: gql`
-      query SearchUsers($username: String!) {
-        searchUsers(username: $username) {
+    searchUser: gql`
+      query SearchUser($id: ID!) {
+        searchUser(id: $id) {
           id
-          username
+          name
+          phoneNum
+          bio
+          email
+          emailVerified
+          createdAt
+          updatedAt
+          image {
+            picture
+          }
+          provider
+          roles
+          address {
+            houseNum
+            road
+            city
+            neighbourhood
+            country
+            countryCode
+            province
+            region
+            postalCode
+            municipality
+            lat
+            lng
+            displayName
+          }
+        }
+      }
+    `,
+    searchAllUsers: gql`
+      query SearchAllUsers {
+        searchAllUsers {
+          id
+          name
+          # phoneNum
+          email
+          # emailVerified
+          # createdAt
+          # updatedAt
+          image {
+            picture
+          }
+          # provider
+          # roles
+          # address {
+          #   houseNum
+          #   road
+          #   city
+          #   neighbourhood
+          #   country
+          #   countryCode
+          #   province
+          #   region
+          #   postalCode
+          #   municipality
+          #   lat
+          #   lng
+          #   displayName
+          # }
         }
       }
     `,
@@ -21,6 +80,8 @@ export default {
         registerUser(name: $name, email: $email, password: $password) {
           id
           name
+          phoneNum
+          bio
           email
           emailVerified
           createdAt
@@ -28,9 +89,24 @@ export default {
           image {
             picture
           }
-          token
           provider
           roles
+          address {
+            houseNum
+            road
+            city
+            neighbourhood
+            country
+            countryCode
+            province
+            region
+            postalCode
+            municipality
+            lat
+            lng
+            displayName
+          }
+          token
         }
       }
     `,
@@ -39,6 +115,8 @@ export default {
         loginUser(email: $email, password: $password) {
           id
           name
+          phoneNum
+          bio
           email
           emailVerified
           createdAt
@@ -46,9 +124,24 @@ export default {
           image {
             picture
           }
-          token
           provider
           roles
+          address {
+            houseNum
+            road
+            city
+            neighbourhood
+            country
+            countryCode
+            province
+            region
+            postalCode
+            municipality
+            lat
+            lng
+            displayName
+          }
+          token
         }
       }
     `,
@@ -57,6 +150,8 @@ export default {
         googleLogin(accessToken: $accessToken) {
           id
           name
+          phoneNum
+          bio
           email
           emailVerified
           createdAt
@@ -64,9 +159,24 @@ export default {
           image {
             picture
           }
-          token
           provider
           roles
+          address {
+            houseNum
+            road
+            city
+            neighbourhood
+            country
+            countryCode
+            province
+            region
+            postalCode
+            municipality
+            lat
+            lng
+            displayName
+          }
+          token
         }
       }
     `,
@@ -75,6 +185,8 @@ export default {
         googleOneTapLogin(credential: $credential) {
           id
           name
+          phoneNum
+          bio
           email
           emailVerified
           createdAt
@@ -82,9 +194,108 @@ export default {
           image {
             picture
           }
-          token
           provider
           roles
+          address {
+            houseNum
+            road
+            city
+            neighbourhood
+            country
+            countryCode
+            province
+            region
+            postalCode
+            municipality
+            lat
+            lng
+            displayName
+          }
+          token
+        }
+      }
+    `,
+    updateUser: gql`
+      mutation UpdateUser(
+        $id: ID!
+        $name: String
+        $image: ImageInput
+        $phoneNum: String
+        $address: AddressInput
+        $bio: String
+      ) {
+        updateUser(
+          id: $id
+          name: $name
+          image: $image
+          phoneNum: $phoneNum
+          address: $address
+          bio: $bio
+        ) {
+          id
+          name
+          phoneNum
+          bio
+          email
+          emailVerified
+          createdAt
+          updatedAt
+          image {
+            picture
+          }
+          provider
+          roles
+          address {
+            houseNum
+            road
+            city
+            neighbourhood
+            country
+            countryCode
+            province
+            region
+            postalCode
+            municipality
+            lat
+            lng
+            displayName
+          }
+          token
+        }
+      }
+    `,
+    getUserAddress: gql`
+      mutation GetUserAddress($id: ID!, $lat: String!, $lng: String!) {
+        getUserAddress(id: $id, lat: $lat, lng: $lng) {
+          id
+          name
+          phoneNum
+          bio
+          email
+          emailVerified
+          createdAt
+          updatedAt
+          image {
+            picture
+          }
+          provider
+          roles
+          address {
+            houseNum
+            road
+            city
+            neighbourhood
+            country
+            countryCode
+            province
+            region
+            postalCode
+            municipality
+            lat
+            lng
+            displayName
+          }
+          token
         }
       }
     `,
@@ -92,7 +303,7 @@ export default {
   // Subscriptions: {}
 };
 
-//interfaces
+//INTERFACES
 export interface IRegisterUserInput {
   name: string;
   email: string;
@@ -131,21 +342,67 @@ export interface IUserData {
   emailVerified: boolean;
   createdAt: string;
   updatedAt: string;
-  image: { picture: string; size?: number; [key: string]: any };
+  image: Image;
   token: string;
   provider: string;
   roles?: UserRole[];
   phoneNum?: string;
+  bio?: string;
+  address?: AddressInput;
 }
 type UserRole = "admin" | "superAdmin";
+type Image = { picture: string; name?: string; size?: number; type?: string };
+interface ImageInput {
+  picture: string;
+  name?: string;
+  size?: number;
+  type?: string;
+}
+
+export interface AddressInput {
+  houseNum?: string;
+  road?: string;
+  neighbourhood?: string;
+  city?: string;
+  municipality?: string;
+  region?: string;
+  province?: string;
+  postalCode?: string;
+  country?: string;
+  countryCode?: string;
+  displayName?: string;
+  lat?: string;
+  lng?: string;
+}
+
+export interface IGetUserAddressInput {
+  id: string;
+  lat: string;
+  lng: string;
+}
+export interface IGetUserAddressData {
+  getUserAddress: IUserData;
+}
+
+export interface ISearchAllUsersData {
+  searchAllUsers: IUserData[];
+}
 
 export interface ISearchUserInput {
-  username: string;
-}
-export interface ISearchUsersData {
-  searchUsers: Array<ISearchUser>;
-}
-export interface ISearchUser {
   id: string;
-  username: string;
+}
+export interface ISearchUserData {
+  searchUser: IUserData;
+}
+
+export interface IUpdateUserInput {
+  id: string;
+  name?: string;
+  image?: ImageInput;
+  phoneNum?: string;
+  bio?: string;
+  address?: AddressInput;
+}
+export interface IUpdateUserData {
+  updateUser: IUserData;
 }

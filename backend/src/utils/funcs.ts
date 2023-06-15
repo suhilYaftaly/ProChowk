@@ -22,3 +22,12 @@ export function validateEmail(email: string): boolean {
   const emailPattern = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
   return emailPattern.test(email);
 }
+
+export function validatePhoneNum(phoneNumber: string): boolean {
+  const pattern = /^\d{3}-\d{3}-\d{4}$/;
+  if (phoneNumber) return pattern.test(phoneNumber);
+  return false;
+}
+
+export const getErr = (msg: string) =>
+  gqlError({ msg, code: "BAD_USER_INPUT" });

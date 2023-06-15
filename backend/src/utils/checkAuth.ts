@@ -2,6 +2,18 @@ import * as dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 
 import { gqlError } from "./funcs";
+import { User } from "@prisma/client";
+import { UserRole } from "../types/userTypes";
+
+interface ISignedProps {
+  id: string;
+  name: string;
+  email: string;
+  roles?: UserRole[];
+  iat?: number;
+  exp?: number;
+  token?: string;
+}
 
 export default (req: any) => {
   dotenv.config();
@@ -10,8 +22,11 @@ export default (req: any) => {
     const token = authHeader.split("Bearer ")?.[1];
     if (token) {
       try {
-        const user = jwt.verify(token, process.env.AUTH_SECRET as string);
-        return user;
+        const user = jwt.verify(
+          token,
+          process.env.AUTH_SECRET as string
+        ) as ISignedProps;
+        return { ...user, token };
       } catch (error: any) {
         console.log("Invalid/Expired token", error);
         throw gqlError({ msg: error?.message, code: "UNAUTHENTICATED" });
@@ -27,3 +42,29 @@ export default (req: any) => {
     code: "BAD_REQUEST",
   });
 };
+
+export const generateToken = (user: User) => {
+  const token = jwt.sign(
+    {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      roles: user.roles,
+    } as ISignedProps,
+    process.env.AUTH_SECRET as string,
+    { expiresIn: "1d" }
+  );
+
+  if (!token)
+    throw gqlError({
+      msg: "Error generating token",
+      code: "UNAUTHENTICATED",
+    });
+
+  return token;
+};
+
+export const isSuperAdmin = (roles: UserRole[] | undefined) =>
+  roles?.includes("superAdmin");
+export const isAdmin = (roles: UserRole[] | undefined) =>
+  roles?.includes("admin");

@@ -11,7 +11,7 @@ interface UserState {
   };
   isLoggedOut: boolean | undefined;
   userLocation: {
-    data: { lat: number; lng: number; [key: string]: any } | undefined;
+    data: { lat: string; lng: string; [key: string]: any } | undefined;
     isLoading: boolean;
     error: { message: string; [key: string]: any } | undefined;
   };

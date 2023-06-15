@@ -60,6 +60,51 @@ export function validateEmail(email: string): boolean {
 
 export const processImageFile = (
   file: File | undefined,
+  onSuccess: (imageUrl: string) => void,
+  maxSize = 1024
+) => {
+  if (file) {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const imageUrl = reader.result as string;
+      const image = new Image();
+      image.onload = () => {
+        const canvas = document.createElement("canvas");
+        const aspectRatio = image.width / image.height;
+        let width = image.width;
+        let height = image.height;
+
+        // Calculate new dimensions if the image exceeds the maxSize
+        if (width > maxSize || height > maxSize) {
+          if (aspectRatio > 1) {
+            width = maxSize;
+            height = width / aspectRatio;
+          } else {
+            height = maxSize;
+            width = height * aspectRatio;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+
+        // Draw the image on the canvas with the new dimensions
+        if (ctx) {
+          ctx.drawImage(image, 0, 0, width, height);
+          const resizedImageUrl = canvas.toDataURL(file.type);
+          onSuccess(resizedImageUrl);
+        }
+      };
+
+      image.src = imageUrl;
+    };
+    reader.readAsDataURL(file);
+  }
+};
+
+export const processPDFFile = (
+  file: File | undefined,
   onSuccess: (imageUrl: string) => void
 ) => {
   if (file) {
@@ -68,23 +113,6 @@ export const processImageFile = (
       const imageUrl = reader.result as string;
       onSuccess(imageUrl);
     };
-    reader.readAsDataURL(file);
-  }
-};
-
-export const processFile = (
-  file: File | undefined,
-  onSuccess: (fileData: string, fileType: string) => void
-) => {
-  if (file) {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const fileData = reader.result as string;
-      const fileType = file.type;
-      onSuccess(fileData, fileType);
-    };
-
-    // Read the file as base64
     reader.readAsDataURL(file);
   }
 };

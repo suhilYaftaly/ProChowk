@@ -1,3 +1,4 @@
+import { NavLink } from "react-router-dom";
 import logo from "../../assets/logo.svg";
 
 interface Props {
@@ -5,5 +6,9 @@ interface Props {
 }
 
 export default function AppLogo({ size = 40 }: Props) {
-  return <img src={logo} alt={"logo"} width={size} />;
+  return (
+    <NavLink to={"/"}>
+      <img src={logo} alt={"logo"} width={size} />
+    </NavLink>
+  );
 }

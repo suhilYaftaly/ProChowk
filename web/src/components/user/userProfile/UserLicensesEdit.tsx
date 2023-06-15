@@ -12,12 +12,13 @@ interface IFileUpload {
   fileName: string;
 }
 
-export default function MyLicences() {
+export default function UserLicensesEdit() {
   const [allFiles, setAllFiles] = useState<IAllFiles[]>([]);
 
   const onFile = ({ fileData, fileName }: IFileUpload) => {
     const id = Math.random().toString(36);
     setAllFiles((pv) => [...pv, { ...fileData, id, fileName: fileName }]);
+    console.log({ ...fileData, id, fileName: fileName });
   };
 
   const onDeleteLicence = (id: string) => {
