@@ -37,7 +37,7 @@ export default function UserSkillsEdit({
     IUpdateContrProfData,
     IUpdateContrProfInput
   >(contOps.Mutations.updateContrProf);
-  const [searchContrProf, { data: userContrData }] = useLazyQuery<
+  const [searchContrProf] = useLazyQuery<
     ISearchContrProfData,
     ISearchContrProfInput
   >(contOps.Queries.searchContrProf);

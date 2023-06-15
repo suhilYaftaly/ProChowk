@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import { useLazyQuery } from "@apollo/client";
 import { useEffect } from "react";
 
 import UserInfo from "@/components/user/userProfile/UserInfo";

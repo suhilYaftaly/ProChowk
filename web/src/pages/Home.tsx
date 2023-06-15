@@ -50,7 +50,7 @@ export default function Home() {
           </Grid>
         ))}
       </Grid>
-      <AllCards />;
+      <AllCards />
     </>
   );
 }
