@@ -30,10 +30,6 @@ async function main() {
   });
   const prisma = new PrismaClient();
   const pubsub = new PubSub();
-  const corsOptions = {
-    origin: "*", //process.env.CLIENT_ORIGIN TODO:
-    credentials: true,
-  };
 
   const serverCleanup = useServer(
     {
@@ -72,12 +68,12 @@ async function main() {
   app.use(
     "/graphql",
     cors<cors.CorsRequest>({
-      origin: "*",
+      origin: [
+        process.env.CLIENT_ORIGIN,
+        "http://localhost:3000",
+        "https://prochowk.vercel.app",
+      ],
       credentials: true,
-      allowedHeaders: "*",
-      exposedHeaders: "*",
-      methods: ["GET", "POST"], // Add the HTTP methods you want to allow
-      optionsSuccessStatus: 200, // Set the response status for preflight requests
     }),
     json(),
     express.json({ limit: "1mb" }),
