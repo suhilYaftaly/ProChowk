@@ -35,6 +35,8 @@ async function main() {
     credentials: true,
   };
 
+  app.use(cors(corsOptions)); // Add this line before the "/graphql" endpoint
+
   const serverCleanup = useServer(
     {
       schema,
@@ -71,7 +73,6 @@ async function main() {
 
   app.use(
     "/graphql",
-    cors<cors.CorsRequest>(corsOptions),
     json(),
     express.json({ limit: "1mb" }),
     expressMiddleware(server, {
