@@ -31,7 +31,7 @@ async function main() {
   const prisma = new PrismaClient();
   const pubsub = new PubSub();
   const corsOptions = {
-    origin: process.env.CLIENT_ORIGIN,
+    origin: "*",
     credentials: true,
   };
 
