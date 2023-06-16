@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "nodemon src/index.ts",
     "generate-prisma": "npx prisma generate --schema=src/prisma/schema.prisma",
-    "start": "node index"
+    "start": "node src/index.ts"
   },
   "author": "Sohail Mohammad",
   "license": "ISC",
