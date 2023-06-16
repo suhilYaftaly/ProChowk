@@ -52,7 +52,7 @@ export const generateToken = (user: User) => {
       roles: user.roles,
     } as ISignedProps,
     process.env.AUTH_SECRET as string,
-    { expiresIn: "1d" }
+    { expiresIn: "7d" }
   );
 
   if (!token)
