@@ -60,7 +60,6 @@ export default function User() {
   }, [userId]);
 
   const user = isMyProfile ? loggedInUser : userData?.searchUser;
-  const contrData = isMyProfile ? userContrData?.searchContrProf : null;
 
   return (
     <>
@@ -69,7 +68,7 @@ export default function User() {
           user={user}
           isMyProfile={isMyProfile}
           loading={loading}
-          contrData={contrData}
+          contrData={userContrData?.searchContrProf}
           userId={userId}
         />
       )}

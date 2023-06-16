@@ -28,6 +28,7 @@ export default {
         if (!contrUser) {
           throw gqlError({ msg: "User not found", code: "BAD_REQUEST" });
         }
+        console.log("testing deployments");
 
         const contrProfile = await prisma.contractorProfile.findUnique({
           where: { userId },
