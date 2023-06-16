@@ -68,11 +68,7 @@ async function main() {
   app.use(
     "/graphql",
     cors<cors.CorsRequest>({
-      origin: [
-        process.env.CLIENT_ORIGIN,
-        "http://localhost:3000",
-        "https://prochowk.vercel.app",
-      ],
+      origin: [process.env.CLIENT_ORIGIN],
       credentials: true,
     }),
     json(),
