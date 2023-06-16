@@ -64,7 +64,7 @@ interface LicensesInput {
   picture: string;
 }
 
-interface SkillsInput {
+export interface SkillsInput {
   id: string;
   label: string;
 }
