@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon src/index.ts",
+    "prestart": "npm run generate-prisma",
     "generate-prisma": "npx prisma generate --schema=src/prisma/schema.prisma",
     "start": "ts-node src/index.ts"
   },
