@@ -31,11 +31,9 @@ async function main() {
   const prisma = new PrismaClient();
   const pubsub = new PubSub();
   const corsOptions = {
-    origin: "*",
+    origin: "*", //process.env.CLIENT_ORIGIN TODO:
     credentials: true,
   };
-
-  app.use(cors(corsOptions)); // Add this line before the "/graphql" endpoint
 
   const serverCleanup = useServer(
     {
@@ -73,6 +71,14 @@ async function main() {
 
   app.use(
     "/graphql",
+    cors<cors.CorsRequest>({
+      origin: "*",
+      credentials: true,
+      allowedHeaders: "*",
+      exposedHeaders: "*",
+      methods: ["GET", "POST"], // Add the HTTP methods you want to allow
+      optionsSuccessStatus: 200, // Set the response status for preflight requests
+    }),
     json(),
     express.json({ limit: "1mb" }),
     expressMiddleware(server, {
