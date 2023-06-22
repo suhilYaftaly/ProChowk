@@ -18,8 +18,7 @@ export default {
       { userId }: { userId: string },
       context: GraphQLContext
     ): Promise<Contractor> => {
-      const { prisma, req } = context;
-      const user = checkAuth(req);
+      const { prisma } = context;
 
       try {
         const contrUser = await prisma.user.findUnique({
@@ -76,7 +75,7 @@ export default {
         if (existingContr) {
           contProfile = await prisma.contractorProfile.update({
             where: { userId: user.id },
-            data: { skills, licenses },
+            data: { skills, licenses, userEmail: user.email },
           });
         } else {
           contProfile = await prisma.contractorProfile.create({
@@ -84,7 +83,9 @@ export default {
               user: { connect: { id: user.id } },
               skills,
               licenses,
+              userEmail: user.email,
             },
+            include: { user: true },
           });
         }
 

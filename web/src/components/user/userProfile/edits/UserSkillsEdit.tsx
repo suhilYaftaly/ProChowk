@@ -1,4 +1,9 @@
-import { useApolloClient, useLazyQuery, useMutation } from "@apollo/client";
+import {
+  useApolloClient,
+  useLazyQuery,
+  useMutation,
+  useQuery,
+} from "@apollo/client";
 import {
   Alert,
   Autocomplete,
@@ -6,21 +11,24 @@ import {
   Chip,
   CircularProgress,
   Grid,
+  IconButton,
   Stack,
   TextField,
 } from "@mui/material";
 import { FormEvent, useEffect, useState } from "react";
+import AddIcon from "@mui/icons-material/Add";
 
 import contOps, {
-  IContrSkills,
+  SkillsInput,
   ISearchContrProfData,
   ISearchContrProfInput,
   IUpdateContrProfData,
   IUpdateContrProfInput,
 } from "@gqlOps/contractor";
+import dataListOps, { IGetAllSkillsData } from "@gqlOps/dataList";
 
 interface Props {
-  userSkills: IContrSkills[] | undefined;
+  userSkills: SkillsInput[] | undefined;
   userId: string | undefined;
   closeEdit: () => void;
 }
@@ -41,6 +49,8 @@ export default function UserSkillsEdit({
     ISearchContrProfData,
     ISearchContrProfInput
   >(contOps.Queries.searchContrProf);
+  const { data: allSkillsData, loading: allSkillsLoading } =
+    useQuery<IGetAllSkillsData>(dataListOps.Queries.getAllSkills);
 
   useEffect(() => setSelectedSkills(addSkills(userSkills)), [userSkills]);
 
@@ -91,21 +101,26 @@ export default function UserSkillsEdit({
     updateUserData();
     setDisableSaveBtn(true);
   };
-  const handleAdd = (newSkill: IContrSkills) => {
-    const exists = selectedSkills?.some((s) => s.id === newSkill.id);
+  const handleAdd = (newSkill: SkillsInput) => {
+    const exists = selectedSkills?.some((s) => s.label === newSkill.label);
     if (!exists) {
       setSelectedSkills((pv) => pv && [...pv, newSkill]);
       setDisableSaveBtn(false);
     }
   };
-  const handleDelete = (skillToDelete: IContrSkills) => () => {
+  const handleDelete = (skillToDelete: SkillsInput) => () => {
     setDisableSaveBtn(false);
     setSelectedSkills((skills) =>
-      skills?.filter((skill) => skill.id !== skillToDelete.id)
+      skills?.filter((skill) => skill.label !== skillToDelete.label)
     );
   };
-  const onSkillSelection = (_: any, value: IContrSkills | null | string) => {
-    if (value && typeof value !== "string") handleAdd(value);
+  const onSkillSelection = (_: any, value: SkillsInput | null | string) => {
+    if (value && typeof value === "string") {
+      const newSkill = { label: value };
+      handleAdd(newSkill);
+    } else if (value && typeof value !== "string") {
+      handleAdd(value);
+    }
   };
 
   return (
@@ -117,18 +132,50 @@ export default function UserSkillsEdit({
       autoComplete="off"
       onSubmit={handleSave}
     >
-      <Autocomplete
-        freeSolo
-        disablePortal
-        id="combo-box-demo"
-        options={allJobsList}
-        renderInput={(params) => <TextField {...params} label="Skills" />}
-        onChange={onSkillSelection}
-      />
-
+      {allSkillsLoading ? (
+        <CircularProgress size={30} sx={{ alignSelf: "center" }} />
+      ) : (
+        allSkillsData?.getAllSkills && (
+          <Autocomplete
+            freeSolo
+            disablePortal
+            id="combo-box-demo"
+            options={allSkillsData.getAllSkills?.data}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Skills"
+                InputProps={{
+                  ...params.InputProps,
+                  endAdornment: (
+                    <>
+                      {params.inputProps.value && (
+                        <IconButton
+                          onClick={() =>
+                            onSkillSelection(
+                              null,
+                              params.inputProps.value as string
+                            )
+                          }
+                          size="small"
+                        >
+                          <AddIcon />
+                        </IconButton>
+                      )}
+                      {params.InputProps.endAdornment}
+                    </>
+                  ),
+                }}
+              />
+            )}
+            onChange={onSkillSelection}
+            clearOnEscape={false}
+          />
+        )
+      )}
       <Grid container spacing={1} direction={"row"} sx={{ mt: 2 }}>
         {selectedSkills?.map((skill) => (
-          <Grid item key={skill.id}>
+          <Grid item key={skill.label}>
             <Chip
               label={skill.label}
               onDelete={handleDelete(skill)}
@@ -152,25 +199,7 @@ export default function UserSkillsEdit({
   );
 }
 
-const addSkills = (skills: IContrSkills[] | undefined) => {
+const addSkills = (skills: SkillsInput[] | undefined) => {
   if (!skills) return [];
-  return skills?.map((skill) => ({ id: skill.id, label: skill.label }));
+  return skills?.map((skill) => ({ label: skill.label }));
 };
-
-const allJobsList: readonly IContrSkills[] = [
-  { id: "0", label: "Floaring" },
-  { id: "1", label: "Carpentry" },
-  { id: "2", label: "Framing" },
-  { id: "3", label: "Plumbing" },
-  { id: "4", label: "Landscaping" },
-  { id: "5", label: "Interlocking & Driveway" },
-  { id: "6", label: "Basement" },
-  { id: "7", label: "Kitchen" },
-  { id: "8", label: "Painting" },
-  { id: "9", label: "Garage Door" },
-  { id: "10", label: "Appliance Repair & Installation" },
-  { id: "11", label: "Windown & Doors" },
-  { id: "12", label: "Roofing" },
-  { id: "13", label: "Electircian" },
-  { id: "14", label: "Heating & Air Conditioning" },
-];

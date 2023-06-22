@@ -8,7 +8,7 @@ import { IUserData } from "@gqlOps/user";
 import { IContractorData } from "@gqlOps/contractor";
 
 export interface IUserInfo {
-  user: IUserData;
+  user: IUserData | undefined;
   isMyProfile?: boolean;
   loading?: boolean;
   contrData?: IContractorData | null;

@@ -31,6 +31,5 @@ export interface ContractorUser {
 }
 
 export type Skills = {
-  id: string;
   label: string;
 };

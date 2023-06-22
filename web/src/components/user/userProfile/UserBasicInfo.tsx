@@ -15,8 +15,13 @@ import { useAppDispatch } from "@/utils/hooks/hooks";
 import { processImageFile, convertUnixToDate } from "@/utils/utilFuncs";
 import { IUserInfo } from "./UserInfo";
 import UserBasicInfoEdit from "./edits/UserBasicInfoEdit";
-import userOps, { IUpdateUserData, IUpdateUserInput } from "@gqlOps/user";
+import userOps, {
+  AddressInput,
+  IUpdateUserData,
+  IUpdateUserInput,
+} from "@gqlOps/user";
 import CustomModal from "@reusable/CustomModal";
+import ErrSnackbar from "@components/ErrSnackbar";
 
 export default function UserBasicInfo({
   user,
@@ -25,28 +30,31 @@ export default function UserBasicInfo({
 }: IUserInfo) {
   const dispatch = useAppDispatch();
   const [image, setImage] = useState(user?.image);
-  const basicAddress = `${user?.address?.city}, ${user?.address?.province}, ${user?.address?.country}`;
   const [openEdit, setOpenEdit] = useState(false);
-  const [updateUser, { loading: updateLoading }] = useMutation<
-    IUpdateUserData,
-    IUpdateUserInput
-  >(userOps.Mutations.updateUser);
+  const [updateUser, { loading: updateLoading, error: imageError }] =
+    useMutation<IUpdateUserData, IUpdateUserInput>(
+      userOps.Mutations.updateUser
+    );
+  const [openImgErrBar, setOpenImgErrBar] = useState(false);
 
   useEffect(() => {
     setImage(user?.image);
   }, [user]);
 
   const updateImage = async (formImage: any) => {
-    try {
-      const { data } = await updateUser({
-        variables: { id: user.id, image: formImage },
-      });
-      if (data?.updateUser) {
-        setImage(formImage);
-        dispatch(setUserProfile(data?.updateUser));
-      } else throw new Error();
-    } catch (error: any) {
-      console.log("image update failed:", error.message);
+    if (user) {
+      try {
+        const { data } = await updateUser({
+          variables: { id: user.id, image: formImage },
+        });
+        if (data?.updateUser) {
+          setImage(formImage);
+          dispatch(setUserProfile(data?.updateUser));
+        } else throw new Error();
+      } catch (error: any) {
+        setOpenImgErrBar(true);
+        console.log("image update failed:", error.message);
+      }
     }
   };
 
@@ -136,7 +144,7 @@ export default function UserBasicInfo({
                     </Typography>
                     {user?.address && (
                       <Typography variant="caption" color={"text.secondary"}>
-                        {basicAddress}
+                        {getBasicAdd(user.address)}
                       </Typography>
                     )}
                   </>
@@ -159,6 +167,19 @@ export default function UserBasicInfo({
       >
         <UserBasicInfoEdit user={user} closeEdit={() => setOpenEdit(false)} />
       </CustomModal>
+      <ErrSnackbar
+        open={openImgErrBar}
+        handleClose={setOpenImgErrBar}
+        errMsg={imageError?.message}
+      />
     </>
   );
 }
+
+const getBasicAdd = (address: AddressInput) => {
+  let add = "";
+  if (address?.city) add += address?.city + ", ";
+  if (address?.province) add += address?.province + ", ";
+  if (address?.country) add += address?.country;
+  return add;
+};

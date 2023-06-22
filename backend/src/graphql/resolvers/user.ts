@@ -36,8 +36,7 @@ export default {
       { id }: { id: string },
       context: GraphQLContext
     ): Promise<IUser> => {
-      const { prisma, req } = context;
-      const user = checkAuth(req);
+      const { prisma } = context;
 
       try {
         const foundUser = await prisma.user.findFirst({
@@ -58,8 +57,7 @@ export default {
       __: any,
       context: GraphQLContext
     ): Promise<IUser[]> => {
-      const { prisma, req } = context;
-      const user = checkAuth(req);
+      const { prisma } = context;
 
       try {
         const allUsers = await prisma.user.findMany();

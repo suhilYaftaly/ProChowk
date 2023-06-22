@@ -14,7 +14,6 @@ export default {
             picture
           }
           skills {
-            id
             label
           }
           user {
@@ -42,7 +41,6 @@ export default {
             picture
           }
           skills {
-            id
             label
           }
           user {
@@ -65,12 +63,6 @@ interface LicensesInput {
 }
 
 export interface SkillsInput {
-  id: string;
-  label: string;
-}
-
-export interface IContrSkills {
-  id: string;
   label: string;
 }
 
@@ -82,7 +74,7 @@ interface User {
 
 export interface IContractorData {
   id: string;
-  skills: IContrSkills[];
+  skills: SkillsInput[];
   licenses: LicensesInput[];
   user: User;
 }
@@ -92,7 +84,7 @@ export interface IUpdateContrProfData {
 }
 
 export interface IUpdateContrProfInput {
-  skills?: IContrSkills[] | null;
+  skills?: SkillsInput[] | null;
   licenses?: LicensesInput[] | null;
 }
 

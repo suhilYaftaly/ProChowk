@@ -1,3 +1,4 @@
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Alert,
   Button,
@@ -7,21 +8,26 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import { useMutation } from "@apollo/client";
 
 import { formatPhoneNum, validatePhoneNum } from "@utils/utilFuncs";
 import { useAppDispatch } from "@utils/hooks/hooks";
 import { setUserProfile } from "@rSlices/userSlice";
-import { IUserInfo } from "../UserInfo";
 import UserAddressEdit from "./UserAddressEdit";
 import userOps, { IUpdateUserData, IUpdateUserInput } from "@gqlOps/user";
-import { useMutation } from "@apollo/client";
+import { IUserInfo } from "../UserInfo";
 
 interface Props extends IUserInfo {
   closeEdit: () => void;
 }
 
-export default function UserBasicInfoEdit({ user, closeEdit }: Props) {
+interface FormError {
+  name: boolean;
+  phoneNum: boolean;
+  bio: boolean;
+}
+
+const UserBasicInfoEdit: React.FC<Props> = ({ user, closeEdit }) => {
   const dispatch = useAppDispatch();
   const [disableSaveBtn, setDisableSaveBtn] = useState(true);
   const [addressData, setAddressData] = useState({ ...user?.address });
@@ -30,7 +36,7 @@ export default function UserBasicInfoEdit({ user, closeEdit }: Props) {
     phoneNum: user?.phoneNum,
     bio: user?.bio,
   });
-  const [formError, setFormError] = useState({
+  const [formError, setFormError] = useState<FormError>({
     name: false,
     phoneNum: false,
     bio: false,
@@ -41,68 +47,84 @@ export default function UserBasicInfoEdit({ user, closeEdit }: Props) {
   >(userOps.Mutations.updateUser);
 
   useEffect(() => {
-    setFormData((prevValues) => ({
-      ...prevValues,
+    setFormData({
       name: user?.name || "",
       phoneNum: user?.phoneNum,
       bio: user?.bio,
-    }));
+    });
   }, [user]);
 
-  const handleFDataChange = (e: ChangeEvent<HTMLInputElement>): void => {
-    const { name, value } = e.target;
-    setDisableSaveBtn(false);
-    setFormError((pv) => ({ ...pv, [name]: false }));
+  const validateField = useCallback(
+    (value: string | undefined, fieldName: keyof FormError): boolean => {
+      if (fieldName === "name" && value && value.length < 3) {
+        return true;
+      }
+      if (fieldName === "phoneNum" && value && !validatePhoneNum(value)) {
+        return true;
+      }
+      if (fieldName === "bio" && value && value.length < 10) {
+        return true;
+      }
+      return false;
+    },
+    []
+  );
 
-    const fValue = name === "phoneNum" ? formatPhoneNum(value) : value;
+  const handleFDataChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>): void => {
+      const { name, value } = e.target;
+      setDisableSaveBtn(false);
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: name === "phoneNum" ? formatPhoneNum(value) : value,
+      }));
+      setFormError((prevErrors) => ({
+        ...prevErrors,
+        [name]: validateField(value, name as keyof FormError),
+      }));
+    },
+    [validateField]
+  );
 
-    setFormData((pv) => ({ ...pv, [name]: fValue }));
-  };
+  const validateForm = useCallback(() => {
+    const errors: FormError = {
+      name: validateField(formData.name, "name"),
+      phoneNum: validateField(formData.phoneNum, "phoneNum"),
+      bio: validateField(formData.bio, "bio"),
+    };
 
-  const validateFEntries = () => {
-    let errorExists = false;
+    setFormError(errors);
 
-    const isPhoneValid = validatePhoneNum(formData.phoneNum);
-
-    if (formData.name?.length < 3) {
-      setFormError((pv) => ({ ...pv, name: true }));
-      errorExists = true;
-    }
-    if (formData.phoneNum && !isPhoneValid) {
-      setFormError((pv) => ({ ...pv, phoneNum: true }));
-      errorExists = true;
-    }
-    if (formData.bio && formData.bio?.length < 10) {
-      setFormError((pv) => ({ ...pv, bio: true }));
-      errorExists = true;
-    }
-
-    return errorExists;
-  };
+    return Object.values(errors).some((error) => error);
+  }, [formData, validateField]);
 
   const updateUserData = async (newData: any) => {
-    try {
-      const { data } = await updateUser({
-        variables: {
-          id: user.id,
-          name: newData.name,
-          phoneNum: newData.phoneNum,
-          address: newData.address,
-          bio: newData.bio,
-        },
-      });
-      if (data?.updateUser) {
-        dispatch(setUserProfile(data?.updateUser));
-        closeEdit();
-      } else throw new Error();
-    } catch (error: any) {
-      console.log("user update failed:", error.message);
+    if (user) {
+      try {
+        const { data } = await updateUser({
+          variables: {
+            id: user.id,
+            name: newData.name,
+            phoneNum: newData.phoneNum,
+            address: newData.address,
+            bio: newData.bio,
+          },
+        });
+        if (data?.updateUser) {
+          dispatch(setUserProfile(data?.updateUser));
+          closeEdit();
+        } else {
+          throw new Error();
+        }
+      } catch (error: any) {
+        console.log("user update failed:", error.message);
+      }
     }
   };
 
-  const handleSave = (e: FormEvent<HTMLFormElement>): void => {
+  const handleSave = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
-    if (validateFEntries()) return;
+    if (validateForm()) return;
     setDisableSaveBtn(true);
 
     if (formData.name) {
@@ -181,4 +203,6 @@ export default function UserBasicInfoEdit({ user, closeEdit }: Props) {
       )}
     </Stack>
   );
-}
+};
+
+export default UserBasicInfoEdit;

@@ -24,7 +24,7 @@ export default function Home() {
       <Grid container direction={"row"} spacing={1} sx={{ m: 1 }}>
         {allUsers?.searchAllUsers?.map((user) => (
           <Grid item key={user.id}>
-            <Card sx={{ width: 200 }}>
+            <Card sx={{ width: 180 }}>
               <CardActionArea
                 onClick={() => {
                   const username = `${user.name}-${user.id}`.replace(/\s/g, "");

@@ -1,5 +1,6 @@
 import userResolvers from "./user";
 import userContractor from "./contractor";
 import merge from "lodash.merge";
+import dataList from "./dataList";
 
-export default merge({}, userResolvers, userContractor);
+export default merge({}, userResolvers, userContractor, dataList);

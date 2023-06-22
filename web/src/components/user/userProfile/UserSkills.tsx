@@ -28,7 +28,7 @@ export default function UserSkills({
       </Stack>
       <Grid container spacing={1} direction={"row"} sx={{ mt: 2 }}>
         {contrData?.skills?.map((skill) => (
-          <Grid item key={skill.id}>
+          <Grid item key={skill.label}>
             <Chip label={skill.label} color="primary" />
           </Grid>
         ))}

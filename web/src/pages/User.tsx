@@ -1,28 +1,29 @@
 import { useParams } from "react-router-dom";
 import { useLazyQuery } from "@apollo/client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Alert } from "@mui/material";
 
-import UserInfo from "@/components/user/userProfile/UserInfo";
-import { useUserStates } from "@/redux/reduxStates";
+import UserInfo from "@components/user/userProfile/UserInfo";
+import { useUserStates } from "@redux/reduxStates";
 import userOps, { ISearchUserData, ISearchUserInput } from "@gqlOps/user";
 import contOps, {
   ISearchContrProfData,
   ISearchContrProfInput,
 } from "@gqlOps/contractor";
+import ErrSnackbar from "@components/ErrSnackbar";
 
 export default function User() {
   const { nameId } = useParams();
   const { user: loggedInUser } = useUserStates();
   const userId = nameId?.split("-")?.[1];
   const isMyProfile = userId === loggedInUser?.id;
-  const [searchUser, { data: userData, loading }] = useLazyQuery<
-    ISearchUserData,
-    ISearchUserInput
-  >(userOps.Queries.searchUser);
-  const [searchContrProf, { data: userContrData }] = useLazyQuery<
-    ISearchContrProfData,
-    ISearchContrProfInput
-  >(contOps.Queries.searchContrProf);
+  const [searchUser, { data: userData, loading, error: userError }] =
+    useLazyQuery<ISearchUserData, ISearchUserInput>(userOps.Queries.searchUser);
+  const [searchContrProf, { data: userContrData, error: contError }] =
+    useLazyQuery<ISearchContrProfData, ISearchContrProfInput>(
+      contOps.Queries.searchContrProf
+    );
+  const [openContErrBar, setOpenContErrBar] = useState(false);
 
   const getUser = async () => {
     if (userId) {
@@ -45,6 +46,7 @@ export default function User() {
         });
         if (!data?.searchContrProf) throw new Error();
       } catch (error: any) {
+        setOpenContErrBar(true);
         console.log("get user info error:", error.message);
       }
     }
@@ -52,7 +54,7 @@ export default function User() {
 
   //retriev user info if its not my profile
   useEffect(() => {
-    if (userId && loggedInUser?.id && !isMyProfile) getUser();
+    if (userId && !isMyProfile) getUser();
   }, [isMyProfile]);
 
   useEffect(() => {
@@ -63,15 +65,23 @@ export default function User() {
 
   return (
     <>
-      {user && (
-        <UserInfo
-          user={user}
-          isMyProfile={isMyProfile}
-          loading={loading}
-          contrData={userContrData?.searchContrProf}
-          userId={userId}
-        />
+      <UserInfo
+        user={user}
+        isMyProfile={isMyProfile}
+        loading={loading}
+        contrData={userContrData?.searchContrProf}
+        userId={userId}
+      />
+      {userError && (
+        <Alert severity="error" color="error">
+          {userError.message}
+        </Alert>
       )}
+      <ErrSnackbar
+        open={openContErrBar}
+        handleClose={setOpenContErrBar}
+        errMsg={contError?.message}
+      />
     </>
   );
 }

@@ -30,7 +30,6 @@ export default gql`
     email: String!
   }
   type Skills {
-    id: String!
     label: String!
   }
 
@@ -42,7 +41,6 @@ export default gql`
     picture: String!
   }
   input SkillsInput {
-    id: String!
     label: String!
   }
 `;

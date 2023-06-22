@@ -26,9 +26,16 @@ model User {
 }
 
 model ContractorProfile {
-    id       String @id @default(auto()) @map("_id") @db.ObjectId
-    skills   Json?
-    user     User   @relation(fields: [userId], references: [id])
-    userId   String @unique @db.ObjectId
-    licenses Json?
+    id        String @id @default(auto()) @map("_id") @db.ObjectId
+    skills    Json?
+    licenses  Json?
+    user      User   @relation(fields: [userId], references: [id])
+    userId    String @unique @db.ObjectId
+    userEmail String
+}
+
+model DataList {
+    id   String @id @default(auto()) @map("_id") @db.ObjectId
+    type String @unique
+    data Json
 }
