@@ -1,10 +1,4 @@
 import {
-  useApolloClient,
-  useLazyQuery,
-  useMutation,
-  useQuery,
-} from "@apollo/client";
-import {
   Alert,
   Autocomplete,
   Button,
@@ -18,14 +12,9 @@ import {
 import { FormEvent, useEffect, useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
 
-import contOps, {
-  SkillsInput,
-  ISearchContrProfData,
-  ISearchContrProfInput,
-  IUpdateContrProfData,
-  IUpdateContrProfInput,
-} from "@gqlOps/contractor";
-import dataListOps, { IGetAllSkillsData } from "@gqlOps/dataList";
+import { SkillsInput, useUpdateContrProf } from "@gqlOps/contractor";
+import { useGetAllSkills, useUpdateAllSkills } from "@gqlOps/dataList";
+import ErrSnackbar from "@/components/ErrSnackbar";
 
 interface Props {
   userSkills: SkillsInput[] | undefined;
@@ -38,72 +27,41 @@ export default function UserSkillsEdit({
   userId,
   closeEdit,
 }: Props) {
-  const client = useApolloClient();
   const [selectedSkills, setSelectedSkills] = useState(addSkills(userSkills));
   const [disableSaveBtn, setDisableSaveBtn] = useState(true);
-  const [updateContrProf, { error, loading }] = useMutation<
-    IUpdateContrProfData,
-    IUpdateContrProfInput
-  >(contOps.Mutations.updateContrProf);
-  const [searchContrProf] = useLazyQuery<
-    ISearchContrProfData,
-    ISearchContrProfInput
-  >(contOps.Queries.searchContrProf);
-  const { data: allSkillsData, loading: allSkillsLoading } =
-    useQuery<IGetAllSkillsData>(dataListOps.Queries.getAllSkills);
+  const [openSkillsErrBar, setOpenSkillsErrBar] = useState(false);
+  const [newSkills, setNewSkills] = useState<SkillsInput[]>([]);
+  const { updateContrProfAsync, error, loading } = useUpdateContrProf();
+  const { updateAllSkillsAsync } = useUpdateAllSkills();
+  const {
+    getAllSkillsAsync,
+    data: allSkillsType,
+    loading: allSkillsLoading,
+    error: allSkillsError,
+  } = useGetAllSkills();
+  const allSkillsData = allSkillsType?.getAllSkills?.data;
 
   useEffect(() => setSelectedSkills(addSkills(userSkills)), [userSkills]);
 
-  const updateUserData = async () => {
-    try {
-      const { data } = await updateContrProf({
-        variables: { skills: selectedSkills },
-      });
-      if (data?.updateContrProf && userId) {
-        const cachedData = client.readQuery<
-          ISearchContrProfData,
-          ISearchContrProfInput
-        >({
-          query: contOps.Queries.searchContrProf,
-          variables: { userId },
-        });
-
-        if (cachedData) {
-          const modifiedData = {
-            ...cachedData,
-            skills: data.updateContrProf?.skills,
-          };
-
-          client.writeQuery<ISearchContrProfData, ISearchContrProfInput>({
-            query: contOps.Queries.searchContrProf,
-            data: modifiedData,
-            variables: { userId },
-          });
-        } else {
-          const { data: searchUserData } = await searchContrProf({
-            variables: { userId },
-          });
-          if (!searchUserData?.searchContrProf) throw new Error();
-        }
-
-        closeEdit();
-      } else throw new Error();
-    } catch (error: any) {
-      console.log("user update failed:", error.message);
-    }
-  };
-
   const handleSave = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
-    //TODO
-
-    // delete (newData.address as any).__typename;
-    updateUserData();
+    updateContrProfAsync({
+      skills: selectedSkills,
+      userId,
+      onSuccess: closeEdit,
+    });
+    if (newSkills?.length > 0) updateAllSkillsAsync({ skills: newSkills });
     setDisableSaveBtn(true);
   };
   const handleAdd = (newSkill: SkillsInput) => {
     const exists = selectedSkills?.some((s) => s.label === newSkill.label);
     if (!exists) {
+      //create new skills list to add to backend allSkills
+      const existsInAllSkills = allSkillsData?.some(
+        (s) => s.label === newSkill.label
+      );
+      if (!existsInAllSkills) setNewSkills((pv) => [...pv, newSkill]);
+
       setSelectedSkills((pv) => pv && [...pv, newSkill]);
       setDisableSaveBtn(false);
     }
@@ -113,34 +71,40 @@ export default function UserSkillsEdit({
     setSelectedSkills((skills) =>
       skills?.filter((skill) => skill.label !== skillToDelete.label)
     );
+    setNewSkills((skills) =>
+      skills?.filter((skill) => skill.label !== skillToDelete.label)
+    );
   };
   const onSkillSelection = (_: any, value: SkillsInput | null | string) => {
     if (value && typeof value === "string") {
       const newSkill = { label: value };
       handleAdd(newSkill);
     } else if (value && typeof value !== "string") {
-      handleAdd(value);
+      const newSkill = { label: value.label };
+      handleAdd(newSkill);
     }
   };
 
   return (
-    <Stack
-      component="form"
-      sx={{ pt: 3, pb: 1, overflow: "hidden" }}
-      spacing={2}
-      noValidate
-      autoComplete="off"
-      onSubmit={handleSave}
-    >
-      {allSkillsLoading ? (
-        <CircularProgress size={30} sx={{ alignSelf: "center" }} />
-      ) : (
-        allSkillsData?.getAllSkills && (
+    <>
+      <Stack
+        component="form"
+        sx={{ pt: 3, pb: 1, overflow: "hidden" }}
+        spacing={2}
+        noValidate
+        autoComplete="off"
+        onSubmit={handleSave}
+      >
+        {allSkillsLoading ? (
+          <CircularProgress size={30} sx={{ alignSelf: "center" }} />
+        ) : (
           <Autocomplete
+            onOpen={getAllSkillsAsync}
+            loading={allSkillsLoading}
             freeSolo
             disablePortal
             id="combo-box-demo"
-            options={allSkillsData.getAllSkills?.data}
+            options={allSkillsData || []}
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -171,31 +135,34 @@ export default function UserSkillsEdit({
             onChange={onSkillSelection}
             clearOnEscape={false}
           />
-        )
-      )}
-      <Grid container spacing={1} direction={"row"} sx={{ mt: 2 }}>
-        {selectedSkills?.map((skill) => (
-          <Grid item key={skill.label}>
-            <Chip
-              label={skill.label}
-              onDelete={handleDelete(skill)}
-              color="primary"
-              variant="outlined"
-            />
-          </Grid>
-        ))}
-      </Grid>
-
-      <Button type="submit" variant="contained" disabled={disableSaveBtn}>
-        {loading ? <CircularProgress size={20} /> : "Save Changes"}
-      </Button>
-
-      {error && (
-        <Alert severity="error" color="error">
-          {error.message}
-        </Alert>
-      )}
-    </Stack>
+        )}
+        <Grid container spacing={1} direction={"row"} sx={{ mt: 2 }}>
+          {selectedSkills?.map((skill) => (
+            <Grid item key={skill.label}>
+              <Chip
+                label={skill.label}
+                onDelete={handleDelete(skill)}
+                color="primary"
+                variant="outlined"
+              />
+            </Grid>
+          ))}
+        </Grid>
+        <Button type="submit" variant="contained" disabled={disableSaveBtn}>
+          {loading ? <CircularProgress size={20} /> : "Save Changes"}
+        </Button>
+        {error && (
+          <Alert severity="error" color="error">
+            {error.message}
+          </Alert>
+        )}
+      </Stack>
+      <ErrSnackbar
+        open={openSkillsErrBar}
+        handleClose={setOpenSkillsErrBar}
+        errMsg={allSkillsError?.message}
+      />
+    </>
   );
 }
 

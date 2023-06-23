@@ -173,7 +173,7 @@ const UserBasicInfoEdit: React.FC<Props> = ({ user, closeEdit }) => {
         placeholder="e.g. 999-999-9999"
       />
       <TextField
-        label={"Biography"}
+        label={"Biography (max 450 chars)"}
         variant="outlined"
         size="small"
         name={"bio"}
@@ -182,6 +182,9 @@ const UserBasicInfoEdit: React.FC<Props> = ({ user, closeEdit }) => {
         error={formError.bio}
         helperText={formError.bio && "Must be more than 10 chars"}
         placeholder={"your biography"}
+        multiline={true}
+        rows={3}
+        inputProps={{ maxLength: 450 }}
       />
       <div>
         <Divider sx={{ my: 2 }} />

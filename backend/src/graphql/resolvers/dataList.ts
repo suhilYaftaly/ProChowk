@@ -34,7 +34,7 @@ export default {
       context: GraphQLContext
     ): Promise<DataList> => {
       const { prisma, req } = context;
-      // const user = checkAuth(req);
+      const user = checkAuth(req);
 
       if (skills.length < 1) {
         throw gqlError({
@@ -62,15 +62,29 @@ export default {
           where: { type: "skills" },
         });
 
-        // Update the skills record if it exists, or create a new record if it doesn't
-        const dataList = existingSkills
-          ? await prisma.dataList.update({
-              where: { id: existingSkills.id },
-              data: { data: uniqueSkills },
-            })
-          : await prisma.dataList.create({
-              data: { type: "skills", data: uniqueSkills },
-            });
+        let dataList: DataList;
+
+        if (existingSkills) {
+          // Update the existing skills record by merging the new unique skills
+          const mergedSkills = [
+            ...(existingSkills.data as Array<any>),
+            ...uniqueSkills,
+          ];
+          const uniqueMergedSkills = Array.from(
+            new Set(mergedSkills.map((skill) => skill.label))
+          ).map((label) => ({ label }));
+
+          // Update the skills record with the merged unique skills
+          dataList = await prisma.dataList.update({
+            where: { id: existingSkills.id },
+            data: { data: uniqueMergedSkills },
+          });
+        } else {
+          // Create a new skills record with the unique skills
+          dataList = await prisma.dataList.create({
+            data: { type: "skills", data: uniqueSkills },
+          });
+        }
 
         return dataList;
       } catch (error: any) {

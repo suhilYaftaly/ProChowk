@@ -118,7 +118,7 @@ export default function UserBasicInfo({
           ) : (
             <Stack>
               <Typography variant="h5">{user?.name}</Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography color="text.secondary">
                 Joined {convertUnixToDate(user?.createdAt)?.monthDayYear}
               </Typography>
             </Stack>
@@ -143,7 +143,7 @@ export default function UserBasicInfo({
                       {user?.phoneNum}
                     </Typography>
                     {user?.address && (
-                      <Typography variant="caption" color={"text.secondary"}>
+                      <Typography variant="body2" color={"text.secondary"}>
                         {getBasicAdd(user.address)}
                       </Typography>
                     )}
@@ -156,7 +156,7 @@ export default function UserBasicInfo({
                 </IconButton>
               )}
             </Stack>
-            <Typography variant="caption">{user?.bio}</Typography>
+            <Typography variant="body2">{user?.bio}</Typography>
           </>
         )}
       </Stack>

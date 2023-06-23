@@ -1,6 +1,11 @@
-import { gql } from "@apollo/client";
+import {
+  gql,
+  useApolloClient,
+  useLazyQuery,
+  useMutation,
+} from "@apollo/client";
 
-export default {
+const contOps = {
   Queries: {
     searchContrProf: gql`
       query SearchContrProf($userId: ID!) {
@@ -53,6 +58,7 @@ export default {
     `,
   },
 };
+export default contOps;
 
 interface LicensesInput {
   name: string;
@@ -94,3 +100,66 @@ export interface ISearchContrProfData {
 export interface ISearchContrProfInput {
   userId: string;
 }
+
+interface IUpdateContrProfAsync {
+  skills: SkillsInput[];
+  userId: string | undefined;
+  onSuccess: () => void;
+}
+
+export const useUpdateContrProf = () => {
+  const client = useApolloClient();
+  const [updateContrProf, { data, error, loading }] = useMutation<
+    IUpdateContrProfData,
+    IUpdateContrProfInput
+  >(contOps.Mutations.updateContrProf);
+  const [searchContrProf] = useLazyQuery<
+    ISearchContrProfData,
+    ISearchContrProfInput
+  >(contOps.Queries.searchContrProf);
+
+  const updateContrProfAsync = async ({
+    skills,
+    userId,
+    onSuccess,
+  }: IUpdateContrProfAsync) => {
+    try {
+      const { data } = await updateContrProf({ variables: { skills } });
+
+      //update the cached data
+      if (data?.updateContrProf && userId) {
+        const cachedData = client.readQuery<
+          ISearchContrProfData,
+          ISearchContrProfInput
+        >({
+          query: contOps.Queries.searchContrProf,
+          variables: { userId },
+        });
+
+        if (cachedData) {
+          const modifiedData = {
+            ...cachedData,
+            skills: data.updateContrProf?.skills,
+          };
+
+          client.writeQuery<ISearchContrProfData, ISearchContrProfInput>({
+            query: contOps.Queries.searchContrProf,
+            data: modifiedData,
+            variables: { userId },
+          });
+        } else {
+          const { data: searchUserData } = await searchContrProf({
+            variables: { userId },
+          });
+          if (!searchUserData?.searchContrProf) throw new Error();
+        }
+
+        onSuccess();
+      } else throw new Error();
+    } catch (error: any) {
+      console.log("contractor update failed:", error.message);
+    }
+  };
+
+  return { updateContrProfAsync, data, error, loading };
+};

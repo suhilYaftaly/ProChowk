@@ -1,8 +1,9 @@
 import { Typography, Chip, Grid, Stack, IconButton } from "@mui/material";
-import { IUserInfo } from "./UserInfo";
 import { useState } from "react";
 import EditIcon from "@mui/icons-material/Edit";
+
 import CustomModal from "@reusable/CustomModal";
+import { IUserInfo } from "./UserInfo";
 import UserSkillsEdit from "./edits/UserSkillsEdit";
 
 export default function UserSkills({
