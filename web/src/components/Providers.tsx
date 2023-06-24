@@ -3,7 +3,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { Provider } from "react-redux";
 import { ThemeProvider } from "@emotion/react";
 import { createTheme, CssBaseline } from "@mui/material";
-import { ReactNode, useMemo } from "react";
+import { ReactNode, useEffect, useMemo } from "react";
 
 import { client } from "../graphql/apollo-client";
 import { store } from "@redux/store";
@@ -72,6 +72,15 @@ const MUIProvider = ({ children }: { children: ReactNode }) => {
       }),
     [mode]
   );
+
+  const themeColor = theme.palette.primary.main;
+
+  // set mobile browser header color
+  useEffect(() => {
+    document
+      .querySelector("meta[name=theme-color]")
+      ?.setAttribute("content", themeColor);
+  }, [themeColor]);
 
   return (
     <ThemeProvider theme={theme}>

@@ -60,7 +60,7 @@ const contOps = {
 };
 export default contOps;
 
-interface LicensesInput {
+export interface LicensesInput {
   name: string;
   size: number;
   type: string;
@@ -102,8 +102,8 @@ export interface ISearchContrProfInput {
 }
 
 interface IUpdateContrProfAsync {
-  skills: SkillsInput[];
   userId: string | undefined;
+  variables: IUpdateContrProfInput;
   onSuccess: () => void;
 }
 
@@ -119,12 +119,12 @@ export const useUpdateContrProf = () => {
   >(contOps.Queries.searchContrProf);
 
   const updateContrProfAsync = async ({
-    skills,
     userId,
+    variables,
     onSuccess,
   }: IUpdateContrProfAsync) => {
     try {
-      const { data } = await updateContrProf({ variables: { skills } });
+      const { data } = await updateContrProf({ variables });
 
       //update the cached data
       if (data?.updateContrProf && userId) {
@@ -139,7 +139,7 @@ export const useUpdateContrProf = () => {
         if (cachedData) {
           const modifiedData = {
             ...cachedData,
-            skills: data.updateContrProf?.skills,
+            ...data.updateContrProf,
           };
 
           client.writeQuery<ISearchContrProfData, ISearchContrProfInput>({

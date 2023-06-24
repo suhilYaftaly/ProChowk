@@ -8,18 +8,11 @@ import {
 } from "@mui/material";
 import { ChangeEvent, useEffect, useState } from "react";
 import EditIcon from "@mui/icons-material/Edit";
-import { useMutation } from "@apollo/client";
 
-import { setUserProfile } from "@rSlices/userSlice";
-import { useAppDispatch } from "@/utils/hooks/hooks";
 import { processImageFile, convertUnixToDate } from "@/utils/utilFuncs";
 import { IUserInfo } from "./UserInfo";
 import UserBasicInfoEdit from "./edits/UserBasicInfoEdit";
-import userOps, {
-  AddressInput,
-  IUpdateUserData,
-  IUpdateUserInput,
-} from "@gqlOps/user";
+import { AddressInput, useUpdateUser } from "@gqlOps/user";
 import CustomModal from "@reusable/CustomModal";
 import ErrSnackbar from "@components/ErrSnackbar";
 
@@ -28,40 +21,23 @@ export default function UserBasicInfo({
   isMyProfile,
   loading,
 }: IUserInfo) {
-  const dispatch = useAppDispatch();
   const [image, setImage] = useState(user?.image);
   const [openEdit, setOpenEdit] = useState(false);
-  const [updateUser, { loading: updateLoading, error: imageError }] =
-    useMutation<IUpdateUserData, IUpdateUserInput>(
-      userOps.Mutations.updateUser
-    );
+  const {
+    updateUserAsync,
+    loading: updateLoading,
+    error: imageError,
+  } = useUpdateUser();
   const [openImgErrBar, setOpenImgErrBar] = useState(false);
 
   useEffect(() => {
     setImage(user?.image);
   }, [user]);
 
-  const updateImage = async (formImage: any) => {
-    if (user) {
-      try {
-        const { data } = await updateUser({
-          variables: { id: user.id, image: formImage },
-        });
-        if (data?.updateUser) {
-          setImage(formImage);
-          dispatch(setUserProfile(data?.updateUser));
-        } else throw new Error();
-      } catch (error: any) {
-        setOpenImgErrBar(true);
-        console.log("image update failed:", error.message);
-      }
-    }
-  };
-
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
 
-    if (file) {
+    if (file && user) {
       processImageFile(
         file,
         (imageUrl) => {
@@ -71,16 +47,15 @@ export default function UserBasicInfo({
             size: file.size,
             type: file.type,
           };
-          updateImage(formImage);
+          const variables = { id: user.id, image: formImage };
+          updateUserAsync({ variables, onSuccess: () => setImage(formImage) });
         },
         400
       );
     }
   };
 
-  const handleCall = () => {
-    window.location.href = `tel:${user?.phoneNum}`;
-  };
+  const openPhone = () => (window.location.href = `tel:${user?.phoneNum}`);
 
   return (
     <>
@@ -139,7 +114,7 @@ export default function UserBasicInfo({
                   <Skeleton variant="text" width={150} />
                 ) : (
                   <>
-                    <Typography onClick={handleCall}>
+                    <Typography onClick={openPhone}>
                       {user?.phoneNum}
                     </Typography>
                     {user?.address && (
@@ -160,11 +135,7 @@ export default function UserBasicInfo({
           </>
         )}
       </Stack>
-      <CustomModal
-        title="Edit Info"
-        open={openEdit}
-        setOpen={() => setOpenEdit(false)}
-      >
+      <CustomModal title="Edit Info" open={openEdit} onClose={setOpenEdit}>
         <UserBasicInfoEdit user={user} closeEdit={() => setOpenEdit(false)} />
       </CustomModal>
       <ErrSnackbar

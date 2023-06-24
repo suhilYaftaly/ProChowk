@@ -48,7 +48,11 @@ export default function UserInfo({
           />
         </Card>
         <Card sx={{ boxShadow: 4, p: 2 }}>
-          <UserLicenses />
+          <UserLicenses
+            user={user}
+            isMyProfile={isMyProfile}
+            contrData={contrData}
+          />
         </Card>
       </Stack>
     </Stack>

@@ -9,7 +9,6 @@ import { PrismaClient } from "@prisma/client";
 import { WebSocketServer } from "ws";
 import { useServer } from "graphql-ws/lib/use/ws";
 import { PubSub } from "graphql-subscriptions";
-import { json } from "body-parser";
 import cors from "cors";
 
 import typeDefs from "./graphql/typeDefs";
@@ -71,8 +70,7 @@ async function main() {
       origin: [process.env.CLIENT_ORIGIN],
       credentials: true,
     }),
-    json(),
-    express.json({ limit: "1mb" }),
+    express.json({ limit: "10mb" }),
     expressMiddleware(server, {
       context: async ({ req, res }): Promise<GraphQLContext> => ({
         req,

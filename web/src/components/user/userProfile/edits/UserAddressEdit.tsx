@@ -172,6 +172,7 @@ export default function UserAddressEdit({
         helperText={errors.region}
       />
       <Autocomplete
+        value={addressData.province}
         options={canadianProvinces}
         getOptionLabel={(option) => option}
         renderInput={(params) => (

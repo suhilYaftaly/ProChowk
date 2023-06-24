@@ -14,11 +14,9 @@ export default {
       const { prisma } = context;
 
       try {
-        // Retrieve the skills record from the DataList table
         const dataList = await prisma.dataList.findUnique({
           where: { type: "skills" },
         });
-
         if (!dataList) throw gqlError({ msg: "Skills list not found" });
 
         return dataList;

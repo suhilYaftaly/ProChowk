@@ -46,7 +46,7 @@ export default function UserSkillsEdit({
   const handleSave = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     updateContrProfAsync({
-      skills: selectedSkills,
+      variables: { skills: selectedSkills },
       userId,
       onSuccess: closeEdit,
     });
@@ -95,47 +95,43 @@ export default function UserSkillsEdit({
         autoComplete="off"
         onSubmit={handleSave}
       >
-        {allSkillsLoading ? (
-          <CircularProgress size={30} sx={{ alignSelf: "center" }} />
-        ) : (
-          <Autocomplete
-            onOpen={getAllSkillsAsync}
-            loading={allSkillsLoading}
-            freeSolo
-            disablePortal
-            id="combo-box-demo"
-            options={allSkillsData || []}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Skills"
-                InputProps={{
-                  ...params.InputProps,
-                  endAdornment: (
-                    <>
-                      {params.inputProps.value && (
-                        <IconButton
-                          onClick={() =>
-                            onSkillSelection(
-                              null,
-                              params.inputProps.value as string
-                            )
-                          }
-                          size="small"
-                        >
-                          <AddIcon />
-                        </IconButton>
-                      )}
-                      {params.InputProps.endAdornment}
-                    </>
-                  ),
-                }}
-              />
-            )}
-            onChange={onSkillSelection}
-            clearOnEscape={false}
-          />
-        )}
+        <Autocomplete
+          onOpen={getAllSkillsAsync}
+          loading={allSkillsLoading}
+          freeSolo
+          disablePortal
+          id="combo-box-demo"
+          options={allSkillsData || []}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Skills"
+              InputProps={{
+                ...params.InputProps,
+                endAdornment: (
+                  <>
+                    {params.inputProps.value && (
+                      <IconButton
+                        onClick={() =>
+                          onSkillSelection(
+                            null,
+                            params.inputProps.value as string
+                          )
+                        }
+                        size="small"
+                      >
+                        <AddIcon />
+                      </IconButton>
+                    )}
+                    {params.InputProps.endAdornment}
+                  </>
+                ),
+              }}
+            />
+          )}
+          onChange={onSkillSelection}
+          clearOnEscape={false}
+        />
         <Grid container spacing={1} direction={"row"} sx={{ mt: 2 }}>
           {selectedSkills?.map((skill) => (
             <Grid item key={skill.label}>

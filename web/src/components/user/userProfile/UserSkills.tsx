@@ -34,11 +34,7 @@ export default function UserSkills({
           </Grid>
         ))}
       </Grid>
-      <CustomModal
-        title="Edit Skills"
-        open={openEdit}
-        setOpen={() => setOpenEdit(false)}
-      >
+      <CustomModal title="Edit Skills" open={openEdit} onClose={setOpenEdit}>
         <UserSkillsEdit
           userSkills={contrData?.skills}
           userId={userId}

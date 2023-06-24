@@ -8,13 +8,10 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useMutation } from "@apollo/client";
 
 import { formatPhoneNum, validatePhoneNum } from "@utils/utilFuncs";
-import { useAppDispatch } from "@utils/hooks/hooks";
-import { setUserProfile } from "@rSlices/userSlice";
 import UserAddressEdit from "./UserAddressEdit";
-import userOps, { IUpdateUserData, IUpdateUserInput } from "@gqlOps/user";
+import { useUpdateUser } from "@gqlOps/user";
 import { IUserInfo } from "../UserInfo";
 
 interface Props extends IUserInfo {
@@ -28,7 +25,6 @@ interface FormError {
 }
 
 const UserBasicInfoEdit: React.FC<Props> = ({ user, closeEdit }) => {
-  const dispatch = useAppDispatch();
   const [disableSaveBtn, setDisableSaveBtn] = useState(true);
   const [addressData, setAddressData] = useState({ ...user?.address });
   const [formData, setFormData] = useState({
@@ -41,10 +37,7 @@ const UserBasicInfoEdit: React.FC<Props> = ({ user, closeEdit }) => {
     phoneNum: false,
     bio: false,
   });
-  const [updateUser, { loading: updateLoading, error }] = useMutation<
-    IUpdateUserData,
-    IUpdateUserInput
-  >(userOps.Mutations.updateUser);
+  const { updateUserAsync, loading: updateLoading, error } = useUpdateUser();
 
   useEffect(() => {
     setFormData({
@@ -98,44 +91,21 @@ const UserBasicInfoEdit: React.FC<Props> = ({ user, closeEdit }) => {
     return Object.values(errors).some((error) => error);
   }, [formData, validateField]);
 
-  const updateUserData = async (newData: any) => {
-    if (user) {
-      try {
-        const { data } = await updateUser({
-          variables: {
-            id: user.id,
-            name: newData.name,
-            phoneNum: newData.phoneNum,
-            address: newData.address,
-            bio: newData.bio,
-          },
-        });
-        if (data?.updateUser) {
-          dispatch(setUserProfile(data?.updateUser));
-          closeEdit();
-        } else {
-          throw new Error();
-        }
-      } catch (error: any) {
-        console.log("user update failed:", error.message);
-      }
-    }
-  };
-
   const handleSave = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     if (validateForm()) return;
     setDisableSaveBtn(true);
 
-    if (formData.name) {
+    if (formData.name && user) {
       const newData = {
+        id: user.id,
         name: formData.name,
         phoneNum: formData.phoneNum,
         address: addressData,
         bio: formData.bio,
       };
       delete (newData.address as any).__typename;
-      updateUserData(newData);
+      updateUserAsync({ variables: newData, onSuccess: closeEdit });
     }
   };
 

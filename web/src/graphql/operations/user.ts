@@ -1,6 +1,8 @@
-import { gql } from "@apollo/client";
+import { setUserProfile } from "@rSlices/userSlice";
+import { useAppDispatch } from "@/utils/hooks/hooks";
+import { gql, useMutation } from "@apollo/client";
 
-export default {
+const userOps = {
   Queries: {
     searchUser: gql`
       query SearchUser($id: ID!) {
@@ -300,8 +302,8 @@ export default {
       }
     `,
   },
-  // Subscriptions: {}
 };
+export default userOps;
 
 //INTERFACES
 export interface IRegisterUserInput {
@@ -406,3 +408,29 @@ export interface IUpdateUserInput {
 export interface IUpdateUserData {
   updateUser: IUserData;
 }
+
+interface IUseUpdateUser {
+  variables: IUpdateUserInput;
+  onSuccess: () => void;
+}
+export const useUpdateUser = () => {
+  const dispatch = useAppDispatch();
+  const [updateUser, { data, loading, error }] = useMutation<
+    IUpdateUserData,
+    IUpdateUserInput
+  >(userOps.Mutations.updateUser);
+
+  const updateUserAsync = async ({ onSuccess, variables }: IUseUpdateUser) => {
+    try {
+      const { data } = await updateUser({ variables });
+      if (data?.updateUser) {
+        dispatch(setUserProfile(data?.updateUser));
+        onSuccess();
+      } else throw new Error();
+    } catch (error: any) {
+      console.log("user update failed:", error.message);
+    }
+  };
+
+  return { updateUserAsync, data, loading, error };
+};

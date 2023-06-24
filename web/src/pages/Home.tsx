@@ -9,9 +9,9 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
-import AllCards from "@components/detailsSection/cards/AllCards.tsx";
 import userOps, { ISearchAllUsersData } from "@gqlOps/user.ts";
 import { paths } from "@/routes/PageRoutes";
+import AllCards from "@/components/detailsSection/cards/AllCards";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -21,7 +21,7 @@ export default function Home() {
 
   return (
     <>
-      <Grid container direction={"row"} spacing={1} sx={{ m: 1 }}>
+      <Grid container direction={"row"} spacing={1} sx={{ p: 1 }}>
         {allUsers?.searchAllUsers?.map((user) => (
           <Grid item key={user.id}>
             <Card sx={{ width: 180 }}>

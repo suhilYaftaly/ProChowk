@@ -12,7 +12,7 @@ import { styled, useTheme } from "@mui/system";
 
 interface Props {
   open: boolean;
-  setOpen: (open: boolean) => void;
+  onClose: (open: boolean) => void;
   children: ReactNode;
   title: string;
 }
@@ -35,11 +35,11 @@ const ContentContainer = styled(Box)({
   overflowY: "auto",
 });
 
-export default function CustomModal({ open, setOpen, children, title }: Props) {
+export default function CustomModal({ open, onClose, children, title }: Props) {
   const theme = useTheme();
 
   return (
-    <Modal open={open} onClose={() => setOpen(false)}>
+    <Modal open={open} onClose={() => onClose(false)}>
       <ModalContainer theme={theme}>
         <Stack
           direction="row"
@@ -47,7 +47,7 @@ export default function CustomModal({ open, setOpen, children, title }: Props) {
           alignItems="center"
         >
           <Typography>{title}</Typography>
-          <IconButton onClick={() => setOpen(false)}>
+          <IconButton onClick={() => onClose(false)}>
             <CloseIcon />
           </IconButton>
         </Stack>
