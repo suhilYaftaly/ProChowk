@@ -94,9 +94,7 @@ export default function CredentialLogin() {
         component="button"
         variant="caption"
         color="text.secondary"
-        onClick={() => {
-          console.info("Don't remember your password? (TODO)");
-        }}
+        onClick={() => console.info("Don't remember your password? (TODO)")}
       >
         Don't remember your password?
       </Link>

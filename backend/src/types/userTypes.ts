@@ -29,6 +29,7 @@ export interface IUser {
   phoneNum?: string | null;
   address?: IUserAddress | Prisma.JsonValue;
   bio?: string | null;
+  userType?: UserType[] | Prisma.JsonValue;
 }
 export type UserRole = "admin" | "superAdmin";
 export type UserImage =
@@ -63,6 +64,7 @@ export interface ILoginUserInput {
   password: string;
 }
 
+type UserType = "client" | "contractor";
 export interface IUpdateUserInput {
   id: string;
   name?: string;
@@ -70,6 +72,7 @@ export interface IUpdateUserInput {
   image?: UserImage;
   address?: IUserAddress;
   bio?: string;
+  userType?: UserType[];
 }
 export interface IUpdateUserInputData {
   name?: string;
@@ -77,6 +80,8 @@ export interface IUpdateUserInputData {
   image?: UserImage;
   address?: IUserAddress;
   bio?: string;
+  userType?: UserType[];
+  existingUserType?: UserType[] | Prisma.JsonValue;
 }
 
 export interface IGetUserAddInput {

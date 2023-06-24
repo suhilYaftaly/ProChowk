@@ -73,18 +73,14 @@ const MUIProvider = ({ children }: { children: ReactNode }) => {
     [mode]
   );
 
-  const themeColor = theme.palette.primary.main;
-
-  // set mobile browser header color
-  useEffect(() => {
-    document
-      .querySelector("meta[name=theme-color]")
-      ?.setAttribute("content", themeColor);
-  }, [themeColor]);
+  const themeColor = theme.palette.background.default;
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
+      <meta name="theme-color" content={themeColor} />
+      <meta name="msapplication-navbutton-color" content={themeColor} />
+      <meta name="apple-mobile-web-app-status-bar-style" content={themeColor} />
       {children}
     </ThemeProvider>
   );

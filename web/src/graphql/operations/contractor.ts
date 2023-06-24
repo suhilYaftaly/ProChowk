@@ -137,11 +137,7 @@ export const useUpdateContrProf = () => {
         });
 
         if (cachedData) {
-          const modifiedData = {
-            ...cachedData,
-            ...data.updateContrProf,
-          };
-
+          const modifiedData = { ...cachedData, ...data.updateContrProf };
           client.writeQuery<ISearchContrProfData, ISearchContrProfInput>({
             query: contOps.Queries.searchContrProf,
             data: modifiedData,

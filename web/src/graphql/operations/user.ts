@@ -1,6 +1,6 @@
 import { setUserProfile } from "@rSlices/userSlice";
 import { useAppDispatch } from "@/utils/hooks/hooks";
-import { gql, useMutation } from "@apollo/client";
+import { gql, useApolloClient, useMutation } from "@apollo/client";
 
 const userOps = {
   Queries: {
@@ -20,6 +20,7 @@ const userOps = {
           }
           provider
           roles
+          userType
           address {
             houseNum
             road
@@ -53,6 +54,7 @@ const userOps = {
           }
           # provider
           # roles
+          # userType
           # address {
           #   houseNum
           #   road
@@ -93,6 +95,7 @@ const userOps = {
           }
           provider
           roles
+          userType
           address {
             houseNum
             road
@@ -128,6 +131,7 @@ const userOps = {
           }
           provider
           roles
+          userType
           address {
             houseNum
             road
@@ -163,6 +167,7 @@ const userOps = {
           }
           provider
           roles
+          userType
           address {
             houseNum
             road
@@ -198,6 +203,7 @@ const userOps = {
           }
           provider
           roles
+          userType
           address {
             houseNum
             road
@@ -225,6 +231,7 @@ const userOps = {
         $phoneNum: String
         $address: AddressInput
         $bio: String
+        $userType: [String]
       ) {
         updateUser(
           id: $id
@@ -233,6 +240,7 @@ const userOps = {
           phoneNum: $phoneNum
           address: $address
           bio: $bio
+          userType: $userType
         ) {
           id
           name
@@ -247,6 +255,7 @@ const userOps = {
           }
           provider
           roles
+          userType
           address {
             houseNum
             road
@@ -351,7 +360,9 @@ export interface IUserData {
   phoneNum?: string;
   bio?: string;
   address?: AddressInput;
+  userType?: UserInput[];
 }
+type UserInput = "client" | "contractor";
 type UserRole = "admin" | "superAdmin";
 type Image = { picture: string; name?: string; size?: number; type?: string };
 interface ImageInput {
@@ -404,6 +415,7 @@ export interface IUpdateUserInput {
   phoneNum?: string;
   bio?: string;
   address?: AddressInput;
+  userType?: UserInput;
 }
 export interface IUpdateUserData {
   updateUser: IUserData;
@@ -411,9 +423,10 @@ export interface IUpdateUserData {
 
 interface IUseUpdateUser {
   variables: IUpdateUserInput;
-  onSuccess: () => void;
+  onSuccess?: () => void;
 }
 export const useUpdateUser = () => {
+  const client = useApolloClient();
   const dispatch = useAppDispatch();
   const [updateUser, { data, loading, error }] = useMutation<
     IUpdateUserData,
@@ -425,7 +438,21 @@ export const useUpdateUser = () => {
       const { data } = await updateUser({ variables });
       if (data?.updateUser) {
         dispatch(setUserProfile(data?.updateUser));
-        onSuccess();
+        onSuccess && onSuccess();
+
+        const cachedData = client.readQuery<ISearchUserData, ISearchUserInput>({
+          query: userOps.Queries.searchUser,
+          variables: { id: variables.id },
+        });
+
+        if (cachedData) {
+          const modifiedData = { ...cachedData, ...data.updateUser };
+          client.writeQuery<ISearchUserData, ISearchUserInput>({
+            query: userOps.Queries.searchUser,
+            data: modifiedData,
+            variables: { id: variables.id },
+          });
+        }
       } else throw new Error();
     } catch (error: any) {
       console.log("user update failed:", error.message);

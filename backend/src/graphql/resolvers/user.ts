@@ -97,7 +97,13 @@ export default {
 
         password = await bcrypt.hash(password, 12);
         const newUser = await prisma.user.create({
-          data: { name, email, password, provider: CRED_PROVIDER },
+          data: {
+            name,
+            email,
+            password,
+            provider: CRED_PROVIDER,
+            userType: ["client"],
+          },
         });
 
         const token = generateToken(newUser);
@@ -191,6 +197,7 @@ export default {
                   provider: GOOGLE_PROVIDER,
                   image: { picture },
                   emailVerified,
+                  userType: ["client"],
                 },
               });
 
@@ -253,6 +260,7 @@ export default {
                 provider: GOOGLE_PROVIDER,
                 image: { picture },
                 emailVerified,
+                userType: ["client"],
               },
             });
 
@@ -271,7 +279,7 @@ export default {
     },
     updateUser: async (
       _: any,
-      { id, name, phoneNum, image, address, bio }: IUpdateUserInput,
+      { id, name, phoneNum, image, address, bio, userType }: IUpdateUserInput,
       context: GraphQLContext
     ): Promise<IUser> => {
       const { prisma, req } = context;
@@ -294,7 +302,14 @@ export default {
           });
         }
 
-        const validate = validateUpdateUser({ name, phoneNum, image, bio });
+        const validate = validateUpdateUser({
+          name,
+          phoneNum,
+          image,
+          bio,
+          userType,
+          existingUserType: existingUser?.userType,
+        });
         if (validate.error) throw validate.error;
         const updatedUser = await prisma.user.update({
           where: { id },
@@ -388,5 +403,6 @@ const getUserProps = (user: User, token = "") => {
     phoneNum: user?.phoneNum,
     address: user?.address,
     bio: user?.bio,
+    userType: user?.userType,
   };
 };

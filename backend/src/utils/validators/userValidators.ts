@@ -60,6 +60,8 @@ export const validateUpdateUser = ({
   phoneNum,
   image,
   address,
+  userType,
+  existingUserType,
 }: IUpdateUserInputData) => {
   let hasUpdates = false;
   const data: IUpdateUserInputData = {};
@@ -74,8 +76,16 @@ export const validateUpdateUser = ({
   if (bio) {
     if (bio.trim()?.length < 10)
       return { error: getErr("bio must be more than 10 chars") };
-
     data.bio = bio;
+    hasUpdates = true;
+  }
+
+  if (userType) {
+    if (userType?.length < 1)
+      return { error: getErr("User type cannot be empty") };
+    if (existingUserType) {
+      data.userType = [...(existingUserType as Array<any>), userType];
+    } else data.userType = userType;
     hasUpdates = true;
   }
 

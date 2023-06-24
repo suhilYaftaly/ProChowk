@@ -19,10 +19,12 @@ export default function User() {
   const isMyProfile = userId === loggedInUser?.id;
   const [searchUser, { data: userData, loading, error: userError }] =
     useLazyQuery<ISearchUserData, ISearchUserInput>(userOps.Queries.searchUser);
-  const [searchContrProf, { data: userContrData, error: contError }] =
-    useLazyQuery<ISearchContrProfData, ISearchContrProfInput>(
-      contOps.Queries.searchContrProf
-    );
+  const [
+    searchContrProf,
+    { data: userContrData, error: contError, loading: contProfLoading },
+  ] = useLazyQuery<ISearchContrProfData, ISearchContrProfInput>(
+    contOps.Queries.searchContrProf
+  );
   const [openContErrBar, setOpenContErrBar] = useState(false);
 
   const getUser = async () => {
@@ -57,11 +59,11 @@ export default function User() {
     if (userId && !isMyProfile) getUser();
   }, [isMyProfile]);
 
-  useEffect(() => {
-    if (userId) getContrProf();
-  }, [userId]);
-
   const user = isMyProfile ? loggedInUser : userData?.searchUser;
+
+  useEffect(() => {
+    if (userId && user?.userType?.includes("contractor")) getContrProf();
+  }, [userId, user]);
 
   return (
     <>
@@ -71,6 +73,7 @@ export default function User() {
         loading={loading}
         contrData={userContrData?.searchContrProf}
         userId={userId}
+        contProfLoading={contProfLoading}
       />
       {userError && (
         <Alert severity="error" color="error">

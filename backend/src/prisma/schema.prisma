@@ -23,6 +23,7 @@ model User {
     address           Json?
     contractorProfile ContractorProfile?
     bio               String?
+    userType          Json?
 }
 
 model ContractorProfile {

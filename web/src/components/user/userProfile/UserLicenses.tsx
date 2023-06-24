@@ -6,6 +6,7 @@ import {
   Grid,
   IconButton,
   Stack,
+  Skeleton,
 } from "@mui/material";
 import { useState } from "react";
 import EditIcon from "@mui/icons-material/Edit";
@@ -46,34 +47,48 @@ export default function UserLicenses({
         spacing={1}
         sx={{ overflowX: "auto", flexWrap: "nowrap", pb: 0.3 }}
       >
-        {contrData?.licenses?.map((l) => (
-          <Grid item key={l.desc}>
-            <Card sx={{ width: 150, height: "100%" }}>
-              <CardActionArea
-                onClick={() => {
-                  setActiveLicense(l);
-                  setOpenFullImg(!openFullImg);
-                }}
-              >
-                <img
-                  src={l.picture}
-                  alt={l.name}
-                  loading="lazy"
-                  style={{ width: 150, height: 150 }}
-                />
-                <CardContent>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    className="ellipsis2Line"
-                  >
-                    {l.desc}
-                  </Typography>
-                </CardContent>
-              </CardActionArea>
-            </Card>
-          </Grid>
-        ))}
+        {contrData?.licenses ? (
+          contrData?.licenses?.map((l) => (
+            <Grid item key={l.desc}>
+              <Card sx={{ width: 150, height: "100%" }}>
+                <CardActionArea
+                  onClick={() => {
+                    setActiveLicense(l);
+                    setOpenFullImg(!openFullImg);
+                  }}
+                >
+                  <img
+                    src={l.picture}
+                    alt={l.name}
+                    loading="lazy"
+                    style={{ width: 150, height: 150 }}
+                  />
+                  <CardContent>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      className="ellipsis2Line"
+                    >
+                      {l.desc}
+                    </Typography>
+                  </CardContent>
+                </CardActionArea>
+              </Card>
+            </Grid>
+          ))
+        ) : (
+          <>
+            <Grid item>
+              <Skeleton variant="rounded" width={120} height={120} />
+            </Grid>
+            <Grid item>
+              <Skeleton variant="rounded" width={120} height={120} />
+            </Grid>
+            <Grid item>
+              <Skeleton variant="rounded" width={120} height={120} />
+            </Grid>
+          </>
+        )}
       </Grid>
       {activeLicense && (
         <FullScreenModal

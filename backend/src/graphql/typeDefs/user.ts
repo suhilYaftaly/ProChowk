@@ -23,6 +23,7 @@ export default gql`
       image: ImageInput
       address: AddressInput
       bio: String
+      userType: [String]
     ): User!
     getUserAddress(id: ID!, lat: String!, lng: String!): User!
   }
@@ -41,6 +42,7 @@ export default gql`
     phoneNum: String
     address: Address
     bio: String
+    userType: [String]
   }
 
   type Image {
