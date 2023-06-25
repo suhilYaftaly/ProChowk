@@ -17,6 +17,7 @@ export default function UserSkills({
   isMyProfile,
   contrData,
   userId,
+  contProfLoading,
 }: IUserInfo) {
   const [openEdit, setOpenEdit] = useState(false);
 
@@ -35,28 +36,28 @@ export default function UserSkills({
         )}
       </Stack>
       <Grid container spacing={1} direction={"row"} sx={{ mt: 2 }}>
-        {contrData?.skills ? (
-          contrData?.skills?.map((skill) => (
-            <Grid item key={skill.label}>
-              <Chip label={skill.label} color="primary" />
-            </Grid>
-          ))
-        ) : (
-          <>
-            <Grid item>
-              <Skeleton variant="circular" width={50} height={50} />
-            </Grid>
-            <Grid item>
-              <Skeleton variant="circular" width={50} height={50} />
-            </Grid>
-            <Grid item>
-              <Skeleton variant="circular" width={50} height={50} />
-            </Grid>
-            <Grid item>
-              <Skeleton variant="circular" width={50} height={50} />
-            </Grid>
-          </>
-        )}
+        {contrData?.skills
+          ? contrData?.skills?.map((skill) => (
+              <Grid item key={skill.label}>
+                <Chip label={skill.label} color="primary" />
+              </Grid>
+            ))
+          : contProfLoading && (
+              <>
+                <Grid item>
+                  <Skeleton variant="circular" width={50} height={50} />
+                </Grid>
+                <Grid item>
+                  <Skeleton variant="circular" width={50} height={50} />
+                </Grid>
+                <Grid item>
+                  <Skeleton variant="circular" width={50} height={50} />
+                </Grid>
+                <Grid item>
+                  <Skeleton variant="circular" width={50} height={50} />
+                </Grid>
+              </>
+            )}
       </Grid>
       <CustomModal title="Edit Skills" open={openEdit} onClose={setOpenEdit}>
         <UserSkillsEdit

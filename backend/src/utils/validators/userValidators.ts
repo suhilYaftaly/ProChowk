@@ -3,6 +3,7 @@ import {
   ILoginUserInput,
   IRegisterUserInput,
   IUpdateUserInputData,
+  IUpdateUserValidationData,
   IUserAddress,
   UserImage,
 } from "../../types/userTypes";
@@ -64,7 +65,7 @@ export const validateUpdateUser = ({
   existingUserType,
 }: IUpdateUserInputData) => {
   let hasUpdates = false;
-  const data: IUpdateUserInputData = {};
+  const data: IUpdateUserValidationData = {};
 
   if (name) {
     const nameErr = validateUserName(name);
@@ -85,7 +86,7 @@ export const validateUpdateUser = ({
       return { error: getErr("User type cannot be empty") };
     if (existingUserType) {
       data.userType = [...(existingUserType as Array<any>), userType];
-    } else data.userType = userType;
+    } else data.userType = [userType];
     hasUpdates = true;
   }
 

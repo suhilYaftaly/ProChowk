@@ -72,9 +72,18 @@ export interface IUpdateUserInput {
   image?: UserImage;
   address?: IUserAddress;
   bio?: string;
-  userType?: UserType[];
+  userType?: UserType;
 }
 export interface IUpdateUserInputData {
+  name?: string;
+  phoneNum?: string;
+  image?: UserImage;
+  address?: IUserAddress;
+  bio?: string;
+  userType?: UserType;
+  existingUserType?: UserType[] | Prisma.JsonValue;
+}
+export interface IUpdateUserValidationData {
   name?: string;
   phoneNum?: string;
   image?: UserImage;

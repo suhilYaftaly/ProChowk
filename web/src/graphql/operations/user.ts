@@ -231,7 +231,7 @@ const userOps = {
         $phoneNum: String
         $address: AddressInput
         $bio: String
-        $userType: [String]
+        $userType: String
       ) {
         updateUser(
           id: $id

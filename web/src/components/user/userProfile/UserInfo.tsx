@@ -70,6 +70,7 @@ export default function UserInfo({
                 isMyProfile={isMyProfile}
                 contrData={contrData}
                 userId={userId}
+                contProfLoading={contProfLoading}
               />
             </Card>
             <Card sx={{ boxShadow: 4, p: 2 }}>
@@ -77,31 +78,34 @@ export default function UserInfo({
                 user={user}
                 isMyProfile={isMyProfile}
                 contrData={contrData}
+                contProfLoading={contProfLoading}
               />
             </Card>
           </>
         ) : (
-          <Card sx={{ boxShadow: 4, p: 2 }}>
-            <Button
-              type="submit"
-              variant="contained"
-              onClick={onCreateContProf}
-              disabled={updateLoading}
-              fullWidth
-              color="secondary"
-            >
-              {updateLoading ? (
-                <CircularProgress size={20} />
-              ) : (
-                "Create your contractor profile"
+          isMyProfile && (
+            <Card sx={{ boxShadow: 4, p: 2 }}>
+              <Button
+                type="submit"
+                variant="contained"
+                onClick={onCreateContProf}
+                disabled={updateLoading}
+                fullWidth
+                color="secondary"
+              >
+                {updateLoading ? (
+                  <CircularProgress size={20} />
+                ) : (
+                  "Create your contractor profile"
+                )}
+              </Button>
+              {error && (
+                <Alert severity="error" color="error">
+                  {error.message}
+                </Alert>
               )}
-            </Button>
-            {error && (
-              <Alert severity="error" color="error">
-                {error.message}
-              </Alert>
-            )}
-          </Card>
+            </Card>
+          )
         )}
       </Stack>
     </Stack>

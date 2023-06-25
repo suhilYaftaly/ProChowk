@@ -23,7 +23,7 @@ export default gql`
       image: ImageInput
       address: AddressInput
       bio: String
-      userType: [String]
+      userType: String
     ): User!
     getUserAddress(id: ID!, lat: String!, lng: String!): User!
   }
