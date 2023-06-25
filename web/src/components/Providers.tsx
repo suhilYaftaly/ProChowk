@@ -3,7 +3,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { Provider } from "react-redux";
 import { ThemeProvider } from "@emotion/react";
 import { createTheme, CssBaseline } from "@mui/material";
-import { ReactNode, useEffect, useMemo } from "react";
+import { ReactNode, useMemo } from "react";
 
 import { client } from "../graphql/apollo-client";
 import { store } from "@redux/store";
