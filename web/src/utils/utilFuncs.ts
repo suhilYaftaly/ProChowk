@@ -1,4 +1,7 @@
-import { format } from "date-fns";
+import { IUserData } from "@/graphql/operations/user";
+import { paths } from "@/routes/PageRoutes";
+import { format, startOfDay } from "date-fns";
+import { NavigateFunction } from "react-router-dom";
 
 export function decodeJwtToken(token: string | undefined) {
   if (token) {
@@ -133,4 +136,22 @@ export const formatPhoneNum = (phoneNumber: string): string => {
     formattedPhoneNumber += cleanedPhoneNumber.charAt(i);
   }
   return formattedPhoneNumber;
+};
+
+export const openUserIfNewUser = ({
+  user,
+  navigate,
+}: {
+  user: IUserData | undefined;
+  navigate: NavigateFunction;
+}) => {
+  if (
+    user &&
+    convertUnixToDate(user?.createdAt)?.fullDate.toDateString() ==
+      startOfDay(new Date()).toDateString()
+  ) {
+    const username = `${user.name}-${user.id}`.replace(/\s/g, "");
+    navigate(paths.user(username));
+    console.log(paths.user(username), "here");
+  } else navigate("/");
 };

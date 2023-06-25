@@ -1,25 +1,28 @@
 import { Box, Card, Divider, SxProps, Tab, Tabs, Theme } from "@mui/material";
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+// import { useNavigate } from "react-router-dom";
 
 import AppLogo from "@reusable/AppLogo";
 import GoogleLoginButton from "@components/user/login/google/GoogleLoginButton";
 import CredentialLogin from "@components/user/login/CredentialLogin";
 import SignUp from "@components/user/signUp/SignUp";
-import { useUserStates } from "@redux/reduxStates";
+// import { useUserStates } from "@redux/reduxStates";
 
 export default function Login() {
-  const navigate = useNavigate();
-  const { user } = useUserStates();
+  // const navigate = useNavigate();
+  // const { user } = useUserStates();
   const [value, setValue] = useState(0);
+  // const [redirected, setRedirected] = useState(false);
 
   const handleTabChange = (value: number) => setValue(value);
 
-  useEffect(() => {
-    if (user) {
-      navigate("/");
-    }
-  }, [user]);
+  //TODO: navigate to home if user is logged in and they try to navigate to this page
+  // useEffect(() => {
+  //   if (user && !redirected) {
+  //     navigate("/");
+  //     setRedirected(true);
+  //   }
+  // }, [user]);
 
   return (
     <Box sx={pageCont}>

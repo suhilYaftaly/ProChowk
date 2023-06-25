@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "@utils/hooks/hooks";
 import { userProfileError, logIn, userProfileBegin } from "@rSlices/userSlice";
 import userOps, { IGoogleLoginInput, IGoogleLoginData } from "@gqlOps/user";
+import { openUserIfNewUser } from "@/utils/utilFuncs";
 
 export default function GoogleLoginButton() {
   const dispatch = useAppDispatch();
@@ -24,9 +25,10 @@ export default function GoogleLoginButton() {
         const { data } = await googleLogin({
           variables: { accessToken: token.access_token },
         });
-        if (data?.googleLogin) {
-          dispatch(logIn(data?.googleLogin));
-          navigate("/");
+        const userData = data?.googleLogin;
+        if (userData) {
+          dispatch(logIn(userData));
+          openUserIfNewUser({ user: userData, navigate });
         } else throw new Error();
       } catch (error: any) {
         dispatch(userProfileError({ message: error?.message }));

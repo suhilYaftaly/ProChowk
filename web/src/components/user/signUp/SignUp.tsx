@@ -14,6 +14,7 @@ import { validateEmail } from "@utils/utilFuncs";
 import userOps, { IRegisterUserData, IRegisterUserInput } from "@gqlOps/user";
 import { useAppDispatch } from "@utils/hooks/hooks";
 import { logIn, userProfileBegin, userProfileError } from "@rSlices/userSlice";
+import { paths } from "@/routes/PageRoutes";
 
 export default function SignUp() {
   const dispatch = useAppDispatch();
@@ -42,7 +43,7 @@ export default function SignUp() {
     setFormData((pv) => ({ ...pv, [name]: value }));
   };
 
-  const onLogin = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
+  const onRegister = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     if (formData.name?.length < 4) {
       setFormError((pv) => ({ ...pv, name: true }));
@@ -67,9 +68,11 @@ export default function SignUp() {
           password: formData.password,
         },
       });
-      if (data?.registerUser) {
-        dispatch(logIn(data?.registerUser));
-        navigate("/");
+      const userData = data?.registerUser;
+      if (userData) {
+        dispatch(logIn(userData));
+        const username = `${userData.name}-${userData.id}`.replace(/\s/g, "");
+        navigate(paths.user(username));
       } else throw new Error();
     } catch (error: any) {
       dispatch(userProfileError({ message: error?.message }));
@@ -77,7 +80,7 @@ export default function SignUp() {
   };
 
   return (
-    <Stack component="form" spacing={1} noValidate onSubmit={onLogin}>
+    <Stack component="form" spacing={1} noValidate onSubmit={onRegister}>
       <TextField
         label="Name"
         id={"name"}

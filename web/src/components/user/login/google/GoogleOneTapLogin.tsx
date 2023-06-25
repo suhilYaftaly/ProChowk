@@ -7,9 +7,12 @@ import userOps, {
   IGoogleOneTapLoginData,
   IGoogleOneTapLoginInput,
 } from "@gqlOps/user";
+import { openUserIfNewUser } from "@/utils/utilFuncs";
+import { useNavigate } from "react-router-dom";
 
 export default function GoogleOneTapLogin() {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const [googleOneTapLogin] = useMutation<
     IGoogleOneTapLoginData,
     IGoogleOneTapLoginInput
@@ -23,8 +26,10 @@ export default function GoogleOneTapLogin() {
           const { data } = await googleOneTapLogin({
             variables: { credential: token.credential },
           });
-          if (data?.googleOneTapLogin) {
-            dispatch(logIn(data?.googleOneTapLogin));
+          const userData = data?.googleOneTapLogin;
+          if (userData) {
+            dispatch(logIn(userData));
+            openUserIfNewUser({ user: userData, navigate });
           } else throw new Error();
         } else throw new Error();
       } catch (error: any) {

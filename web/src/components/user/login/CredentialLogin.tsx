@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
-import { validateEmail } from "@utils/utilFuncs";
+import { openUserIfNewUser, validateEmail } from "@utils/utilFuncs";
 import userOps, { ILoginUserData, ILoginUserInput } from "@gqlOps/user";
 import { useAppDispatch } from "@utils/hooks/hooks";
 import { logIn, userProfileBegin, userProfileError } from "@rSlices/userSlice";
@@ -30,7 +30,6 @@ export default function CredentialLogin() {
     const { name, value } = e.target;
     setDisableLoginBtn(false);
     setFormError((pv) => ({ ...pv, [name]: false }));
-
     setFormData((pv) => ({ ...pv, [name]: value }));
   };
 
@@ -51,9 +50,10 @@ export default function CredentialLogin() {
       const { data } = await loginUser({
         variables: { email: formData.email, password: formData.password },
       });
-      if (data?.loginUser) {
-        dispatch(logIn(data?.loginUser));
-        navigate("/");
+      const userData = data?.loginUser;
+      if (userData) {
+        dispatch(logIn(userData));
+        openUserIfNewUser({ user: userData, navigate });
       } else throw new Error();
     } catch (error: any) {
       dispatch(userProfileError({ message: error?.message }));

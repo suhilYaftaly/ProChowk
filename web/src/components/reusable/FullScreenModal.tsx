@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import { Stack, Box, Modal, Typography, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import AppLogo from "./AppLogo";
@@ -23,11 +23,21 @@ export default function FullScreenModal({
     onClose && onClose();
   };
 
+  //back button should close modal only
+  useEffect(() => {
+    if (open) window.history.pushState(null, "", window.location.href);
+    const handlePopstate = () => (open ? handleClose() : window.history.go(-1));
+    window.addEventListener("popstate", handlePopstate);
+    return () => window.removeEventListener("popstate", handlePopstate);
+  }, [open]);
+
   return (
     <Modal
       open={open}
       aria-labelledby="modal-modal-title"
       aria-describedby="modal-modal-description"
+      onClose={handleClose}
+      disableEnforceFocus
     >
       <Box
         sx={{
@@ -53,7 +63,9 @@ export default function FullScreenModal({
             </IconButton>
           </Stack>
         </Box>
-        <Box padding={1}>{children}</Box>
+        <Box sx={{ overflow: "auto", maxHeight: "calc(100% - 70px)", p: 1 }}>
+          {children}
+        </Box>
       </Box>
     </Modal>
   );
