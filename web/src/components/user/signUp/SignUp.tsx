@@ -16,7 +16,11 @@ import { useAppDispatch } from "@utils/hooks/hooks";
 import { logIn, userProfileBegin, userProfileError } from "@rSlices/userSlice";
 import { paths } from "@/routes/PageRoutes";
 
-export default function SignUp() {
+interface Props {
+  setRedirectToHome: (redirect: boolean) => void;
+}
+
+export default function SignUp({ setRedirectToHome }: Props) {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [disableSignUpBtn, setDisableSignUpBtn] = useState(true);
@@ -58,6 +62,7 @@ export default function SignUp() {
       return;
     }
     setDisableSignUpBtn(true);
+    setRedirectToHome(false);
 
     try {
       dispatch(userProfileBegin());

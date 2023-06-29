@@ -1,28 +1,24 @@
 import { Box, Card, Divider, SxProps, Tab, Tabs, Theme } from "@mui/material";
-import { useState } from "react";
-// import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import AppLogo from "@reusable/AppLogo";
 import GoogleLoginButton from "@components/user/login/google/GoogleLoginButton";
 import CredentialLogin from "@components/user/login/CredentialLogin";
 import SignUp from "@components/user/signUp/SignUp";
-// import { useUserStates } from "@redux/reduxStates";
+import { useUserStates } from "@redux/reduxStates";
 
 export default function Login() {
-  // const navigate = useNavigate();
-  // const { user } = useUserStates();
+  const navigate = useNavigate();
+  const { user } = useUserStates();
   const [value, setValue] = useState(0);
-  // const [redirected, setRedirected] = useState(false);
+  const [redirectToHome, setRedirectToHome] = useState(true);
 
   const handleTabChange = (value: number) => setValue(value);
 
-  //TODO: navigate to home if user is logged in and they try to navigate to this page
-  // useEffect(() => {
-  //   if (user && !redirected) {
-  //     navigate("/");
-  //     setRedirected(true);
-  //   }
-  // }, [user]);
+  useEffect(() => {
+    if (user && redirectToHome) navigate("/");
+  }, [user]);
 
   return (
     <Box sx={pageCont}>
@@ -42,10 +38,12 @@ export default function Login() {
           </Tabs>
         </Box>
         <Box sx={{ px: 2 }}>
-          <GoogleLoginButton />
+          <GoogleLoginButton setRedirectToHome={setRedirectToHome} />
           <Divider sx={{ my: 3 }}> or </Divider>
-          {value === 0 && <CredentialLogin />}
-          {value === 1 && <SignUp />}
+          {value === 0 && (
+            <CredentialLogin setRedirectToHome={setRedirectToHome} />
+          )}
+          {value === 1 && <SignUp setRedirectToHome={setRedirectToHome} />}
         </Box>
       </Card>
     </Box>

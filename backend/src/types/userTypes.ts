@@ -22,8 +22,8 @@ export interface IUser {
   emailVerified: boolean;
   image?: UserImage;
   token?: string;
-  createdAt: any;
-  updatedAt?: any;
+  createdAt: string | any;
+  updatedAt?: string | any;
   provider: string;
   roles?: UserRole[] | Prisma.JsonValue;
   phoneNum?: string | null;

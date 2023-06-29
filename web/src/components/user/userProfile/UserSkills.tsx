@@ -35,7 +35,7 @@ export default function UserSkills({
           </IconButton>
         )}
       </Stack>
-      <Grid container spacing={1} direction={"row"} sx={{ mt: 2 }}>
+      <Grid container spacing={1} direction={"row"} sx={{ mt: 1 }}>
         {contrData?.skills
           ? contrData?.skills?.map((skill) => (
               <Grid item key={skill.label}>

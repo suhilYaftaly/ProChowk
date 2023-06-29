@@ -15,7 +15,11 @@ import userOps, { ILoginUserData, ILoginUserInput } from "@gqlOps/user";
 import { useAppDispatch } from "@utils/hooks/hooks";
 import { logIn, userProfileBegin, userProfileError } from "@rSlices/userSlice";
 
-export default function CredentialLogin() {
+interface Props {
+  setRedirectToHome: (redirect: boolean) => void;
+}
+
+export default function CredentialLogin({ setRedirectToHome }: Props) {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [disableLoginBtn, setDisableLoginBtn] = useState(true);
@@ -44,6 +48,7 @@ export default function CredentialLogin() {
       return;
     }
     setDisableLoginBtn(true);
+    setRedirectToHome(false);
 
     try {
       dispatch(userProfileBegin());

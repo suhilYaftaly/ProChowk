@@ -9,7 +9,11 @@ import { userProfileError, logIn, userProfileBegin } from "@rSlices/userSlice";
 import userOps, { IGoogleLoginInput, IGoogleLoginData } from "@gqlOps/user";
 import { openUserIfNewUser } from "@/utils/utilFuncs";
 
-export default function GoogleLoginButton() {
+interface Props {
+  setRedirectToHome: (redirect: boolean) => void;
+}
+
+export default function GoogleLoginButton({ setRedirectToHome }: Props) {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -20,6 +24,7 @@ export default function GoogleLoginButton() {
 
   const login = useGoogleLogin({
     onSuccess: async (token) => {
+      setRedirectToHome(false);
       try {
         dispatch(userProfileBegin());
         const { data } = await googleLogin({

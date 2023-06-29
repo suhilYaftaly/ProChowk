@@ -1,11 +1,13 @@
-import { Alert, Button, Card, CircularProgress, Stack } from "@mui/material";
+import { Alert, Card, Stack } from "@mui/material";
 
 import UserBasicInfo from "./UserBasicInfo";
 import { pp } from "@/config/configConst";
 import UserSkills from "./UserSkills";
 import UserLicenses from "./UserLicenses";
-import { IUserData, useUpdateUser } from "@gqlOps/user";
+import { IUserData } from "@gqlOps/user";
 import { IContractorData } from "@gqlOps/contractor";
+import UserCreateContProf from "./edits/UserCreateContProf";
+// import UserJobs from "./UserJobs";
 
 export interface IUserInfo {
   user: IUserData | undefined;
@@ -24,14 +26,6 @@ export default function UserInfo({
   userId,
   contProfLoading,
 }: IUserInfo) {
-  const { updateUserAsync, loading: updateLoading, error } = useUpdateUser();
-
-  const onCreateContProf = () => {
-    if (userId) {
-      updateUserAsync({ variables: { id: userId, userType: "contractor" } });
-    }
-  };
-
   const isContProfIncomplete =
     !contrData?.licenses ||
     contrData?.licenses?.length < 0 ||
@@ -81,31 +75,18 @@ export default function UserInfo({
                 contProfLoading={contProfLoading}
               />
             </Card>
+            {/* <Card sx={{ boxShadow: 4, p: 2 }}>
+              <UserJobs
+                user={user}
+                isMyProfile={isMyProfile}
+                contrData={contrData}
+                userId={userId}
+                contProfLoading={contProfLoading}
+              />
+            </Card> */}
           </>
         ) : (
-          isMyProfile && (
-            <Card sx={{ boxShadow: 4, p: 2 }}>
-              <Button
-                type="submit"
-                variant="contained"
-                onClick={onCreateContProf}
-                disabled={updateLoading}
-                fullWidth
-                color="secondary"
-              >
-                {updateLoading ? (
-                  <CircularProgress size={20} />
-                ) : (
-                  "Create your contractor profile"
-                )}
-              </Button>
-              {error && (
-                <Alert severity="error" color="error">
-                  {error.message}
-                </Alert>
-              )}
-            </Card>
-          )
+          isMyProfile && userId && <UserCreateContProf userId={userId} />
         )}
       </Stack>
     </Stack>

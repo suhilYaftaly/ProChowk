@@ -16,6 +16,8 @@ export default gql`
     skills: [Skills]
     licenses: [Licenses]
     user: User!
+    createdAt: String!
+    updatedAt: String!
   }
   type Licenses {
     name: String!

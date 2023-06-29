@@ -26,6 +26,8 @@ const contOps = {
             name
             email
           }
+          createdAt
+          updatedAt
         }
       }
     `,
@@ -53,6 +55,8 @@ const contOps = {
             name
             email
           }
+          createdAt
+          updatedAt
         }
       }
     `,
@@ -83,6 +87,8 @@ export interface IContractorData {
   skills: SkillsInput[];
   licenses: LicensesInput[];
   user: User;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface IUpdateContrProfData {

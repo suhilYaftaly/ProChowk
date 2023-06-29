@@ -17,11 +17,15 @@ export interface Contractor {
   skills?: Skills[] | Prisma.JsonValue;
   licenses?: Licenses[] | Prisma.JsonValue;
   user: ContractorUser;
+  createdAt: string;
+  updatedAt: string;
 }
 export interface ContPropReturn {
   id: string;
   skills?: Skills[] | Prisma.JsonValue;
   licenses?: Licenses[] | Prisma.JsonValue;
+  createdAt: string | any;
+  updatedAt: string | any;
 }
 
 export interface ContractorUser {
