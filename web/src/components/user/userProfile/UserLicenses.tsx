@@ -46,7 +46,7 @@ export default function UserLicenses({
         container
         direction={"row"}
         spacing={1}
-        sx={{ overflowX: "auto", flexWrap: "nowrap", pb: 0.3 }}
+        sx={{ overflowX: "auto", flexWrap: "nowrap", pb: 2, mb: -2 }}
       >
         {contrData?.licenses
           ? contrData?.licenses?.map((l) => (
