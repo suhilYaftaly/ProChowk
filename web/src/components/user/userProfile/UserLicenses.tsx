@@ -51,7 +51,7 @@ export default function UserLicenses({
         {contrData?.licenses
           ? contrData?.licenses?.map((l) => (
               <Grid item key={l.desc}>
-                <Card raised sx={{ width: 100, height: "100%" }}>
+                <Card raised sx={{ width: 120, height: "100%" }}>
                   <CardActionArea
                     onClick={() => {
                       setActiveLicense(l);
@@ -62,13 +62,13 @@ export default function UserLicenses({
                       src={l.picture}
                       alt={l.name}
                       loading="lazy"
-                      style={{ width: 100, height: 100 }}
+                      style={{ width: 120, height: 120 }}
                     />
                     <CardContent>
                       <Typography
                         variant="body2"
                         color="text.secondary"
-                        className="ellipsis2Line"
+                        className="ellipsis1Line"
                       >
                         {l.desc}
                       </Typography>
@@ -80,13 +80,13 @@ export default function UserLicenses({
           : contProfLoading && (
               <>
                 <Grid item>
-                  <Skeleton variant="rounded" width={100} height={100} />
+                  <Skeleton variant="rounded" width={120} height={120} />
                 </Grid>
                 <Grid item>
-                  <Skeleton variant="rounded" width={100} height={100} />
+                  <Skeleton variant="rounded" width={120} height={120} />
                 </Grid>
                 <Grid item>
-                  <Skeleton variant="rounded" width={100} height={100} />
+                  <Skeleton variant="rounded" width={120} height={120} />
                 </Grid>
               </>
             )}
