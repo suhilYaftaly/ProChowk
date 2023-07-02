@@ -50,6 +50,7 @@ export default function UserInfo({
           <>
             <ShowIncompleteAlerts
               user={user}
+              isMyProfile={isMyProfile}
               contrData={contrData}
               contProfLoading={contProfLoading}
             />

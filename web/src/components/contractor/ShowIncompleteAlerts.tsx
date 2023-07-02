@@ -6,6 +6,7 @@ export default function ShowIncompleteAlerts({
   user,
   contrData,
   contProfLoading,
+  isMyProfile,
 }: Props) {
   const isContProfIncomplete =
     !user?.address ||
@@ -18,7 +19,7 @@ export default function ShowIncompleteAlerts({
 
   return (
     <>
-      {!contProfLoading && isContProfIncomplete && (
+      {isMyProfile && !contProfLoading && isContProfIncomplete && (
         <Card sx={{ boxShadow: 4, p: 2 }}>
           <Alert severity="error" color="error">
             Your contractor profile is incomplete!
