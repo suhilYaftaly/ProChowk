@@ -8,12 +8,21 @@ import {
 } from "@mui/material";
 import { useUpdateUser } from "@gqlOps/user";
 
-export default function UserCreateContProf({ userId }: { userId: string }) {
+interface Props {
+  userId: string;
+  setHideContNFErr?: (hide: boolean) => void;
+}
+
+export default function UserCreateContProf({
+  userId,
+  setHideContNFErr,
+}: Props) {
   const theme = useTheme();
   const { updateUserAsync, loading: updateLoading, error } = useUpdateUser();
 
   const onCreateContProf = () => {
     if (userId) {
+      setHideContNFErr && setHideContNFErr(true);
       updateUserAsync({ variables: { id: userId, userType: "contractor" } });
     }
   };

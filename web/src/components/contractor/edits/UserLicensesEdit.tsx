@@ -13,7 +13,7 @@ import { useEffect, useState } from "react";
 
 import FileUpload from "@reusable/FileUpload";
 import { IUserInfo } from "@user/userProfile/UserInfo";
-import { LicensesInput, useUpdateContrProf } from "@gqlOps/contractor";
+import { LicenseInput, useUpdateContrProf } from "@gqlOps/contractor";
 
 interface Props extends IUserInfo {
   closeEdit: () => void;
@@ -26,7 +26,7 @@ export default function UserLicensesEdit({
 }: Props) {
   const { updateContrProfAsync, error, loading } = useUpdateContrProf();
   const [disableSaveBtn, setDisableSaveBtn] = useState(true);
-  const [allLicenses, setAllLicenses] = useState<LicensesInput[] | undefined>(
+  const [allLicenses, setAllLicenses] = useState<LicenseInput[] | undefined>(
     undefined
   );
 
@@ -40,7 +40,7 @@ export default function UserLicensesEdit({
     }
   }, [contrData?.licenses]);
 
-  const onLicenseUpload = (fileData: LicensesInput) => {
+  const onLicenseUpload = (fileData: LicenseInput) => {
     setAllLicenses((pv) => (pv ? [...pv, { ...fileData }] : [fileData]));
     setDisableSaveBtn(false);
   };

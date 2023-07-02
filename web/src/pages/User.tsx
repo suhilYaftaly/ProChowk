@@ -26,6 +26,7 @@ export default function User() {
     contOps.Queries.searchContrProf
   );
   const [openContErrBar, setOpenContErrBar] = useState(false);
+  const [hideContNFErr, setHideContNFErr] = useState(false);
 
   const getUser = async () => {
     if (userId) {
@@ -74,17 +75,21 @@ export default function User() {
         contrData={userContrData?.searchContrProf}
         userId={userId}
         contProfLoading={contProfLoading}
+        setHideContNFErr={setHideContNFErr}
       />
       {userError && (
         <Alert severity="error" color="error">
           {userError.message}
         </Alert>
       )}
-      <ErrSnackbar
-        open={openContErrBar}
-        handleClose={setOpenContErrBar}
-        errMsg={contError?.message}
-      />
+      {hideContNFErr &&
+      contError?.message === "Contractor profile not found" ? null : (
+        <ErrSnackbar
+          open={openContErrBar}
+          handleClose={setOpenContErrBar}
+          errMsg={contError?.message}
+        />
+      )}
     </>
   );
 }

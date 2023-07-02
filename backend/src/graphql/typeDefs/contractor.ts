@@ -5,10 +5,7 @@ export default gql`
     searchContrProf(userId: ID!): Contractor!
   }
   type Mutation {
-    updateContrProf(
-      skills: [SkillsInput]
-      licenses: [LicensesInput]
-    ): Contractor!
+    updateContrProf(skills: [SkillInput], licenses: [LicenseInput]): Contractor!
   }
 
   type Contractor {
@@ -35,14 +32,14 @@ export default gql`
     label: String!
   }
 
-  input LicensesInput {
+  input LicenseInput {
     name: String!
     size: Float
     type: String!
     desc: String!
     picture: String!
   }
-  input SkillsInput {
+  input SkillInput {
     label: String!
   }
 `;

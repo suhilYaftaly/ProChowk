@@ -16,6 +16,7 @@ export interface IUserInfo {
   contrData?: IContractorData | undefined;
   userId?: string;
   contProfLoading?: boolean;
+  setHideContNFErr?: (hide: boolean) => void;
 }
 
 export default function UserInfo({
@@ -25,6 +26,7 @@ export default function UserInfo({
   contrData,
   userId,
   contProfLoading,
+  setHideContNFErr,
 }: IUserInfo) {
   const isContProfIncomplete =
     !contrData?.licenses ||
@@ -86,7 +88,13 @@ export default function UserInfo({
             </Card> */}
           </>
         ) : (
-          isMyProfile && userId && <UserCreateContProf userId={userId} />
+          isMyProfile &&
+          userId && (
+            <UserCreateContProf
+              userId={userId}
+              setHideContNFErr={setHideContNFErr}
+            />
+          )
         )}
       </Stack>
     </Stack>

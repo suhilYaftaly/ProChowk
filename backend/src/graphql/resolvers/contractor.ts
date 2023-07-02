@@ -3,8 +3,8 @@ import {
   Contractor,
   ContractorUser,
   CreateContractorProfileInput,
-  Licenses,
-  Skills,
+  License,
+  Skill,
 } from "../../types/contractorTypes";
 import { GraphQLContext } from "../../types/userTypes";
 import checkAuth from "../../utils/checkAuth";
@@ -53,8 +53,8 @@ export default {
       const { prisma, req } = context;
       const user = checkAuth(req);
       const inputErr = validateCreateContInput(
-        skills as Skills[] | undefined,
-        licenses as Licenses[] | undefined
+        skills as Skill[] | undefined,
+        licenses as License[] | undefined
       );
       if (inputErr) throw inputErr;
 

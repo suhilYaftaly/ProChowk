@@ -1,9 +1,9 @@
-import { Licenses, Skills } from "../../types/contractorTypes";
+import { License, Skill } from "../../types/contractorTypes";
 import { getErr } from "../funcs";
 
 export const validateCreateContInput = (
-  skills: Skills[] | undefined,
-  licenses: Licenses[] | undefined
+  skills: Skill[] | undefined,
+  licenses: License[] | undefined
 ) => {
   if (skills && skills.length === 0)
     return getErr("At least one skill is required");

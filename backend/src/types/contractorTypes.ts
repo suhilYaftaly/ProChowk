@@ -1,10 +1,10 @@
 import { Prisma } from "@prisma/client";
 
 export interface CreateContractorProfileInput {
-  skills?: Skills[] | Prisma.JsonValue;
-  licenses?: Licenses[] | Prisma.JsonValue;
+  skills?: Skill[] | Prisma.JsonValue;
+  licenses?: License[] | Prisma.JsonValue;
 }
-export type Licenses = {
+export type License = {
   name: string;
   size?: number;
   type: string;
@@ -14,16 +14,16 @@ export type Licenses = {
 
 export interface Contractor {
   id: string;
-  skills?: Skills[] | Prisma.JsonValue;
-  licenses?: Licenses[] | Prisma.JsonValue;
+  skills?: Skill[] | Prisma.JsonValue;
+  licenses?: License[] | Prisma.JsonValue;
   user: ContractorUser;
   createdAt: string;
   updatedAt: string;
 }
 export interface ContPropReturn {
   id: string;
-  skills?: Skills[] | Prisma.JsonValue;
-  licenses?: Licenses[] | Prisma.JsonValue;
+  skills?: Skill[] | Prisma.JsonValue;
+  licenses?: License[] | Prisma.JsonValue;
   createdAt: string | any;
   updatedAt: string | any;
 }
@@ -34,6 +34,6 @@ export interface ContractorUser {
   email: string;
 }
 
-export type Skills = {
+export type Skill = {
   label: string;
 };
