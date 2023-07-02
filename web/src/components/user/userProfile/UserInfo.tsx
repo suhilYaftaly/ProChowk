@@ -1,4 +1,4 @@
-import { Alert, Card, Stack } from "@mui/material";
+import { Card, Stack } from "@mui/material";
 
 import UserBasicInfo from "./UserBasicInfo";
 import { layoutCardsMaxWidth, pp } from "@/config/configConst";
