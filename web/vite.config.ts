@@ -19,6 +19,12 @@ export default defineConfig({
       "@constants": `${path.resolve(__dirname, "./src/constants/")}`,
       "@routes": `${path.resolve(__dirname, "./src/routes/")}`,
       "@config": `${path.resolve(__dirname, "./src/config/")}`,
+      "@contractor": `${path.resolve(
+        __dirname,
+        "./src/components/contractor/"
+      )}`,
+      "@user": `${path.resolve(__dirname, "./src/components/user/")}`,
+      "@advs": `${path.resolve(__dirname, "./src/components/advs/")}`,
     },
   },
 });

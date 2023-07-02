@@ -13,7 +13,7 @@ import EditIcon from "@mui/icons-material/Edit";
 
 import CustomModal from "@reusable/CustomModal";
 import FullScreenModal from "@reusable/FullScreenModal";
-import { IUserInfo } from "./UserInfo";
+import { IUserInfo } from "@user/userProfile/UserInfo";
 import UserLicensesEdit from "./edits/UserLicensesEdit";
 
 export default function UserLicenses({

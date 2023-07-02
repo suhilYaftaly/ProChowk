@@ -12,19 +12,23 @@ import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 
 import CustomModal from "@reusable/CustomModal";
-import { IUserInfo } from "./UserInfo";
-import UserAddJob from "./edits/UserAddJob";
-import { Job } from "./edits/UserJobForm";
-import UserEditJob from "./edits/UserEditJob";
+import { IUserInfo } from "@user/userProfile/UserInfo";
+import AddAd from "./edits/AddAd";
+import { IAd } from "./edits/AdForm";
+import EditAd from "./edits/EditAd";
 
-export default function UserJobs({ isMyProfile, contProfLoading }: IUserInfo) {
+export default function Ads({
+  isMyProfile,
+  contProfLoading,
+  contrData,
+}: IUserInfo) {
+  const [ads, setAds] = useState<IAd[] | undefined>();
+  const [editAd, setEditAd] = useState<IAd | undefined>();
   const [openAdd, setOpenAdd] = useState(false);
-  const [jobs, setJobs] = useState<Job[] | undefined>();
-  const [editJob, setEditJob] = useState<Job | undefined>();
   const [openEdit, setOpenEdit] = useState(false);
 
-  const onEditClick = (job: Job) => {
-    setEditJob(job);
+  const onEditClick = (ad: IAd) => {
+    setEditAd(ad);
     setOpenEdit(true);
   };
 
@@ -34,8 +38,7 @@ export default function UserJobs({ isMyProfile, contProfLoading }: IUserInfo) {
         direction={"row"}
         sx={{ alignItems: "center", justifyContent: "space-between" }}
       >
-        <Typography variant="h5">Jobs</Typography>
-
+        <Typography variant="h5">ADs</Typography>
         {isMyProfile && (
           <IconButton onClick={() => setOpenAdd(true)}>
             <AddIcon />
@@ -43,9 +46,9 @@ export default function UserJobs({ isMyProfile, contProfLoading }: IUserInfo) {
         )}
       </Stack>
       <Grid container spacing={1} direction={"column"} sx={{ mt: 1 }}>
-        {jobs
-          ? jobs?.map((job) => (
-              <Grid item key={job.id}>
+        {ads
+          ? ads?.map((ad) => (
+              <Grid item key={ad.id}>
                 <Card raised>
                   <CardContent>
                     <Stack
@@ -56,14 +59,16 @@ export default function UserJobs({ isMyProfile, contProfLoading }: IUserInfo) {
                       }}
                     >
                       <Typography gutterBottom variant="h5">
-                        {job.title}
+                        {ad.title}
                       </Typography>
-                      <IconButton onClick={() => onEditClick(job)}>
-                        <EditIcon />
-                      </IconButton>
+                      {isMyProfile && (
+                        <IconButton onClick={() => onEditClick(ad)}>
+                          <EditIcon />
+                        </IconButton>
+                      )}
                     </Stack>
                     <Typography variant="body2" color="text.secondary">
-                      {job.desc}
+                      {ad.desc}
                     </Typography>
                   </CardContent>
                 </Card>
@@ -83,15 +88,19 @@ export default function UserJobs({ isMyProfile, contProfLoading }: IUserInfo) {
               </>
             )}
       </Grid>
-      <CustomModal title="Add New Job" open={openAdd} onClose={setOpenAdd}>
-        <UserAddJob setJobs={setJobs} closeEdit={() => setOpenAdd(false)} />
+      <CustomModal title="Add New AD" open={openAdd} onClose={setOpenAdd}>
+        <AddAd
+          setAds={setAds}
+          closeEdit={() => setOpenAdd(false)}
+          contrData={contrData}
+        />
       </CustomModal>
-      {editJob && (
-        <CustomModal title="Edit Job" open={openEdit} onClose={setOpenEdit}>
-          <UserEditJob
-            job={editJob}
-            setJob={setEditJob}
-            setJobs={setJobs}
+      {editAd && (
+        <CustomModal title="Edit AD" open={openEdit} onClose={setOpenEdit}>
+          <EditAd
+            ad={editAd}
+            setAd={setEditAd}
+            setAds={setAds}
             closeEdit={() => setOpenEdit(false)}
           />
         </CustomModal>

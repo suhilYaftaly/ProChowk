@@ -9,6 +9,7 @@ import {
 import { ReactNode } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import { styled, useTheme } from "@mui/system";
+import { layoutCardsMaxWidth } from "@/config/configConst";
 
 interface Props {
   open: boolean;
@@ -23,6 +24,7 @@ const ModalContainer = styled(Box)(({ theme }) => ({
   left: "50%",
   transform: "translate(-50%, -50%)",
   minWidth: 350,
+  maxWidth: layoutCardsMaxWidth,
   maxHeight: "95%",
   backgroundColor: theme.palette.background.paper, // Set the background color based on the theme
   padding: theme.spacing(1),

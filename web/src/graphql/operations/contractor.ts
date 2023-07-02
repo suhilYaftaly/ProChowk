@@ -35,7 +35,7 @@ const contOps = {
   Mutations: {
     updateContrProf: gql`
       mutation UpdateContrProf(
-        $skills: [SkillsInput]
+        $skills: [SkillInput]
         $licenses: [LicensesInput]
       ) {
         updateContrProf(skills: $skills, licenses: $licenses) {
@@ -72,7 +72,7 @@ export interface LicensesInput {
   picture: string;
 }
 
-export interface SkillsInput {
+export interface SkillInput {
   label: string;
 }
 
@@ -84,7 +84,7 @@ interface User {
 
 export interface IContractorData {
   id: string;
-  skills: SkillsInput[];
+  skills: SkillInput[];
   licenses: LicensesInput[];
   user: User;
   createdAt: string;
@@ -96,7 +96,7 @@ export interface IUpdateContrProfData {
 }
 
 export interface IUpdateContrProfInput {
-  skills?: SkillsInput[] | null;
+  skills?: SkillInput[] | null;
   licenses?: LicensesInput[] | null;
 }
 

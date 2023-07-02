@@ -4,7 +4,7 @@ import {
   useLazyQuery,
   useMutation,
 } from "@apollo/client";
-import { SkillsInput } from "./contractor";
+import { SkillInput } from "./contractor";
 
 const dataListOps = {
   Queries: {
@@ -45,7 +45,7 @@ interface IDataListData {
 
 interface SkillsData extends IDataListData {
   type: "skills";
-  data: SkillsInput[];
+  data: SkillInput[];
 }
 
 export interface IGetAllSkillsData {
@@ -56,11 +56,11 @@ export interface IUpdateAllSkillsData {
   updateAllSkills: SkillsData;
 }
 export interface IUpdateAllSkillsInput {
-  skills: SkillsInput[];
+  skills: SkillInput[];
 }
 
 interface IUseUpdateAllSkills {
-  skills: SkillsInput[];
+  skills: SkillInput[];
 }
 export const useUpdateAllSkills = () => {
   const client = useApolloClient();

@@ -12,7 +12,7 @@ import {
 import { useEffect, useState } from "react";
 
 import FileUpload from "@reusable/FileUpload";
-import { IUserInfo } from "../UserInfo";
+import { IUserInfo } from "@user/userProfile/UserInfo";
 import { LicensesInput, useUpdateContrProf } from "@gqlOps/contractor";
 
 interface Props extends IUserInfo {

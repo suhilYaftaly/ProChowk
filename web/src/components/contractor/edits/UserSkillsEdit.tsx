@@ -12,12 +12,12 @@ import {
 import { FormEvent, useEffect, useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
 
-import { SkillsInput, useUpdateContrProf } from "@gqlOps/contractor";
+import { SkillInput, useUpdateContrProf } from "@gqlOps/contractor";
 import { useGetAllSkills, useUpdateAllSkills } from "@gqlOps/dataList";
 import ErrSnackbar from "@/components/ErrSnackbar";
 
 interface Props {
-  userSkills: SkillsInput[] | undefined;
+  userSkills: SkillInput[] | undefined;
   userId: string | undefined;
   closeEdit: () => void;
 }
@@ -30,7 +30,7 @@ export default function UserSkillsEdit({
   const [selectedSkills, setSelectedSkills] = useState(addSkills(userSkills));
   const [disableSaveBtn, setDisableSaveBtn] = useState(true);
   const [openSkillsErrBar, setOpenSkillsErrBar] = useState(false);
-  const [newSkills, setNewSkills] = useState<SkillsInput[]>([]);
+  const [newSkills, setNewSkills] = useState<SkillInput[]>([]);
   const { updateContrProfAsync, error, loading } = useUpdateContrProf();
   const { updateAllSkillsAsync } = useUpdateAllSkills();
   const {
@@ -53,7 +53,7 @@ export default function UserSkillsEdit({
     if (newSkills?.length > 0) updateAllSkillsAsync({ skills: newSkills });
     setDisableSaveBtn(true);
   };
-  const handleAdd = (newSkill: SkillsInput) => {
+  const handleAdd = (newSkill: SkillInput) => {
     const exists = selectedSkills?.some((s) => s.label === newSkill.label);
     if (!exists) {
       //create new skills list to add to backend allSkills
@@ -66,7 +66,7 @@ export default function UserSkillsEdit({
       setDisableSaveBtn(false);
     }
   };
-  const handleDelete = (skillToDelete: SkillsInput) => () => {
+  const handleDelete = (skillToDelete: SkillInput) => () => {
     setDisableSaveBtn(false);
     setSelectedSkills((skills) =>
       skills?.filter((skill) => skill.label !== skillToDelete.label)
@@ -75,7 +75,7 @@ export default function UserSkillsEdit({
       skills?.filter((skill) => skill.label !== skillToDelete.label)
     );
   };
-  const onSkillSelection = (_: any, value: SkillsInput | null | string) => {
+  const onSkillSelection = (_: any, value: SkillInput | null | string) => {
     if (value && typeof value === "string") {
       const newSkill = { label: value };
       handleAdd(newSkill);
@@ -163,7 +163,7 @@ export default function UserSkillsEdit({
   );
 }
 
-const addSkills = (skills: SkillsInput[] | undefined) => {
+const addSkills = (skills: SkillInput[] | undefined) => {
   if (!skills) return [];
   return skills?.map((skill) => ({ label: skill.label }));
 };

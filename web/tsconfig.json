@@ -27,6 +27,9 @@
       "@constants/*": ["src/constants/*"],
       "@routes/*": ["src/routes/*"],
       "@config/*": ["src/config/*"],
+      "@contractor/*": ["src/components/contractor/*"],
+      "@user/*": ["src/components/user/*"],
+      "@advs/*": ["src/components/advs/*"],
     },
 
     /* Linting */

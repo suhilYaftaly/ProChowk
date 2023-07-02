@@ -1,19 +1,19 @@
 import { Alert, Card, Stack } from "@mui/material";
 
 import UserBasicInfo from "./UserBasicInfo";
-import { pp } from "@/config/configConst";
-import UserSkills from "./UserSkills";
-import UserLicenses from "./UserLicenses";
+import { layoutCardsMaxWidth, pp } from "@/config/configConst";
+import UserSkills from "@contractor/UserSkills";
+import UserLicenses from "@contractor/UserLicenses";
 import { IUserData } from "@gqlOps/user";
 import { IContractorData } from "@gqlOps/contractor";
 import UserCreateContProf from "./edits/UserCreateContProf";
-// import UserJobs from "./UserJobs";
+// import Ads from "@advs/Ads";
 
 export interface IUserInfo {
-  user: IUserData | undefined;
+  user?: IUserData | undefined;
   isMyProfile?: boolean;
   loading?: boolean;
-  contrData?: IContractorData | null;
+  contrData?: IContractorData | undefined;
   userId?: string;
   contProfLoading?: boolean;
 }
@@ -41,7 +41,7 @@ export default function UserInfo({
         m: pp,
       }}
     >
-      <Stack spacing={1} sx={{ maxWidth: 700 }}>
+      <Stack spacing={1} sx={{ maxWidth: layoutCardsMaxWidth }}>
         <Card sx={{ boxShadow: 4, p: 2 }}>
           <UserBasicInfo
             user={user}
@@ -76,7 +76,7 @@ export default function UserInfo({
               />
             </Card>
             {/* <Card sx={{ boxShadow: 4, p: 2 }}>
-              <UserJobs
+              <Ads
                 user={user}
                 isMyProfile={isMyProfile}
                 contrData={contrData}

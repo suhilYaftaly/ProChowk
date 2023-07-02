@@ -143,7 +143,7 @@ const UserBasicInfoEdit: React.FC<Props> = ({ user, closeEdit }) => {
         placeholder="e.g. 999-999-9999"
       />
       <TextField
-        label={"Biography (max 450 chars)"}
+        label={"Biography (max 1000 chars)"}
         variant="outlined"
         size="small"
         name={"bio"}
@@ -154,7 +154,7 @@ const UserBasicInfoEdit: React.FC<Props> = ({ user, closeEdit }) => {
         placeholder={"your biography"}
         multiline={true}
         rows={3}
-        inputProps={{ maxLength: 450 }}
+        inputProps={{ maxLength: 1000 }}
       />
       <div>
         <Divider sx={{ my: 2 }} />
