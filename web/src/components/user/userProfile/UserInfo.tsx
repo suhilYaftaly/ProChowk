@@ -7,6 +7,7 @@ import UserLicenses from "@contractor/UserLicenses";
 import { IUserData } from "@gqlOps/user";
 import { IContractorData } from "@gqlOps/contractor";
 import UserCreateContProf from "./edits/UserCreateContProf";
+import ShowIncompleteAlerts from "@contractor/ShowIncompleteAlerts";
 // import Ads from "@advs/Ads";
 
 export interface IUserInfo {
@@ -28,12 +29,6 @@ export default function UserInfo({
   contProfLoading,
   setHideContNFErr,
 }: IUserInfo) {
-  const isContProfIncomplete =
-    !contrData?.licenses ||
-    contrData?.licenses?.length < 0 ||
-    !contrData?.skills ||
-    contrData?.skills?.length < 0;
-
   return (
     <Stack
       sx={{
@@ -53,13 +48,11 @@ export default function UserInfo({
         </Card>
         {user?.userType?.includes("contractor") ? (
           <>
-            {!contProfLoading && isContProfIncomplete && (
-              <Card sx={{ boxShadow: 4, p: 2 }}>
-                <Alert severity="error" color="error">
-                  Your contractor profile is incomplete!
-                </Alert>
-              </Card>
-            )}
+            <ShowIncompleteAlerts
+              user={user}
+              contrData={contrData}
+              contProfLoading={contProfLoading}
+            />
             <Card sx={{ boxShadow: 4, p: 2 }}>
               <UserSkills
                 user={user}
