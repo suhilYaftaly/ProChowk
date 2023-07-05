@@ -15,6 +15,7 @@ import UserBasicInfoEdit from "./edits/UserBasicInfoEdit";
 import { AddressInput, useUpdateUser } from "@gqlOps/user";
 import CustomModal from "@reusable/CustomModal";
 import ErrSnackbar from "@components/ErrSnackbar";
+import ShowMoreTxt from "@reusable/ShowMoreTxt";
 
 export default function UserBasicInfo({
   user,
@@ -131,12 +132,7 @@ export default function UserBasicInfo({
                 </IconButton>
               )}
             </Stack>
-            <Typography
-              variant="body2"
-              sx={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}
-            >
-              {user?.bio}
-            </Typography>
+            <ShowMoreTxt text={user?.bio} />
           </>
         )}
       </Stack>

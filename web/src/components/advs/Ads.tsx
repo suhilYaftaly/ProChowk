@@ -11,6 +11,7 @@ import {
 import { useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 import CustomModal from "@reusable/CustomModal";
 import { IUserInfo } from "@user/userProfile/UserInfo";
@@ -38,7 +39,7 @@ export default function Ads({
   const [ads, setAds] = useState<IAd[] | undefined>([
     {
       id: "sdfsdf",
-      title: "Sample Service Add",
+      title: "Sample Service Ad",
       desc: "Experience excellence in tiling, interlocking, and landscaping with Checkmate Tiling. With 200+ successful projects, our expert team delivers stunning results. From transforming floors to creating captivating outdoor spaces, trust us to bring your vision to life with precision and expertise.",
       type: "Service",
       skills: [
@@ -60,6 +61,9 @@ export default function Ads({
   const onEditClick = (ad: IAd) => {
     setEditAd(ad);
     setOpenEdit(true);
+  };
+  const onDeleteClick = (ad: IAd) => {
+    setAds((pv) => pv && pv.filter((item) => item.id !== ad.id));
   };
 
   return (
@@ -94,13 +98,24 @@ export default function Ads({
                         <Chip
                           label={ad.type}
                           variant="outlined"
-                          sx={{ ml: 2 }}
+                          sx={{ mr: 1 }}
                           size="small"
                         />
                         {isMyProfile && (
-                          <IconButton onClick={() => onEditClick(ad)}>
-                            <EditIcon />
-                          </IconButton>
+                          <>
+                            <IconButton
+                              onClick={() => onEditClick(ad)}
+                              size="small"
+                            >
+                              <EditIcon />
+                            </IconButton>
+                            <IconButton
+                              onClick={() => onDeleteClick(ad)}
+                              size="small"
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </>
                         )}
                       </Stack>
                     </Stack>
