@@ -19,6 +19,7 @@ export default function ShowMoreTxt({ text, maxHeight = 60 }: Props) {
     }
   }, [text, maxHeight]);
 
+  if (!text) return null;
   return (
     <>
       <Collapse in={showMore} collapsedSize={maxHeight}>
