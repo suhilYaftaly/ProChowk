@@ -95,6 +95,7 @@ export default function Ads({
                           label={ad.type}
                           variant="outlined"
                           sx={{ ml: 2 }}
+                          size="small"
                         />
                         {isMyProfile && (
                           <IconButton onClick={() => onEditClick(ad)}>
