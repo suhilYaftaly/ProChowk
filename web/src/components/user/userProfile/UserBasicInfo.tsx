@@ -131,7 +131,12 @@ export default function UserBasicInfo({
                 </IconButton>
               )}
             </Stack>
-            <Typography variant="body2">{user?.bio}</Typography>
+            <Typography
+              variant="body2"
+              sx={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}
+            >
+              {user?.bio}
+            </Typography>
           </>
         )}
       </Stack>

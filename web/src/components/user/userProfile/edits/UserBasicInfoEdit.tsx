@@ -130,6 +130,7 @@ const UserBasicInfoEdit: React.FC<Props> = ({ user, closeEdit }) => {
         helperText={formError.name && "Must be more than 2 chars"}
         placeholder={"your name"}
         required
+        inputProps={{ style: { textTransform: "capitalize" } }}
       />
       <TextField
         label={"Phone Number"}
@@ -153,7 +154,7 @@ const UserBasicInfoEdit: React.FC<Props> = ({ user, closeEdit }) => {
         helperText={formError.bio && "Must be more than 10 chars"}
         placeholder={"your biography"}
         multiline={true}
-        rows={3}
+        rows={4}
         inputProps={{ maxLength: 1000 }}
       />
       <div>

@@ -1,9 +1,10 @@
 import { Dispatch, SetStateAction, FormEvent } from "react";
-import AdForm, { IAd } from "./AdForm";
+import AddAdService from "./AddAdService";
+import { IAd } from "../Ads";
 
 interface Props {
   ad: IAd;
-  setAd: (ad: IAd) => void;
+  setAd: Dispatch<SetStateAction<IAd>>;
   setAds: Dispatch<SetStateAction<IAd[] | undefined>>;
   closeEdit: () => void;
 }
@@ -15,5 +16,5 @@ export default function EditAd({ ad, setAd, setAds, closeEdit }: Props) {
     closeEdit();
   };
 
-  return <AdForm handleSave={handleEdit} ad={ad} setAd={setAd} />;
+  return <AddAdService handleSave={handleEdit} ad={ad} setAd={setAd} />;
 }

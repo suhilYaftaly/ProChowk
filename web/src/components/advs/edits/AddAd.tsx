@@ -1,11 +1,18 @@
-import { useState, Dispatch, SetStateAction, FormEvent } from "react";
+import {
+  useState,
+  Dispatch,
+  SetStateAction,
+  FormEvent,
+  useEffect,
+} from "react";
 import { Box, Typography, styled } from "@mui/material";
 import RoofingIcon from "@mui/icons-material/Roofing";
 import PersonSearchIcon from "@mui/icons-material/PersonSearch";
 
-import { IAd } from "./AdForm";
 import AddAdService from "./AddAdService";
 import { IUserInfo } from "@user/userProfile/UserInfo";
+import { SkillInput } from "@gqlOps/contractor";
+import { IAd, IAdSkill } from "../Ads";
 
 interface Props extends IUserInfo {
   setAds: Dispatch<SetStateAction<IAd[] | undefined>>;
@@ -19,8 +26,18 @@ export default function AddAd({ setAds, closeEdit, contrData }: Props) {
     type: "Service",
     title: "",
     desc: "",
-    skills: [],
+    skills: addSkills(contrData?.skills),
   });
+
+  useEffect(() => {
+    setAd({
+      id: String(Math.random()),
+      type: "Service",
+      title: "",
+      desc: "",
+      skills: addSkills(contrData?.skills),
+    });
+  }, [contrData?.skills]);
 
   const handleSave = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
@@ -77,18 +94,13 @@ export default function AddAd({ setAds, closeEdit, contrData }: Props) {
                 >
                   <PersonSearchIcon sx={{ width: 100, height: 100 }} />
                 </Box>
-                <Typography textAlign={"center"}>Job</Typography>
+                <Typography textAlign={"center"}>Job (Hiring)</Typography>
               </Box>
             </SelectBox>
           </Box>
         </Box>
       ) : ad.type === "Service" ? (
-        <AddAdService
-          handleSave={handleSave}
-          ad={ad}
-          setAd={setAd}
-          contrData={contrData}
-        />
+        <AddAdService handleSave={handleSave} ad={ad} setAd={setAd} />
       ) : (
         <Typography sx={{ m: 5, textAlign: "center" }}>
           Coming Soon!!
@@ -97,6 +109,11 @@ export default function AddAd({ setAds, closeEdit, contrData }: Props) {
     </>
   );
 }
+
+const addSkills = (skills: SkillInput[] | undefined): IAdSkill[] => {
+  if (!skills) return [];
+  return skills?.map((skill) => ({ ...skill, selected: false }));
+};
 
 const SelectBox = styled(Box)((theme) => ({
   "&:hover": {

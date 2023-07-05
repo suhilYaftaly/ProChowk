@@ -17,18 +17,17 @@ import {
   Typography,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import RemoveIcon from "@mui/icons-material/Remove";
 
 import { IUserInfo } from "@user/userProfile/UserInfo";
-import { SkillInput } from "@gqlOps/contractor";
+import { IAdSkill } from "../Ads";
 
-interface IAdInputErr {
+interface IServiceAd {
+  id: string;
   title: string;
   desc: string;
-}
-interface IServiceAd extends IAdInputErr {
-  id: string;
   type: "Service" | "Job";
-  skills: SkillInput[];
+  skills: IAdSkill[];
 }
 interface Props extends IUserInfo {
   ad: IServiceAd;
@@ -36,92 +35,56 @@ interface Props extends IUserInfo {
   handleSave: (e: FormEvent<HTMLFormElement>) => void;
 }
 
-export default function AddAdService({
-  ad,
-  setAd,
-  handleSave,
-  contrData,
-}: Props) {
+export default function AddAdService({ ad, setAd, handleSave }: Props) {
   const [disableSaveBtn, setDisableSaveBtn] = useState(true);
-  const [inputErrs, setInputErrs] = useState<IAdInputErr>({
-    title: "",
-    desc: "",
-  });
-  const [errors, setErrors] = useState({ skills: false });
+  const [errors, setErrors] = useState(resetErr);
 
   const handleAdChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
-
     setDisableSaveBtn(false);
     setAd({ ...ad, [name]: value });
-    setInputErrs((prevErrors) => ({
-      ...prevErrors,
-      [name]: validateField(value, name as keyof IServiceAd),
-    }));
   };
 
-  const validateField = (value: string, fieldName: keyof IServiceAd) => {
-    let error = "";
+  const validateFields = (): boolean => {
+    let err = false;
 
-    switch (fieldName) {
-      case "title":
-      case "desc":
-        if (value.length < 3) {
-          error = `${fieldName} should have at least 3 characters`;
-        }
-        break;
-      default:
-        break;
+    setErrors(resetErr);
+
+    if (ad?.title?.length < 3) {
+      err = true;
+      setErrors((pv) => ({ ...pv, title: "Must have more than 3 chars" }));
+    }
+    if (ad?.desc?.length < 9) {
+      err = true;
+      setErrors((pv) => ({ ...pv, desc: "Must have more than 9 chars" }));
+    }
+    if (ad.skills?.length < 1 || ad.skills.every((skill) => !skill.selected)) {
+      err = true;
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        skills: "You must add at least one skill",
+      }));
     }
 
-    return error;
+    return err;
   };
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
-    let error = false;
     e.preventDefault();
+    const error = validateFields();
 
-    const fieldNames: (keyof IAdInputErr)[] = Object.keys(
-      ad
-    ) as (keyof IAdInputErr)[];
-    const newInputErr: Partial<IAdInputErr> = {};
-    const inputHasErr = Object.values(newInputErr).some((error) =>
-      Boolean(error)
-    );
-    const hasEmptyFields = Object.values(ad).some((v) => v === "");
-
-    fieldNames.forEach((fieldName) => {
-      const error = validateField(ad[fieldName], fieldName);
-      if (error) newInputErr[fieldName] = error;
-    });
-
-    setInputErrs((pr) => ({ ...pr, ...newInputErr }));
-
-    if (ad?.skills?.length < 1) {
-      error = true;
-      setErrors((pv) => ({ ...pv, skills: true }));
-    }
-
-    if (error || inputHasErr || hasEmptyFields) {
+    if (error) {
       setDisableSaveBtn(true);
       return;
     } else handleSave(e);
   };
 
-  const onSkillAdd = (newSkill: SkillInput) => {
-    const exists = ad.skills?.some((s) => s.label === newSkill.label);
-    if (!exists) {
-      setAd((pv) => ({ ...pv, skills: [...pv.skills, newSkill] }));
-      setDisableSaveBtn(false);
-    }
-    setErrors((pv) => ({ ...pv, skills: false }));
-  };
-  const onSkillDelete = (skillToDelete: SkillInput) => () => {
+  const onSkillClick = (i: number) => {
     setDisableSaveBtn(false);
-    setAd((pv) => ({
-      ...pv,
-      skills: pv.skills?.filter((skill) => skill.label !== skillToDelete.label),
-    }));
+    const newSkills = [...ad.skills];
+    newSkills[i] = { ...newSkills[i], selected: !newSkills[i].selected };
+
+    setAd({ ...ad, skills: newSkills });
   };
 
   return (
@@ -141,8 +104,8 @@ export default function AddAdService({
         value={ad.title}
         onChange={handleAdChange}
         placeholder={"ad title"}
-        error={Boolean(inputErrs.title)}
-        helperText={inputErrs.title}
+        error={Boolean(errors.title)}
+        helperText={errors.title}
         autoFocus
       />
       <TextField
@@ -153,8 +116,10 @@ export default function AddAdService({
         value={ad.desc}
         onChange={handleAdChange}
         placeholder={"ad description"}
-        error={Boolean(inputErrs.desc)}
-        helperText={inputErrs.desc}
+        error={Boolean(errors.desc)}
+        helperText={errors.desc}
+        multiline={true}
+        rows={4}
       />
       <div>
         <Divider sx={{ my: 2 }} />
@@ -164,47 +129,26 @@ export default function AddAdService({
       </Typography>
       <div>
         <Grid container spacing={1} direction={"row"}>
-          {contrData?.skills?.map((skill) => (
+          {ad?.skills?.map((skill, index) => (
             <Grid item key={skill.label}>
               <Chip
                 label={skill.label}
                 color="primary"
-                variant="outlined"
-                icon={<AddIcon />}
+                variant={skill.selected ? "filled" : "outlined"}
+                icon={skill.selected ? <RemoveIcon /> : <AddIcon />}
                 clickable
-                onClick={() => onSkillAdd(skill)}
+                onClick={() => onSkillClick(index)}
               />
             </Grid>
           ))}
         </Grid>
       </div>
-      <Divider />
-      <Typography>
-        {ad.skills?.length > 0
-          ? "Your selected skills"
-          : "Select skills from above to add to your service AD"}
-      </Typography>
-      <div>
-        <Grid container spacing={1} direction={"row"}>
-          {ad.skills?.map((skill) => (
-            <Grid item key={skill.label}>
-              <Chip
-                label={skill.label}
-                onDelete={onSkillDelete(skill)}
-                color="primary"
-                variant="outlined"
-              />
-            </Grid>
-          ))}
-        </Grid>
-      </div>
-
       <Button type="submit" variant="contained" disabled={disableSaveBtn}>
         {false ? <CircularProgress size={20} /> : "Save Changes"}
       </Button>
-      {errors.skills && (
+      {Boolean(errors.skills) && (
         <Alert severity="error" color="error">
-          You must add atleast one skill to your AD
+          {errors.skills}
         </Alert>
       )}
       {/* {error && (
@@ -215,3 +159,5 @@ export default function AddAdService({
     </Stack>
   );
 }
+
+const resetErr = { title: "", desc: "", skills: "" };

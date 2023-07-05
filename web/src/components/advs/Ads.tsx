@@ -14,8 +14,20 @@ import EditIcon from "@mui/icons-material/Edit";
 import CustomModal from "@reusable/CustomModal";
 import { IUserInfo } from "@user/userProfile/UserInfo";
 import AddAd from "./edits/AddAd";
-import { IAd } from "./edits/AdForm";
 import EditAd from "./edits/EditAd";
+import { SkillInput } from "@gqlOps/contractor";
+
+export interface IAdSkill extends SkillInput {
+  selected: boolean;
+}
+
+export interface IAd {
+  id: string;
+  title: string;
+  desc: string;
+  type: "Service" | "Job";
+  skills: IAdSkill[];
+}
 
 export default function Ads({
   isMyProfile,
@@ -23,7 +35,13 @@ export default function Ads({
   contrData,
 }: IUserInfo) {
   const [ads, setAds] = useState<IAd[] | undefined>();
-  const [editAd, setEditAd] = useState<IAd | undefined>();
+  const [editAd, setEditAd] = useState<IAd>({
+    id: String(Math.random()),
+    type: "Service",
+    title: "",
+    desc: "",
+    skills: [],
+  });
   const [openAdd, setOpenAdd] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
 
@@ -95,16 +113,14 @@ export default function Ads({
           contrData={contrData}
         />
       </CustomModal>
-      {editAd && (
-        <CustomModal title="Edit AD" open={openEdit} onClose={setOpenEdit}>
-          <EditAd
-            ad={editAd}
-            setAd={setEditAd}
-            setAds={setAds}
-            closeEdit={() => setOpenEdit(false)}
-          />
-        </CustomModal>
-      )}
+      <CustomModal title="Edit AD" open={openEdit} onClose={setOpenEdit}>
+        <EditAd
+          ad={editAd}
+          setAd={setEditAd}
+          setAds={setAds}
+          closeEdit={() => setOpenEdit(false)}
+        />
+      </CustomModal>
     </>
   );
 }
