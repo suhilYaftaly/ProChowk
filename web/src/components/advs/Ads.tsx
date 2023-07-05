@@ -6,6 +6,7 @@ import {
   Skeleton,
   Card,
   CardContent,
+  Chip,
 } from "@mui/material";
 import { useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
@@ -34,7 +35,18 @@ export default function Ads({
   contProfLoading,
   contrData,
 }: IUserInfo) {
-  const [ads, setAds] = useState<IAd[] | undefined>();
+  const [ads, setAds] = useState<IAd[] | undefined>([
+    {
+      id: "sdfsdf",
+      title: "Sample Service Add",
+      desc: "Experience excellence in tiling, interlocking, and landscaping with Checkmate Tiling. With 200+ successful projects, our expert team delivers stunning results. From transforming floors to creating captivating outdoor spaces, trust us to bring your vision to life with precision and expertise.",
+      type: "Service",
+      skills: [
+        { label: "Tiling", selected: true },
+        { label: "Renovation", selected: true },
+      ],
+    },
+  ]);
   const [editAd, setEditAd] = useState<IAd>({
     id: String(Math.random()),
     type: "Service",
@@ -74,20 +86,37 @@ export default function Ads({
                       sx={{
                         alignItems: "center",
                         justifyContent: "space-between",
+                        mb: 1,
                       }}
                     >
-                      <Typography gutterBottom variant="h5">
-                        {ad.title}
-                      </Typography>
-                      {isMyProfile && (
-                        <IconButton onClick={() => onEditClick(ad)}>
-                          <EditIcon />
-                        </IconButton>
-                      )}
+                      <Typography>{ad.title}</Typography>
+                      <Stack direction="row" sx={{ alignItems: "center" }}>
+                        <Chip
+                          label={ad.type}
+                          variant="outlined"
+                          sx={{ ml: 2 }}
+                        />
+                        {isMyProfile && (
+                          <IconButton onClick={() => onEditClick(ad)}>
+                            <EditIcon />
+                          </IconButton>
+                        )}
+                      </Stack>
                     </Stack>
                     <Typography variant="body2" color="text.secondary">
                       {ad.desc}
                     </Typography>
+                    <Grid container spacing={1} sx={{ mt: 2 }}>
+                      {ad.skills?.map((skill) => (
+                        <Grid item key={skill.label}>
+                          <Chip
+                            label={skill.label}
+                            variant="filled"
+                            size="small"
+                          />
+                        </Grid>
+                      ))}
+                    </Grid>
                   </CardContent>
                 </Card>
               </Grid>
