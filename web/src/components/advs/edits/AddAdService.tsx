@@ -106,7 +106,6 @@ export default function AddAdService({ ad, setAd, handleSave }: Props) {
         placeholder={"ad title"}
         error={Boolean(errors.title)}
         helperText={errors.title}
-        autoFocus
       />
       <TextField
         label={"Description"}

@@ -69,7 +69,6 @@ export default function JobType({ job, setJob, errors, setNewSkills }: Props) {
         placeholder={"I need my washroom to be tiled"}
         error={Boolean(errors.title)}
         helperText={errors.title}
-        autoFocus
       />
       <Divider />
       <Typography>Add skills required</Typography>
