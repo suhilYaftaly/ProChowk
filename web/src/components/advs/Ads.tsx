@@ -123,15 +123,18 @@ export default function Ads({
                       {ad.desc}
                     </Typography>
                     <Grid container spacing={1} sx={{ mt: 2 }}>
-                      {ad.skills?.map((skill) => (
-                        <Grid item key={skill.label}>
-                          <Chip
-                            label={skill.label}
-                            variant="filled"
-                            size="small"
-                          />
-                        </Grid>
-                      ))}
+                      {ad.skills?.map(
+                        (skill) =>
+                          skill.selected && (
+                            <Grid item key={skill.label}>
+                              <Chip
+                                label={skill.label}
+                                variant="filled"
+                                size="small"
+                              />
+                            </Grid>
+                          )
+                      )}
                     </Grid>
                   </CardContent>
                 </Card>

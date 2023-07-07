@@ -371,6 +371,7 @@ export default {
             displayName: response.data?.display_name,
             lat,
             lng,
+            sourceData: response.data,
           };
 
           const updatedUser = await prisma.user.update({

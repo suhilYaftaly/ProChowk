@@ -8,7 +8,8 @@ import { IUserData } from "@gqlOps/user";
 import { IContractorData } from "@gqlOps/contractor";
 import UserCreateContProf from "./edits/UserCreateContProf";
 import ShowIncompleteAlerts from "@contractor/ShowIncompleteAlerts";
-import Ads from "@advs/Ads";
+// import Ads from "@advs/Ads";
+import Jobs from "@/components/jobs/Jobs";
 
 export interface IUserInfo {
   user?: IUserData | undefined;
@@ -72,6 +73,9 @@ export default function UserInfo({
               />
             </Card>
             <Card sx={{ boxShadow: 4, p: 2 }}>
+              <Jobs isMyProfile={isMyProfile} contrData={contrData} />
+            </Card>
+            {/* <Card sx={{ boxShadow: 4, p: 2 }}>
               <Ads
                 user={user}
                 isMyProfile={isMyProfile}
@@ -79,7 +83,7 @@ export default function UserInfo({
                 userId={userId}
                 contProfLoading={contProfLoading}
               />
-            </Card>
+            </Card> */}
           </>
         ) : (
           isMyProfile &&

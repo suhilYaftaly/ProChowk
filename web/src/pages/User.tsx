@@ -10,7 +10,7 @@ import contOps, {
   ISearchContrProfData,
   ISearchContrProfInput,
 } from "@gqlOps/contractor";
-import ErrSnackbar from "@components/ErrSnackbar";
+import ErrSnackbar from "@/components/reusable/ErrSnackbar";
 
 export default function User() {
   const { nameId } = useParams();

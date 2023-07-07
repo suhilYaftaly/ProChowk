@@ -14,7 +14,7 @@ import { IUserInfo } from "./UserInfo";
 import UserBasicInfoEdit from "./edits/UserBasicInfoEdit";
 import { AddressInput, useUpdateUser } from "@gqlOps/user";
 import CustomModal from "@reusable/CustomModal";
-import ErrSnackbar from "@components/ErrSnackbar";
+import ErrSnackbar from "@/components/reusable/ErrSnackbar";
 import ShowMoreTxt from "@reusable/ShowMoreTxt";
 
 export default function UserBasicInfo({
