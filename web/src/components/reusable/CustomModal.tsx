@@ -10,6 +10,7 @@ import { ReactNode } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import { styled, useTheme } from "@mui/system";
 import { layoutCardsMaxWidth } from "@/config/configConst";
+import { useRespVal } from "@/utils/hooks/hooks";
 
 interface Props {
   open: boolean;
@@ -42,7 +43,7 @@ export default function CustomModal({ open, onClose, children, title }: Props) {
 
   return (
     <Modal open={open} onClose={() => onClose(false)}>
-      <ModalContainer theme={theme}>
+      <ModalContainer theme={theme} sx={{ minWidth: useRespVal(370, 600) }}>
         <Stack
           direction="row"
           justifyContent="space-between"

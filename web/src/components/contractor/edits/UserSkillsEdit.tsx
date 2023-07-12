@@ -3,7 +3,9 @@ import { FormEvent, useEffect, useState } from "react";
 
 import { SkillInput, useUpdateContrProf } from "@gqlOps/contractor";
 import { useUpdateAllSkills } from "@gqlOps/dataList";
-import SkillsSelection, { addSkills } from "@reusable/SkillsSelection";
+import SkillsSelection, {
+  addSkills,
+} from "@/components/reusable/appComps/SkillsSelection";
 
 interface Props {
   userSkills: SkillInput[] | undefined;

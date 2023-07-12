@@ -155,3 +155,32 @@ export const openUserIfNewUser = ({
     console.log(paths.user(username), "here");
   } else navigate("/");
 };
+
+interface IUserLocation {
+  onSuccess: ({ lat, lng }: { lat: number; lng: number }) => void;
+  onError?: (msg: string) => void;
+}
+export const getUserLocation = ({ onSuccess, onError }: IUserLocation) => {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude: lat, longitude: lng } = position.coords;
+        onSuccess({ lat, lng });
+      },
+      (error) => {
+        onError && onError("Location permission denied: " + error);
+        console.error("Location permission denied:", error);
+      }
+    );
+  } else {
+    onError && onError("Geolocation is not supported by this browser.");
+    console.error("Geolocation is not supported by this browser.");
+  }
+};
+
+export function formatBytes(bytes: number): string {
+  const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+  if (bytes === 0) return "0 Bytes";
+  const i = Math.floor(Math.log2(bytes) / 10);
+  return `${(bytes / Math.pow(1024, i)).toFixed(1)} ${sizes[i]}`;
+}

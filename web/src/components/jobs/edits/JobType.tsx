@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 
 import { IJob, IJobError } from "./PostAJob";
-import SkillsSelection from "@reusable/SkillsSelection";
+import SkillsSelection from "@/components/reusable/appComps/SkillsSelection";
 import { SkillInput } from "@/graphql/operations/contractor";
 
 interface Props {

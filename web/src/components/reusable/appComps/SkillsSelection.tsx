@@ -4,7 +4,7 @@ import AddIcon from "@mui/icons-material/Add";
 
 import { SkillInput } from "@gqlOps/contractor";
 import { useGetAllSkills } from "@gqlOps/dataList";
-import ErrSnackbar from "./ErrSnackbar";
+import ErrSnackbar from "../ErrSnackbar";
 
 interface Props {
   skills: SkillInput[] | undefined;

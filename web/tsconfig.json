@@ -20,6 +20,7 @@
       "@pages/*": ["src/pages/*"],
       "@components/*": ["src/components/*"],
       "@reusable/*": ["src/components/reusable/*"],
+      "@appComps/*": ["src/components/reusable/appComps/*"],
       "@gqlOps/*": ["src/graphql/operations/*"],
       "@redux/*": ["src/redux/*"],
       "@rSlices/*": ["src/redux/slices/*"],

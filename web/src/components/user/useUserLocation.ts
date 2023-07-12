@@ -12,6 +12,7 @@ import userOps, {
   IGetUserAddressData,
   IGetUserAddressInput,
 } from "@gqlOps/user";
+import { getUserLocation } from "@/utils/utilFuncs";
 
 export default function useUserLocation() {
   const dispatch = useAppDispatch();
@@ -25,31 +26,11 @@ export default function useUserLocation() {
   >(userOps.Mutations.getUserAddress);
 
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          dispatch(
-            userLocationSuccess({
-              lat: String(latitude),
-              lng: String(longitude),
-            })
-          );
-        },
-        (error) =>
-          dispatch(
-            userLocationError({
-              ...error,
-              message: "Location permission denied",
-            })
-          )
-      );
-    } else
-      dispatch(
-        userLocationError({
-          message: "Geolocation is not supported by this browser.",
-        })
-      );
+    getUserLocation({
+      onSuccess: ({ lat, lng }) =>
+        dispatch(userLocationSuccess({ lat: String(lat), lng: String(lng) })),
+      onError: (message) => userLocationError({ message }),
+    });
   }, []);
 
   const getAddress = async () => {

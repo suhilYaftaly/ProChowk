@@ -12,6 +12,10 @@ export default defineConfig({
       "@pages": path.resolve(__dirname, "./src/pages"),
       "@components": `${path.resolve(__dirname, "./src/components/")}`,
       "@reusable": `${path.resolve(__dirname, "./src/components/reusable/")}`,
+      "@appComps": `${path.resolve(
+        __dirname,
+        "./src/components/reusable/appComps/"
+      )}`,
       "@gqlOps": `${path.resolve(__dirname, "./src/graphql/operations/")}`,
       "@redux": `${path.resolve(__dirname, "./src/redux/")}`,
       "@rSlices": `${path.resolve(__dirname, "./src/redux/slices/")}`,
