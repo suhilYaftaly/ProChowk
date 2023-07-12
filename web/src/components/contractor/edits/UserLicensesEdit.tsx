@@ -71,6 +71,7 @@ export default function UserLicensesEdit({
               <Grid item key={file.desc}>
                 <Stack direction={"column"}>
                   <Badge
+                    sx={{ boxShadow: 4, borderRadius: 50 }}
                     badgeContent={
                       <Card
                         sx={{

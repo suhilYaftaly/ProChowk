@@ -151,6 +151,7 @@ export const ShowImages = ({ images, setImages }: IShowImages) => {
           <Grid item key={img.id}>
             <Stack direction={"column"}>
               <Badge
+                sx={{ boxShadow: 4, borderRadius: 50 }}
                 badgeContent={
                   <Card
                     sx={{
