@@ -390,8 +390,8 @@ export interface AddressInput {
 
 export interface IGetUserAddressInput {
   id: string;
-  lat: string;
-  lng: string;
+  lat: number;
+  lng: number;
 }
 export interface IGetUserAddressData {
   getUserAddress: IUserData;

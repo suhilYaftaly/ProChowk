@@ -22,7 +22,7 @@ const DropzoneContainer = styled("div")<{ isDragging: boolean }>(
       ? `2px dashed ${theme.palette.primary.main}`
       : "2px dashed gray",
     borderRadius: "4px",
-    padding: "16px",
+    padding: "5px",
     textAlign: "center",
     cursor: "pointer",
     backgroundColor: isDragging

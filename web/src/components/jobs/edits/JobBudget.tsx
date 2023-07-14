@@ -8,23 +8,22 @@ import {
   styled,
   useTheme,
 } from "@mui/material";
-import { ChangeEvent, Dispatch, SetStateAction } from "react";
+import { ChangeEvent } from "react";
 import TimeIcon from "@mui/icons-material/AccessTime";
 import MoneyIcon from "@mui/icons-material/MonetizationOnOutlined";
 import CheckIcon from "@mui/icons-material/CheckCircle";
 import UncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
-
-import { IJob, IJobError } from "./PostAJob";
+import { IJob, IJobError } from "./JobForm";
 
 interface Props {
   job: IJob;
-  setJob: Dispatch<SetStateAction<IJob>>;
+  setJob: (job: IJob) => void;
   errors: IJobError;
 }
 
 export default function JobBudget({ job, setJob, errors }: Props) {
   const onTypeSelect = (type: IJob["budget"]["type"]) => {
-    setJob((pv) => ({ ...pv, budget: { ...pv.budget, type } }));
+    setJob({ ...job, budget: { ...job.budget, type } });
   };
   const onValueChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
@@ -48,7 +47,10 @@ export default function JobBudget({ job, setJob, errors }: Props) {
         />
       </Stack>
       <Divider sx={{ my: 4 }} />
-      <Stack spacing={2} direction={"row"}>
+      <Stack
+        direction={"row"}
+        sx={{ display: "flex", justifyContent: "center", gap: 2 }}
+      >
         <TextField
           label={"From"}
           variant="outlined"

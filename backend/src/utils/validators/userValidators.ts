@@ -123,8 +123,8 @@ export const validateUpdateUser = ({
   return { data };
 };
 
-export const validateLatAndLng = (lat: string, lng: string) => {
-  if (isNaN(Number(lat)) || isNaN(Number(lng))) {
+export const validateLatAndLng = (lat: number, lng: number) => {
+  if (isNaN(lat) || isNaN(lng)) {
     return getErr("Invalid latitude or longitude value");
   }
   return undefined;

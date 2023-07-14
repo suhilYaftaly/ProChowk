@@ -12,13 +12,13 @@ import {
   Typography,
 } from "@mui/material";
 
-import { IJob, IJobError } from "./PostAJob";
-import SkillsSelection from "@/components/reusable/appComps/SkillsSelection";
-import { SkillInput } from "@/graphql/operations/contractor";
+import SkillsSelection from "@appComps/SkillsSelection";
+import { SkillInput } from "@gqlOps/contractor";
+import { IJob, IJobError } from "./JobForm";
 
 interface Props {
   job: IJob;
-  setJob: Dispatch<SetStateAction<IJob>>;
+  setJob: (job: IJob) => void;
   errors: IJobError;
   setNewSkills: Dispatch<SetStateAction<SkillInput[]>>;
 }
@@ -32,7 +32,7 @@ export default function JobType({ job, setJob, errors, setNewSkills }: Props) {
 
   const handleChange = (event: SelectChangeEvent) => {
     const value = event.target.value as IJob["jobSize"];
-    setJob((pv) => ({ ...pv, jobSize: value }));
+    setJob({ ...job, jobSize: value });
   };
 
   return (
@@ -74,7 +74,7 @@ export default function JobType({ job, setJob, errors, setNewSkills }: Props) {
       <Typography>Add skills required</Typography>
       <SkillsSelection
         skills={job.skills}
-        setSkills={(skills) => setJob((pv) => ({ ...pv, skills }))}
+        setSkills={(skills) => setJob({ ...job, skills })}
         setNewSkills={setNewSkills}
       />
       {Boolean(errors.skills) && (

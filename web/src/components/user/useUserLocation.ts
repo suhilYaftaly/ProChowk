@@ -27,8 +27,7 @@ export default function useUserLocation() {
 
   useEffect(() => {
     getUserLocation({
-      onSuccess: ({ lat, lng }) =>
-        dispatch(userLocationSuccess({ lat: String(lat), lng: String(lng) })),
+      onSuccess: ({ lat, lng }) => dispatch(userLocationSuccess({ lat, lng })),
       onError: (message) => userLocationError({ message }),
     });
   }, []);

@@ -67,8 +67,8 @@ export default gql`
     country: String
     countryCode: String
     displayName: String
-    lat: String
-    lng: String
+    lat: Float
+    lng: Float
   }
   input AddressInput {
     houseNum: String
@@ -82,7 +82,7 @@ export default gql`
     country: String
     countryCode: String
     displayName: String
-    lat: String
-    lng: String
+    lat: Float
+    lng: Float
   }
 `;

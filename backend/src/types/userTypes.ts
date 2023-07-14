@@ -10,7 +10,7 @@ export interface GraphQLContext {
 }
 export interface SubsciptionContext extends Context {
   connectionParams: {
-    session?: any; //fix later
+    session?: any; //TODO: fix later
   };
 }
 
@@ -47,9 +47,9 @@ export interface IUserAddress {
   country: string;
   countryCode: string;
   displayName: string;
-  lat: string;
-  lng: string;
-  [key: string]: string | undefined;
+  lat: number;
+  lng: number;
+  [key: string]: string | any | undefined;
 }
 
 export interface IRegisterUserInput {
@@ -95,6 +95,6 @@ export interface IUpdateUserValidationData {
 
 export interface IGetUserAddInput {
   id: string;
-  lat: string;
-  lng: string;
+  lat: number;
+  lng: number;
 }

@@ -1,12 +1,14 @@
-import { Divider, Stack, TextField } from "@mui/material";
-import { ChangeEvent, Dispatch, SetStateAction } from "react";
+import { Alert, Divider, Stack, TextField } from "@mui/material";
+import { ChangeEvent } from "react";
 
-import { IJob, IJobError } from "./PostAJob";
 import ImageUpload, { IImage, ShowImages } from "@reusable/ImageUpload";
+import AddressSearch from "@appComps/AddressSearch";
+import { IAddressData } from "@gqlOps/address";
+import { IJob, IJobError } from "./JobForm";
 
 interface Props {
   job: IJob;
-  setJob: Dispatch<SetStateAction<IJob>>;
+  setJob: (job: IJob) => void;
   errors: IJobError;
 }
 
@@ -18,6 +20,25 @@ export default function JobDetails({ job, setJob, errors }: Props) {
 
   const onAddImage = (image: IImage) => {
     setJob({ ...job, images: [...job.images, image] });
+  };
+
+  const onAddressSelect = (adr: IAddressData) => {
+    setJob({
+      ...job,
+      address: {
+        displayName: adr.displayName,
+        street: adr.street,
+        city: adr.city,
+        county: adr.county,
+        state: adr.state,
+        stateCode: adr.stateCode,
+        postalCode: adr.postalCode,
+        country: adr.country,
+        countryCode: adr.countryCode,
+        lat: adr.lat,
+        lng: adr.lng,
+      },
+    });
   };
 
   return (
@@ -34,9 +55,10 @@ export default function JobDetails({ job, setJob, errors }: Props) {
         error={Boolean(errors.desc)}
         helperText={errors.desc}
         multiline
-        rows={6}
+        rows={5}
         inputProps={{ maxLength: 5000 }}
       />
+      <AddressSearch onSelect={onAddressSelect} />
       <Divider />
       <ImageUpload onImageUpload={onAddImage} />
       <Divider />
@@ -44,6 +66,11 @@ export default function JobDetails({ job, setJob, errors }: Props) {
         images={job.images}
         setImages={(imgs) => setJob({ ...job, images: imgs })}
       />
+      {Boolean(errors.detailsErr) && (
+        <Alert severity="error" color="error">
+          {errors.detailsErr}
+        </Alert>
+      )}
     </Stack>
   );
 }
