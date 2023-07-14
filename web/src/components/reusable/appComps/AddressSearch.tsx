@@ -1,6 +1,6 @@
 import { useState, useEffect, ChangeEvent } from "react";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
-import { Autocomplete, Grid, InputAdornment, TextField } from "@mui/material";
+import { Autocomplete, Grid, TextField } from "@mui/material";
 
 import { getUserLocation } from "@/utils/utilFuncs";
 import { IAddressData, useAddressSearch } from "@gqlOps/address";
