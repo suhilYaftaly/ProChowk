@@ -25,7 +25,7 @@ export default gql`
       bio: String
       userType: String
     ): User!
-    getUserAddress(id: ID!, lat: String!, lng: String!): User!
+    getUserAddress(id: ID!, lat: Float!, lng: Float!): User!
   }
 
   type User {

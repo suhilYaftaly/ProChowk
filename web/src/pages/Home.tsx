@@ -11,7 +11,6 @@ import { useNavigate } from "react-router-dom";
 
 import userOps, { ISearchAllUsersData } from "@gqlOps/user.ts";
 import { paths } from "@/routes/PageRoutes";
-import AllCards from "@/components/detailsSection/cards/AllCards";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -50,7 +49,6 @@ export default function Home() {
           </Grid>
         ))}
       </Grid>
-      <AllCards />
     </>
   );
 }

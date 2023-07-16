@@ -33,7 +33,7 @@ export default function useUserLocation() {
   }, []);
 
   const getAddress = async () => {
-    if (lat && lng && !user?.address && user?.id) {
+    if (lat && lng && !user?.address?.city && user?.id) {
       try {
         const { data } = await getUserAddress({
           variables: { id: user.id, lat, lng },
@@ -48,6 +48,6 @@ export default function useUserLocation() {
   };
 
   useEffect(() => {
-    if (lat && lng && !user?.address && user?.id) getAddress();
+    if (lat && lng && !user?.address?.city && user?.id) getAddress();
   }, [lat, lng, user]);
 }

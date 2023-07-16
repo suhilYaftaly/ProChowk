@@ -276,7 +276,7 @@ const userOps = {
       }
     `,
     getUserAddress: gql`
-      mutation GetUserAddress($id: ID!, $lat: String!, $lng: String!) {
+      mutation GetUserAddress($id: ID!, $lat: Float!, $lng: Float!) {
         getUserAddress(id: $id, lat: $lat, lng: $lng) {
           id
           name

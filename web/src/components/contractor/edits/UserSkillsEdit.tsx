@@ -3,9 +3,7 @@ import { FormEvent, useEffect, useState } from "react";
 
 import { SkillInput, useUpdateContrProf } from "@gqlOps/contractor";
 import { useUpdateAllSkills } from "@gqlOps/dataList";
-import SkillsSelection, {
-  addSkills,
-} from "@/components/reusable/appComps/SkillsSelection";
+import SkillsSelection, { addSkills } from "@appComps/SkillsSelection";
 
 interface Props {
   userSkills: SkillInput[] | undefined;
@@ -19,7 +17,6 @@ export default function UserSkillsEdit({
   closeEdit,
 }: Props) {
   const [selectedSkills, setSelectedSkills] = useState(addSkills(userSkills));
-  const [disableSaveBtn, setDisableSaveBtn] = useState(true);
   const [newSkills, setNewSkills] = useState<SkillInput[]>([]);
   const { updateContrProfAsync, error, loading } = useUpdateContrProf();
   const { updateAllSkillsAsync } = useUpdateAllSkills();
@@ -34,7 +31,6 @@ export default function UserSkillsEdit({
       onSuccess: closeEdit,
     });
     if (newSkills?.length > 0) updateAllSkillsAsync({ skills: newSkills });
-    setDisableSaveBtn(true);
   };
 
   //TODO: convert to single image upload instead of multiple
@@ -55,7 +51,7 @@ export default function UserSkillsEdit({
         <Button
           type="submit"
           variant="contained"
-          disabled={disableSaveBtn}
+          disabled={selectedSkills.length < 1}
           fullWidth
           sx={{ mt: 3 }}
         >
