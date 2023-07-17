@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Stack,
   Typography,
@@ -13,29 +13,55 @@ import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-import { IUserInfo } from "../user/userProfile/UserInfo";
-import CustomModal from "../reusable/CustomModal";
+import { IUserInfo } from "@user/userProfile/UserInfo";
+import CustomModal from "@reusable/CustomModal";
 import PostAJob from "./edits/PostAJob";
-import JobForm, { IJob } from "./edits/JobForm";
+import JobForm from "./edits/JobForm";
+import { IJob, JobInput, useSearchJobs, useUpdateJob } from "@gqlOps/jobs";
+import ErrSnackbar from "@reusable/ErrSnackbar";
+import { removeTypename } from "@utils/utilFuncs";
 
-export default function Jobs({ isMyProfile }: IUserInfo) {
-  const [jobs, setJobs] = useState<IJob[]>([]);
-  const [editJob, setEditJob] = useState<IJob>();
+export default function Jobs({ isMyProfile, userId }: IUserInfo) {
+  const { searchJobsAsync, data, loading, error } = useSearchJobs();
+  const { updateJobAsync, deleteJobAsync, updateLoading } = useUpdateJob();
+  const [editJob, setEditJob] = useState<JobInput | IJob>();
   const [openAdd, setOpenAdd] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
+  const [openErrBar, setContErrBar] = useState(false);
 
-  const onAddJob = (job: IJob) => {
-    setJobs((pv) => [...pv, job]);
-    setOpenAdd(false);
+  useEffect(() => {
+    searchJobsAsync({ userId });
+  }, []);
+
+  const onAddJob = (job: JobInput) => {
+    if (userId) {
+      updateJobAsync({ props: job, userId });
+      setOpenAdd(false);
+    }
   };
 
-  const onEditJob = (job: IJob) => {
-    setJobs((pv) => pv.map((j) => (j.id === job.id ? job : j)));
-    setOpenEdit(false);
+  const onEditJob = (j: IJob | any) => {
+    if (userId && j.id) {
+      const cleanedJob = removeTypename(j);
+      updateJobAsync({
+        userId,
+        id: j.id,
+        props: {
+          title: cleanedJob.title,
+          desc: cleanedJob.desc,
+          jobSize: cleanedJob.jobSize,
+          budget: cleanedJob.budget,
+          skills: cleanedJob.skills,
+          images: cleanedJob.images,
+          address: cleanedJob.address,
+        },
+      });
+      setOpenEdit(false);
+    }
   };
 
-  const onDeleteClick = (job: IJob) => {
-    setJobs((pv) => pv && pv.filter((item) => item.id !== job.id));
+  const onDeleteClick = (j: IJob | any) => {
+    if (userId && j.id) deleteJobAsync({ userId, id: j.id });
   };
   const onEditClick = (job: IJob) => {
     setEditJob(job);
@@ -56,8 +82,14 @@ export default function Jobs({ isMyProfile }: IUserInfo) {
         )}
       </Stack>
       <Grid container spacing={1} direction={"column"} sx={{ mt: 1 }}>
-        {jobs
-          ? jobs?.map((job) => (
+        {data?.searchJobs ? (
+          <>
+            {updateLoading && (
+              <Grid item>
+                <Skeleton variant="rounded" width={"100%"} height={100} />
+              </Grid>
+            )}
+            {data?.searchJobs?.map((job) => (
               <Grid item key={job.id}>
                 <Card raised>
                   <CardContent>
@@ -99,7 +131,7 @@ export default function Jobs({ isMyProfile }: IUserInfo) {
                       {job.budget.type}: ${job.budget.from}-${job.budget.to}
                       {job.budget.type === "Hourly" &&
                         ` /${" "}
-                      ${job.budget.maxHours}Hrs`}
+                    ${job.budget.maxHours}Hrs`}
                     </Typography>
                     <Typography variant="body2">{job.desc}</Typography>
                     <Grid container spacing={1} sx={{ mt: 2 }}>
@@ -116,20 +148,23 @@ export default function Jobs({ isMyProfile }: IUserInfo) {
                   </CardContent>
                 </Card>
               </Grid>
-            ))
-          : false && (
-              <>
-                <Grid item>
-                  <Skeleton variant="rounded" width={"100%"} height={100} />
-                </Grid>
-                <Grid item>
-                  <Skeleton variant="rounded" width={"100%"} height={100} />
-                </Grid>
-                <Grid item>
-                  <Skeleton variant="rounded" width={"100%"} height={100} />
-                </Grid>
-              </>
-            )}
+            ))}
+          </>
+        ) : (
+          loading && (
+            <>
+              <Grid item>
+                <Skeleton variant="rounded" width={"100%"} height={100} />
+              </Grid>
+              <Grid item>
+                <Skeleton variant="rounded" width={"100%"} height={100} />
+              </Grid>
+              <Grid item>
+                <Skeleton variant="rounded" width={"100%"} height={100} />
+              </Grid>
+            </>
+          )
+        )}
       </Grid>
       <CustomModal title="Post a new job" open={openAdd} onClose={setOpenAdd}>
         <PostAJob onAddJob={onAddJob} />
@@ -139,6 +174,11 @@ export default function Jobs({ isMyProfile }: IUserInfo) {
           <JobForm onAddJob={onEditJob} job={editJob} setJob={setEditJob} />
         </CustomModal>
       )}
+      <ErrSnackbar
+        open={openErrBar}
+        handleClose={setContErrBar}
+        errMsg={error?.message}
+      />
     </>
   );
 }

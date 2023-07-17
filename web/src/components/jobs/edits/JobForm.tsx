@@ -6,37 +6,8 @@ import JobType from "./JobType";
 import { useUpdateAllSkills } from "@gqlOps/dataList";
 import JobBudget from "./JobBudget";
 import JobDetails from "./JobDetails";
-import { IImage } from "@reusable/ImageUpload";
+import { IJob, JobInput } from "@gqlOps/jobs";
 
-interface IJobBudget {
-  type: "Hourly" | "Project";
-  from: string;
-  to: string;
-  maxHours: string;
-}
-interface IJobAddress {
-  displayName: string;
-  street: string;
-  city: string;
-  county: string;
-  state: string;
-  stateCode: string;
-  postalCode: string;
-  country: string;
-  countryCode: string;
-  lat: number;
-  lng: number;
-}
-export interface IJob {
-  id: string;
-  title: string;
-  desc: string;
-  jobSize: "Small" | "Medium" | "Large";
-  skills: SkillInput[] | undefined;
-  budget: IJobBudget;
-  address?: IJobAddress;
-  images: IImage[];
-}
 export interface IJobError {
   title: string;
   skills: string;
@@ -48,9 +19,9 @@ export interface IJobError {
 }
 
 interface Props {
-  onAddJob: (job: IJob) => void;
-  job: IJob;
-  setJob: (job: IJob) => void;
+  onAddJob: (job: IJob | JobInput) => void;
+  job: IJob | JobInput;
+  setJob: (job: IJob | JobInput) => void;
 }
 
 export default function JobForm({ onAddJob, job, setJob }: Props) {
@@ -151,7 +122,7 @@ const resetErr = {
 };
 
 interface ITestErrInput {
-  job: IJob;
+  job: IJob | JobInput;
   setErrors: Dispatch<SetStateAction<IJobError>>;
 }
 const testJobTypeFields = ({ job, setErrors }: ITestErrInput): boolean => {
@@ -210,7 +181,7 @@ const testDetailsFields = ({ job, setErrors }: ITestErrInput): boolean => {
     err = true;
     setErrors((pv) => ({ ...pv, detailsErr: "Address must be selected" }));
   }
-  if (job?.images?.length > 7) {
+  if (job?.images && job?.images?.length > 7) {
     err = true;
     setErrors((pv) => ({ ...pv, detailsErr: "Max of 7 images allowed" }));
   }

@@ -7,11 +7,15 @@ import { IAddressData, useAddressSearch } from "@gqlOps/address";
 
 interface Props {
   onSelect: (address: IAddressData) => void;
+  address?: IAddressData;
 }
 
-export default function AddressSearch({ onSelect }: Props) {
+export default function AddressSearch({ onSelect, address }: Props) {
   const [userCoord, setUserCoord] = useState({ lat: 0, lng: 0 });
   const { addressSearchAsync, data, error, loading } = useAddressSearch();
+  const [adr, setAdr] = useState<IAddressData | string>(address || "");
+
+  useEffect(() => address && setAdr(address), [address]);
 
   const onGetUserLocation = () => {
     getUserLocation({
@@ -27,6 +31,7 @@ export default function AddressSearch({ onSelect }: Props) {
       addressSearchAsync({
         vars: { value, lat: userCoord.lat, lng: userCoord.lng },
       });
+      setAdr(value as any);
     }
   };
 
@@ -34,6 +39,7 @@ export default function AddressSearch({ onSelect }: Props) {
     <>
       <Autocomplete
         freeSolo
+        value={adr}
         id="free-solo-2-demo"
         disableClearable
         loading={loading}
@@ -46,6 +52,7 @@ export default function AddressSearch({ onSelect }: Props) {
           <TextField
             {...params}
             label="Address Search"
+            value={adr}
             placeholder="23 McSweeney Cres..."
             onChange={handleInputChange}
             InputProps={{

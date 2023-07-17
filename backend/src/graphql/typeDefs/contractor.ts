@@ -10,7 +10,7 @@ export default gql`
 
   type Contractor {
     id: ID!
-    skills: [Skills]
+    skills: [Skill]
     licenses: [Licenses]
     user: User!
     createdAt: String!
@@ -28,7 +28,7 @@ export default gql`
     name: String!
     email: String!
   }
-  type Skills {
+  type Skill {
     label: String!
   }
 

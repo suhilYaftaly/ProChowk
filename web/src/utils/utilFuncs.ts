@@ -184,3 +184,23 @@ export function formatBytes(bytes: number): string {
   const i = Math.floor(Math.log2(bytes) / 10);
   return `${(bytes / Math.pow(1024, i)).toFixed(1)} ${sizes[i]}`;
 }
+
+export const removeTypename = (obj: any): any => {
+  if (!obj || typeof obj !== "object") return obj;
+
+  // Handle arrays
+  if (Array.isArray(obj)) {
+    return obj.map(removeTypename);
+  }
+
+  // Remove __typename property from the object
+  const newObj: any = { ...obj };
+  delete newObj.__typename;
+
+  // Recursively call removeTypename on each property
+  Object.keys(newObj).forEach((key) => {
+    newObj[key] = removeTypename(newObj[key]);
+  });
+
+  return newObj;
+};

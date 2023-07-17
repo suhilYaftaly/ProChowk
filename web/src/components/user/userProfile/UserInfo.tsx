@@ -72,9 +72,6 @@ export default function UserInfo({
                 contProfLoading={contProfLoading}
               />
             </Card>
-            <Card sx={{ boxShadow: 4, p: 2 }}>
-              <Jobs isMyProfile={isMyProfile} contrData={contrData} />
-            </Card>
             {/* <Card sx={{ boxShadow: 4, p: 2 }}>
               <Ads
                 user={user}
@@ -94,6 +91,9 @@ export default function UserInfo({
             />
           )
         )}
+        <Card sx={{ boxShadow: 4, p: 2 }}>
+          <Jobs isMyProfile={isMyProfile} userId={userId} />
+        </Card>
       </Stack>
     </Stack>
   );

@@ -14,24 +14,25 @@ import {
 
 import SkillsSelection from "@appComps/SkillsSelection";
 import { SkillInput } from "@gqlOps/contractor";
-import { IJob, IJobError } from "./JobForm";
+import { IJobError } from "./JobForm";
+import { JobInput } from "@gqlOps/jobs";
 
 interface Props {
-  job: IJob;
-  setJob: (job: IJob) => void;
+  job: JobInput;
+  setJob: (job: JobInput) => void;
   errors: IJobError;
   setNewSkills: Dispatch<SetStateAction<SkillInput[]>>;
 }
 
 export default function JobType({ job, setJob, errors, setNewSkills }: Props) {
-  const jobSizes: IJob["jobSize"][] = ["Small", "Medium", "Large"];
+  const jobSizes: JobInput["jobSize"][] = ["Small", "Medium", "Large"];
   const onValueChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
     setJob({ ...job, [name]: value });
   };
 
   const handleChange = (event: SelectChangeEvent) => {
-    const value = event.target.value as IJob["jobSize"];
+    const value = event.target.value as JobInput["jobSize"];
     setJob({ ...job, jobSize: value });
   };
 

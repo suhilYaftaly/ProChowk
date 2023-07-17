@@ -13,16 +13,17 @@ import TimeIcon from "@mui/icons-material/AccessTime";
 import MoneyIcon from "@mui/icons-material/MonetizationOnOutlined";
 import CheckIcon from "@mui/icons-material/CheckCircle";
 import UncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
-import { IJob, IJobError } from "./JobForm";
+import { IJobError } from "./JobForm";
+import { JobInput } from "@gqlOps/jobs";
 
 interface Props {
-  job: IJob;
-  setJob: (job: IJob) => void;
+  job: JobInput;
+  setJob: (job: JobInput) => void;
   errors: IJobError;
 }
 
 export default function JobBudget({ job, setJob, errors }: Props) {
-  const onTypeSelect = (type: IJob["budget"]["type"]) => {
+  const onTypeSelect = (type: JobInput["budget"]["type"]) => {
     setJob({ ...job, budget: { ...job.budget, type } });
   };
   const onValueChange = (e: ChangeEvent<HTMLInputElement>): void => {
@@ -101,9 +102,9 @@ export default function JobBudget({ job, setJob, errors }: Props) {
 }
 
 interface IBudgetType {
-  job: IJob;
-  type: IJob["budget"]["type"];
-  onTypeSelect: (type: IJob["budget"]["type"]) => void;
+  job: JobInput;
+  type: JobInput["budget"]["type"];
+  onTypeSelect: (type: JobInput["budget"]["type"]) => void;
   label: string;
 }
 const BudgetType = ({ job, type, onTypeSelect, label }: IBudgetType) => {

@@ -1,5 +1,4 @@
 import { gql } from "graphql-tag";
-import { GraphQLJSON } from "graphql-scalars";
 
 export default gql`
   scalar GraphQLJSON

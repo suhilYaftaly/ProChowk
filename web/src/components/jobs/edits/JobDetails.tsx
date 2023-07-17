@@ -4,11 +4,12 @@ import { ChangeEvent } from "react";
 import ImageUpload, { IImage, ShowImages } from "@reusable/ImageUpload";
 import AddressSearch from "@appComps/AddressSearch";
 import { IAddressData } from "@gqlOps/address";
-import { IJob, IJobError } from "./JobForm";
+import { IJobError } from "./JobForm";
+import { JobInput } from "@gqlOps/jobs";
 
 interface Props {
-  job: IJob;
-  setJob: (job: IJob) => void;
+  job: JobInput;
+  setJob: (job: JobInput) => void;
   errors: IJobError;
 }
 
@@ -19,7 +20,7 @@ export default function JobDetails({ job, setJob, errors }: Props) {
   };
 
   const onAddImage = (image: IImage) => {
-    setJob({ ...job, images: [...job.images, image] });
+    if (job.images) setJob({ ...job, images: [...job.images, image] });
   };
 
   const onAddressSelect = (adr: IAddressData) => {
@@ -58,14 +59,16 @@ export default function JobDetails({ job, setJob, errors }: Props) {
         rows={5}
         inputProps={{ maxLength: 5000 }}
       />
-      <AddressSearch onSelect={onAddressSelect} />
+      <AddressSearch onSelect={onAddressSelect} address={job.address} />
       <Divider />
       <ImageUpload onImageUpload={onAddImage} />
       <Divider />
-      <ShowImages
-        images={job.images}
-        setImages={(imgs) => setJob({ ...job, images: imgs })}
-      />
+      {job.images && (
+        <ShowImages
+          images={job.images}
+          setImages={(imgs) => setJob({ ...job, images: imgs })}
+        />
+      )}
       {Boolean(errors.detailsErr) && (
         <Alert severity="error" color="error">
           {errors.detailsErr}

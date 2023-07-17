@@ -40,7 +40,7 @@ export default addressOps;
 
 type source = "MapQuest";
 export interface IAddressData {
-  id: string;
+  id?: string;
   displayName: string;
   street: string;
   city: string;
@@ -52,7 +52,7 @@ export interface IAddressData {
   countryCode: string;
   lat: number;
   lng: number;
-  source: { source: source; [key: string]: any };
+  source?: { source: source; [key: string]: any };
 }
 interface IASData {
   addressSearch: IAddressData[];

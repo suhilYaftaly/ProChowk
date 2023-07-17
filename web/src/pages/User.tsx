@@ -68,27 +68,31 @@ export default function User() {
 
   return (
     <>
-      <UserInfo
-        user={user}
-        isMyProfile={isMyProfile}
-        loading={loading}
-        contrData={userContrData?.searchContrProf}
-        userId={userId}
-        contProfLoading={contProfLoading}
-        setHideContNFErr={setHideContNFErr}
-      />
-      {userError && (
-        <Alert severity="error" color="error">
-          {userError.message}
-        </Alert>
-      )}
-      {hideContNFErr &&
-      contError?.message === "Contractor profile not found" ? null : (
-        <ErrSnackbar
-          open={openContErrBar}
-          handleClose={setOpenContErrBar}
-          errMsg={contError?.message}
-        />
+      {userId && (
+        <>
+          <UserInfo
+            user={user}
+            isMyProfile={isMyProfile}
+            loading={loading}
+            contrData={userContrData?.searchContrProf}
+            userId={userId}
+            contProfLoading={contProfLoading}
+            setHideContNFErr={setHideContNFErr}
+          />
+          {userError && (
+            <Alert severity="error" color="error">
+              {userError.message}
+            </Alert>
+          )}
+          {hideContNFErr &&
+          contError?.message === "Contractor profile not found" ? null : (
+            <ErrSnackbar
+              open={openContErrBar}
+              handleClose={setOpenContErrBar}
+              errMsg={contError?.message}
+            />
+          )}
+        </>
       )}
     </>
   );

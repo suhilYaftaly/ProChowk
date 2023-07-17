@@ -21,12 +21,11 @@ export default {
       const { prisma } = context;
 
       try {
-        const contrUser = await prisma.user.findUnique({
+        const eUser = await prisma.user.findUnique({
           where: { id: userId },
         });
-        if (!contrUser) {
+        if (!eUser)
           throw gqlError({ msg: "User not found", code: "BAD_REQUEST" });
-        }
 
         const contrProfile = await prisma.contractorProfile.findUnique({
           where: { userId },
@@ -38,7 +37,7 @@ export default {
           });
         }
 
-        return getContProps(contrProfile, contrUser);
+        return getContProps(contrProfile, eUser);
       } catch (error: any) {
         throw gqlError({ msg: error?.message });
       }
@@ -59,13 +58,12 @@ export default {
       if (inputErr) throw inputErr;
 
       try {
-        const existingUser = await prisma.user.findUnique({
+        const eUser = await prisma.user.findUnique({
           where: { id: user.id },
         });
 
-        if (!existingUser) {
+        if (!eUser)
           throw gqlError({ msg: "User not found", code: "BAD_REQUEST" });
-        }
         const existingContr = await prisma.contractorProfile.findUnique({
           where: { userId: user.id },
         });
@@ -96,7 +94,7 @@ export default {
           });
         }
 
-        return getContProps(contProfile, user);
+        return getContProps(contProfile, eUser);
       } catch (error: any) {
         throw gqlError({ msg: error?.message });
       }
