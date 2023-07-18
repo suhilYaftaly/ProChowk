@@ -7,9 +7,9 @@ import {
 
 const jobsOps = {
   Queries: {
-    searchJobs: gql`
-      query SearchJobs($userId: ID!) {
-        searchJobs(userId: $userId) {
+    getUserJobs: gql`
+      query GetUserJobs($userId: ID!) {
+        getUserJobs(userId: $userId) {
           id
           title
           desc
@@ -168,11 +168,11 @@ interface IUpdateJobInput {
 interface IUpdateJobData {
   updateJob: IJob;
 }
-interface ISearchJobsInput {
+interface IGetUserJobsInput {
   userId: string;
 }
-interface ISearchJobsData {
-  searchJobs: IJob[];
+interface IGetUserJobsData {
+  getUserJobs: IJob[];
 }
 
 interface IUpdateJobAsync {
@@ -190,26 +190,28 @@ export const useUpdateJob = () => {
   const client = useApolloClient();
   const [
     updateJob,
-    { data: updateData, error: updateError, loading: updateLoading },
+    { data: updatePData, error: updateError, loading: updateLoading },
   ] = useMutation<IUpdateJobData, IUpdateJobInput>(jobsOps.Mutations.updateJob);
 
-  const [
-    deleteJob,
-    { data: deleteData, error: deleteError, loading: deleteLoading },
-  ] = useMutation<boolean, { id: string }>(jobsOps.Mutations.deleteJob);
+  const [deleteJob] = useMutation<boolean, { id: string }>(
+    jobsOps.Mutations.deleteJob
+  );
 
   const updateJobAsync = async ({ userId, id, props }: IUpdateJobAsync) => {
     try {
       const { data } = await updateJob({ variables: { id, props } });
       if (data?.updateJob && userId) {
-        const cachedData = client.readQuery<ISearchJobsData, ISearchJobsInput>({
-          query: jobsOps.Queries.searchJobs,
+        const cachedData = client.readQuery<
+          IGetUserJobsData,
+          IGetUserJobsInput
+        >({
+          query: jobsOps.Queries.getUserJobs,
           variables: { userId },
         });
 
         if (cachedData) {
           const { updateJob } = data;
-          let updatedJobs = cachedData.searchJobs.map((job) =>
+          let updatedJobs = cachedData.getUserJobs.map((job) =>
             job.id === updateJob.id ? updateJob : job
           );
           // If the job was not found in the cache, add it
@@ -217,9 +219,9 @@ export const useUpdateJob = () => {
             updatedJobs.unshift(updateJob);
           }
 
-          client.writeQuery<ISearchJobsData, ISearchJobsInput>({
-            query: jobsOps.Queries.searchJobs,
-            data: { searchJobs: updatedJobs },
+          client.writeQuery<IGetUserJobsData, IGetUserJobsInput>({
+            query: jobsOps.Queries.getUserJobs,
+            data: { getUserJobs: updatedJobs },
             variables: { userId },
           });
         }
@@ -233,18 +235,21 @@ export const useUpdateJob = () => {
     try {
       await deleteJob({ variables: { id } });
       if (userId) {
-        const cachedData = client.readQuery<ISearchJobsData, ISearchJobsInput>({
-          query: jobsOps.Queries.searchJobs,
+        const cachedData = client.readQuery<
+          IGetUserJobsData,
+          IGetUserJobsInput
+        >({
+          query: jobsOps.Queries.getUserJobs,
           variables: { userId },
         });
 
         if (cachedData) {
-          let updatedJobs = cachedData.searchJobs.filter(
+          let updatedJobs = cachedData.getUserJobs.filter(
             (job) => job.id !== id
           );
-          client.writeQuery<ISearchJobsData, ISearchJobsInput>({
-            query: jobsOps.Queries.searchJobs,
-            data: { searchJobs: updatedJobs },
+          client.writeQuery<IGetUserJobsData, IGetUserJobsInput>({
+            query: jobsOps.Queries.getUserJobs,
+            data: { getUserJobs: updatedJobs },
             variables: { userId },
           });
         }
@@ -254,38 +259,39 @@ export const useUpdateJob = () => {
     }
   };
 
+  const updateData = updatePData?.updateJob;
+
   return {
     updateJobAsync,
     deleteJobAsync,
     updateData,
     updateError,
     updateLoading,
-    deleteData,
-    deleteError,
-    deleteLoading,
   };
 };
 
-export const useSearchJobs = () => {
-  const [searchJobs, { data, loading, error }] = useLazyQuery<
-    ISearchJobsData,
-    ISearchJobsInput
-  >(jobsOps.Queries.searchJobs);
+export const useGetUserJobs = () => {
+  const [getUserJobs, { data: pData, loading, error }] = useLazyQuery<
+    IGetUserJobsData,
+    IGetUserJobsInput
+  >(jobsOps.Queries.getUserJobs);
 
-  const searchJobsAsync = async ({
+  const getUserJobsAsync = async ({
     userId,
   }: {
     userId: string | undefined;
   }) => {
     if (userId) {
       try {
-        const { data } = await searchJobs({ variables: { userId } });
-        if (!data?.searchJobs) throw new Error();
+        const { data } = await getUserJobs({ variables: { userId } });
+        if (!data?.getUserJobs) throw new Error();
       } catch (error: any) {
         console.log("get user info error:", error.message);
       }
     }
   };
 
-  return { searchJobsAsync, data, loading, error };
+  const data = pData?.getUserJobs;
+
+  return { getUserJobsAsync, data, loading, error };
 };

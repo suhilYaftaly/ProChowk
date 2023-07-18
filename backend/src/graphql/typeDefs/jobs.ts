@@ -2,7 +2,7 @@ import { gql } from "graphql-tag";
 
 export default gql`
   type Query {
-    searchJobs(userId: ID!): [Job!]!
+    getUserJobs(userId: ID!): [Job!]!
   }
   type Mutation {
     updateJob(id: ID, props: JobInput!): Job!

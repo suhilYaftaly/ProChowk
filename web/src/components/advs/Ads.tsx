@@ -83,7 +83,7 @@ export default function Ads({
         {ads
           ? ads?.map((ad) => (
               <Grid item key={ad.id}>
-                <Card raised>
+                <Card>
                   <CardContent>
                     <Stack
                       direction={"row"}

@@ -1,4 +1,4 @@
-import { Card, Stack } from "@mui/material";
+import { Paper, Stack } from "@mui/material";
 
 import UserBasicInfo from "./UserBasicInfo";
 import { layoutCardsMaxWidth, pp } from "@/config/configConst";
@@ -10,6 +10,7 @@ import UserCreateContProf from "./edits/UserCreateContProf";
 import ShowIncompleteAlerts from "@contractor/ShowIncompleteAlerts";
 // import Ads from "@advs/Ads";
 import Jobs from "@/components/jobs/Jobs";
+import { useRespVal } from "@/utils/hooks/hooks";
 
 export interface IUserInfo {
   user?: IUserData | undefined;
@@ -30,23 +31,29 @@ export default function UserInfo({
   contProfLoading,
   setHideContNFErr,
 }: IUserInfo) {
+  const paperContStyle = {
+    p: 1,
+    borderRadius: useRespVal(0, undefined),
+    borderRight: useRespVal(0, undefined),
+    borderLeft: useRespVal(0, undefined),
+  };
   return (
     <Stack
       sx={{
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        m: pp,
+        my: pp,
       }}
     >
-      <Stack spacing={1} sx={{ maxWidth: layoutCardsMaxWidth }}>
-        <Card sx={{ boxShadow: 4, p: 2 }}>
+      <Stack spacing={1} sx={{ maxWidth: layoutCardsMaxWidth, width: "100%" }}>
+        <Paper variant="outlined" sx={paperContStyle}>
           <UserBasicInfo
             user={user}
             isMyProfile={isMyProfile}
             loading={loading}
           />
-        </Card>
+        </Paper>
         {user?.userType?.includes("contractor") ? (
           <>
             <ShowIncompleteAlerts
@@ -55,7 +62,7 @@ export default function UserInfo({
               contrData={contrData}
               contProfLoading={contProfLoading}
             />
-            <Card sx={{ boxShadow: 4, p: 2 }}>
+            <Paper variant="outlined" sx={paperContStyle}>
               <UserSkills
                 user={user}
                 isMyProfile={isMyProfile}
@@ -63,24 +70,15 @@ export default function UserInfo({
                 userId={userId}
                 contProfLoading={contProfLoading}
               />
-            </Card>
-            <Card sx={{ boxShadow: 4, p: 2 }}>
+            </Paper>
+            <Paper variant="outlined" sx={paperContStyle}>
               <UserLicenses
                 user={user}
                 isMyProfile={isMyProfile}
                 contrData={contrData}
                 contProfLoading={contProfLoading}
               />
-            </Card>
-            {/* <Card sx={{ boxShadow: 4, p: 2 }}>
-              <Ads
-                user={user}
-                isMyProfile={isMyProfile}
-                contrData={contrData}
-                userId={userId}
-                contProfLoading={contProfLoading}
-              />
-            </Card> */}
+            </Paper>
           </>
         ) : (
           isMyProfile &&
@@ -91,9 +89,9 @@ export default function UserInfo({
             />
           )
         )}
-        <Card sx={{ boxShadow: 4, p: 2 }}>
+        <Paper variant="outlined" sx={paperContStyle}>
           <Jobs isMyProfile={isMyProfile} userId={userId} />
-        </Card>
+        </Paper>
       </Stack>
     </Stack>
   );

@@ -4,7 +4,7 @@ import { gqlError } from "../../utils/funcs";
 
 export default {
   Query: {
-    searchJobs: async (
+    getUserJobs: async (
       _: any,
       { userId }: { userId: string },
       context: GraphQLContext

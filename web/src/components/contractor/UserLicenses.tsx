@@ -51,7 +51,7 @@ export default function UserLicenses({
         {contrData?.licenses
           ? contrData?.licenses?.map((l) => (
               <Grid item key={l.desc}>
-                <Card raised sx={{ width: 120, height: "100%" }}>
+                <Card sx={{ width: 120, height: "100%" }}>
                   <CardActionArea
                     onClick={() => {
                       setActiveLicense(l);
@@ -64,7 +64,7 @@ export default function UserLicenses({
                       loading="lazy"
                       style={{ width: 120, height: 120 }}
                     />
-                    <CardContent>
+                    <CardContent sx={{ p: 1 }}>
                       <Typography
                         variant="body2"
                         color="text.secondary"
