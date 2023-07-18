@@ -25,7 +25,7 @@ export default function JobView() {
   const { getJobAsync, data: job, loading, error } = useGetJob();
 
   const paperContStyle = {
-    p: 1,
+    p: 2,
     borderRadius: useRespVal(0, undefined),
     borderRight: useRespVal(0, undefined),
     borderLeft: useRespVal(0, undefined),
