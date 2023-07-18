@@ -4,7 +4,6 @@ import {
   Typography,
   IconButton,
   Card,
-  CardContent,
   Chip,
   Grid,
   Skeleton,
@@ -13,7 +12,6 @@ import {
   ListItemText,
   MenuItem,
   MenuList,
-  Paper,
   useTheme,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
