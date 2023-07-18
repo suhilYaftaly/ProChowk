@@ -1,7 +1,8 @@
-import { IUserData } from "@/graphql/operations/user";
-import { paths } from "@/routes/PageRoutes";
 import { format, startOfDay } from "date-fns";
 import { NavigateFunction } from "react-router-dom";
+
+import { AddressInput, IUserData } from "@gqlOps/user";
+import { paths } from "@routes/PageRoutes";
 
 export function decodeJwtToken(token: string | undefined) {
   if (token) {
@@ -61,11 +62,16 @@ export function validateEmail(email: string): boolean {
   return emailPattern.test(email);
 }
 
-export const processImageFile = (
-  file: File | undefined,
-  onSuccess: (imageUrl: string) => void,
-  maxSize = 1024
-) => {
+interface IPIFOnSuccess {
+  imageUrl: string;
+  fileSize: number;
+}
+interface IPIF {
+  file: File | undefined;
+  maxSize?: number;
+  onSuccess: ({ imageUrl, fileSize }: IPIFOnSuccess) => void;
+}
+export const processImageFile = ({ file, onSuccess, maxSize = 1024 }: IPIF) => {
   if (file) {
     const reader = new FileReader();
     reader.onloadend = () => {
@@ -96,25 +102,12 @@ export const processImageFile = (
         if (ctx) {
           ctx.drawImage(image, 0, 0, width, height);
           const resizedImageUrl = canvas.toDataURL(file.type);
-          onSuccess(resizedImageUrl);
+          const fileSize = resizedImageUrl.length * 0.75; // Calculating the new file size in bytes (assuming Base64 encoding)
+          onSuccess({ imageUrl: resizedImageUrl, fileSize: fileSize });
         }
       };
 
       image.src = imageUrl;
-    };
-    reader.readAsDataURL(file);
-  }
-};
-
-export const processPDFFile = (
-  file: File | undefined,
-  onSuccess: (imageUrl: string) => void
-) => {
-  if (file) {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const imageUrl = reader.result as string;
-      onSuccess(imageUrl);
     };
     reader.readAsDataURL(file);
   }
@@ -203,4 +196,36 @@ export const removeTypename = (obj: any): any => {
   });
 
   return newObj;
+};
+
+export const getBasicAdd = (address: AddressInput) => {
+  let add = "";
+  if (address?.city) add += address?.city + ", ";
+  if (address?.province) add += address?.province + ", ";
+  if (address?.country) add += address?.country;
+  return add;
+};
+
+export const openPhone = (num: string | undefined) => {
+  if (num) window.location.href = `tel:${num}`;
+};
+
+interface IOpenEmail {
+  email: string;
+  subject?: string;
+  body?: string;
+}
+export const openEmail = ({ email, subject, body }: IOpenEmail) => {
+  let mailtoURL = `mailto:${encodeURIComponent(email)}`;
+
+  if (subject) mailtoURL += `?subject=${encodeURIComponent(subject)}`;
+  if (body) {
+    if (subject) {
+      mailtoURL += `&body=${encodeURIComponent(body)}`;
+    } else {
+      mailtoURL += `?body=${encodeURIComponent(body)}`;
+    }
+  }
+
+  window.location.href = mailtoURL;
 };

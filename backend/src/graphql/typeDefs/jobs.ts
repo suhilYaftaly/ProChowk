@@ -3,6 +3,7 @@ import { gql } from "graphql-tag";
 export default gql`
   type Query {
     getUserJobs(userId: ID!): [Job!]!
+    getJob(id: ID!): Job!
   }
   type Mutation {
     updateJob(id: ID, props: JobInput!): Job!
@@ -20,6 +21,8 @@ export default gql`
     images: [JobImage]
     createdAt: String!
     updatedAt: String!
+    userId: String
+    userEmail: String
   }
   input JobInput {
     title: String

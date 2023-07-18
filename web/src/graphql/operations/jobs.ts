@@ -16,6 +16,51 @@ const jobsOps = {
           jobSize
           createdAt
           updatedAt
+          userId
+          userEmail
+          skills {
+            label
+          }
+          budget {
+            type
+            from
+            to
+            maxHours
+          }
+          images {
+            id
+            name
+            size
+            type
+            picture
+          }
+          address {
+            displayName
+            street
+            city
+            county
+            state
+            stateCode
+            postalCode
+            country
+            countryCode
+            lat
+            lng
+          }
+        }
+      }
+    `,
+    getJob: gql`
+      query GetJob($id: ID!) {
+        getJob(id: $id) {
+          id
+          title
+          desc
+          jobSize
+          createdAt
+          updatedAt
+          userId
+          userEmail
           skills {
             label
           }
@@ -59,6 +104,8 @@ const jobsOps = {
           jobSize
           createdAt
           updatedAt
+          userId
+          userEmail
           skills {
             label
           }
@@ -141,9 +188,10 @@ export interface IJob {
   budget: IJobBudget;
   address: IJobAddress;
   images?: IImage[];
-  createdAt: string | Date;
-  updatedAt: string | Date;
-  user: IUser;
+  createdAt: string;
+  updatedAt: string;
+  userId: string;
+  userEmail: string;
 }
 export interface JobInput {
   title: string;
@@ -153,12 +201,6 @@ export interface JobInput {
   budget: IJobBudget;
   address: IJobAddress;
   images?: IImage[];
-}
-
-interface IUser {
-  id: string;
-  name: string;
-  email: string;
 }
 
 interface IUpdateJobInput {
@@ -183,6 +225,13 @@ interface IUpdateJobAsync {
 interface IDeleteJobAsync {
   userId: string;
   id: string;
+}
+
+interface IGetJobInput {
+  id: string;
+}
+interface IGetJobData {
+  getJob: IJob;
 }
 
 //APIs
@@ -294,4 +343,26 @@ export const useGetUserJobs = () => {
   const data = pData?.getUserJobs;
 
   return { getUserJobsAsync, data, loading, error };
+};
+
+export const useGetJob = () => {
+  const [getJob, { data: pData, loading, error }] = useLazyQuery<
+    IGetJobData,
+    IGetJobInput
+  >(jobsOps.Queries.getJob);
+
+  const getJobAsync = async ({ id }: { id: string }) => {
+    if (id) {
+      try {
+        const { data } = await getJob({ variables: { id } });
+        if (!data?.getJob) throw new Error();
+      } catch (error: any) {
+        console.log("get user info error:", error.message);
+      }
+    }
+  };
+
+  const data = pData?.getJob;
+
+  return { getJobAsync, data, loading, error };
 };

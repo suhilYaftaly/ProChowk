@@ -31,6 +31,7 @@
       "@contractor/*": ["src/components/contractor/*"],
       "@user/*": ["src/components/user/*"],
       "@advs/*": ["src/components/advs/*"],
+      "@jobs/*": ["src/components/jobs/*"],
     },
 
     /* Linting */

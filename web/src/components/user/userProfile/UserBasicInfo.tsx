@@ -9,12 +9,17 @@ import {
 import { ChangeEvent, useEffect, useState } from "react";
 import EditIcon from "@mui/icons-material/Edit";
 
-import { processImageFile, convertUnixToDate } from "@/utils/utilFuncs";
+import {
+  processImageFile,
+  convertUnixToDate,
+  getBasicAdd,
+  openPhone,
+} from "@utils/utilFuncs";
 import { IUserInfo } from "./UserInfo";
 import UserBasicInfoEdit from "./edits/UserBasicInfoEdit";
-import { AddressInput, useUpdateUser } from "@gqlOps/user";
+import { useUpdateUser } from "@gqlOps/user";
 import CustomModal from "@reusable/CustomModal";
-import ErrSnackbar from "@/components/reusable/ErrSnackbar";
+import ErrSnackbar from "@reusable/ErrSnackbar";
 import ShowMoreTxt from "@reusable/ShowMoreTxt";
 
 export default function UserBasicInfo({
@@ -39,24 +44,22 @@ export default function UserBasicInfo({
     const file = e.target.files?.[0];
 
     if (file && user) {
-      processImageFile(
+      processImageFile({
         file,
-        (imageUrl) => {
+        maxSize: 400,
+        onSuccess: ({ imageUrl, fileSize }) => {
           const formImage = {
             picture: imageUrl,
             name: file.name,
-            size: file.size,
+            size: fileSize,
             type: file.type,
           };
           const variables = { id: user.id, image: formImage };
           updateUserAsync({ variables, onSuccess: () => setImage(formImage) });
         },
-        400
-      );
+      });
     }
   };
-
-  const openPhone = () => (window.location.href = `tel:${user?.phoneNum}`);
 
   return (
     <>
@@ -115,7 +118,7 @@ export default function UserBasicInfo({
                   <Skeleton variant="text" width={150} />
                 ) : (
                   <>
-                    <Typography onClick={openPhone}>
+                    <Typography onClick={() => openPhone(user?.phoneNum)}>
                       {user?.phoneNum}
                     </Typography>
                     {user?.address && (
@@ -147,11 +150,3 @@ export default function UserBasicInfo({
     </>
   );
 }
-
-const getBasicAdd = (address: AddressInput) => {
-  let add = "";
-  if (address?.city) add += address?.city + ", ";
-  if (address?.province) add += address?.province + ", ";
-  if (address?.country) add += address?.country;
-  return add;
-};

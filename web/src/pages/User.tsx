@@ -5,20 +5,24 @@ import { Alert } from "@mui/material";
 
 import UserInfo from "@components/user/userProfile/UserInfo";
 import { useUserStates } from "@redux/reduxStates";
-import userOps, { ISearchUserData, ISearchUserInput } from "@gqlOps/user";
+import { useSearchUser } from "@gqlOps/user";
 import contOps, {
   ISearchContrProfData,
   ISearchContrProfInput,
 } from "@gqlOps/contractor";
-import ErrSnackbar from "@/components/reusable/ErrSnackbar";
+import ErrSnackbar from "@reusable/ErrSnackbar";
 
 export default function User() {
   const { nameId } = useParams();
   const { user: loggedInUser } = useUserStates();
   const userId = nameId?.split("-")?.[1];
   const isMyProfile = userId === loggedInUser?.id;
-  const [searchUser, { data: userData, loading, error: userError }] =
-    useLazyQuery<ISearchUserData, ISearchUserInput>(userOps.Queries.searchUser);
+  const {
+    searchUserAsync,
+    data: userData,
+    error: userError,
+    loading,
+  } = useSearchUser();
   const [
     searchContrProf,
     { data: userContrData, error: contError, loading: contProfLoading },
@@ -27,19 +31,6 @@ export default function User() {
   );
   const [openContErrBar, setOpenContErrBar] = useState(false);
   const [hideContNFErr, setHideContNFErr] = useState(false);
-
-  const getUser = async () => {
-    if (userId) {
-      try {
-        const { data } = await searchUser({
-          variables: { id: userId },
-        });
-        if (!data?.searchUser) throw new Error();
-      } catch (error: any) {
-        console.log("get user info error:", error.message);
-      }
-    }
-  };
 
   const getContrProf = async () => {
     if (userId) {
@@ -57,7 +48,7 @@ export default function User() {
 
   //retriev user info if its not my profile
   useEffect(() => {
-    if (userId && !isMyProfile) getUser();
+    if (userId && !isMyProfile) searchUserAsync({ userId });
   }, [isMyProfile]);
 
   const user = isMyProfile ? loggedInUser : userData?.searchUser;

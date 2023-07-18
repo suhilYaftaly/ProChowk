@@ -1,16 +1,15 @@
 import { Paper, Stack } from "@mui/material";
 
 import UserBasicInfo from "./UserBasicInfo";
-import { layoutCardsMaxWidth, pp } from "@/config/configConst";
+import { layoutCardsMaxWidth, pp } from "@config/configConst";
 import UserSkills from "@contractor/UserSkills";
 import UserLicenses from "@contractor/UserLicenses";
 import { IUserData } from "@gqlOps/user";
 import { IContractorData } from "@gqlOps/contractor";
 import UserCreateContProf from "./edits/UserCreateContProf";
 import ShowIncompleteAlerts from "@contractor/ShowIncompleteAlerts";
-// import Ads from "@advs/Ads";
-import Jobs from "@/components/jobs/Jobs";
-import { useRespVal } from "@/utils/hooks/hooks";
+import Jobs from "@jobs/Jobs";
+import { useRespVal } from "@utils/hooks/hooks";
 
 export interface IUserInfo {
   user?: IUserData | undefined;
@@ -90,7 +89,7 @@ export default function UserInfo({
           )
         )}
         <Paper variant="outlined" sx={paperContStyle}>
-          <Jobs isMyProfile={isMyProfile} userId={userId} />
+          <Jobs isMyProfile={isMyProfile} userId={userId} user={user} />
         </Paper>
       </Stack>
     </Stack>

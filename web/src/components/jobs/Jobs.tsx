@@ -13,11 +13,13 @@ import {
   MenuItem,
   MenuList,
   useTheme,
+  CardActionArea,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { useNavigate } from "react-router-dom";
 
 import { IUserInfo } from "@user/userProfile/UserInfo";
 import CustomModal from "@reusable/CustomModal";
@@ -26,8 +28,10 @@ import JobForm from "./edits/JobForm";
 import { IJob, JobInput, useGetUserJobs, useUpdateJob } from "@gqlOps/jobs";
 import ErrSnackbar from "@reusable/ErrSnackbar";
 import { removeTypename } from "@utils/utilFuncs";
+import { paths } from "@routes/PageRoutes";
 
-export default function Jobs({ isMyProfile, userId }: IUserInfo) {
+export default function Jobs({ isMyProfile, userId, user }: IUserInfo) {
+  const navigate = useNavigate();
   const { getUserJobsAsync, data, loading, error } = useGetUserJobs();
   const { updateJobAsync, deleteJobAsync, updateLoading } = useUpdateJob();
   const [editJob, setEditJob] = useState<JobInput | IJob>();
@@ -72,6 +76,13 @@ export default function Jobs({ isMyProfile, userId }: IUserInfo) {
   const onEditClick = (job: IJob) => {
     setEditJob(job);
     setOpenEdit(true);
+  };
+
+  const onCardClick = (id: string) => {
+    if (user) {
+      const username = `${user.name}-${userId}`.replace(/\s/g, "");
+      navigate(paths.jobView(username, id));
+    }
   };
 
   return (
@@ -121,24 +132,25 @@ export default function Jobs({ isMyProfile, userId }: IUserInfo) {
                       )}
                     </Stack>
                   </Stack>
-                  <Typography variant="caption" color="text.secondary">
-                    {job.budget.type}: ${job.budget.from}-${job.budget.to}
-                    {job.budget.type === "Hourly" &&
-                      ` /${" "}
-                    ${job.budget.maxHours}Hrs`}
-                  </Typography>
-                  <Typography variant="body2">{job.desc}</Typography>
-                  <Grid container spacing={1} sx={{ mt: 2 }}>
-                    {job.skills?.map((skill) => (
-                      <Grid item key={skill.label}>
-                        <Chip
-                          label={skill.label}
-                          variant="filled"
-                          size="small"
-                        />
-                      </Grid>
-                    ))}
-                  </Grid>
+                  <CardActionArea onClick={() => onCardClick(job.id)}>
+                    <Typography variant="caption" color="text.secondary">
+                      {job.budget.type}: ${job.budget.from}-${job.budget.to}
+                      {job.budget.type === "Hourly" &&
+                        ` / ${job.budget.maxHours}Hrs`}
+                    </Typography>
+                    <Typography variant="body2">{job.desc}</Typography>
+                    <Grid container spacing={1} sx={{ mt: 2 }}>
+                      {job.skills?.map((skill) => (
+                        <Grid item key={skill.label}>
+                          <Chip
+                            label={skill.label}
+                            variant="filled"
+                            size="small"
+                          />
+                        </Grid>
+                      ))}
+                    </Grid>
+                  </CardActionArea>
                 </Card>
               </Grid>
             ))}

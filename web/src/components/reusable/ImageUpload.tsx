@@ -72,15 +72,18 @@ export default function ImageUpload({ onImageUpload }: IImgUpload) {
     if (file) {
       const isImage = file.type.startsWith("image/");
       if (isImage) {
-        processImageFile(file, (imageUrl) => {
-          setImgData({
-            id: String(Math.random()),
-            name: file.name,
-            size: file.size,
-            type: file.type,
-            picture: imageUrl,
-          });
-          resetFileInput();
+        processImageFile({
+          file,
+          onSuccess: ({ imageUrl, fileSize }) => {
+            setImgData({
+              id: String(Math.random()),
+              name: file.name,
+              size: fileSize,
+              type: file.type,
+              picture: imageUrl,
+            });
+            resetFileInput();
+          },
         });
       }
     }

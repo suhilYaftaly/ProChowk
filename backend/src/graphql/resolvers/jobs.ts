@@ -25,8 +25,24 @@ export default {
           orderBy: { createdAt: "desc" }, // Sort by createdAt field in reverse chronological order
         });
         if (eJobs) {
-          return eJobs.map((job) => getJob(job, eUser));
+          return eJobs.map((job) => getJob(job));
         } else throw gqlError({ msg: "Failed to get jobs" });
+      } catch (error: any) {
+        throw gqlError({ msg: error?.message });
+      }
+    },
+    getJob: async (
+      _: any,
+      { id }: { id: string },
+      context: GraphQLContext
+    ): Promise<IJob> => {
+      const { prisma } = context;
+
+      try {
+        const eJob = await prisma.jobs.findUnique({ where: { id } });
+        if (!eJob) throw gqlError({ msg: "Failed to get the job" });
+
+        return getJob(eJob);
       } catch (error: any) {
         throw gqlError({ msg: error?.message });
       }
@@ -73,7 +89,7 @@ export default {
           });
         }
         if (updtJob) {
-          return getJob(updtJob, eUser);
+          return getJob(updtJob);
         } else throw gqlError({ msg: "Failed to update the job" });
       } catch (error: any) {
         throw gqlError({ msg: error?.message });
@@ -110,7 +126,7 @@ export default {
   },
 };
 
-const getJob = (job: IJob, user: IUser) => {
+const getJob = (job: IJob) => {
   return {
     id: job.id,
     title: job.title,
@@ -122,7 +138,8 @@ const getJob = (job: IJob, user: IUser) => {
     images: job.images,
     createdAt: job.createdAt,
     updatedAt: job.updatedAt,
-    user: { id: user.id, name: user.name, email: user.email },
+    userId: job.userId,
+    userEmail: job.userEmail,
   };
 };
 
@@ -168,6 +185,8 @@ interface IJob {
   images?: IImage[] | any;
   createdAt: string | Date;
   updatedAt: string | Date;
+  userId: String;
+  userEmail: string;
 }
 interface IJobInput {
   title: string;
@@ -177,12 +196,6 @@ interface IJobInput {
   budget: IJobBudget | any;
   address: IJobAddress | any;
   images?: IImage[] | any;
-}
-
-interface IUser {
-  id: string;
-  name: string;
-  email: string;
 }
 
 //VALIDATORS

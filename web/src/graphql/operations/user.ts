@@ -1,6 +1,11 @@
 import { setUserProfile } from "@rSlices/userSlice";
 import { useAppDispatch } from "@/utils/hooks/hooks";
-import { gql, useApolloClient, useMutation } from "@apollo/client";
+import {
+  gql,
+  useApolloClient,
+  useLazyQuery,
+  useMutation,
+} from "@apollo/client";
 
 const userOps = {
   Queries: {
@@ -401,10 +406,10 @@ export interface ISearchAllUsersData {
   searchAllUsers: IUserData[];
 }
 
-export interface ISearchUserInput {
+interface ISearchUserInput {
   id: string;
 }
-export interface ISearchUserData {
+interface ISearchUserData {
   searchUser: IUserData;
 }
 
@@ -460,4 +465,24 @@ export const useUpdateUser = () => {
   };
 
   return { updateUserAsync, data, loading, error };
+};
+
+export const useSearchUser = () => {
+  const [searchUser, { data, loading, error }] = useLazyQuery<
+    ISearchUserData,
+    ISearchUserInput
+  >(userOps.Queries.searchUser);
+
+  const searchUserAsync = async ({ userId }: { userId: string }) => {
+    try {
+      const { data } = await searchUser({
+        variables: { id: userId },
+      });
+      if (!data?.searchUser) throw new Error();
+    } catch (error: any) {
+      console.log("get user info error:", error.message);
+    }
+  };
+
+  return { searchUserAsync, data, loading, error };
 };
