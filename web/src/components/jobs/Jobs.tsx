@@ -27,7 +27,7 @@ import PostAJob from "./edits/PostAJob";
 import JobForm from "./edits/JobForm";
 import { IJob, JobInput, useGetUserJobs, useUpdateJob } from "@gqlOps/jobs";
 import ErrSnackbar from "@reusable/ErrSnackbar";
-import { removeTypename } from "@utils/utilFuncs";
+import { removeTypename, trimText } from "@utils/utilFuncs";
 import { paths } from "@routes/PageRoutes";
 
 export default function Jobs({ isMyProfile, userId, user }: IUserInfo) {
@@ -138,7 +138,9 @@ export default function Jobs({ isMyProfile, userId, user }: IUserInfo) {
                       {job.budget.type === "Hourly" &&
                         ` / ${job.budget.maxHours}Hrs`}
                     </Typography>
-                    <Typography variant="body2">{job.desc}</Typography>
+                    <Typography variant="body2">
+                      {trimText({ text: job.desc })}
+                    </Typography>
                     <Grid container spacing={1} sx={{ mt: 2 }}>
                       {job.skills?.map((skill) => (
                         <Grid item key={skill.label}>

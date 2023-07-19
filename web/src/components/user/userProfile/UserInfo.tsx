@@ -1,7 +1,7 @@
 import { Paper, Stack } from "@mui/material";
 
 import UserBasicInfo from "./UserBasicInfo";
-import { layoutCardsMaxWidth, pp } from "@config/configConst";
+import { layoutCardsMaxWidth, ppx, ppy } from "@config/configConst";
 import UserSkills from "@contractor/UserSkills";
 import UserLicenses from "@contractor/UserLicenses";
 import { IUserData } from "@gqlOps/user";
@@ -31,7 +31,8 @@ export default function UserInfo({
   setHideContNFErr,
 }: IUserInfo) {
   const paperContStyle = {
-    p: 2,
+    px: ppx,
+    py: ppy,
     borderRadius: useRespVal(0, undefined),
     borderRight: useRespVal(0, undefined),
     borderLeft: useRespVal(0, undefined),
@@ -42,7 +43,7 @@ export default function UserInfo({
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        my: pp,
+        my: ppy,
       }}
     >
       <Stack spacing={1} sx={{ maxWidth: layoutCardsMaxWidth, width: "100%" }}>

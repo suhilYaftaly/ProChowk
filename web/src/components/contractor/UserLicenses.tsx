@@ -15,6 +15,7 @@ import CustomModal from "@reusable/CustomModal";
 import FullScreenModal from "@reusable/FullScreenModal";
 import { IUserInfo } from "@user/userProfile/UserInfo";
 import UserLicensesEdit from "./edits/UserLicensesEdit";
+import { useRespVal } from "@/utils/hooks/hooks";
 
 export default function UserLicenses({
   user,
@@ -25,6 +26,7 @@ export default function UserLicenses({
   const [openFullImg, setOpenFullImg] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [activeLicense, setActiveLicense] = useState(contrData?.licenses?.[0]);
+  const fsWidth = useRespVal("100%", undefined);
 
   return (
     <>
@@ -101,7 +103,7 @@ export default function UserLicenses({
             src={activeLicense.picture}
             alt={activeLicense.name}
             loading="lazy"
-            style={{ width: "100%", objectFit: "cover" }}
+            style={{ width: fsWidth, objectFit: "cover" }}
           />
         </FullScreenModal>
       )}

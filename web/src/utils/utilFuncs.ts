@@ -229,3 +229,14 @@ export const openEmail = ({ email, subject, body }: IOpenEmail) => {
 
   window.location.href = mailtoURL;
 };
+
+interface ITrimTxt {
+  text: string;
+  maxLength?: number;
+}
+export const trimText = ({ text, maxLength = 200 }: ITrimTxt) => {
+  if (text.length > maxLength) {
+    return text.substring(0, maxLength) + "...";
+  }
+  return text;
+};

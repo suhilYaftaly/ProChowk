@@ -5,7 +5,7 @@ import { Stack, Paper, Alert } from "@mui/material";
 import { useUserStates } from "@redux/reduxStates";
 import { useSearchUser } from "@gqlOps/user";
 import { useGetJob } from "@gqlOps/jobs";
-import { pp, layoutCardsMaxWidth } from "@config/configConst";
+import { pp, layoutCardsMaxWidth, ppx, ppy } from "@config/configConst";
 import { useRespVal } from "@utils/hooks/hooks";
 import UserSection from "@jobs/jobView/UserSection";
 import DetailsSection from "@jobs/jobView/DetailsSection";
@@ -25,7 +25,8 @@ export default function JobView() {
   const { getJobAsync, data: job, loading, error } = useGetJob();
 
   const paperContStyle = {
-    p: 2,
+    px: ppx,
+    py: ppy,
     borderRadius: useRespVal(0, undefined),
     borderRight: useRespVal(0, undefined),
     borderLeft: useRespVal(0, undefined),

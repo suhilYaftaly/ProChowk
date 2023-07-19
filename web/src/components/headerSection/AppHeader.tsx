@@ -2,9 +2,9 @@ import { useTheme, alpha, useScrollTrigger, Stack, Card } from "@mui/material";
 
 import ColorModeIcon from "./ColorModeIcon";
 import AppLogo from "@reusable/AppLogo";
-import UserProfilePopover from "../user/UserProfilePopover";
-import LogInButton from "../user/login/LogInButton";
-import { pp } from "@config/configConst";
+import UserProfilePopover from "@user/UserProfilePopover";
+import LogInButton from "@user/login/LogInButton";
+import { ppx, ppy } from "@config/configConst";
 
 export default function AppHeader() {
   const theme = useTheme();
@@ -20,7 +20,8 @@ export default function AppHeader() {
         backgroundColor,
         opacity: trigger ? 0 : 1,
         transition: "opacity 0.2s ease-in-out",
-        p: pp,
+        px: ppx,
+        py: ppy,
         boxShadow: 1,
         borderRadius: 0,
       }}

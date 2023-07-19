@@ -5,7 +5,7 @@ interface SettingsState {
 }
 
 const initialState: SettingsState = {
-  colorMode: "light",
+  colorMode: "dark",
 };
 
 const slice = createSlice({

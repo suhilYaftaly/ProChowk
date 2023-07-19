@@ -27,13 +27,6 @@ const jobsOps = {
             to
             maxHours
           }
-          images {
-            id
-            name
-            size
-            type
-            picture
-          }
           address {
             displayName
             street
@@ -114,13 +107,6 @@ const jobsOps = {
             from
             to
             maxHours
-          }
-          images {
-            id
-            name
-            size
-            type
-            picture
           }
           address {
             displayName
