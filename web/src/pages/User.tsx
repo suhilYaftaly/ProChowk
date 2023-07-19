@@ -41,7 +41,7 @@ export default function User() {
         if (!data?.searchContrProf) throw new Error();
       } catch (error: any) {
         setOpenContErrBar(true);
-        console.log("get user info error:", error.message);
+        console.log("get user info error:", error);
       }
     }
   };

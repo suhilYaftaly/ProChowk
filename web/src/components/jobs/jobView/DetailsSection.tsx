@@ -84,38 +84,40 @@ export default function DetailsSection({ job, loading }: Props) {
                 ))}
               </Grid>
             </div>
-            <div>
-              <Divider sx={{ my: 2 }} />
-            </div>
             {job?.images && job?.images?.length > 0 && (
-              <Box
-                sx={{
-                  maxHeight: 600,
-                  overflowY: "auto",
-                  border: "1px solid grey",
-                  borderRadius: 2,
-                }}
-              >
-                <ImageList variant="masonry" cols={2} gap={8}>
-                  {job.images.map((img) => (
-                    <ImageListItem
-                      key={img.id}
-                      sx={{ cursor: "pointer" }}
-                      onClick={() => {
-                        setActiveImg(img);
-                        setOpenFullImg(true);
-                      }}
-                    >
-                      <img
-                        src={`${img.picture}`}
-                        srcSet={`${img.picture}`}
-                        alt={img.name}
-                        loading="lazy"
-                      />
-                    </ImageListItem>
-                  ))}
-                </ImageList>
-              </Box>
+              <>
+                <div>
+                  <Divider sx={{ my: 2 }} />
+                </div>
+                <Box
+                  sx={{
+                    maxHeight: 600,
+                    overflowY: "auto",
+                    border: "1px solid grey",
+                    borderRadius: 2,
+                  }}
+                >
+                  <ImageList variant="masonry" cols={2} gap={8}>
+                    {job.images.map((img) => (
+                      <ImageListItem
+                        key={img.id}
+                        sx={{ cursor: "pointer" }}
+                        onClick={() => {
+                          setActiveImg(img);
+                          setOpenFullImg(true);
+                        }}
+                      >
+                        <img
+                          src={`${img.picture}`}
+                          srcSet={`${img.picture}`}
+                          alt={img.name}
+                          loading="lazy"
+                        />
+                      </ImageListItem>
+                    ))}
+                  </ImageList>
+                </Box>
+              </>
             )}
             <div>
               <Divider sx={{ my: 2 }} />

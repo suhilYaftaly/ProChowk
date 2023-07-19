@@ -12,8 +12,8 @@ export default function ShowIncompleteAlerts({
     !user?.address ||
     !user?.bio ||
     !user?.phoneNum ||
-    !contrData?.licenses ||
-    contrData?.licenses?.length < 0 ||
+    // !contrData?.licenses ||
+    // contrData?.licenses?.length < 0 ||
     !contrData?.skills ||
     contrData?.skills?.length < 0;
 
@@ -21,34 +21,24 @@ export default function ShowIncompleteAlerts({
     <>
       {isMyProfile && !contProfLoading && isContProfIncomplete && (
         <Card sx={{ boxShadow: 4, p: 2 }}>
-          <Alert severity="error" color="error">
+          <Alert
+            severity="error"
+            color="error"
+            sx={{
+              whiteSpace: "pre-wrap",
+              wordWrap: "break-word",
+              alignItems: "center",
+            }}
+          >
             Your contractor profile is incomplete!
+            {!user?.phoneNum && "\nYou must add your phone number!"}
+            {!user?.bio && "\nYou must add your biography!"}
+            {!user?.address && "\nYou must add your address!"}
+            {(!contrData?.skills || contrData?.skills?.length < 0) &&
+              "\nYou must select some skills!"}
+            {/* {(!contrData?.licenses || contrData?.licenses?.length < 0) &&
+              "\nYou must add your licenses!"} */}
           </Alert>
-          {!user?.phoneNum && (
-            <Alert severity="error" color="error" sx={{ mt: 1 }}>
-              You must add your phone number
-            </Alert>
-          )}
-          {!user?.bio && (
-            <Alert severity="error" color="error" sx={{ mt: 1 }}>
-              You must add your biography
-            </Alert>
-          )}
-          {!user?.address && (
-            <Alert severity="error" color="error" sx={{ mt: 1 }}>
-              You must add your address
-            </Alert>
-          )}
-          {(!contrData?.skills || contrData?.skills?.length < 0) && (
-            <Alert severity="error" color="error" sx={{ mt: 1 }}>
-              You must select some skills
-            </Alert>
-          )}
-          {(!contrData?.licenses || contrData?.licenses?.length < 0) && (
-            <Alert severity="error" color="error" sx={{ mt: 1 }}>
-              You must add your licenses
-            </Alert>
-          )}
         </Card>
       )}
     </>

@@ -480,7 +480,7 @@ export const useSearchUser = () => {
       });
       if (!data?.searchUser) throw new Error();
     } catch (error: any) {
-      console.log("get user info error:", error.message);
+      console.log("get user info error:", error);
     }
   };
 

@@ -321,7 +321,7 @@ export const useGetUserJobs = () => {
         const { data } = await getUserJobs({ variables: { userId } });
         if (!data?.getUserJobs) throw new Error();
       } catch (error: any) {
-        console.log("get user info error:", error.message);
+        console.log("get user info error:", error);
       }
     }
   };
@@ -343,7 +343,7 @@ export const useGetJob = () => {
         const { data } = await getJob({ variables: { id } });
         if (!data?.getJob) throw new Error();
       } catch (error: any) {
-        console.log("get user info error:", error.message);
+        console.log("get user info error:", error);
       }
     }
   };

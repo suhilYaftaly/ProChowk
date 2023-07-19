@@ -29,8 +29,8 @@ const UserBasicInfoEdit: React.FC<Props> = ({ user, closeEdit }) => {
   const [addressData, setAddressData] = useState({ ...user?.address });
   const [formData, setFormData] = useState({
     name: user?.name || "",
-    phoneNum: user?.phoneNum,
-    bio: user?.bio,
+    phoneNum: user?.phoneNum || "",
+    bio: user?.bio || "",
   });
   const [formError, setFormError] = useState<FormError>({
     name: false,
@@ -42,8 +42,8 @@ const UserBasicInfoEdit: React.FC<Props> = ({ user, closeEdit }) => {
   useEffect(() => {
     setFormData({
       name: user?.name || "",
-      phoneNum: user?.phoneNum,
-      bio: user?.bio,
+      phoneNum: user?.phoneNum || "",
+      bio: user?.bio || "",
     });
   }, [user]);
 
