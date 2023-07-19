@@ -1,7 +1,9 @@
 import { Stack, Skeleton, Avatar, Typography } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 import { convertUnixToDate, getBasicAdd, openPhone } from "@utils/utilFuncs";
 import { IUserData } from "@gqlOps/user";
+import { paths } from "@routes/PageRoutes";
 
 interface Props {
   loading: boolean;
@@ -9,6 +11,13 @@ interface Props {
 }
 
 export default function UserSection({ user, loading }: Props) {
+  const navigate = useNavigate();
+  const navigateToUser = () => {
+    if (user) {
+      const username = `${user.name}-${user.id}`.replace(/\s/g, "");
+      navigate(paths.user(username));
+    }
+  };
   return (
     <Stack>
       <Stack spacing={2} direction={"row"} sx={{ alignItems: "center" }}>
@@ -18,7 +27,8 @@ export default function UserSection({ user, loading }: Props) {
           <Avatar
             alt={user?.name}
             src={user?.image?.picture}
-            sx={{ width: 120, height: 120 }}
+            sx={{ width: 120, height: 120, cursor: "pointer" }}
+            onClick={navigateToUser}
           />
         )}
         {loading ? (
@@ -28,7 +38,13 @@ export default function UserSection({ user, loading }: Props) {
           </Stack>
         ) : (
           <Stack>
-            <Typography variant="h5">{user?.name}</Typography>
+            <Typography
+              variant="h5"
+              onClick={navigateToUser}
+              sx={{ cursor: "pointer" }}
+            >
+              {user?.name}
+            </Typography>
             <Typography color="text.secondary">
               Joined {convertUnixToDate(user?.createdAt)?.monthDayYear}
             </Typography>
