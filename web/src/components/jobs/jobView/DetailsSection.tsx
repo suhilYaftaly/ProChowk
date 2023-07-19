@@ -31,7 +31,7 @@ export default function DetailsSection({ job, loading }: Props) {
       label: "Location",
       txt: `${job?.address?.city} ${job?.address?.stateCode}, ${job?.address?.countryCode}`,
     },
-    { label: "Job Type", txt: job?.budget.type },
+    { label: "Job Type / Size", txt: `${job?.budget.type} / ${job?.jobSize}` },
   ];
   const rightTxts = [
     {
