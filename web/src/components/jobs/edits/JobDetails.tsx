@@ -20,7 +20,9 @@ export default function JobDetails({ job, setJob, errors }: Props) {
   };
 
   const onAddImage = (image: IImage) => {
-    if (job.images) setJob({ ...job, images: [...job.images, image] });
+    if (job.images) {
+      setJob({ ...job, images: [...job.images, image] });
+    } else setJob({ ...job, images: [image] });
   };
 
   const onAddressSelect = (adr: IAddressData) => {
