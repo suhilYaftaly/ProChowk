@@ -41,7 +41,9 @@ export default function DetailsSection({ job, loading }: Props) {
     {
       label: "Pay Rate",
       txt: `$${job?.budget.from}-$${job?.budget.to}
-      ${job?.budget.type === "Hourly" && ` / Max ${job?.budget.maxHours}Hrs`}`,
+      ${
+        job?.budget.type === "Hourly" ? ` / Max ${job?.budget.maxHours}Hrs` : ""
+      }`,
     },
   ];
 
