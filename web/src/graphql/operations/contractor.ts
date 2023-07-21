@@ -119,7 +119,7 @@ export const useUpdateContrProf = () => {
     IUpdateContrProfData,
     IUpdateContrProfInput
   >(contOps.Mutations.updateContrProf);
-  const [searchContrProf] = useLazyQuery<
+  const [searchContrProf, { loading: searchIsLoading }] = useLazyQuery<
     ISearchContrProfData,
     ISearchContrProfInput
   >(contOps.Queries.searchContrProf);
@@ -163,5 +163,5 @@ export const useUpdateContrProf = () => {
     }
   };
 
-  return { updateContrProfAsync, data, error, loading };
+  return { updateContrProfAsync, data, error, loading, searchIsLoading };
 };

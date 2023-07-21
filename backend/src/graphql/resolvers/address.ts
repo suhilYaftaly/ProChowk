@@ -39,7 +39,9 @@ const fetchAdrFromMapQuest = async ({
 }: AddressSearchInput): Promise<[Address]> => {
   const mqKey = process.env.MAP_QUEST_KEY;
   const mqSuhilKey = process.env.MAP_QUEST_KEY_SUHIL;
-  const keys = [mqKey, mqSuhilKey];
+  const mqAJKey = process.env.MAP_QUEST_KEY_AJ;
+  const mqHabibKey = process.env.MAP_QUEST_KEY_HABIB;
+  const keys = [mqKey, mqSuhilKey, mqAJKey, mqHabibKey];
 
   const getResponse = async (key: string): Promise<[Address]> => {
     const resp = await axios.get(

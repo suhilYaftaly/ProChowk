@@ -1,12 +1,31 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
-import AppHeader from "../components/headerSection/AppHeader";
+import AppHeader from "@components/headerSection/AppHeader";
+import ErrSnackbar from "@reusable/ErrSnackbar";
+import { paths } from "@routes/PageRoutes";
+import { useSettingsStates } from "@redux/reduxStates";
+import { useAppDispatch } from "@/utils/hooks/hooks";
+import { setSessionExpired } from "@rSlices/settingsSlice";
 
 export default function RootLayout() {
+  const { isSessionExpired } = useSettingsStates();
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (isSessionExpired) navigate(paths.login);
+  }, [isSessionExpired]);
+
   return (
     <>
       <AppHeader />
       <Outlet />
+      <ErrSnackbar
+        errMsg="Your Session has Expired, Please Login again!"
+        open={isSessionExpired}
+        handleClose={() => dispatch(setSessionExpired(false))}
+      />
     </>
   );
 }

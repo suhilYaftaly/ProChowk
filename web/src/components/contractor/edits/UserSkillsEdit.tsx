@@ -18,7 +18,8 @@ export default function UserSkillsEdit({
 }: Props) {
   const [selectedSkills, setSelectedSkills] = useState(addSkills(userSkills));
   const [newSkills, setNewSkills] = useState<SkillInput[]>([]);
-  const { updateContrProfAsync, error, loading } = useUpdateContrProf();
+  const { updateContrProfAsync, error, loading, searchIsLoading } =
+    useUpdateContrProf();
   const { updateAllSkillsAsync } = useUpdateAllSkills();
 
   useEffect(() => setSelectedSkills(addSkills(userSkills)), [userSkills]);
@@ -55,7 +56,11 @@ export default function UserSkillsEdit({
           fullWidth
           sx={{ mt: 3 }}
         >
-          {loading ? <CircularProgress size={20} /> : "Save Changes"}
+          {loading || searchIsLoading ? (
+            <CircularProgress size={20} />
+          ) : (
+            "Save Changes"
+          )}
         </Button>
         {error && (
           <Alert severity="error" color="error">
