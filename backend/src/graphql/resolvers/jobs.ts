@@ -13,9 +13,7 @@ export default {
 
       try {
         // Validate user
-        const eUser = await prisma.user.findUnique({
-          where: { id: userId },
-        });
+        const eUser = await prisma.user.findUnique({ where: { id: userId } });
         if (!eUser)
           throw gqlError({ msg: "User not found", code: "BAD_REQUEST" });
 
@@ -24,9 +22,8 @@ export default {
           where: { userId },
           orderBy: { createdAt: "desc" }, // Sort by createdAt field in reverse chronological order
         });
-        if (eJobs) {
-          return eJobs.map((job) => getJob(job));
-        } else throw gqlError({ msg: "Failed to get jobs" });
+        if (eJobs) return eJobs.map((job) => getJob(job));
+        else throw gqlError({ msg: "Failed to get jobs" });
       } catch (error: any) {
         throw gqlError({ msg: error?.message });
       }
@@ -43,6 +40,45 @@ export default {
         if (!eJob) throw gqlError({ msg: "Failed to get the job" });
 
         return getJob(eJob);
+      } catch (error: any) {
+        throw gqlError({ msg: error?.message });
+      }
+    },
+    getJobsBySkill: async (
+      _: any,
+      { skill, lat, lng }: { skill: string; lat: number; lng: number },
+      context: GraphQLContext
+    ): Promise<IJob[]> => {
+      const { prisma } = context;
+
+      try {
+        // Calculate the lat and lng range for the 80 km radius
+        const latRange = {
+          gte: lat - 0.722, // 0.722 is approximately 80 km converted to degrees (1 degree ≈ 111 km)
+          lte: lat + 0.722,
+        };
+        const lngRange = {
+          gte: lng - 0.722,
+          lte: lng + 0.722,
+        };
+
+        // Get and return jobs array closest to the provided coordinates and filtered by skill
+        const jobs = await prisma.jobs.findMany({
+          where: {
+            skills: {
+              some: {
+                label: skill,
+              },
+            } as any,
+            address: {
+              lat: latRange,
+              lng: lngRange,
+            } as any,
+          },
+          orderBy: { createdAt: "desc" },
+        });
+
+        return jobs.map((job) => getJob(job));
       } catch (error: any) {
         throw gqlError({ msg: error?.message });
       }

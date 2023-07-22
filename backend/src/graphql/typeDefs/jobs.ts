@@ -4,6 +4,7 @@ export default gql`
   type Query {
     getUserJobs(userId: ID!): [Job!]!
     getJob(id: ID!): Job!
+    getJobsBySkill(skill: String!, lat: Float!, lng: Float!): [Job!]!
   }
   type Mutation {
     updateJob(id: ID, props: JobInput!): Job!

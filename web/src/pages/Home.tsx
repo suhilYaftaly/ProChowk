@@ -11,6 +11,8 @@ import { useNavigate } from "react-router-dom";
 
 import userOps, { ISearchAllUsersData } from "@gqlOps/user.ts";
 import { paths } from "@/routes/PageRoutes";
+import CenteredStack from "@reusable/CenteredStack";
+import { ppx } from "@/config/configConst";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -19,8 +21,8 @@ export default function Home() {
   );
 
   return (
-    <>
-      <Grid container direction={"row"} spacing={1} sx={{ p: 1 }}>
+    <CenteredStack mx={ppx}>
+      <Grid container direction={"row"} spacing={1}>
         {allUsers?.searchAllUsers?.map((user) => (
           <Grid item key={user.id}>
             <Card sx={{ width: 180 }}>
@@ -49,6 +51,6 @@ export default function Home() {
           </Grid>
         ))}
       </Grid>
-    </>
+    </CenteredStack>
   );
 }

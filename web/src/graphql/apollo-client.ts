@@ -18,7 +18,11 @@ const httpLink = new HttpLink({
 const authLink = setContext((_, { headers }) => {
   const token = store.getState().user.userProfile.data?.token;
   return {
-    headers: { ...headers, authorization: token ? `Bearer ${token}` : "" },
+    headers: {
+      ...headers,
+      authorization: token ? `Bearer ${token}` : "",
+      "x-operation-name": "something",
+    },
   };
 });
 

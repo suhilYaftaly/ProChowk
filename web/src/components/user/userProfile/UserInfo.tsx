@@ -1,7 +1,7 @@
 import { Paper, Stack } from "@mui/material";
 
 import UserBasicInfo from "./UserBasicInfo";
-import { layoutCardsMaxWidth, ppx, ppy } from "@config/configConst";
+import { ppx, ppy } from "@config/configConst";
 import UserSkills from "@contractor/UserSkills";
 import UserLicenses from "@contractor/UserLicenses";
 import { IUserData } from "@gqlOps/user";
@@ -10,6 +10,7 @@ import UserCreateContProf from "./edits/UserCreateContProf";
 import ShowIncompleteAlerts from "@contractor/ShowIncompleteAlerts";
 import Jobs from "@jobs/Jobs";
 import { useRespVal } from "@utils/hooks/hooks";
+import CenteredStack from "@reusable/CenteredStack";
 
 export interface IUserInfo {
   user?: IUserData | undefined;
@@ -38,15 +39,8 @@ export default function UserInfo({
     borderLeft: useRespVal(0, undefined),
   };
   return (
-    <Stack
-      sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        my: ppy,
-      }}
-    >
-      <Stack spacing={1} sx={{ maxWidth: layoutCardsMaxWidth, width: "100%" }}>
+    <CenteredStack>
+      <Stack spacing={1}>
         <Paper variant="outlined" sx={paperContStyle}>
           <UserBasicInfo
             user={user}
@@ -93,6 +87,6 @@ export default function UserInfo({
           <Jobs isMyProfile={isMyProfile} userId={userId} user={user} />
         </Paper>
       </Stack>
-    </Stack>
+    </CenteredStack>
   );
 }
