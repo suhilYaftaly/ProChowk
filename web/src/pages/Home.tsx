@@ -36,6 +36,7 @@ export default function Home() {
                   component="img"
                   image={user?.image?.picture}
                   alt={user?.name}
+                  sx={{ maxHeight: 170 }}
                 />
                 <CardContent>
                   <Typography
