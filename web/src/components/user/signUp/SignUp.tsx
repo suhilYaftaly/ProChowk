@@ -7,6 +7,8 @@ import {
   CircularProgress,
   Alert,
   Typography,
+  IconButton,
+  InputAdornment,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
@@ -15,6 +17,7 @@ import userOps, { IRegisterUserData, IRegisterUserInput } from "@gqlOps/user";
 import { useAppDispatch } from "@utils/hooks/hooks";
 import { logIn, userProfileBegin, userProfileError } from "@rSlices/userSlice";
 import { paths } from "@/routes/PageRoutes";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 interface Props {
   setRedirectToHome: (redirect: boolean) => void;
@@ -24,6 +27,7 @@ export default function SignUp({ setRedirectToHome }: Props) {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [disableSignUpBtn, setDisableSignUpBtn] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -84,6 +88,10 @@ export default function SignUp({ setRedirectToHome }: Props) {
     }
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword((prevShowPassword) => !prevShowPassword);
+  };
+
   return (
     <Stack component="form" spacing={1} noValidate onSubmit={onRegister}>
       <TextField
@@ -120,13 +128,22 @@ export default function SignUp({ setRedirectToHome }: Props) {
         placeholder={"your password"}
         variant="outlined"
         name={"password"}
-        type="password"
         value={formData.password}
         onChange={handleFDataChange}
         error={formError.password}
         helperText={formError.password ? "Must be more than 5 chars" : ""}
         size="small"
         required
+        type={showPassword ? "text" : "password"}
+        InputProps={{
+          endAdornment: formData.password?.length > 0 && (
+            <InputAdornment position="end">
+              <IconButton onClick={togglePasswordVisibility}>
+                {showPassword ? <Visibility /> : <VisibilityOff />}
+              </IconButton>
+            </InputAdornment>
+          ),
+        }}
       />
       <Typography variant="caption" color="text.secondary" textAlign={"center"}>
         By signing up, you agree to our terms of service and privacy policy.

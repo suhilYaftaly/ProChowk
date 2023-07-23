@@ -7,6 +7,8 @@ import {
   CircularProgress,
   Alert,
   Link,
+  IconButton,
+  InputAdornment,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
@@ -14,6 +16,7 @@ import { openUserIfNewUser, validateEmail } from "@utils/utilFuncs";
 import userOps, { ILoginUserData, ILoginUserInput } from "@gqlOps/user";
 import { useAppDispatch } from "@utils/hooks/hooks";
 import { logIn, userProfileBegin, userProfileError } from "@rSlices/userSlice";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 interface Props {
   setRedirectToHome: (redirect: boolean) => void;
@@ -24,6 +27,7 @@ export default function CredentialLogin({ setRedirectToHome }: Props) {
   const navigate = useNavigate();
   const [disableLoginBtn, setDisableLoginBtn] = useState(true);
   const [formData, setFormData] = useState({ email: "", password: "" });
+  const [showPassword, setShowPassword] = useState(false);
   const [formError, setFormError] = useState({ email: false, password: false });
   const [loginUser, { loading, error }] = useMutation<
     ILoginUserData,
@@ -65,6 +69,10 @@ export default function CredentialLogin({ setRedirectToHome }: Props) {
     }
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword((prevShowPassword) => !prevShowPassword);
+  };
+
   return (
     <Stack component="form" spacing={1} noValidate onSubmit={onLogin}>
       <TextField
@@ -87,13 +95,22 @@ export default function CredentialLogin({ setRedirectToHome }: Props) {
         placeholder={"your password"}
         variant="outlined"
         name={"password"}
-        type="password"
         value={formData.password}
         onChange={handleFDataChange}
         error={formError.password}
         helperText={formError.password ? "Must be more than 5 chars" : ""}
         size="small"
         required
+        type={showPassword ? "text" : "password"}
+        InputProps={{
+          endAdornment: formData.password?.length > 0 && (
+            <InputAdornment position="end">
+              <IconButton onClick={togglePasswordVisibility}>
+                {showPassword ? <Visibility /> : <VisibilityOff />}
+              </IconButton>
+            </InputAdornment>
+          ),
+        }}
       />
       <Link
         component="button"
