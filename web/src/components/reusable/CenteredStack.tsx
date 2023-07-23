@@ -7,9 +7,11 @@ interface Props {
   children: ReactNode;
   /** responsive margin-x, applies to mobile screens*/
   mx?: number;
+  /** responsive margin-y*/
+  my?: number;
 }
 
-export default function CenteredStack({ children, mx }: Props) {
+export default function CenteredStack({ children, mx, my = ppy }: Props) {
   const mrgx = mx && useRespVal(mx, undefined);
   return (
     <Stack
@@ -17,7 +19,7 @@ export default function CenteredStack({ children, mx }: Props) {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        my: ppy,
+        my,
         mx: mrgx,
       }}
     >

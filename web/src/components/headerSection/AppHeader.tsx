@@ -4,7 +4,7 @@ import ColorModeIcon from "./ColorModeIcon";
 import AppLogo from "@reusable/AppLogo";
 import UserProfilePopover from "@user/UserProfilePopover";
 import LogInButton from "@user/login/LogInButton";
-import { ppx, ppy } from "@config/configConst";
+import { ppx } from "@config/configConst";
 import CenteredStack from "@reusable/CenteredStack";
 
 export default function AppHeader() {
@@ -22,12 +22,12 @@ export default function AppHeader() {
         opacity: trigger ? 0 : 1,
         transition: "opacity 0.2s ease-in-out",
         px: ppx,
-        py: ppy,
+        py: 1,
         boxShadow: 1,
         borderRadius: 0,
       }}
     >
-      <CenteredStack>
+      <CenteredStack my={0}>
         <Stack direction="row" sx={{ justifyContent: "space-between" }}>
           <AppLogo />
           <Stack direction="row" alignItems={"center"}>
