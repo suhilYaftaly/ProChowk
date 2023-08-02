@@ -6,7 +6,7 @@ import ErrSnackbar from "@reusable/ErrSnackbar";
 import { paths } from "@routes/PageRoutes";
 import { useSettingsStates } from "@redux/reduxStates";
 import { useAppDispatch } from "@/utils/hooks/hooks";
-import { setSessionExpired } from "@rSlices/settingsSlice";
+import { setGlobalError, setSessionExpired } from "@rSlices/settingsSlice";
 
 export default function RootLayout() {
   const { isSessionExpired, globalError } = useSettingsStates();
@@ -22,6 +22,11 @@ export default function RootLayout() {
     if (globalError) setShowGlobalErr(true);
   }, [globalError]);
 
+  const onGlobalErrClose = () => {
+    setShowGlobalErr(false);
+    dispatch(setGlobalError(undefined));
+  };
+
   return (
     <>
       <AppHeader />
@@ -34,7 +39,7 @@ export default function RootLayout() {
       <ErrSnackbar
         errMsg={globalError}
         open={showGlobalErr}
-        handleClose={setShowGlobalErr}
+        handleClose={onGlobalErrClose}
       />
     </>
   );

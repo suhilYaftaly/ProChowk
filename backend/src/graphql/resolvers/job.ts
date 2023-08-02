@@ -83,10 +83,21 @@ export default {
       try {
         const job = await prisma.job.findUnique({
           where: { id },
-          include: { skills: true },
+          include: { skills: true, images: true },
         });
         if (!job) throw gqlError({ msg: "Job not found" });
         canUserUpdate({ id: job.userId, authUser });
+
+        const imagesToUpdate = jobInput.images.filter(
+          (newImage) =>
+            !job.images.some(
+              (existingImage) => existingImage.url === newImage.url
+            )
+        );
+        const imageData =
+          imagesToUpdate.length > 0
+            ? { createMany: { data: imagesToUpdate } }
+            : {};
 
         const disconnectSkills = job.skills
           .filter((s) => !jobInput.skills.some((IS) => IS.label === s.label))
@@ -111,7 +122,7 @@ export default {
             jobSize: jobInput.jobSize,
             address: buildJobInputs(jobInput).address,
             skills: skillsInput,
-            images: buildJobInputs(jobInput).images,
+            images: imageData,
             budget: { update: jobInput.budget },
           },
           include: { address: true, images: true, skills: true, budget: true },

@@ -24,7 +24,7 @@ export const asyncOps = async ({
       onSuccess && onSuccess(data);
     } else throw new Error("Data not found");
   } catch (error: any) {
-    // console.log("Async operation error:", error.message);
+    console.log("Async operation error:", error.message);
     onError && onError(error.message);
     showGlobalErr && dispatch(setGlobalError(error.message));
   }

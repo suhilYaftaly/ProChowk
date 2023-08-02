@@ -201,6 +201,7 @@ export const useJob = () => {
           ...JobFields
         }
       `,
+      fragmentName: "UpdatedJob",
       data: job,
     });
   };
