@@ -1,5 +1,5 @@
 import { Outlet, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import AppHeader from "@components/headerSection/AppHeader";
 import ErrSnackbar from "@reusable/ErrSnackbar";
@@ -9,13 +9,18 @@ import { useAppDispatch } from "@/utils/hooks/hooks";
 import { setSessionExpired } from "@rSlices/settingsSlice";
 
 export default function RootLayout() {
-  const { isSessionExpired } = useSettingsStates();
+  const { isSessionExpired, globalError } = useSettingsStates();
+  const [showGlobalErr, setShowGlobalErr] = useState(false);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (isSessionExpired) navigate(paths.login);
   }, [isSessionExpired]);
+
+  useEffect(() => {
+    if (globalError) setShowGlobalErr(true);
+  }, [globalError]);
 
   return (
     <>
@@ -25,6 +30,11 @@ export default function RootLayout() {
         errMsg="Your Session has Expired, Please Login again!"
         open={isSessionExpired}
         handleClose={() => dispatch(setSessionExpired(false))}
+      />
+      <ErrSnackbar
+        errMsg={globalError}
+        open={showGlobalErr}
+        handleClose={setShowGlobalErr}
       />
     </>
   );

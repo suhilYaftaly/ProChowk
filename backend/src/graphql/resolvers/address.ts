@@ -1,29 +1,40 @@
-import * as dotenv from "dotenv";
 import axios from "axios";
 
-import { GraphQLContext } from "../../types/userTypes";
 import checkAuth from "../../utils/checkAuth";
-import { Address, AddressSearchInput } from "../../types/address";
 import { gqlError } from "../../utils/funcs";
-
-dotenv.config();
+import { GraphQLContext } from "../../types/commonTypes";
+import { MAP_QUEST_KEYS } from "../../utils/constants";
 
 export default {
   Query: {
-    addressSearch: async (
+    geocode: async (
       _: any,
-      { value, lat, lng, limit = 5, source = "MapQuest" }: AddressSearchInput,
+      { value, lat, lng, limit = 5 }: GeocodeInput,
       context: GraphQLContext
     ): Promise<[Address]> => {
       const { req } = context;
       const user = checkAuth(req);
 
-      const mqResults = await fetchAdrFromMapQuest({ value, lat, lng, limit });
-
+      const mqResults = await fetchMQGeocode({ value, lat, lng, limit });
       try {
-        if (mqResults) {
-          return mqResults;
-        } else gqlError({ msg: "Failed to retrieve data" });
+        if (mqResults) return mqResults;
+        else gqlError({ msg: "Failed to retrieve data" });
+      } catch (error: any) {
+        throw gqlError({ msg: error?.message });
+      }
+    },
+    reverseGeocode: async (
+      _: any,
+      { lat, lng }: { lat: number; lng: number },
+      context: GraphQLContext
+    ): Promise<Address> => {
+      const { req } = context;
+      const user = checkAuth(req);
+
+      const mqResults = await fetchMQReverseGeocode({ lat, lng });
+      try {
+        if (mqResults) return mqResults;
+        else gqlError({ msg: "Failed to retrieve data" });
       } catch (error: any) {
         throw gqlError({ msg: error?.message });
       }
@@ -31,18 +42,12 @@ export default {
   },
 };
 
-const fetchAdrFromMapQuest = async ({
+const fetchMQGeocode = async ({
   value,
   lat,
   lng,
   limit,
-}: AddressSearchInput): Promise<[Address]> => {
-  const mqKey = process.env.MAP_QUEST_KEY;
-  const mqSuhilKey = process.env.MAP_QUEST_KEY_SUHIL;
-  const mqAJKey = process.env.MAP_QUEST_KEY_AJ;
-  const mqHabibKey = process.env.MAP_QUEST_KEY_HABIB;
-  const keys = [mqKey, mqSuhilKey, mqAJKey, mqHabibKey];
-
+}: GeocodeInput): Promise<[Address]> => {
   const getResponse = async (key: string): Promise<[Address]> => {
     const resp = await axios.get(
       `https://www.mapquestapi.com/search/v3/prediction?key=${key}&limit=${limit}&collection=adminArea,poi,address,category,franchise,airport&q=${encodeURIComponent(
@@ -55,8 +60,8 @@ const fetchAdrFromMapQuest = async ({
   };
 
   let response;
-  for (let i = 0; i < keys.length; i++) {
-    response = await getResponse(keys[i]);
+  for (let i = 0; i < MAP_QUEST_KEYS.length; i++) {
+    response = await getResponse(MAP_QUEST_KEYS[i]);
     if (response) break;
   }
 
@@ -64,7 +69,6 @@ const fetchAdrFromMapQuest = async ({
     return response?.map((res) => {
       const props = res?.place?.properties;
       return {
-        id: res.id,
         displayName: res.displayString,
         street: props.street,
         city: props.city,
@@ -81,3 +85,69 @@ const fetchAdrFromMapQuest = async ({
     }) as [Address];
   } else return undefined;
 };
+
+const fetchMQReverseGeocode = async ({
+  lat,
+  lng,
+}: {
+  lat: number;
+  lng: number;
+}): Promise<Address> => {
+  const getResponse = async (key: string): Promise<Address> => {
+    const resp = await axios.get(
+      `http://www.mapquestapi.com/geocoding/v1/reverse?key=${key}&location=${lat},${lng}`
+    );
+    const location = resp?.data?.results?.[0]?.locations?.[0];
+    if (location) return location;
+    return undefined;
+  };
+
+  let response;
+  for (let i = 0; i < MAP_QUEST_KEYS.length; i++) {
+    response = await getResponse(MAP_QUEST_KEYS[i]);
+    if (response) break;
+  }
+
+  if (response) {
+    const props = response;
+    return {
+      displayName: `${props.street}, ${props.adminArea5}, ${props.adminArea3}, ${props.postalCode}, ${props.adminArea1}`,
+      street: props.street,
+      city: props.adminArea5,
+      county: props.adminArea4,
+      state: props.adminArea3,
+      stateCode: props.adminArea3,
+      postalCode: props.postalCode,
+      country: props.adminArea1,
+      countryCode: props.adminArea1,
+      lat: props.latLng.lat,
+      lng: props.latLng.lng,
+      source: { source: "MapQuest", ...response },
+    } as Address;
+  } else return undefined;
+};
+
+/**
+ * INTERFACES
+ */
+interface GeocodeInput {
+  value: string;
+  lat: number;
+  lng: number;
+  limit?: number;
+}
+
+interface Address {
+  displayName: string;
+  street: string;
+  city: string;
+  county: string;
+  state: string;
+  stateCode: string;
+  postalCode: string;
+  country: string;
+  countryCode: string;
+  lat: number;
+  lng: number;
+  source: any;
+}

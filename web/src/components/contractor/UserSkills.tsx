@@ -16,7 +16,6 @@ import UserSkillsEdit from "./edits/UserSkillsEdit";
 export default function UserSkills({
   isMyProfile,
   contrData,
-  userId,
   contProfLoading,
 }: IUserInfo) {
   const [openEdit, setOpenEdit] = useState(false);
@@ -38,7 +37,7 @@ export default function UserSkills({
       <Grid container spacing={1} direction={"row"} sx={{ mt: 1 }}>
         {contrData?.skills
           ? contrData?.skills?.map((skill) => (
-              <Grid item key={skill.label}>
+              <Grid item key={skill.id}>
                 <Chip label={skill.label} color="primary" />
               </Grid>
             ))
@@ -61,8 +60,7 @@ export default function UserSkills({
       </Grid>
       <CustomModal title="Edit Skills" open={openEdit} onClose={setOpenEdit}>
         <UserSkillsEdit
-          userSkills={contrData?.skills}
-          userId={userId}
+          contrData={contrData}
           closeEdit={() => setOpenEdit(false)}
         />
       </CustomModal>

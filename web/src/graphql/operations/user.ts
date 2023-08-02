@@ -1,5 +1,3 @@
-import { setUserProfile } from "@rSlices/userSlice";
-import { useAppDispatch } from "@/utils/hooks/hooks";
 import {
   gql,
   useApolloClient,
@@ -7,311 +5,110 @@ import {
   useMutation,
 } from "@apollo/client";
 
+import { setUserProfile } from "@rSlices/userSlice";
+import { useAppDispatch } from "@/utils/hooks/hooks";
+import { IImage, ImageInput } from "@/types/commonTypes";
+import { AddressInput, IAddress, addressGqlResp } from "./address";
+import { IContractor } from "./contractor";
+import { store } from "@redux/store";
+import { asyncOps } from "./gqlFuncs";
+
+const { dispatch } = store;
+
+export const userGqlResp = gql`
+  ${addressGqlResp}
+  fragment UserFields on User {
+    id
+    name
+    phoneNum
+    bio
+    email
+    emailVerified
+    createdAt
+    updatedAt
+    image {
+      id
+      name
+      url
+      size
+      type
+      createdAt
+      updatedAt
+    }
+    provider
+    roles
+    userTypes
+    address {
+      ...AddressFields
+    }
+  }
+`;
+
 const userOps = {
   Queries: {
-    searchUser: gql`
-      query SearchUser($id: ID!) {
-        searchUser(id: $id) {
-          id
-          name
-          phoneNum
-          bio
-          email
-          emailVerified
-          createdAt
-          updatedAt
-          image {
-            picture
-          }
-          provider
-          roles
-          userType
-          address {
-            houseNum
-            road
-            city
-            neighbourhood
-            country
-            countryCode
-            province
-            region
-            postalCode
-            municipality
-            lat
-            lng
-            displayName
-          }
+    user: gql`
+      ${userGqlResp}
+      query User($id: ID!) {
+        user(id: $id) {
+          ...UserFields
         }
       }
     `,
-    searchAllUsers: gql`
-      query SearchAllUsers {
-        searchAllUsers {
-          id
-          name
-          # phoneNum
-          email
-          # emailVerified
-          # createdAt
-          # updatedAt
-          image {
-            picture
-          }
-          # provider
-          # roles
-          # userType
-          # address {
-          #   houseNum
-          #   road
-          #   city
-          #   neighbourhood
-          #   country
-          #   countryCode
-          #   province
-          #   region
-          #   postalCode
-          #   municipality
-          #   lat
-          #   lng
-          #   displayName
-          # }
+    users: gql`
+      ${userGqlResp}
+      query Users {
+        users {
+          ...UserFields
         }
       }
     `,
   },
   Mutations: {
     registerUser: gql`
+      ${userGqlResp}
       mutation RegisterUser(
         $name: String!
         $email: String!
         $password: String!
       ) {
         registerUser(name: $name, email: $email, password: $password) {
-          id
-          name
-          phoneNum
-          bio
-          email
-          emailVerified
-          createdAt
-          updatedAt
-          image {
-            picture
-          }
-          provider
-          roles
-          userType
-          address {
-            houseNum
-            road
-            city
-            neighbourhood
-            country
-            countryCode
-            province
-            region
-            postalCode
-            municipality
-            lat
-            lng
-            displayName
-          }
+          ...UserFields
           token
         }
       }
     `,
     loginUser: gql`
+      ${userGqlResp}
       mutation LoginUser($email: String!, $password: String!) {
         loginUser(email: $email, password: $password) {
-          id
-          name
-          phoneNum
-          bio
-          email
-          emailVerified
-          createdAt
-          updatedAt
-          image {
-            picture
-          }
-          provider
-          roles
-          userType
-          address {
-            houseNum
-            road
-            city
-            neighbourhood
-            country
-            countryCode
-            province
-            region
-            postalCode
-            municipality
-            lat
-            lng
-            displayName
-          }
+          ...UserFields
           token
         }
       }
     `,
     googleLogin: gql`
+      ${userGqlResp}
       mutation GoogleLogin($accessToken: String!) {
         googleLogin(accessToken: $accessToken) {
-          id
-          name
-          phoneNum
-          bio
-          email
-          emailVerified
-          createdAt
-          updatedAt
-          image {
-            picture
-          }
-          provider
-          roles
-          userType
-          address {
-            houseNum
-            road
-            city
-            neighbourhood
-            country
-            countryCode
-            province
-            region
-            postalCode
-            municipality
-            lat
-            lng
-            displayName
-          }
+          ...UserFields
           token
         }
       }
     `,
     googleOneTapLogin: gql`
+      ${userGqlResp}
       mutation GoogleOneTapLogin($credential: String!) {
         googleOneTapLogin(credential: $credential) {
-          id
-          name
-          phoneNum
-          bio
-          email
-          emailVerified
-          createdAt
-          updatedAt
-          image {
-            picture
-          }
-          provider
-          roles
-          userType
-          address {
-            houseNum
-            road
-            city
-            neighbourhood
-            country
-            countryCode
-            province
-            region
-            postalCode
-            municipality
-            lat
-            lng
-            displayName
-          }
+          ...UserFields
           token
         }
       }
     `,
     updateUser: gql`
-      mutation UpdateUser(
-        $id: ID!
-        $name: String
-        $image: ImageInput
-        $phoneNum: String
-        $address: AddressInput
-        $bio: String
-        $userType: String
-      ) {
-        updateUser(
-          id: $id
-          name: $name
-          image: $image
-          phoneNum: $phoneNum
-          address: $address
-          bio: $bio
-          userType: $userType
-        ) {
-          id
-          name
-          phoneNum
-          bio
-          email
-          emailVerified
-          createdAt
-          updatedAt
-          image {
-            picture
-          }
-          provider
-          roles
-          userType
-          address {
-            houseNum
-            road
-            city
-            neighbourhood
-            country
-            countryCode
-            province
-            region
-            postalCode
-            municipality
-            lat
-            lng
-            displayName
-          }
-          token
-        }
-      }
-    `,
-    getUserAddress: gql`
-      mutation GetUserAddress($id: ID!, $lat: Float!, $lng: Float!) {
-        getUserAddress(id: $id, lat: $lat, lng: $lng) {
-          id
-          name
-          phoneNum
-          bio
-          email
-          emailVerified
-          createdAt
-          updatedAt
-          image {
-            picture
-          }
-          provider
-          roles
-          address {
-            houseNum
-            road
-            city
-            neighbourhood
-            country
-            countryCode
-            province
-            region
-            postalCode
-            municipality
-            lat
-            lng
-            displayName
-          }
-          token
+      ${userGqlResp}
+      mutation UpdateUser($id: ID!, $edits: UpdateUserInput!) {
+        updateUser(id: $id, edits: $edits) {
+          ...UserFields
         }
       }
     `,
@@ -319,170 +116,256 @@ const userOps = {
 };
 export default userOps;
 
-//INTERFACES
-export interface IRegisterUserInput {
-  name: string;
-  email: string;
-  password: string;
-}
-export interface IRegisterUserData {
-  registerUser: IUserData;
-}
-
-export interface ILoginUserInput {
-  email: string;
-  password: string;
-}
-export interface ILoginUserData {
-  loginUser: IUserData;
-}
-
-export interface IGoogleLoginInput {
-  accessToken: string;
-}
-export interface IGoogleLoginData {
-  googleLogin: IUserData;
-}
-
-export interface IGoogleOneTapLoginInput {
-  credential: string;
-}
-export interface IGoogleOneTapLoginData {
-  googleOneTapLogin: IUserData;
-}
-
-export interface IUserData {
+/**
+ * INTERFACES
+ */
+export interface IUser {
   id: string;
   name: string;
   email: string;
   emailVerified: boolean;
   createdAt: string;
   updatedAt: string;
-  image: Image;
+  image: IImage;
   token: string;
-  provider: string;
-  roles?: UserRole[];
+  provider: Provider;
+  roles?: Role[];
   phoneNum?: string;
   bio?: string;
-  address?: AddressInput;
-  userType?: UserInput[];
+  address?: IAddress;
+  userTypes?: UserType[];
+  contractor?: IContractor;
 }
-type UserInput = "client" | "contractor";
-type UserRole = "admin" | "superAdmin";
-type Image = { picture: string; name?: string; size?: number; type?: string };
-interface ImageInput {
-  picture: string;
+//inputs
+interface UpdateUserInput {
   name?: string;
-  size?: number;
-  type?: string;
-}
-
-export interface AddressInput {
-  houseNum?: string;
-  road?: string;
-  neighbourhood?: string;
-  city?: string;
-  municipality?: string;
-  region?: string;
-  province?: string;
-  postalCode?: string;
-  country?: string;
-  countryCode?: string;
-  displayName?: string;
-  lat?: string;
-  lng?: string;
-}
-
-export interface IGetUserAddressInput {
-  id: string;
-  lat: number;
-  lng: number;
-}
-export interface IGetUserAddressData {
-  getUserAddress: IUserData;
-}
-
-export interface ISearchAllUsersData {
-  searchAllUsers: IUserData[];
-}
-
-interface ISearchUserInput {
-  id: string;
-}
-interface ISearchUserData {
-  searchUser: IUserData;
-}
-
-export interface IUpdateUserInput {
-  id: string;
-  name?: string;
+  phoneNum?: string;
   image?: ImageInput;
-  phoneNum?: string;
-  bio?: string;
   address?: AddressInput;
-  userType?: UserInput;
+  bio?: string;
+  userTypes?: UserType[];
 }
-export interface IUpdateUserData {
-  updateUser: IUserData;
+//custom types
+type Role = "user" | "admin" | "superAdmin";
+type Provider = "Google" | "Credentials";
+type UserType = "client" | "contractor";
+
+//operation interfaces
+export interface IUsersData {
+  users: IUser[];
 }
 
-interface IUseUpdateUser {
+/**
+ * OPERATIONS
+ */
+interface IUserInput {
+  id: string;
+}
+interface IUserData {
+  user: IUser;
+}
+interface IUserIAsync {
+  variables: IUserInput;
+  onSuccess?: (data: IUser) => void;
+  onError?: (error?: any) => void;
+}
+export const useUser = () => {
+  const client = useApolloClient();
+  const [user, { data, loading, error }] = useLazyQuery<IUserData, IUserInput>(
+    userOps.Queries.user
+  );
+
+  const userAsync = async ({ variables, onSuccess, onError }: IUserIAsync) =>
+    asyncOps({
+      operation: () => user({ variables }),
+      onSuccess: (dt: IUserData) => onSuccess && onSuccess(dt.user),
+      onError,
+    });
+
+  const updateCache = (updatedUser: IUser) => {
+    const cachedData = client.readQuery<IUserData, IUserInput>({
+      query: userOps.Queries.user,
+      variables: { id: updatedUser.id },
+    });
+
+    if (cachedData) {
+      const modifiedData = { ...cachedData, user: updatedUser };
+      client.writeQuery<IUserData, IUserInput>({
+        query: userOps.Queries.user,
+        data: modifiedData,
+        variables: { id: updatedUser.id },
+      });
+      dispatch(setUserProfile(modifiedData.user));
+    }
+  };
+
+  return { userAsync, updateCache, data, loading, error };
+};
+
+interface IUpdateUserInput {
+  id: string;
+  edits: UpdateUserInput;
+}
+interface IUpdateUserData {
+  updateUser: IUser;
+}
+interface IUUUAsyncInput {
   variables: IUpdateUserInput;
-  onSuccess?: () => void;
+  onSuccess?: (data: IUser) => void;
+  onError?: (error: any) => void;
 }
 export const useUpdateUser = () => {
-  const client = useApolloClient();
   const dispatch = useAppDispatch();
   const [updateUser, { data, loading, error }] = useMutation<
     IUpdateUserData,
     IUpdateUserInput
   >(userOps.Mutations.updateUser);
+  const { updateCache } = useUser();
 
-  const updateUserAsync = async ({ onSuccess, variables }: IUseUpdateUser) => {
-    try {
-      const { data } = await updateUser({ variables });
-      if (data?.updateUser) {
-        dispatch(setUserProfile(data?.updateUser));
-        onSuccess && onSuccess();
-
-        const cachedData = client.readQuery<ISearchUserData, ISearchUserInput>({
-          query: userOps.Queries.searchUser,
-          variables: { id: variables.id },
-        });
-
-        if (cachedData) {
-          const modifiedData = { ...cachedData, ...data.updateUser };
-          client.writeQuery<ISearchUserData, ISearchUserInput>({
-            query: userOps.Queries.searchUser,
-            data: modifiedData,
-            variables: { id: variables.id },
-          });
-        }
-      } else throw new Error();
-    } catch (error: any) {
-      console.log("user update failed:", error.message);
-    }
-  };
+  const updateUserAsync = async ({
+    onSuccess,
+    onError,
+    variables,
+  }: IUUUAsyncInput) =>
+    asyncOps({
+      operation: () => updateUser({ variables }),
+      onSuccess: (dt: IUpdateUserData) => {
+        dispatch(setUserProfile(dt?.updateUser));
+        onSuccess && onSuccess(dt.updateUser);
+        updateCache(dt.updateUser);
+      },
+      onError,
+    });
 
   return { updateUserAsync, data, loading, error };
 };
 
-export const useSearchUser = () => {
-  const [searchUser, { data, loading, error }] = useLazyQuery<
-    ISearchUserData,
-    ISearchUserInput
-  >(userOps.Queries.searchUser);
+interface ILoginUserInput {
+  email: string;
+  password: string;
+}
+interface ILoginUserData {
+  loginUser: IUser;
+}
+interface IULUAsyncInput {
+  variables: ILoginUserInput;
+  onSuccess?: (data: IUser) => void;
+  onError?: (error?: any) => void;
+}
+export const useLoginUser = () => {
+  const [loginUser, { data, loading, error }] = useMutation<
+    ILoginUserData,
+    ILoginUserInput
+  >(userOps.Mutations.loginUser);
 
-  const searchUserAsync = async ({ userId }: { userId: string }) => {
-    try {
-      const { data } = await searchUser({
-        variables: { id: userId },
-      });
-      if (!data?.searchUser) throw new Error();
-    } catch (error: any) {
-      console.log("get user info error:", error);
-    }
-  };
+  const loginUserAsync = async ({
+    variables,
+    onSuccess,
+    onError,
+  }: IULUAsyncInput) =>
+    asyncOps({
+      operation: () => loginUser({ variables }),
+      onSuccess: (dt: ILoginUserData) => onSuccess && onSuccess(dt.loginUser),
+      onError,
+    });
 
-  return { searchUserAsync, data, loading, error };
+  return { loginUserAsync, data, loading, error };
+};
+
+interface IGoogleLoginInput {
+  accessToken: string;
+}
+interface IGoogleLoginData {
+  googleLogin: IUser;
+}
+interface IGLAsyncInput {
+  variables: IGoogleLoginInput;
+  onSuccess?: (data: IUser) => void;
+  onError?: (error?: any) => void;
+}
+export const useGLogin = () => {
+  const [googleLogin, { data, loading, error }] = useMutation<
+    IGoogleLoginData,
+    IGoogleLoginInput
+  >(userOps.Mutations.googleLogin);
+
+  const googleLoginAsync = async ({
+    variables,
+    onSuccess,
+    onError,
+  }: IGLAsyncInput) =>
+    asyncOps({
+      operation: () => googleLogin({ variables }),
+      onSuccess: (dt: IGoogleLoginData) =>
+        onSuccess && onSuccess(dt.googleLogin),
+      onError,
+    });
+
+  return { googleLoginAsync, data, loading, error };
+};
+
+interface IGoogleOneTapLoginInput {
+  credential: string;
+}
+interface IGoogleOneTapLoginData {
+  googleOneTapLogin: IUser;
+}
+interface IGOTLAsyncInput {
+  variables: IGoogleOneTapLoginInput;
+  onSuccess?: (data: IUser) => void;
+  onError?: (error?: any) => void;
+}
+export const useGOneTapLogin = () => {
+  const [googleOneTapLogin, { data, loading, error }] = useMutation<
+    IGoogleOneTapLoginData,
+    IGoogleOneTapLoginInput
+  >(userOps.Mutations.googleOneTapLogin);
+
+  const gOneTapLoginAsync = async ({
+    variables,
+    onSuccess,
+    onError,
+  }: IGOTLAsyncInput) =>
+    asyncOps({
+      operation: () => googleOneTapLogin({ variables }),
+      onSuccess: (dt: IGoogleOneTapLoginData) =>
+        onSuccess && onSuccess(dt.googleOneTapLogin),
+      onError,
+    });
+
+  return { gOneTapLoginAsync, data, loading, error };
+};
+
+interface IRegisterUserInput {
+  name: string;
+  email: string;
+  password: string;
+}
+interface IRegisterUserData {
+  registerUser: IUser;
+}
+interface IRUAsyncInput {
+  variables: IRegisterUserInput;
+  onSuccess?: (data: IUser) => void;
+  onError?: (error?: any) => void;
+}
+export const useRegisterUser = () => {
+  const [registerUser, { data, loading, error }] = useMutation<
+    IRegisterUserData,
+    IRegisterUserInput
+  >(userOps.Mutations.registerUser);
+
+  const registerUserAsync = async ({
+    variables,
+    onSuccess,
+    onError,
+  }: IRUAsyncInput) =>
+    asyncOps({
+      operation: () => registerUser({ variables }),
+      onSuccess: (dt: IRegisterUserData) =>
+        onSuccess && onSuccess(dt.registerUser),
+      onError,
+    });
+
+  return { registerUserAsync, data, loading, error };
 };

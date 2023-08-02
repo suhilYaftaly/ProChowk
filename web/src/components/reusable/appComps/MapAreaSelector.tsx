@@ -177,7 +177,7 @@ function MapComp({ onMapAreaChange, radius, gKey }: IMapProps) {
           </Box>
         </>
       ) : (
-        <CircularProgress size={40} />
+        <CircularProgress size={40} color="inherit" />
       )}
       {loadError && (
         <Alert severity="error" color="error">

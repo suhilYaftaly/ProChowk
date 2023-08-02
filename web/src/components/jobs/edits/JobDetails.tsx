@@ -3,17 +3,22 @@ import { ChangeEvent } from "react";
 
 import ImageUpload, { IImage, ShowImages } from "@reusable/ImageUpload";
 import AddressSearch from "@appComps/AddressSearch";
-import { IAddressData } from "@gqlOps/address";
 import { IJobError } from "./JobForm";
-import { JobInput } from "@gqlOps/jobs";
+import { IJob } from "@gqlOps/job";
 
 interface Props {
-  job: JobInput;
-  setJob: (job: JobInput) => void;
+  job: IJob | any;
+  setJob: (job: IJob) => void;
   errors: IJobError;
+  setDeletedImgId?: (id: string) => void;
 }
 
-export default function JobDetails({ job, setJob, errors }: Props) {
+export default function JobDetails({
+  job,
+  setJob,
+  errors,
+  setDeletedImgId,
+}: Props) {
   const onValueChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
     setJob({ ...job, [name]: value });
@@ -23,25 +28,6 @@ export default function JobDetails({ job, setJob, errors }: Props) {
     if (job.images) {
       setJob({ ...job, images: [...job.images, image] });
     } else setJob({ ...job, images: [image] });
-  };
-
-  const onAddressSelect = (adr: IAddressData) => {
-    setJob({
-      ...job,
-      address: {
-        displayName: adr.displayName,
-        street: adr.street,
-        city: adr.city,
-        county: adr.county,
-        state: adr.state,
-        stateCode: adr.stateCode,
-        postalCode: adr.postalCode,
-        country: adr.country,
-        countryCode: adr.countryCode,
-        lat: adr.lat,
-        lng: adr.lng,
-      },
-    });
   };
 
   return (
@@ -61,7 +47,10 @@ export default function JobDetails({ job, setJob, errors }: Props) {
         rows={5}
         inputProps={{ maxLength: 5000 }}
       />
-      <AddressSearch onSelect={onAddressSelect} address={job.address} />
+      <AddressSearch
+        onSelect={(adr) => setJob({ ...job, address: adr })}
+        address={job.address}
+      />
       <Divider />
       <ImageUpload onImageUpload={onAddImage} />
       <Divider />
@@ -69,6 +58,7 @@ export default function JobDetails({ job, setJob, errors }: Props) {
         <ShowImages
           images={job.images}
           setImages={(imgs) => setJob({ ...job, images: imgs })}
+          setDeletedImgId={setDeletedImgId}
         />
       )}
       {Boolean(errors.detailsErr) && (

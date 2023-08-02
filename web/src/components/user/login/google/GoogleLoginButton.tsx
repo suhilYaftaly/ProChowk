@@ -1,12 +1,11 @@
 import { Alert, Button, CircularProgress } from "@mui/material";
 import { useGoogleLogin } from "@react-oauth/google";
 import GoogleIcon from "@mui/icons-material/Google";
-import { useMutation } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
 
 import { useAppDispatch } from "@utils/hooks/hooks";
 import { userProfileError, logIn, userProfileBegin } from "@rSlices/userSlice";
-import userOps, { IGoogleLoginInput, IGoogleLoginData } from "@gqlOps/user";
+import { useGLogin } from "@gqlOps/user";
 import { openUserIfNewUser } from "@/utils/utilFuncs";
 
 interface Props {
@@ -17,27 +16,20 @@ export default function GoogleLoginButton({ setRedirectToHome }: Props) {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const [googleLogin, { loading, error }] = useMutation<
-    IGoogleLoginData,
-    IGoogleLoginInput
-  >(userOps.Mutations.googleLogin);
+  const { googleLoginAsync, loading, error } = useGLogin();
 
   const login = useGoogleLogin({
     onSuccess: async (token) => {
       setRedirectToHome(false);
-      try {
-        dispatch(userProfileBegin());
-        const { data } = await googleLogin({
-          variables: { accessToken: token.access_token },
-        });
-        const userData = data?.googleLogin;
-        if (userData) {
-          dispatch(logIn(userData));
-          openUserIfNewUser({ user: userData, navigate });
-        } else throw new Error();
-      } catch (error: any) {
-        dispatch(userProfileError({ message: error?.message }));
-      }
+      dispatch(userProfileBegin());
+      googleLoginAsync({
+        variables: { accessToken: token.access_token },
+        onSuccess: (d) => {
+          dispatch(logIn(d));
+          openUserIfNewUser({ user: d, navigate });
+        },
+        onError: (err) => dispatch(userProfileError({ message: err?.message })),
+      });
     },
     onError: (error) => dispatch(userProfileError({ message: error })),
   });
@@ -47,7 +39,13 @@ export default function GoogleLoginButton({ setRedirectToHome }: Props) {
       <Button
         variant="contained"
         onClick={() => login()}
-        startIcon={loading ? <CircularProgress size={20} /> : <GoogleIcon />}
+        startIcon={
+          loading ? (
+            <CircularProgress size={20} color="inherit" />
+          ) : (
+            <GoogleIcon />
+          )
+        }
         fullWidth
         disabled={loading}
       >

@@ -1,5 +1,4 @@
 import { ChangeEvent, FormEvent, useState } from "react";
-import { useMutation } from "@apollo/client";
 import {
   Stack,
   TextField,
@@ -11,12 +10,12 @@ import {
   InputAdornment,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 import { openUserIfNewUser, validateEmail } from "@utils/utilFuncs";
-import userOps, { ILoginUserData, ILoginUserInput } from "@gqlOps/user";
+import { useLoginUser } from "@gqlOps/user";
 import { useAppDispatch } from "@utils/hooks/hooks";
 import { logIn, userProfileBegin, userProfileError } from "@rSlices/userSlice";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 interface Props {
   setRedirectToHome: (redirect: boolean) => void;
@@ -29,10 +28,7 @@ export default function CredentialLogin({ setRedirectToHome }: Props) {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [formError, setFormError] = useState({ email: false, password: false });
-  const [loginUser, { loading, error }] = useMutation<
-    ILoginUserData,
-    ILoginUserInput
-  >(userOps.Mutations.loginUser);
+  const { loginUserAsync, loading, error } = useLoginUser();
 
   const handleFDataChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
@@ -54,19 +50,15 @@ export default function CredentialLogin({ setRedirectToHome }: Props) {
     setDisableLoginBtn(true);
     setRedirectToHome(false);
 
-    try {
-      dispatch(userProfileBegin());
-      const { data } = await loginUser({
-        variables: { email: formData.email, password: formData.password },
-      });
-      const userData = data?.loginUser;
-      if (userData) {
-        dispatch(logIn(userData));
-        openUserIfNewUser({ user: userData, navigate });
-      } else throw new Error();
-    } catch (error: any) {
-      dispatch(userProfileError({ message: error?.message }));
-    }
+    dispatch(userProfileBegin());
+    loginUserAsync({
+      variables: { email: formData.email, password: formData.password },
+      onSuccess: (d) => {
+        dispatch(logIn(d));
+        openUserIfNewUser({ user: d, navigate });
+      },
+      onError: (err) => dispatch(userProfileError({ message: err?.message })),
+    });
   };
 
   const togglePasswordVisibility = () => {
@@ -121,7 +113,7 @@ export default function CredentialLogin({ setRedirectToHome }: Props) {
         Don't remember your password?
       </Link>
       <Button type="submit" variant="contained" disabled={disableLoginBtn}>
-        {loading ? <CircularProgress size={20} /> : "Log In"}
+        {loading ? <CircularProgress size={20} color="inherit" /> : "Log In"}
       </Button>
       {error && (
         <Alert severity="error" color="error">

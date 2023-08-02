@@ -1,7 +1,7 @@
 import * as dotenv from "dotenv";
 
-import { GraphQLContext } from "../../types/userTypes";
 import checkAuth from "../../utils/checkAuth";
+import { GraphQLContext } from "../../types/commonTypes";
 
 dotenv.config();
 

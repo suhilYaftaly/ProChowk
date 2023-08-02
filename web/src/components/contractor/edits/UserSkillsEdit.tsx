@@ -1,73 +1,63 @@
 import { Alert, Button, CircularProgress, Stack } from "@mui/material";
 import { FormEvent, useEffect, useState } from "react";
 
-import { SkillInput, useUpdateContrProf } from "@gqlOps/contractor";
-import { useUpdateAllSkills } from "@gqlOps/dataList";
+import { IContractor, useAddOrRemoveContSkills } from "@gqlOps/contractor";
 import SkillsSelection, { addSkills } from "@appComps/SkillsSelection";
 
 interface Props {
-  userSkills: SkillInput[] | undefined;
-  userId: string | undefined;
+  contrData: IContractor | undefined;
   closeEdit: () => void;
 }
 
-export default function UserSkillsEdit({
-  userSkills,
-  userId,
-  closeEdit,
-}: Props) {
-  const [selectedSkills, setSelectedSkills] = useState(addSkills(userSkills));
-  const [newSkills, setNewSkills] = useState<SkillInput[]>([]);
-  const { updateContrProfAsync, error, loading, searchIsLoading } =
-    useUpdateContrProf();
-  const { updateAllSkillsAsync } = useUpdateAllSkills();
+export default function UserSkillsEdit({ contrData, closeEdit }: Props) {
+  const [selectedSkills, setSelectedSkills] = useState(
+    addSkills(contrData?.skills)
+  );
+  const { addOrRemoveContSkillsAsync, error, loading, contLoading } =
+    useAddOrRemoveContSkills();
 
-  useEffect(() => setSelectedSkills(addSkills(userSkills)), [userSkills]);
+  useEffect(
+    () => setSelectedSkills(addSkills(contrData?.skills)),
+    [contrData?.skills]
+  );
 
   const handleSave = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
-    updateContrProfAsync({
-      variables: { skills: selectedSkills },
-      userId,
-      onSuccess: closeEdit,
-    });
-    if (newSkills?.length > 0) updateAllSkillsAsync({ skills: newSkills });
+    if (contrData) {
+      addOrRemoveContSkillsAsync({
+        variables: { skills: selectedSkills, contId: contrData.id },
+        onSuccess: closeEdit,
+      });
+    }
   };
 
-  //TODO: convert to single image upload instead of multiple
   return (
-    <>
-      <Stack
-        component="form"
-        sx={{ pt: 3, pb: 1, overflow: "hidden" }}
-        noValidate
-        autoComplete="off"
-        onSubmit={handleSave}
+    <Stack
+      component="form"
+      sx={{ pt: 3, pb: 1, overflow: "hidden" }}
+      noValidate
+      autoComplete="off"
+      onSubmit={handleSave}
+    >
+      <SkillsSelection skills={selectedSkills} setSkills={setSelectedSkills} />
+      <Button
+        type="submit"
+        variant="contained"
+        disabled={loading || contLoading}
+        fullWidth
+        sx={{ mt: 3 }}
       >
-        <SkillsSelection
-          skills={selectedSkills}
-          setSkills={setSelectedSkills}
-          setNewSkills={setNewSkills}
-        />
-        <Button
-          type="submit"
-          variant="contained"
-          disabled={selectedSkills.length < 1}
-          fullWidth
-          sx={{ mt: 3 }}
-        >
-          {loading || searchIsLoading ? (
-            <CircularProgress size={20} />
-          ) : (
-            "Save Changes"
-          )}
-        </Button>
-        {error && (
-          <Alert severity="error" color="error">
-            {error.message}
-          </Alert>
+        {loading || contLoading ? (
+          <CircularProgress size={20} color="inherit" />
+        ) : (
+          "Save Changes"
         )}
-      </Stack>
-    </>
+      </Button>
+      {error && (
+        <Alert severity="error" color="error">
+          {error.message}
+        </Alert>
+      )}
+    </Stack>
   );
 }

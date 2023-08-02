@@ -1,18 +1,25 @@
 import React, { useState, useRef } from "react";
 import { styled } from "@mui/material/styles";
-import { Typography, TextField, Button, Stack } from "@mui/material";
+import {
+  Typography,
+  TextField,
+  Button,
+  Stack,
+  CircularProgress,
+} from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { processImageFile } from "@/utils/utilFuncs";
 
-interface IFileUpload {
-  onFileUpload: (fileData: IFile) => void;
-}
 export interface IFile {
   name: string;
   size: number;
   type: string;
   desc: string;
-  picture: string;
+  url: string;
+}
+interface Props {
+  onFileUpload: (fileData: IFile) => void;
+  loading?: boolean;
 }
 
 const DropzoneContainer = styled("div")<{ isDragging: boolean }>(
@@ -33,7 +40,7 @@ const DropzoneContainer = styled("div")<{ isDragging: boolean }>(
   })
 );
 
-export default function FileUpload({ onFileUpload }: IFileUpload) {
+export default function FileUpload({ onFileUpload, loading = false }: Props) {
   const [fileData, setFileData] = useState<IFile | undefined>(undefined);
   const [fileDesc, setFileDesc] = useState("");
   const [isDragging, setIsDragging] = useState(false);
@@ -81,7 +88,7 @@ export default function FileUpload({ onFileUpload }: IFileUpload) {
               size: fileSize,
               type: file.type,
               desc: fileDesc,
-              picture: imageUrl,
+              url: imageUrl,
             });
             resetFileInput();
           },
@@ -115,7 +122,7 @@ export default function FileUpload({ onFileUpload }: IFileUpload) {
           />
           {fileData ? (
             <img
-              src={fileData.picture}
+              src={fileData.url}
               alt={fileData.name}
               loading="lazy"
               style={{ maxWidth: 350, maxHeight: 350 }}
@@ -142,8 +149,8 @@ export default function FileUpload({ onFileUpload }: IFileUpload) {
         autoComplete="off"
         inputProps={{ maxLength: 50 }}
       />
-      <Button type="submit" fullWidth variant="contained">
-        +Add
+      <Button type="submit" fullWidth variant="contained" disabled={loading}>
+        {loading ? <CircularProgress color="inherit" size={20} /> : "+Add"}
       </Button>
     </Stack>
   );

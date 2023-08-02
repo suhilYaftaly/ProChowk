@@ -4,8 +4,8 @@ import UserBasicInfo from "./UserBasicInfo";
 import { ppx, ppy } from "@config/configConst";
 import UserSkills from "@contractor/UserSkills";
 import UserLicenses from "@contractor/UserLicenses";
-import { IUserData } from "@gqlOps/user";
-import { IContractorData } from "@gqlOps/contractor";
+import { IUser } from "@gqlOps/user";
+import { IContractor } from "@gqlOps/contractor";
 import UserCreateContProf from "./edits/UserCreateContProf";
 import ShowIncompleteAlerts from "@contractor/ShowIncompleteAlerts";
 import Jobs from "@jobs/Jobs";
@@ -13,10 +13,10 @@ import { useRespVal } from "@utils/hooks/hooks";
 import CenteredStack from "@reusable/CenteredStack";
 
 export interface IUserInfo {
-  user?: IUserData | undefined;
+  user?: IUser | undefined;
   isMyProfile?: boolean;
   loading?: boolean;
-  contrData?: IContractorData | undefined;
+  contrData?: IContractor | undefined;
   userId?: string;
   contProfLoading?: boolean;
   setHideContNFErr?: (hide: boolean) => void;
@@ -48,7 +48,7 @@ export default function UserInfo({
             loading={loading}
           />
         </Paper>
-        {user?.userType?.includes("contractor") ? (
+        {user?.userTypes?.includes("contractor") ? (
           <>
             <ShowIncompleteAlerts
               user={user}
@@ -61,7 +61,6 @@ export default function UserInfo({
                 user={user}
                 isMyProfile={isMyProfile}
                 contrData={contrData}
-                userId={userId}
                 contProfLoading={contProfLoading}
               />
             </Paper>
@@ -78,6 +77,7 @@ export default function UserInfo({
           isMyProfile &&
           userId && (
             <UserCreateContProf
+              user={user}
               userId={userId}
               setHideContNFErr={setHideContNFErr}
             />

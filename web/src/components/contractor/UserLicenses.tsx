@@ -7,18 +7,19 @@ import {
   IconButton,
   Stack,
   Skeleton,
+  Badge,
 } from "@mui/material";
 import { useState } from "react";
-import EditIcon from "@mui/icons-material/Edit";
+import AddIcon from "@mui/icons-material/Add";
 
 import CustomModal from "@reusable/CustomModal";
 import FullScreenModal from "@reusable/FullScreenModal";
 import { IUserInfo } from "@user/userProfile/UserInfo";
 import UserLicensesEdit from "./edits/UserLicensesEdit";
 import { useRespVal } from "@/utils/hooks/hooks";
+import { useDeleteContractorLicense } from "@gqlOps/contractor";
 
 export default function UserLicenses({
-  user,
   isMyProfile,
   contrData,
   contProfLoading,
@@ -27,6 +28,7 @@ export default function UserLicenses({
   const [openEdit, setOpenEdit] = useState(false);
   const [activeLicense, setActiveLicense] = useState(contrData?.licenses?.[0]);
   const fsWidth = useRespVal("100%", undefined);
+  const { deleteContLicAsync } = useDeleteContractorLicense();
 
   return (
     <>
@@ -40,7 +42,7 @@ export default function UserLicenses({
 
         {isMyProfile && (
           <IconButton onClick={() => setOpenEdit(true)}>
-            <EditIcon />
+            <AddIcon />
           </IconButton>
         )}
       </Stack>
@@ -48,35 +50,82 @@ export default function UserLicenses({
         container
         direction={"row"}
         spacing={1}
-        sx={{ overflowX: "auto", flexWrap: "nowrap", pb: 2, mb: -2 }}
+        sx={{ overflowX: "auto", flexWrap: "nowrap", py: 1, my: -1 }}
       >
         {contrData?.licenses
           ? contrData?.licenses?.map((l) => (
-              <Grid item key={l.desc}>
-                <Card sx={{ width: 120, height: "100%" }}>
-                  <CardActionArea
-                    onClick={() => {
-                      setActiveLicense(l);
-                      setOpenFullImg(!openFullImg);
-                    }}
-                  >
-                    <img
-                      src={l.picture}
-                      alt={l.name}
-                      loading="lazy"
-                      style={{ width: 120, height: 120 }}
-                    />
-                    <CardContent sx={{ p: 1 }}>
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        className="ellipsis1Line"
+              <Grid item key={l.id}>
+                {isMyProfile ? (
+                  <Badge
+                    badgeContent={
+                      <Card
+                        sx={{
+                          boxShadow: 4,
+                          borderRadius: 50,
+                          px: 0.5,
+                          cursor: "pointer",
+                        }}
+                        onClick={() =>
+                          deleteContLicAsync({
+                            variables: { contId: contrData.id, licId: l.id },
+                          })
+                        }
                       >
-                        {l.desc}
-                      </Typography>
-                    </CardContent>
-                  </CardActionArea>
-                </Card>
+                        <Typography>✖</Typography>
+                      </Card>
+                    }
+                  >
+                    <Card sx={{ width: 120, height: "100%" }}>
+                      <CardActionArea
+                        onClick={() => {
+                          setActiveLicense(l);
+                          setOpenFullImg(!openFullImg);
+                        }}
+                      >
+                        <img
+                          src={l.url}
+                          alt={l.name}
+                          loading="lazy"
+                          style={{ width: 120, height: 120 }}
+                        />
+                        <CardContent sx={{ p: 1 }}>
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            className="ellipsis1Line"
+                          >
+                            {l.desc}
+                          </Typography>
+                        </CardContent>
+                      </CardActionArea>
+                    </Card>
+                  </Badge>
+                ) : (
+                  <Card sx={{ width: 120, height: "100%" }}>
+                    <CardActionArea
+                      onClick={() => {
+                        setActiveLicense(l);
+                        setOpenFullImg(!openFullImg);
+                      }}
+                    >
+                      <img
+                        src={l.url}
+                        alt={l.name}
+                        loading="lazy"
+                        style={{ width: 120, height: 120 }}
+                      />
+                      <CardContent sx={{ p: 1 }}>
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          className="ellipsis1Line"
+                        >
+                          {l.desc}
+                        </Typography>
+                      </CardContent>
+                    </CardActionArea>
+                  </Card>
+                )}
               </Grid>
             ))
           : contProfLoading && (
@@ -100,7 +149,7 @@ export default function UserLicenses({
           setOpen={setOpenFullImg}
         >
           <img
-            src={activeLicense.picture}
+            src={activeLicense.url}
             alt={activeLicense.name}
             loading="lazy"
             style={{ width: fsWidth, objectFit: "cover" }}
@@ -110,7 +159,6 @@ export default function UserLicenses({
 
       <CustomModal title="Edit Licenses" open={openEdit} onClose={setOpenEdit}>
         <UserLicensesEdit
-          user={user}
           contrData={contrData}
           closeEdit={() => setOpenEdit(false)}
         />

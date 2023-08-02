@@ -9,21 +9,19 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
-import userOps, { ISearchAllUsersData } from "@gqlOps/user.ts";
+import userOps, { IUsersData } from "@gqlOps/user.ts";
 import { paths } from "@/routes/PageRoutes";
 import CenteredStack from "@reusable/CenteredStack";
 import { ppx } from "@/config/configConst";
 
 export default function Home() {
   const navigate = useNavigate();
-  const { data: allUsers } = useQuery<ISearchAllUsersData, {}>(
-    userOps.Queries.searchAllUsers
-  );
+  const { data: allUsers } = useQuery<IUsersData, {}>(userOps.Queries.users);
 
   return (
     <CenteredStack mx={ppx}>
       <Grid container direction={"row"} spacing={1}>
-        {allUsers?.searchAllUsers?.map((user) => (
+        {allUsers?.users?.map((user) => (
           <Grid item key={user.id}>
             <Card sx={{ width: 180 }}>
               <CardActionArea
@@ -34,7 +32,7 @@ export default function Home() {
               >
                 <CardMedia
                   component="img"
-                  image={user?.image?.picture}
+                  image={user?.image?.url}
                   alt={user?.name}
                   sx={{ maxHeight: 170 }}
                 />

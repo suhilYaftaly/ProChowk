@@ -2,12 +2,12 @@ import { Stack, Skeleton, Avatar, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 import { convertUnixToDate, getBasicAdd, openPhone } from "@utils/utilFuncs";
-import { IUserData } from "@gqlOps/user";
+import { IUser } from "@gqlOps/user";
 import { paths } from "@routes/PageRoutes";
 
 interface Props {
   loading: boolean;
-  user: IUserData | undefined;
+  user: IUser | undefined;
 }
 
 export default function UserSection({ user, loading }: Props) {
@@ -26,7 +26,7 @@ export default function UserSection({ user, loading }: Props) {
         ) : (
           <Avatar
             alt={user?.name}
-            src={user?.image?.picture}
+            src={user?.image?.url}
             sx={{ width: 120, height: 120, cursor: "pointer" }}
             onClick={navigateToUser}
           />

@@ -1,5 +1,4 @@
 import { ChangeEvent, FormEvent, useState } from "react";
-import { useMutation } from "@apollo/client";
 import {
   Stack,
   TextField,
@@ -11,13 +10,13 @@ import {
   InputAdornment,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 import { validateEmail } from "@utils/utilFuncs";
-import userOps, { IRegisterUserData, IRegisterUserInput } from "@gqlOps/user";
+import { useRegisterUser } from "@gqlOps/user";
 import { useAppDispatch } from "@utils/hooks/hooks";
 import { logIn, userProfileBegin, userProfileError } from "@rSlices/userSlice";
 import { paths } from "@/routes/PageRoutes";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 interface Props {
   setRedirectToHome: (redirect: boolean) => void;
@@ -38,10 +37,7 @@ export default function SignUp({ setRedirectToHome }: Props) {
     email: false,
     password: false,
   });
-  const [registerUser, { loading, error }] = useMutation<
-    IRegisterUserData,
-    IRegisterUserInput
-  >(userOps.Mutations.registerUser);
+  const { registerUserAsync, loading, error } = useRegisterUser();
 
   const handleFDataChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
@@ -68,24 +64,20 @@ export default function SignUp({ setRedirectToHome }: Props) {
     setDisableSignUpBtn(true);
     setRedirectToHome(false);
 
-    try {
-      dispatch(userProfileBegin());
-      const { data } = await registerUser({
-        variables: {
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-        },
-      });
-      const userData = data?.registerUser;
-      if (userData) {
-        dispatch(logIn(userData));
-        const username = `${userData.name}-${userData.id}`.replace(/\s/g, "");
+    dispatch(userProfileBegin());
+    registerUserAsync({
+      variables: {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+      },
+      onSuccess: (d) => {
+        dispatch(logIn(d));
+        const username = `${d.name}-${d.id}`.replace(/\s/g, "");
         navigate(paths.user(username));
-      } else throw new Error();
-    } catch (error: any) {
-      dispatch(userProfileError({ message: error?.message }));
-    }
+      },
+      onError: (err) => dispatch(userProfileError({ message: err?.message })),
+    });
   };
 
   const togglePasswordVisibility = () => {
@@ -149,7 +141,7 @@ export default function SignUp({ setRedirectToHome }: Props) {
         By signing up, you agree to our terms of service and privacy policy.
       </Typography>
       <Button type="submit" variant="contained" disabled={disableSignUpBtn}>
-        {loading ? <CircularProgress size={20} /> : "Sign Up"}
+        {loading ? <CircularProgress size={20} color="inherit" /> : "Sign Up"}
       </Button>
       {error && (
         <Alert severity="error" color="error">

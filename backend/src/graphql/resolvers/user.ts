@@ -1,69 +1,66 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { User } from "@prisma/client";
+import { User, UserType } from "@prisma/client";
 import * as dotenv from "dotenv";
 import qs from "querystring";
 import axios from "axios";
 
 import {
-  GraphQLContext,
-  ILoginUserInput,
-  IRegisterUserInput,
-  IGetUserAddInput,
-  IUpdateUserInput,
-  IUser,
-} from "../../types/userTypes";
-import { gqlError } from "../../utils/funcs";
-import {
-  validateLatAndLng,
-  validateLoginInput,
-  validateRegisterInput,
-  validateUpdateUser,
-} from "../../utils/validators/userValidators";
+  getIErr,
+  gqlError,
+  validateEmail,
+  validatePhoneNum,
+} from "../../utils/funcs";
 import checkAuth, {
+  canUserUpdate,
   generateToken,
   isAdmin,
   isSuperAdmin,
 } from "../../utils/checkAuth";
-import { CRED_PROVIDER, GOOGLE_PROVIDER } from "../../utils/constants";
+import {
+  GraphQLContext,
+  IAddressInput,
+  IUserImageInput,
+} from "../../types/commonTypes";
 
 dotenv.config();
 
 export default {
   Query: {
-    searchUser: async (
+    user: async (
       _: any,
       { id }: { id: string },
       context: GraphQLContext
-    ): Promise<IUser> => {
+    ): Promise<User> => {
       const { prisma } = context;
 
       try {
         const foundUser = await prisma.user.findFirst({
           where: { id },
+          include: { image: true, address: true },
         });
-        if (!foundUser) {
+        if (!foundUser)
           throw gqlError({ msg: "User not found", code: "BAD_REQUEST" });
-        }
 
         return getUserProps(foundUser);
       } catch (error: any) {
-        console.log("search user error", error);
+        console.log("user query error", error);
         throw gqlError({ msg: error?.message });
       }
     },
-    searchAllUsers: async (
+    users: async (
       _: any,
       __: any,
       context: GraphQLContext
-    ): Promise<IUser[]> => {
+    ): Promise<User[]> => {
       const { prisma } = context;
 
       try {
-        const allUsers = await prisma.user.findMany();
-        return allUsers.map((foundUser) => getUserProps(foundUser));
+        return await prisma.user.findMany({
+          include: { image: true, address: true },
+        });
       } catch (error: any) {
-        console.log("search all users error", error);
+        console.log("users query error", error);
         throw gqlError({ msg: error?.message });
       }
     },
@@ -73,14 +70,13 @@ export default {
       _: any,
       { name, password, email }: IRegisterUserInput,
       context: GraphQLContext
-    ): Promise<IUser> => {
+    ): Promise<User> => {
       const { prisma } = context;
 
       try {
-        const inputErr = validateRegisterInput({
+        const inputErr = validateRegisterI({
           name,
           password,
-          // confirmPassword,
           email,
         });
         if (inputErr) throw inputErr;
@@ -89,21 +85,15 @@ export default {
           where: { email: { equals: email, mode: "insensitive" } },
         });
         if (existingUser) {
-          throw gqlError({
-            msg: "There is already an account registered with this email, Please Log In",
-            code: "BAD_USER_INPUT",
-          });
+          throw getIErr(
+            "There is already an account registered with this email, Please login instead"
+          );
         }
 
         password = await bcrypt.hash(password, 12);
         const newUser = await prisma.user.create({
-          data: {
-            name,
-            email,
-            password,
-            provider: CRED_PROVIDER,
-            userType: ["client"],
-          },
+          data: { name, email, password },
+          include: { image: true, address: true },
         });
 
         const token = generateToken(newUser);
@@ -116,7 +106,7 @@ export default {
       _: any,
       { password, email }: ILoginUserInput,
       context: GraphQLContext
-    ): Promise<IUser> => {
+    ): Promise<User> => {
       const { prisma } = context;
 
       try {
@@ -125,6 +115,7 @@ export default {
 
         const foundUser = await prisma.user.findFirst({
           where: { email: { equals: email, mode: "insensitive" } },
+          include: { image: true, address: true },
         });
         if (!foundUser) {
           throw gqlError({
@@ -154,7 +145,7 @@ export default {
       _: any,
       { accessToken }: { accessToken: string },
       context: GraphQLContext
-    ): Promise<IUser> => {
+    ): Promise<User> => {
       try {
         const { prisma } = context;
 
@@ -178,15 +169,16 @@ export default {
           if (userInfoResp.status === 200) {
             const {
               name,
-              picture,
+              picture: url,
               verified_email: emailVerified,
             } = userInfoResp.data;
 
             const foundUser = await prisma.user.findFirst({
               where: {
                 email: { equals: email, mode: "insensitive" },
-                provider: GOOGLE_PROVIDER,
+                provider: "Google",
               },
+              include: { image: true, address: true },
             });
 
             if (!foundUser) {
@@ -194,11 +186,11 @@ export default {
                 data: {
                   name,
                   email,
-                  provider: GOOGLE_PROVIDER,
-                  image: { picture },
+                  provider: "Google",
+                  image: { create: { url } },
                   emailVerified,
-                  userType: ["client"],
                 },
+                include: { image: true, address: true },
               });
 
               const token = generateToken(newUser);
@@ -228,7 +220,7 @@ export default {
       _: any,
       { credential }: { credential: string },
       context: GraphQLContext
-    ): Promise<IUser> => {
+    ): Promise<User> => {
       const { prisma } = context;
       const decodedToken = jwt.decode(credential);
 
@@ -238,7 +230,7 @@ export default {
             aud,
             email,
             name,
-            picture,
+            picture: url,
             verified_email: emailVerified,
           } = decodedToken as jwt.JwtPayload;
 
@@ -248,8 +240,9 @@ export default {
           const foundUser = await prisma.user.findFirst({
             where: {
               email: { equals: email, mode: "insensitive" },
-              provider: GOOGLE_PROVIDER,
+              provider: "Google",
             },
+            include: { image: true, address: true },
           });
 
           if (!foundUser) {
@@ -257,11 +250,11 @@ export default {
               data: {
                 name,
                 email,
-                provider: GOOGLE_PROVIDER,
-                image: { picture },
+                provider: "Google",
+                image: { create: { url } },
                 emailVerified,
-                userType: ["client"],
               },
+              include: { image: true, address: true },
             });
 
             const token = generateToken(newUser);
@@ -279,131 +272,226 @@ export default {
     },
     updateUser: async (
       _: any,
-      { id, name, phoneNum, image, address, bio, userType }: IUpdateUserInput,
+      { id, edits }: { id: string; edits: IUpdateUserInput },
       context: GraphQLContext
-    ): Promise<IUser> => {
+    ): Promise<User> => {
       const { prisma, req } = context;
-      const user = checkAuth(req);
-
-      if (id !== user.id && !isAdmin(user.roles) && !isSuperAdmin(user.roles)) {
-        throw gqlError({
-          msg: "Unauthorized user. You cannot update someone else's profile",
-          code: "FORBIDDEN",
-        });
-      }
+      const authUser = checkAuth(req);
+      canUserUpdate({ id, authUser });
+      const { name, phoneNum, image, address, bio, userTypes } = edits;
 
       try {
-        const existingUser = await prisma.user.findUnique({ where: { id } });
-
-        if (!existingUser) {
-          throw gqlError({
-            msg: "No user found with the given ID",
-            code: "BAD_REQUEST",
-          });
-        }
-
-        const validate = validateUpdateUser({
+        //validations
+        const valUDetails = validateUpdateUserI({
           name,
           phoneNum,
-          image,
           bio,
-          userType,
-          existingUserType: existingUser?.userType,
+          userTypes,
         });
-        if (validate.error) throw validate.error;
-        const updatedUser = await prisma.user.update({
+        if (valUDetails?.error) throw valUDetails.error;
+
+        const valImg = validateUserImageI(image);
+        if (valImg?.error) throw valImg.error;
+
+        const valAddr = validateUserAddressI(address);
+        if (valAddr?.error) throw valAddr.error;
+
+        const eUser = await prisma.user.findUnique({
           where: { id },
-          data: {
-            ...validate.data,
-            address: { ...(existingUser.address as any), ...address },
-          },
+          include: { image: true, address: true },
         });
-
-        return getUserProps(updatedUser, user.token);
-      } catch (error: any) {
-        throw gqlError({ msg: error?.message });
-      }
-    },
-    getUserAddress: async (
-      _: any,
-      { id, lat, lng }: IGetUserAddInput,
-      context: GraphQLContext
-    ): Promise<IUser> => {
-      const { prisma, req } = context;
-      const user = checkAuth(req);
-
-      if (id !== user.id && !isAdmin(user.roles) && !isSuperAdmin(user.roles)) {
-        throw gqlError({
-          msg: "Unauthorized user. You cannot update someone else's profile",
-          code: "FORBIDDEN",
-        });
-      }
-
-      try {
-        const existingUser = await prisma.user.findUnique({ where: { id } });
-
-        if (!existingUser) {
+        if (!eUser)
           throw gqlError({
             msg: "No user found with the given ID",
             code: "BAD_REQUEST",
           });
+
+        //updates
+        const updateData: any = { ...valUDetails.data };
+
+        if (valImg?.image) {
+          updateData.image = eUser.image
+            ? { update: valImg.image }
+            : { create: valImg.image };
         }
 
-        const inputErr = validateLatAndLng(lat, lng);
-        if (inputErr) throw inputErr;
-
-        const response = await axios.get(
-          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
-        );
-        const add = response.data?.address;
-        if (add) {
-          const address = {
-            houseNum: add?.house_number,
-            road: add?.road,
-            neighbourhood: add?.neighbourhood,
-            city: add?.city,
-            municipality: add?.county,
-            region: add?.state_district,
-            province: add?.state,
-            postalCode: add?.postcode,
-            country: add?.country,
-            countryCode: add?.country_code,
-            displayName: response.data?.display_name,
-            lat,
-            lng,
-            sourceData: response.data,
+        if (valAddr?.address) {
+          updateData.address = {
+            connectOrCreate: {
+              create: valAddr.address,
+              where: {
+                lat_lng: {
+                  lat: valAddr.address.lat,
+                  lng: valAddr.address.lng,
+                },
+              },
+            },
           };
+        }
 
-          const updatedUser = await prisma.user.update({
-            where: { id },
-            data: { address },
-          });
+        const updatedUser = await prisma.user.update({
+          where: { id },
+          data: updateData,
+          include: { image: true, address: true },
+        });
 
-          return getUserProps(updatedUser, user.token);
-        } else throw gqlError({ msg: "Could not retrieve address details" });
+        return getUserProps(updatedUser);
       } catch (error: any) {
         throw gqlError({ msg: error?.message });
       }
     },
   },
-  // Subscription:{}
 };
 
-const getUserProps = (user: User, token = "") => {
-  return {
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    emailVerified: user.emailVerified,
-    createdAt: user.createdAt,
-    updatedAt: user.updatedAt,
-    image: user.image,
-    token,
-    provider: user.provider,
-    roles: user?.roles,
-    phoneNum: user?.phoneNum,
-    address: user?.address,
-    bio: user?.bio,
-    userType: user?.userType,
+const getUserProps = (user: User, token?) => {
+  return token ? { ...user, token } : user;
+};
+
+/**
+ * INTERFACES
+ */
+interface IRegisterUserInput {
+  name: string;
+  password: string;
+  email: string;
+}
+interface ILoginUserInput {
+  email: string;
+  password: string;
+}
+interface IUpdateUserInput {
+  name?: string;
+  phoneNum?: string;
+  image?: IUserImageInput;
+  address?: IAddressInput;
+  bio?: string;
+  userTypes?: UserType[];
+}
+interface IValidateUUI {
+  name?: string;
+  phoneNum?: string;
+  bio?: string;
+  userTypes?: UserType[];
+}
+
+/**
+ * VALIDATORS
+ */
+const validateUserName = (name: string) => {
+  if (name.trim()?.length < 3) return getIErr("Name must be more than 3 chars");
+  return undefined;
+};
+
+const validateRegisterI = ({ name, password, email }: IRegisterUserInput) => {
+  validateUserName(name);
+  if (!validateEmail(email)) return getIErr("Invalid email address");
+  if (password === "") return getIErr("Password must not be empty");
+
+  return undefined;
+};
+
+const validateLoginInput = ({ email, password }: ILoginUserInput) => {
+  if (!validateEmail(email)) return getIErr("Invalid email address");
+  if (password === "") return getIErr("Password must not be empty");
+
+  return undefined;
+};
+
+const validateUpdateUserI = ({
+  name,
+  bio,
+  phoneNum,
+  userTypes,
+}: IValidateUUI) => {
+  const data: IValidateUUI = {};
+
+  if (name) {
+    const nameErr = validateUserName(name);
+    if (nameErr) return { error: nameErr };
+    data.name = name;
+  }
+
+  if (bio) {
+    if (bio.trim()?.length < 10)
+      return { error: getIErr("bio must be more than 10 chars") };
+    data.bio = bio;
+  }
+
+  if (userTypes) {
+    if (userTypes?.length < 1)
+      return { error: getIErr("User type cannot be empty") };
+    data.userTypes = userTypes;
+  }
+
+  if (phoneNum) {
+    if (!validatePhoneNum(phoneNum))
+      return { error: getIErr("Incorrect phone number format") };
+    data.phoneNum = phoneNum;
+  }
+
+  return { data };
+};
+
+const validateUserImageI = (image: IUserImageInput) => {
+  const validate = () => {
+    if (typeof image !== "object" || image === null) {
+      return getIErr("Invalid image format");
+    }
+    if (!("url" in image)) {
+      return getIErr("Image must have a 'url' field");
+    }
+    if (typeof image.url !== "string" || image.url.trim() === "") {
+      return getIErr("Image url must be a non-empty string");
+    }
+
+    return undefined;
   };
+  if (image) {
+    const imageErr = validate();
+    if (imageErr) return { error: imageErr };
+    return { image };
+  }
+};
+
+const validateUserAddressI = (address: IAddressInput) => {
+  const validate = () => {
+    const {
+      street,
+      county,
+      state,
+      stateCode,
+      city,
+      postalCode,
+      country,
+      countryCode,
+      displayName,
+      lat,
+      lng,
+    } = address;
+
+    if (street && street?.trim() === "") return getIErr("Street is required");
+    if (county && county?.trim() === "") return getIErr("County is required");
+    if (state && state?.trim() === "") return getIErr("State is required");
+    if (city && city?.trim() === "") return getIErr("City is required");
+    if (stateCode && stateCode?.trim() === "")
+      return getIErr("State Code is required");
+    if (postalCode && postalCode?.trim() === "")
+      return getIErr("Postal code is required");
+    if (country && country?.trim() === "")
+      return getIErr("Country is required");
+    if (countryCode && countryCode?.trim() === "")
+      return getIErr("Country code is required");
+    if (displayName && displayName?.trim() === "")
+      return getIErr("Display name is required");
+    if (lat && isNaN(Number(lat))) return getIErr("Invalid latitude value");
+    if (lng && isNaN(Number(lng))) return getIErr("Invalid longitude value");
+
+    return undefined;
+  };
+
+  if (address) {
+    const addressErr = validate();
+    if (addressErr) return { error: addressErr };
+    return { address };
+  }
 };

@@ -1,8 +1,9 @@
 import { format, startOfDay } from "date-fns";
 import { NavigateFunction } from "react-router-dom";
 
-import { AddressInput, IUserData } from "@gqlOps/user";
+import { IUser } from "@gqlOps/user";
 import { paths } from "@routes/PageRoutes";
+import { IAddress } from "@gqlOps/address";
 
 export function decodeJwtToken(token: string | undefined) {
   if (token) {
@@ -135,7 +136,7 @@ export const openUserIfNewUser = ({
   user,
   navigate,
 }: {
-  user: IUserData | undefined;
+  user: IUser | undefined;
   navigate: NavigateFunction;
 }) => {
   if (
@@ -145,7 +146,6 @@ export const openUserIfNewUser = ({
   ) {
     const username = `${user.name}-${user.id}`.replace(/\s/g, "");
     navigate(paths.user(username));
-    console.log(paths.user(username), "here");
   } else navigate("/");
 };
 
@@ -180,28 +180,42 @@ export function formatBytes(bytes: number): string {
 
 export const removeTypename = (obj: any): any => {
   if (!obj || typeof obj !== "object") return obj;
+  if (Array.isArray(obj)) return obj.map(removeTypename);
 
-  // Handle arrays
-  if (Array.isArray(obj)) {
-    return obj.map(removeTypename);
-  }
-
-  // Remove __typename property from the object
-  const newObj: any = { ...obj };
-  delete newObj.__typename;
-
-  // Recursively call removeTypename on each property
-  Object.keys(newObj).forEach((key) => {
-    newObj[key] = removeTypename(newObj[key]);
-  });
+  // Create a new object without the __typename property
+  const newObj = Object.entries(obj).reduce((acc, [key, value]) => {
+    if (key !== "__typename") acc[key] = removeTypename(value);
+    return acc;
+  }, {} as any);
 
   return newObj;
 };
 
-export const getBasicAdd = (address: AddressInput) => {
+export const removeServerMetadata = ({ obj }: { obj: any }): any => {
+  if (!obj || typeof obj !== "object") return obj;
+  if (Array.isArray(obj))
+    return obj.map((item) => removeServerMetadata({ obj: item }));
+
+  // Create a new object without the specified properties
+  const newObj = Object.entries(obj).reduce((acc, [key, value]) => {
+    if (
+      key !== "__typename" &&
+      key !== "id" &&
+      key !== "createdAt" &&
+      key !== "updatedAt"
+    ) {
+      acc[key] = removeServerMetadata({ obj: value });
+    }
+    return acc;
+  }, {} as any);
+
+  return newObj;
+};
+
+export const getBasicAdd = (address: IAddress) => {
   let add = "";
   if (address?.city) add += address?.city + ", ";
-  if (address?.province) add += address?.province + ", ";
+  if (address?.county) add += address?.county + ", ";
   if (address?.country) add += address?.country;
   return add;
 };

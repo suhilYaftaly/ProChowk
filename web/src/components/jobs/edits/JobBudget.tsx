@@ -14,7 +14,7 @@ import MoneyIcon from "@mui/icons-material/MonetizationOnOutlined";
 import CheckIcon from "@mui/icons-material/CheckCircle";
 import UncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 import { IJobError } from "./JobForm";
-import { JobInput } from "@gqlOps/jobs";
+import { JobInput } from "@gqlOps/job";
 
 interface Props {
   job: JobInput;

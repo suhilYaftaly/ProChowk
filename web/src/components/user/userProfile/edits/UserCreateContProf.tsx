@@ -6,24 +6,25 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import { useUpdateUser } from "@gqlOps/user";
+import { IUserInfo } from "../UserInfo";
+import { useCreateContractor } from "@gqlOps/contractor";
 
-interface Props {
-  userId: string;
+interface Props extends IUserInfo {
   setHideContNFErr?: (hide: boolean) => void;
 }
 
 export default function UserCreateContProf({
+  user,
   userId,
   setHideContNFErr,
 }: Props) {
   const theme = useTheme();
-  const { updateUserAsync, loading: updateLoading, error } = useUpdateUser();
+  const { createContractorAsync, loading, error } = useCreateContractor();
 
   const onCreateContProf = () => {
-    if (userId) {
+    if (userId && user?.userTypes) {
       setHideContNFErr && setHideContNFErr(true);
-      updateUserAsync({ variables: { id: userId, userType: "contractor" } });
+      createContractorAsync({ variables: { userId } });
     }
   };
 
@@ -50,11 +51,11 @@ export default function UserCreateContProf({
         type="submit"
         variant="contained"
         onClick={onCreateContProf}
-        disabled={updateLoading}
+        disabled={loading}
         fullWidth
       >
-        {updateLoading ? (
-          <CircularProgress size={20} />
+        {loading ? (
+          <CircularProgress size={20} color="inherit" />
         ) : (
           "Create your contractor profile"
         )}

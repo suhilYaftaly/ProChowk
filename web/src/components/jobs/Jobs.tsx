@@ -25,45 +25,58 @@ import { IUserInfo } from "@user/userProfile/UserInfo";
 import CustomModal from "@reusable/CustomModal";
 import PostAJob from "./edits/PostAJob";
 import JobForm from "./edits/JobForm";
-import { IJob, JobInput, useGetUserJobs, useUpdateJob } from "@gqlOps/jobs";
+import {
+  IJob,
+  ImagesToDelete,
+  JobInput,
+  useCreateJob,
+  useDeleteJob,
+  useUserJobs,
+  useUpdateJob,
+} from "@gqlOps/job";
 import ErrSnackbar from "@reusable/ErrSnackbar";
-import { removeTypename, trimText } from "@utils/utilFuncs";
+import { removeServerMetadata, trimText } from "@utils/utilFuncs";
 import { paths } from "@routes/PageRoutes";
 
 export default function Jobs({ isMyProfile, userId, user }: IUserInfo) {
   const navigate = useNavigate();
-  const { getUserJobsAsync, data, loading, error } = useGetUserJobs();
-  const { updateJobAsync, deleteJobAsync, updateLoading } = useUpdateJob();
+  const { userJobsAsync, data, loading, error } = useUserJobs();
+  const { createJobAsync, loading: createLoading } = useCreateJob();
+  const { updateJobAsync, loading: updateLoading } = useUpdateJob();
+  const { deleteJobAsync, loading: deleteLoading } = useDeleteJob();
   const [editJob, setEditJob] = useState<JobInput | IJob>();
   const [openAdd, setOpenAdd] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [openErrBar, setContErrBar] = useState(false);
 
   useEffect(() => {
-    getUserJobsAsync({ userId });
+    if (userId) userJobsAsync({ variables: { userId } });
   }, []);
 
   const onAddJob = (job: JobInput) => {
     if (userId) {
-      updateJobAsync({ props: job, userId });
+      createJobAsync({ variables: { userId, jobInput: job } });
       setOpenAdd(false);
     }
   };
 
-  const onEditJob = (j: IJob | any) => {
+  const onEditJob = (j: IJob | any, imagesToDelete: ImagesToDelete) => {
     if (userId && j.id) {
-      const cleanedJob = removeTypename(j);
+      const cleanedJob = removeServerMetadata({ obj: j });
       updateJobAsync({
         userId,
-        id: j.id,
-        props: {
-          title: cleanedJob.title,
-          desc: cleanedJob.desc,
-          jobSize: cleanedJob.jobSize,
-          budget: cleanedJob.budget,
-          skills: cleanedJob.skills,
-          images: cleanedJob.images,
-          address: cleanedJob.address,
+        variables: {
+          id: j.id,
+          imagesToDelete,
+          jobInput: {
+            title: cleanedJob.title,
+            desc: cleanedJob.desc,
+            jobSize: cleanedJob.jobSize,
+            budget: cleanedJob.budget,
+            skills: cleanedJob.skills,
+            images: cleanedJob.images,
+            address: cleanedJob.address,
+          },
         },
       });
       setOpenEdit(false);
@@ -71,7 +84,7 @@ export default function Jobs({ isMyProfile, userId, user }: IUserInfo) {
   };
 
   const onDeleteClick = (j: IJob | any) => {
-    if (userId && j.id) deleteJobAsync({ userId, id: j.id });
+    if (userId && j.id) deleteJobAsync({ userId, variables: { id: j.id } });
   };
   const onEditClick = (job: IJob) => {
     setEditJob(job);
@@ -99,14 +112,14 @@ export default function Jobs({ isMyProfile, userId, user }: IUserInfo) {
         )}
       </Stack>
       <Grid container spacing={1} direction={"column"} sx={{ mt: 1 }}>
-        {data ? (
+        {data?.userJobs ? (
           <>
-            {updateLoading && (
+            {(updateLoading || createLoading || deleteLoading) && (
               <Grid item>
                 <Skeleton variant="rounded" width={"100%"} height={100} />
               </Grid>
             )}
-            {data?.map((job) => (
+            {data?.userJobs?.map((job) => (
               <Grid item key={job.id}>
                 <Card sx={{ p: 1 }}>
                   <Stack
@@ -120,7 +133,7 @@ export default function Jobs({ isMyProfile, userId, user }: IUserInfo) {
                     <Typography>{job.title}</Typography>
                     <Stack direction="row" sx={{ alignItems: "center" }}>
                       <Chip
-                        label={job.address?.city}
+                        label={job?.address?.city}
                         variant="outlined"
                         size="small"
                       />
@@ -134,15 +147,16 @@ export default function Jobs({ isMyProfile, userId, user }: IUserInfo) {
                   </Stack>
                   <CardActionArea onClick={() => onCardClick(job.id)}>
                     <Typography variant="caption" color="text.secondary">
-                      {job.budget.type}: ${job.budget.from}-${job.budget.to}
-                      {job.budget.type === "Hourly" &&
-                        ` / ${job.budget.maxHours}Hrs`}
+                      {job?.budget?.type}: ${job?.budget?.from}-$
+                      {job?.budget?.to}
+                      {job?.budget?.type === "Hourly" &&
+                        ` / ${job?.budget?.maxHours}Hrs`}
                     </Typography>
                     <Typography variant="body2">
                       {trimText({ text: job.desc })}
                     </Typography>
                     <Grid container spacing={1} sx={{ mt: 2 }}>
-                      {job.skills?.map((skill) => (
+                      {job?.skills?.map((skill) => (
                         <Grid item key={skill.label}>
                           <Chip
                             label={skill.label}

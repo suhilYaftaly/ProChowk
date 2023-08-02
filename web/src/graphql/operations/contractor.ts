@@ -5,163 +5,339 @@ import {
   useMutation,
 } from "@apollo/client";
 
+import { IUser, useUser, userGqlResp } from "./user";
+import { ISkill, skillGqlResp, SkillInput } from "./skill";
+import { asyncOps } from "./gqlFuncs";
+
+const licenseGqlResp = gql`
+  fragment LicenseFields on License {
+    id
+    name
+    desc
+    type
+    size
+    url
+    createdAt
+    updatedAt
+  }
+`;
+const contractorGqlResp = gql`
+  ${licenseGqlResp}
+  ${skillGqlResp}
+  fragment ContractorFields on Contractor {
+    id
+    createdAt
+    updatedAt
+    licenses {
+      ...LicenseFields
+    }
+    skills {
+      ...SkillFields
+    }
+  }
+`;
+
 const contOps = {
   Queries: {
-    searchContrProf: gql`
-      query SearchContrProf($userId: ID!) {
-        searchContrProf(userId: $userId) {
-          id
-          licenses {
-            name
-            desc
-            type
-            size
-            picture
-          }
-          skills {
-            label
-          }
-          user {
-            id
-            name
-            email
-          }
-          createdAt
-          updatedAt
+    contractor: gql`
+      ${contractorGqlResp}
+      query Contractor($id: ID, $userId: ID) {
+        contractor(id: $id, userId: $userId) {
+          ...ContractorFields
         }
       }
     `,
   },
   Mutations: {
-    updateContrProf: gql`
-      mutation UpdateContrProf(
-        $skills: [SkillInput]
-        $licenses: [LicenseInput]
+    createContractor: gql`
+      ${contractorGqlResp}
+      ${userGqlResp}
+      mutation createContractor($userId: ID!) {
+        createContractor(userId: $userId) {
+          ...UserFields
+          contractor {
+            ...ContractorFields
+          }
+        }
+      }
+    `,
+    addContractorLicense: gql`
+      ${contractorGqlResp}
+      mutation AddContractorLicense($contId: ID!, $license: LicenseInput!) {
+        addContractorLicense(contId: $contId, license: $license) {
+          ...ContractorFields
+        }
+      }
+    `,
+    deleteContractorLicense: gql`
+      ${contractorGqlResp}
+      mutation DeleteContractorLicense($contId: ID!, $licId: ID!) {
+        deleteContractorLicense(contId: $contId, licId: $licId) {
+          ...ContractorFields
+        }
+      }
+    `,
+    addOrRemoveContractorSkills: gql`
+      ${contractorGqlResp}
+      mutation AddOrRemoveContractorSkills(
+        $contId: ID!
+        $skills: [SkillInput!]!
       ) {
-        updateContrProf(skills: $skills, licenses: $licenses) {
-          id
-          licenses {
-            name
-            desc
-            type
-            size
-            picture
-          }
-          skills {
-            label
-          }
-          user {
-            id
-            name
-            email
-          }
-          createdAt
-          updatedAt
+        addOrRemoveContractorSkills(contId: $contId, skills: $skills) {
+          ...ContractorFields
         }
       }
     `,
   },
 };
-export default contOps;
 
+/**
+ * INTERFACES
+ */
+interface ILicense {
+  id: string;
+  name: string;
+  size: number;
+  type: string;
+  desc: string;
+  url: string;
+  createdAt: string;
+  updatedAt: string;
+}
+export interface IContractor {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  skills: ISkill[];
+  licenses: ILicense[];
+}
+//inputs
 export interface LicenseInput {
   name: string;
   size: number;
   type: string;
   desc: string;
-  picture: string;
+  url: string;
 }
 
-export interface SkillInput {
-  label: string;
+/**
+ * OPERATIONS
+ */
+//contractor op
+interface ICInput {
+  /**contractor id or userId is required*/
+  id?: string;
+  /**contractor id or userId is required*/
+  userId?: string;
 }
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
+interface ICData {
+  contractor: IContractor;
 }
-
-export interface IContractorData {
-  id: string;
-  skills: SkillInput[];
-  licenses: LicenseInput[];
-  user: User;
-  createdAt: string;
-  updatedAt: string;
+interface ICIAsync {
+  variables: ICInput;
+  onSuccess?: (data: IContractor) => void;
+  onError?: (error?: any) => void;
 }
-
-export interface IUpdateContrProfData {
-  updateContrProf: IContractorData;
+interface ICIUpdateCache {
+  contData: IContractor;
+  variables: ICInput;
 }
-
-export interface IUpdateContrProfInput {
-  skills?: SkillInput[] | null;
-  licenses?: LicenseInput[] | null;
-}
-
-export interface ISearchContrProfData {
-  searchContrProf: IContractorData;
-}
-export interface ISearchContrProfInput {
-  userId: string;
-}
-
-interface IUpdateContrProfAsync {
-  userId: string | undefined;
-  variables: IUpdateContrProfInput;
-  onSuccess: () => void;
-}
-
-export const useUpdateContrProf = () => {
+export const useContractor = () => {
   const client = useApolloClient();
-  const [updateContrProf, { data, error, loading }] = useMutation<
-    IUpdateContrProfData,
-    IUpdateContrProfInput
-  >(contOps.Mutations.updateContrProf);
-  const [searchContrProf, { loading: searchIsLoading }] = useLazyQuery<
-    ISearchContrProfData,
-    ISearchContrProfInput
-  >(contOps.Queries.searchContrProf);
+  const [contractor, { data, error, loading }] = useLazyQuery<ICData, ICInput>(
+    contOps.Queries.contractor
+  );
 
-  const updateContrProfAsync = async ({
-    userId,
-    variables,
-    onSuccess,
-  }: IUpdateContrProfAsync) => {
-    try {
-      const { data } = await updateContrProf({ variables });
+  const contractorAsync = async ({ variables, onSuccess, onError }: ICIAsync) =>
+    asyncOps({
+      onStart: () => {
+        if (!variables.userId && !variables.id)
+          throw new Error("contractor id or userId is required");
+      },
+      operation: () => contractor({ variables }),
+      onSuccess: (dt: ICData) => onSuccess && onSuccess(dt.contractor),
+      onError,
+    });
 
-      //update the cached data
-      if (data?.updateContrProf && userId) {
-        const cachedData = client.readQuery<
-          ISearchContrProfData,
-          ISearchContrProfInput
-        >({
-          query: contOps.Queries.searchContrProf,
-          variables: { userId },
-        });
+  const updateCache = ({ contData, variables }: ICIUpdateCache) => {
+    const cachedData = client.readQuery<ICData, ICInput>({
+      query: contOps.Queries.contractor,
+      variables,
+    });
 
-        if (cachedData) {
-          const modifiedData = { ...cachedData, ...data.updateContrProf };
-          client.writeQuery<ISearchContrProfData, ISearchContrProfInput>({
-            query: contOps.Queries.searchContrProf,
-            data: modifiedData,
-            variables: { userId },
-          });
-        } else {
-          const { data: searchUserData } = await searchContrProf({
-            variables: { userId },
-          });
-          if (!searchUserData?.searchContrProf) throw new Error();
-        }
-
-        onSuccess();
-      } else throw new Error();
-    } catch (error: any) {
-      console.log("contractor update failed:", error.message);
-    }
+    if (cachedData) {
+      const updatedData = { ...cachedData, contractor: contData };
+      client.writeQuery<ICData, ICInput>({
+        query: contOps.Queries.contractor,
+        data: updatedData,
+        variables,
+      });
+    } else contractorAsync({ variables });
   };
 
-  return { updateContrProfAsync, data, error, loading, searchIsLoading };
+  return { contractorAsync, updateCache, data, error, loading };
+};
+
+//createContractor op
+interface ICCInput {
+  userId: string;
+}
+interface ICCData {
+  createContractor: IUser;
+}
+interface ICCIAsync {
+  variables: ICCInput;
+  onSuccess?: (data: IUser) => void;
+  onError?: (error?: any) => void;
+}
+export const useCreateContractor = () => {
+  const [createContractor, { data, error, loading }] = useMutation<
+    ICCData,
+    ICCInput
+  >(contOps.Mutations.createContractor);
+  const { updateCache: updateUserCache } = useUser();
+  const { updateCache } = useContractor();
+
+  const createContractorAsync = async ({
+    variables,
+    onSuccess,
+    onError,
+  }: ICCIAsync) =>
+    asyncOps({
+      operation: () => createContractor({ variables }),
+      onSuccess: (dt: ICCData) => {
+        const userData = dt?.createContractor;
+        onSuccess && onSuccess(userData);
+        updateUserCache(userData);
+        if (userData.contractor) {
+          updateCache({ variables, contData: userData.contractor });
+        }
+      },
+      onError,
+    });
+
+  return { createContractorAsync, data, error, loading };
+};
+
+//addContractorLicense op
+interface IACLInput {
+  contId: string;
+  license: LicenseInput;
+}
+interface IACLData {
+  addContractorLicense: IContractor;
+}
+interface IACLIAsync {
+  variables: IACLInput;
+  onSuccess?: (data: IContractor) => void;
+  onError?: (error?: any) => void;
+}
+export const useAddContractorLicense = () => {
+  const [addContractorLicense, { data, error, loading }] = useMutation<
+    IACLData,
+    IACLInput
+  >(contOps.Mutations.addContractorLicense);
+  const { updateCache } = useContractor();
+
+  const addContLicAsync = async ({
+    variables,
+    onSuccess,
+    onError,
+  }: IACLIAsync) =>
+    asyncOps({
+      operation: () => addContractorLicense({ variables }),
+      onSuccess: (dt: IACLData) => {
+        const contData = dt?.addContractorLicense;
+        onSuccess && onSuccess(contData);
+        updateCache({
+          variables: { id: variables.contId },
+          contData: contData,
+        });
+      },
+      onError,
+    });
+
+  return { addContLicAsync, data, error, loading };
+};
+
+//deleteContractorLicense op
+interface IDCLInput {
+  contId: string;
+  licId: string;
+}
+interface IDCLData {
+  deleteContractorLicense: IContractor;
+}
+interface IDCLIAsync {
+  variables: IDCLInput;
+  onSuccess?: (data: IContractor) => void;
+  onError?: (error?: any) => void;
+}
+export const useDeleteContractorLicense = () => {
+  const [deleteContractorLicense, { data, error, loading }] = useMutation<
+    IDCLData,
+    IDCLInput
+  >(contOps.Mutations.deleteContractorLicense);
+  const { updateCache } = useContractor();
+
+  const deleteContLicAsync = async ({
+    variables,
+    onSuccess,
+    onError,
+  }: IDCLIAsync) =>
+    asyncOps({
+      operation: () => deleteContractorLicense({ variables }),
+      onSuccess: (dt: IDCLData) => {
+        const contData = dt?.deleteContractorLicense;
+        onSuccess && onSuccess(contData);
+        updateCache({
+          variables: { id: variables.contId },
+          contData: contData,
+        });
+      },
+      onError,
+    });
+
+  return { deleteContLicAsync, data, error, loading };
+};
+
+//addOrRemoveContractorSkills op
+interface IARCSInput {
+  contId: string;
+  skills: SkillInput[];
+}
+interface IARCSData {
+  addOrRemoveContractorSkills: IContractor;
+}
+interface IARCSAsync {
+  variables: IARCSInput;
+  onSuccess?: (data: IContractor) => void;
+  onError?: (error?: any) => void;
+}
+export const useAddOrRemoveContSkills = () => {
+  const [addOrRemoveContractorSkills, { data, error, loading }] = useMutation<
+    IARCSData,
+    IARCSInput
+  >(contOps.Mutations.addOrRemoveContractorSkills);
+  const { updateCache, loading: contLoading } = useContractor();
+
+  const addOrRemoveContSkillsAsync = async ({
+    variables,
+    onSuccess,
+    onError,
+  }: IARCSAsync) =>
+    asyncOps({
+      operation: () => addOrRemoveContractorSkills({ variables }),
+      onSuccess: (dt: IARCSData) => {
+        const contData = dt?.addOrRemoveContractorSkills;
+        onSuccess && onSuccess(contData);
+        updateCache({
+          variables: { id: variables.contId },
+          contData: contData,
+        });
+      },
+      onError,
+    });
+
+  return { addOrRemoveContSkillsAsync, data, error, loading, contLoading };
 };

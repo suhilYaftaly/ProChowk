@@ -1,4 +1,4 @@
-import { ChangeEvent, Dispatch, SetStateAction } from "react";
+import { ChangeEvent } from "react";
 import {
   Alert,
   Divider,
@@ -13,18 +13,16 @@ import {
 } from "@mui/material";
 
 import SkillsSelection from "@appComps/SkillsSelection";
-import { SkillInput } from "@gqlOps/contractor";
 import { IJobError } from "./JobForm";
-import { JobInput } from "@gqlOps/jobs";
+import { JobInput } from "@gqlOps/job";
 
 interface Props {
   job: JobInput;
   setJob: (job: JobInput) => void;
   errors: IJobError;
-  setNewSkills: Dispatch<SetStateAction<SkillInput[]>>;
 }
 
-export default function JobType({ job, setJob, errors, setNewSkills }: Props) {
+export default function JobType({ job, setJob, errors }: Props) {
   const jobSizes: JobInput["jobSize"][] = ["Small", "Medium", "Large"];
   const onValueChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
@@ -76,7 +74,6 @@ export default function JobType({ job, setJob, errors, setNewSkills }: Props) {
       <SkillsSelection
         skills={job.skills}
         setSkills={(skills) => setJob({ ...job, skills })}
-        setNewSkills={setNewSkills}
       />
       {Boolean(errors.skills) && (
         <Alert severity="error" color="error">

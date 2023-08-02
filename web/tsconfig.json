@@ -32,6 +32,7 @@
       "@user/*": ["src/components/user/*"],
       "@advs/*": ["src/components/advs/*"],
       "@jobs/*": ["src/components/jobs/*"],
+      "@types/*": ["src/types/*"],
     },
 
     /* Linting */

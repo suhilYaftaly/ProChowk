@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 
-import { IJob } from "@gqlOps/jobs";
+import { IJob } from "@gqlOps/job";
 import { convertUnixToDate } from "@utils/utilFuncs";
 import { useRespVal } from "@utils/hooks/hooks";
 import FullScreenModal from "@reusable/FullScreenModal";
@@ -110,8 +110,8 @@ export default function DetailsSection({ job, loading }: Props) {
                         }}
                       >
                         <img
-                          src={`${img.picture}`}
-                          srcSet={`${img.picture}`}
+                          src={`${img.url}`}
+                          srcSet={`${img.url}`}
                           alt={img.name}
                           loading="lazy"
                         />
@@ -137,12 +137,12 @@ export default function DetailsSection({ job, loading }: Props) {
 
       {activeImg && (
         <FullScreenModal
-          title={activeImg?.name}
+          title={"Job Image"}
           open={openFullImg}
           setOpen={setOpenFullImg}
         >
           <img
-            src={activeImg.picture}
+            src={activeImg.url}
             alt={activeImg.name}
             loading="lazy"
             style={{ width: fsWidth, objectFit: "cover" }}

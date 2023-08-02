@@ -1,12 +1,10 @@
 import { Box, Button, Step, StepLabel, Stepper } from "@mui/material";
 import { useState, Dispatch, SetStateAction } from "react";
 
-import { SkillInput } from "@gqlOps/contractor";
 import JobType from "./JobType";
-import { useUpdateAllSkills } from "@gqlOps/dataList";
 import JobBudget from "./JobBudget";
 import JobDetails from "./JobDetails";
-import { IJob, JobInput } from "@gqlOps/jobs";
+import { IJob, ImagesToDelete, JobInput } from "@gqlOps/job";
 
 export interface IJobError {
   title: string;
@@ -19,28 +17,20 @@ export interface IJobError {
 }
 
 interface Props {
-  onAddJob: (job: IJob | JobInput) => void;
+  onAddJob: (job: IJob | JobInput, imagesToDelete: ImagesToDelete) => void;
   job: IJob | JobInput;
   setJob: (job: IJob | JobInput) => void;
 }
 
 export default function JobForm({ onAddJob, job, setJob }: Props) {
   const [errors, setErrors] = useState<IJobError>(resetErr);
-  const [newSkills, setNewSkills] = useState<SkillInput[]>([]);
   const [activeStep, setActiveStep] = useState(0);
-  const { updateAllSkillsAsync } = useUpdateAllSkills();
+  const [imgsToDelete, setImgsToDelete] = useState<ImagesToDelete>([]);
 
   const steps = [
     {
       label: "Job Type",
-      comp: (
-        <JobType
-          job={job}
-          setJob={setJob}
-          errors={errors}
-          setNewSkills={setNewSkills}
-        />
-      ),
+      comp: <JobType job={job} setJob={setJob} errors={errors} />,
     },
     {
       label: "Budget",
@@ -48,7 +38,16 @@ export default function JobForm({ onAddJob, job, setJob }: Props) {
     },
     {
       label: "Details",
-      comp: <JobDetails job={job} setJob={setJob} errors={errors} />,
+      comp: (
+        <JobDetails
+          job={job}
+          setJob={setJob}
+          errors={errors}
+          setDeletedImgId={(id) =>
+            setImgsToDelete((pv) => (pv ? [...pv, id] : [id]))
+          }
+        />
+      ),
     },
   ];
 
@@ -74,10 +73,7 @@ export default function JobForm({ onAddJob, job, setJob }: Props) {
   };
   const handleBack = () => setActiveStep((pv) => pv - 1);
 
-  const onSubmit = () => {
-    if (newSkills?.length > 0) updateAllSkillsAsync({ skills: newSkills });
-    onAddJob(job);
-  };
+  const onSubmit = () => onAddJob(job, imgsToDelete);
 
   return (
     <Box sx={{ my: 2 }}>

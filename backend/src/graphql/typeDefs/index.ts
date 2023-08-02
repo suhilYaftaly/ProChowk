@@ -1,8 +1,8 @@
-import dataList from "./dataList";
 import contractor from "./contractor";
 import user from "./user";
 import googleMapKey from "./googleMapKey";
 import address from "./address";
-import jobs from "./jobs";
+import job from "./job";
+import skill from "./skill";
 
-export default [user, contractor, dataList, googleMapKey, address, jobs];
+export default [user, contractor, googleMapKey, address, job, skill];

@@ -13,7 +13,7 @@ import cors from "cors";
 
 import typeDefs from "./graphql/typeDefs";
 import resolvers from "./graphql/resolvers";
-import { GraphQLContext, SubsciptionContext } from "./types/userTypes";
+import { SubsciptionContext, GraphQLContext } from "./types/commonTypes";
 
 async function main() {
   dotenv.config();
@@ -70,7 +70,7 @@ async function main() {
       origin: [process.env.CLIENT_ORIGIN],
       credentials: true,
     }),
-    express.json({ limit: "10mb" }),
+    express.json({ limit: "15mb" }),
     expressMiddleware(server, {
       context: async ({ req, res }): Promise<GraphQLContext> => ({
         req,

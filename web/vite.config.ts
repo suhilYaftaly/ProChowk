@@ -30,6 +30,7 @@ export default defineConfig({
       "@user": `${path.resolve(__dirname, "./src/components/user/")}`,
       "@advs": `${path.resolve(__dirname, "./src/components/advs/")}`,
       "@jobs": `${path.resolve(__dirname, "./src/components/jobs/")}`,
+      "@types": `${path.resolve(__dirname, "./src/types/")}`,
     },
   },
 });

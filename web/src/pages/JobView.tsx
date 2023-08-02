@@ -3,8 +3,8 @@ import { useParams } from "react-router-dom";
 import { Stack, Paper, Alert } from "@mui/material";
 
 import { useUserStates } from "@redux/reduxStates";
-import { useSearchUser } from "@gqlOps/user";
-import { useGetJob } from "@gqlOps/jobs";
+import { useUser } from "@gqlOps/user";
+import { useJob } from "@gqlOps/job";
 import { pp, layoutCardsMaxWidth, ppx, ppy } from "@config/configConst";
 import { useRespVal } from "@utils/hooks/hooks";
 import UserSection from "@jobs/jobView/UserSection";
@@ -16,13 +16,13 @@ export default function JobView() {
   const userId = nameId?.split("-")?.[1];
   const isMyProfile = userId === loggedInUser?.id;
   const {
-    searchUserAsync,
+    userAsync,
     data: userData,
     loading: userLoading,
     error: userErr,
-  } = useSearchUser();
-  const user = isMyProfile ? loggedInUser : userData?.searchUser;
-  const { getJobAsync, data: job, loading, error } = useGetJob();
+  } = useUser();
+  const user = isMyProfile ? loggedInUser : userData?.user;
+  const { jobAsync, data: job, loading, error } = useJob();
 
   const paperContStyle = {
     px: ppx,
@@ -34,11 +34,11 @@ export default function JobView() {
 
   //retriev user info if its not my profile
   useEffect(() => {
-    if (userId && !isMyProfile) searchUserAsync({ userId });
+    if (userId && !isMyProfile) userAsync({ variables: { id: userId } });
   }, [isMyProfile]);
 
   useEffect(() => {
-    if (jobId) getJobAsync({ id: jobId });
+    if (jobId) jobAsync({ variables: { id: jobId } });
   }, [jobId]);
 
   return (
@@ -57,7 +57,7 @@ export default function JobView() {
               {error.message}
             </Alert>
           )}
-          <DetailsSection job={job} loading={loading} />
+          <DetailsSection job={job?.job} loading={loading} />
         </Paper>
         <Paper variant="outlined" sx={paperContStyle}>
           {userErr && (

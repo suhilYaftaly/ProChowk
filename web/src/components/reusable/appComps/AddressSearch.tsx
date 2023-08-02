@@ -2,20 +2,18 @@ import { useState, useEffect, ChangeEvent } from "react";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import { Alert, Autocomplete, Grid, TextField } from "@mui/material";
 
-import { getUserLocation } from "@/utils/utilFuncs";
-import { IAddressData, useAddressSearch } from "@gqlOps/address";
+import { getUserLocation } from "@utils/utilFuncs";
+import { IAddress, useGeocode } from "@gqlOps/address";
 
 interface Props {
-  onSelect: (address: IAddressData) => void;
-  address?: IAddressData;
+  onSelect: (address: IAddress) => void;
+  address?: IAddress;
 }
 
 export default function AddressSearch({ onSelect, address }: Props) {
   const [userCoord, setUserCoord] = useState({ lat: 0, lng: 0 });
-  const { addressSearchAsync, data, error, loading } = useAddressSearch();
-  const [adr, setAdr] = useState<IAddressData | string>(address || "");
-
-  useEffect(() => address && setAdr(address), [address]);
+  const { geocodeAsync, data, error, loading } = useGeocode();
+  const [adr, setAdr] = useState<IAddress | undefined>(address);
 
   const onGetUserLocation = () => {
     getUserLocation({
@@ -23,15 +21,15 @@ export default function AddressSearch({ onSelect, address }: Props) {
     });
   };
 
+  useEffect(() => address && setAdr(getAddressFormat(address)), [address]);
   useEffect(() => onGetUserLocation(), []);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const { value } = e.target;
     if (value.length > 4) {
-      addressSearchAsync({
+      geocodeAsync({
         vars: { value, lat: userCoord.lat, lng: userCoord.lng },
       });
-      setAdr(value as any);
     }
   };
 
@@ -39,15 +37,14 @@ export default function AddressSearch({ onSelect, address }: Props) {
     <>
       <Autocomplete
         freeSolo
-        value={adr}
-        id="free-solo-2-demo"
-        disableClearable
+        value={adr?.displayName || ""}
         loading={loading}
         getOptionLabel={(option) =>
           typeof option === "string" ? option : option.displayName
         }
-        options={data?.addressSearch || []}
-        onChange={(_, value: any) => onSelect(value)}
+        options={data?.geocode || []}
+        disableClearable
+        onChange={(_, value: any) => onSelect(getAddressFormat(value))}
         renderInput={(params) => (
           <TextField
             {...params}
@@ -55,6 +52,7 @@ export default function AddressSearch({ onSelect, address }: Props) {
             value={adr}
             placeholder="23 McSweeney Cres..."
             onChange={handleInputChange}
+            autoComplete="off"
             InputProps={{
               ...params.InputProps,
               type: "search",
@@ -85,3 +83,19 @@ export default function AddressSearch({ onSelect, address }: Props) {
     </>
   );
 }
+
+export const getAddressFormat = (adr: IAddress) => {
+  return {
+    displayName: adr.displayName,
+    street: adr.street,
+    city: adr.city,
+    county: adr.county,
+    state: adr.state,
+    stateCode: adr.stateCode,
+    postalCode: adr.postalCode,
+    country: adr.country,
+    countryCode: adr.countryCode,
+    lat: adr.lat,
+    lng: adr.lng,
+  };
+};

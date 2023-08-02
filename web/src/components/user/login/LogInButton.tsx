@@ -23,7 +23,7 @@ export default function LogInButton() {
     <>
       {!userProfile?.data &&
         (userProfile.isLoading ? (
-          <CircularProgress size={20} />
+          <CircularProgress size={20} color="inherit" />
         ) : (
           <NavLink to={paths.login}>
             <Button

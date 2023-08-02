@@ -2,44 +2,40 @@ import { gql } from "graphql-tag";
 
 export default gql`
   type Query {
-    searchContrProf(userId: ID!): Contractor!
+    contractor(id: ID, userId: ID): Contractor!
   }
   type Mutation {
-    updateContrProf(skills: [SkillInput], licenses: [LicenseInput]): Contractor!
+    createContractor(userId: ID!): User!
+    addContractorLicense(contId: ID!, license: LicenseInput!): Contractor!
+    deleteContractorLicense(contId: ID!, licId: ID!): Contractor!
+    addOrRemoveContractorSkills(contId: ID!, skills: [SkillInput]!): Contractor!
   }
 
   type Contractor {
     id: ID!
-    skills: [Skill]
-    licenses: [Licenses]
-    user: User!
     createdAt: String!
     updatedAt: String!
+    skills: [Skill]
+    licenses: [License]
+    userId: ID
+    user: User
   }
-  type Licenses {
-    name: String!
+  type License {
+    id: ID
+    url: String!
+    name: String
     size: Float
-    type: String!
-    desc: String!
-    picture: String!
-  }
-  type User {
-    id: ID!
-    name: String!
-    email: String!
-  }
-  type Skill {
-    label: String!
+    type: String
+    desc: String
+    createdAt: String
+    updatedAt: String
   }
 
   input LicenseInput {
+    url: String!
     name: String!
-    size: Float
+    size: Float!
     type: String!
     desc: String!
-    picture: String!
-  }
-  input SkillInput {
-    label: String!
   }
 `;

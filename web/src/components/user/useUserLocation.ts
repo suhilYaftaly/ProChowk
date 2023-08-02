@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { useMutation } from "@apollo/client";
 
 import { useUserStates } from "@redux/reduxStates";
 import { useAppDispatch } from "@utils/hooks/hooks";
@@ -8,22 +7,17 @@ import {
   userLocationError,
   userLocationSuccess,
 } from "@rSlices/userSlice";
-import userOps, {
-  IGetUserAddressData,
-  IGetUserAddressInput,
-} from "@gqlOps/user";
-import { getUserLocation } from "@/utils/utilFuncs";
+import { useReverseGeocode } from "@gqlOps/address";
+import { getUserLocation, removeTypename } from "@utils/utilFuncs";
+import { useUpdateUser } from "@gqlOps/user";
 
 export default function useUserLocation() {
   const dispatch = useAppDispatch();
   const { userLocation, user } = useUserStates();
   const lat = userLocation?.data?.lat;
   const lng = userLocation?.data?.lng;
-
-  const [getUserAddress] = useMutation<
-    IGetUserAddressData,
-    IGetUserAddressInput
-  >(userOps.Mutations.getUserAddress);
+  const { reverseGeocodeAsync } = useReverseGeocode();
+  const { updateUserAsync } = useUpdateUser();
 
   useEffect(() => {
     getUserLocation({
@@ -34,16 +28,18 @@ export default function useUserLocation() {
 
   const getAddress = async () => {
     if (lat && lng && !user?.address?.city && user?.id) {
-      try {
-        const { data } = await getUserAddress({
-          variables: { id: user.id, lat, lng },
-        });
-        if (data?.getUserAddress) {
-          dispatch(logIn(data?.getUserAddress));
-        } else throw new Error();
-      } catch (error: any) {
-        console.log("get user address from lt&lng failed:", error.message);
-      }
+      reverseGeocodeAsync({
+        variables: { lat, lng },
+        onSuccess: (addr) => {
+          dispatch(logIn({ ...user, address: addr }));
+          updateUserAsync({
+            variables: {
+              id: user.id,
+              edits: { address: removeTypename(addr) },
+            },
+          });
+        },
+      });
     }
   };
 

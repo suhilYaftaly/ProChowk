@@ -2,14 +2,13 @@ import { Autocomplete, TextField, IconButton, Chip, Grid } from "@mui/material";
 import { Dispatch, SetStateAction, useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
 
-import { SkillInput } from "@gqlOps/contractor";
-import { useGetAllSkills } from "@gqlOps/dataList";
 import ErrSnackbar from "../ErrSnackbar";
+import { SkillInput, useSkills } from "@gqlOps/skill";
 
 interface Props {
   skills: SkillInput[] | undefined;
   setSkills: (skills: SkillInput[]) => void;
-  setNewSkills: Dispatch<SetStateAction<SkillInput[]>>;
+  setNewSkills?: Dispatch<SetStateAction<SkillInput[]>>;
 }
 
 export default function SkillsSelection({
@@ -19,12 +18,12 @@ export default function SkillsSelection({
 }: Props) {
   const [openErrBar, setOpenErrBar] = useState(false);
   const {
-    getAllSkillsAsync,
+    skillsAsync,
     data: allSkillsType,
     loading: allSkillsLoading,
     error: allSkillsError,
-  } = useGetAllSkills();
-  const allSkillsData = allSkillsType?.getAllSkills?.data;
+  } = useSkills();
+  const allSkillsData = allSkillsType?.skills;
 
   const handleAdd = (newSkill: SkillInput) => {
     const exists = skills?.some((s) => s.label === newSkill.label);
@@ -33,7 +32,8 @@ export default function SkillsSelection({
       const existsInAllSkills = allSkillsData?.some(
         (s) => s.label === newSkill.label
       );
-      if (!existsInAllSkills) setNewSkills((pv) => [...pv, newSkill]);
+      if (!existsInAllSkills && setNewSkills)
+        setNewSkills((pv) => [...pv, newSkill]);
 
       setSkills(skills ? [...skills, newSkill] : [newSkill]);
     }
@@ -41,9 +41,11 @@ export default function SkillsSelection({
   const handleDelete = (skillToDelete: SkillInput) => () => {
     if (skills) {
       setSkills(skills?.filter((skill) => skill.label !== skillToDelete.label));
-      setNewSkills((skills) =>
-        skills?.filter((skill) => skill.label !== skillToDelete.label)
-      );
+      if (setNewSkills) {
+        setNewSkills((skills) =>
+          skills?.filter((skill) => skill.label !== skillToDelete.label)
+        );
+      }
     }
   };
 
@@ -60,7 +62,7 @@ export default function SkillsSelection({
   return (
     <div>
       <Autocomplete
-        onOpen={getAllSkillsAsync}
+        onOpen={() => skillsAsync({})}
         loading={allSkillsLoading}
         freeSolo
         disablePortal

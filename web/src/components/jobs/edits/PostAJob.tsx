@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import JobForm from "./JobForm";
-import { JobInput } from "@gqlOps/jobs";
+import { JobInput } from "@/graphql/operations/job";
 
 interface Props {
   onAddJob: (job: JobInput) => void;
@@ -15,9 +15,9 @@ export default function PostAJob({ onAddJob }: Props) {
     skills: [],
     budget: {
       type: "Hourly",
-      from: "30",
-      to: "50",
-      maxHours: "150",
+      from: 30,
+      to: 50,
+      maxHours: 150,
     },
     images: [],
     address: undefined as any,

@@ -2,20 +2,19 @@ import * as dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 
 import { gqlError } from "./funcs";
-import { User } from "@prisma/client";
-import { UserRole } from "../types/userTypes";
+import { Role, User } from "@prisma/client";
 
 interface ISignedProps {
   id: string;
   name: string;
   email: string;
-  roles?: UserRole[];
+  roles?: Role[];
   iat?: number;
   exp?: number;
   token?: string;
 }
 
-export default (req: any) => {
+export default (req: any): ISignedProps => {
   dotenv.config();
   const authHeader = req?.headers?.authorization;
   if (authHeader) {
@@ -64,7 +63,30 @@ export const generateToken = (user: User) => {
   return token;
 };
 
-export const isSuperAdmin = (roles: UserRole[] | undefined) =>
+export const isSuperAdmin = (roles: Role[] | undefined) =>
   roles?.includes("superAdmin");
-export const isAdmin = (roles: UserRole[] | undefined) =>
-  roles?.includes("admin");
+export const isAdmin = (roles: Role[] | undefined) => roles?.includes("admin");
+
+export const getIErr = (msg: string) =>
+  gqlError({ msg, code: "BAD_USER_INPUT" });
+
+interface ICanUserUpdate {
+  id: string;
+  authUser: ISignedProps;
+}
+export const canUserUpdate = ({ id, authUser }: ICanUserUpdate) => {
+  try {
+    if (
+      id !== authUser.id &&
+      !isAdmin(authUser.roles) &&
+      !isSuperAdmin(authUser.roles)
+    ) {
+      throw gqlError({
+        msg: "Unauthorized User. You cannot update someone else's account",
+        code: "FORBIDDEN",
+      });
+    }
+  } catch (error) {
+    throw gqlError({ msg: error?.message });
+  }
+};

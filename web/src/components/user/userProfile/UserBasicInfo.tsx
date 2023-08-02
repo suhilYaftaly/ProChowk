@@ -47,12 +47,12 @@ export default function UserBasicInfo({
         maxSize: 400,
         onSuccess: ({ imageUrl, fileSize }) => {
           const formImage = {
-            picture: imageUrl,
+            url: imageUrl,
             name: file.name,
             size: fileSize,
             type: file.type,
           };
-          const variables = { id: user.id, image: formImage };
+          const variables = { id: user.id, edits: { image: formImage } };
           updateUserAsync({ variables, onSuccess: () => setImage(formImage) });
         },
       });
@@ -69,7 +69,7 @@ export default function UserBasicInfo({
             <ButtonBase component="label" htmlFor="avatar-upload">
               <Avatar
                 alt={user?.name}
-                src={image?.picture}
+                src={image?.url}
                 sx={{ width: 120, height: 120 }}
               />
               <input
@@ -83,7 +83,7 @@ export default function UserBasicInfo({
           ) : (
             <Avatar
               alt={user?.name}
-              src={image?.picture}
+              src={image?.url}
               sx={{ width: 120, height: 120 }}
             />
           )}

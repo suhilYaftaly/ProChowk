@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import { styled } from "@mui/material/styles";
-import { Typography, Button, Stack, Grid, Badge, Card } from "@mui/material";
+import { Typography, Stack, Grid, Badge, Card } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
 import { formatBytes, processImageFile } from "@/utils/utilFuncs";
@@ -9,11 +9,11 @@ interface IImgUpload {
   onImageUpload: (imgData: IImage) => void;
 }
 export interface IImage {
-  id: string;
-  name: string;
+  id?: string;
+  name?: string;
   size: number;
-  type: string;
-  picture: string;
+  type?: string;
+  url: string;
 }
 
 const DropzoneContainer = styled("div")<{ isDragging: boolean }>(
@@ -35,7 +35,6 @@ const DropzoneContainer = styled("div")<{ isDragging: boolean }>(
 );
 
 export default function ImageUpload({ onImageUpload }: IImgUpload) {
-  const [imgData, setImgData] = useState<IImage | undefined>(undefined);
   const [isDragging, setIsDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -60,14 +59,6 @@ export default function ImageUpload({ onImageUpload }: IImgUpload) {
     setIsDragging(false);
   };
 
-  const handleFormSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    if (imgData) {
-      onImageUpload(imgData);
-      setImgData(undefined);
-    }
-  };
-
   const processFile = (file: File | undefined) => {
     if (file) {
       const isImage = file.type.startsWith("image/");
@@ -75,13 +66,13 @@ export default function ImageUpload({ onImageUpload }: IImgUpload) {
         processImageFile({
           file,
           onSuccess: ({ imageUrl, fileSize }) => {
-            setImgData({
-              id: String(Math.random()),
+            const img = {
               name: file.name,
               size: fileSize,
               type: file.type,
-              picture: imageUrl,
-            });
+              url: imageUrl,
+            };
+            onImageUpload(img);
             resetFileInput();
           },
         });
@@ -96,7 +87,7 @@ export default function ImageUpload({ onImageUpload }: IImgUpload) {
   };
 
   return (
-    <Stack spacing={2} component={"form"} onSubmit={handleFormSubmit}>
+    <Stack spacing={2} component={"form"}>
       <label htmlFor="image-upload-input">
         <DropzoneContainer
           onDrop={handleDrop}
@@ -112,28 +103,16 @@ export default function ImageUpload({ onImageUpload }: IImgUpload) {
             style={{ display: "none" }}
             id="image-upload-input"
           />
-          {imgData ? (
-            <img
-              src={imgData.picture}
-              alt={imgData.name}
-              loading="lazy"
-              style={{ maxWidth: 350, maxHeight: 350 }}
-            />
-          ) : (
-            <>
-              <CloudUploadIcon sx={{ width: 120, height: 120 }} />
-              <Typography variant="body1">
-                {isDragging
-                  ? "Drop the Image here"
-                  : "Drag and drop Image or click to select"}
-              </Typography>
-            </>
-          )}
+          <>
+            <CloudUploadIcon sx={{ width: 100, height: 100 }} />
+            <Typography variant="body1">
+              {isDragging
+                ? "Drop the Image here"
+                : "Drag and drop Image or click to select"}
+            </Typography>
+          </>
         </DropzoneContainer>
       </label>
-      <Button type="submit" fullWidth variant="contained">
-        +Add
-      </Button>
     </Stack>
   );
 }
@@ -141,17 +120,24 @@ export default function ImageUpload({ onImageUpload }: IImgUpload) {
 interface IShowImages {
   images: IImage[];
   setImages: (images: IImage[]) => void;
+  setDeletedImgId?: (id: string) => void;
 }
-export const ShowImages = ({ images, setImages }: IShowImages) => {
-  const onDelete = (id: IImage["id"]) => {
-    setImages(images.filter((file) => file.id !== id));
+export const ShowImages = ({
+  images,
+  setImages,
+  setDeletedImgId,
+}: IShowImages) => {
+  const onDelete = (index: number) => {
+    const imgId = images?.[index]?.id;
+    if (imgId && setDeletedImgId) setDeletedImgId(imgId);
+    setImages(images.filter((_, i) => i !== index));
   };
 
   return (
     <>
       <Grid container spacing={1}>
-        {images?.map((img) => (
-          <Grid item key={img.id}>
+        {images?.map((img, i) => (
+          <Grid item key={i}>
             <Stack direction={"column"}>
               <Badge
                 sx={{ boxShadow: 4, borderRadius: 50 }}
@@ -163,7 +149,7 @@ export const ShowImages = ({ images, setImages }: IShowImages) => {
                       px: 0.5,
                       cursor: "pointer",
                     }}
-                    onClick={() => onDelete(img.id)}
+                    onClick={() => onDelete(i)}
                   >
                     <Typography>✖</Typography>
                   </Card>
@@ -172,8 +158,8 @@ export const ShowImages = ({ images, setImages }: IShowImages) => {
                 anchorOrigin={{ vertical: "top", horizontal: "right" }}
               >
                 <img
-                  src={img.picture}
-                  alt={img.id}
+                  src={img.url}
+                  alt={img.name}
                   width="75"
                   height="75"
                   style={{ borderRadius: 50 }}

@@ -48,7 +48,7 @@ export default function UserProfilePopover() {
         >
           <Avatar
             alt={user?.name}
-            src={user?.image?.picture}
+            src={user?.image?.url}
             sx={{ width: 24, height: 24 }}
           />
         </IconButton>
@@ -76,7 +76,7 @@ export default function UserProfilePopover() {
                   <ListItemIcon>
                     <Avatar
                       alt={user?.name}
-                      src={user?.image?.picture}
+                      src={user?.image?.url}
                       sx={{ width: 24, height: 24 }}
                     />
                   </ListItemIcon>

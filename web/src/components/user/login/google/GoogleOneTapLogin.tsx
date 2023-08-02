@@ -1,39 +1,29 @@
 import { useGoogleOneTapLogin } from "@react-oauth/google";
-import { useMutation } from "@apollo/client";
+import { useNavigate } from "react-router-dom";
 
 import { useAppDispatch } from "@utils/hooks/hooks";
 import { logIn, userProfileBegin, userProfileError } from "@rSlices/userSlice";
-import userOps, {
-  IGoogleOneTapLoginData,
-  IGoogleOneTapLoginInput,
-} from "@gqlOps/user";
+import { useGOneTapLogin } from "@gqlOps/user";
 import { openUserIfNewUser } from "@/utils/utilFuncs";
-import { useNavigate } from "react-router-dom";
 
 export default function GoogleOneTapLogin() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const [googleOneTapLogin] = useMutation<
-    IGoogleOneTapLoginData,
-    IGoogleOneTapLoginInput
-  >(userOps.Mutations.googleOneTapLogin);
+  const { gOneTapLoginAsync } = useGOneTapLogin();
 
   useGoogleOneTapLogin({
     onSuccess: async (token) => {
-      try {
+      if (token?.credential) {
         dispatch(userProfileBegin());
-        if (token.credential) {
-          const { data } = await googleOneTapLogin({
-            variables: { credential: token.credential },
-          });
-          const userData = data?.googleOneTapLogin;
-          if (userData) {
-            dispatch(logIn(userData));
-            openUserIfNewUser({ user: userData, navigate });
-          } else throw new Error();
-        } else throw new Error();
-      } catch (error: any) {
-        dispatch(userProfileError({ message: error?.message }));
+        gOneTapLoginAsync({
+          variables: { credential: token.credential },
+          onSuccess: (d) => {
+            dispatch(logIn(d));
+            openUserIfNewUser({ user: d, navigate });
+          },
+          onError: (err) =>
+            dispatch(userProfileError({ message: err?.message })),
+        });
       }
     },
     onError: () =>

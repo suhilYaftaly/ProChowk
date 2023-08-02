@@ -1,11 +1,11 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { googleLogout } from "@react-oauth/google";
 import { USER_PROFILE_KEY } from "../../constants/localStorageKeys";
-import { IUserData } from "@/graphql/operations/user";
+import { IUser } from "@gqlOps/user";
 
 interface UserState {
   userProfile: {
-    data: IUserData | undefined;
+    data: IUser | undefined;
     isLoading: boolean;
     error: { message: string; [key: string]: any } | undefined;
   };
@@ -82,12 +82,11 @@ const { userProfileSuccess, setIsLoggedOut, setUserProfileInfo } =
   slice.actions;
 export default slice.reducer;
 
-export const logIn =
-  (payload: UserState["userProfile"]["data"]) => (dispatch: any) => {
-    dispatch(userProfileSuccess(payload));
-    dispatch(setIsLoggedOut(false));
-    localStorage.setItem(USER_PROFILE_KEY, JSON.stringify(payload));
-  };
+export const logIn = (payload: IUser) => (dispatch: any) => {
+  dispatch(userProfileSuccess(payload));
+  dispatch(setIsLoggedOut(false));
+  localStorage.setItem(USER_PROFILE_KEY, JSON.stringify(payload));
+};
 export const logOut = () => (dispatch: any) => {
   googleLogout();
   dispatch(userProfileSuccess(undefined));
@@ -95,7 +94,9 @@ export const logOut = () => (dispatch: any) => {
   localStorage.removeItem(USER_PROFILE_KEY);
 };
 export const setUserProfile =
-  (payload: UserState["userProfile"]["data"]) => (dispatch: any) => {
-    dispatch(setUserProfileInfo(payload));
-    localStorage.setItem(USER_PROFILE_KEY, JSON.stringify(payload));
+  (payload: IUser) => (dispatch: any, getState: any) => {
+    const token = getState().user.userProfile.data?.token;
+    const pData = { ...payload, token };
+    dispatch(setUserProfileInfo(pData));
+    localStorage.setItem(USER_PROFILE_KEY, JSON.stringify(pData));
   };
