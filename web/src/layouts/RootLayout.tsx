@@ -32,14 +32,14 @@ export default function RootLayout() {
       <AppHeader />
       <Outlet />
       <ErrSnackbar
-        errMsg="Your Session has Expired, Please Login again!"
-        open={isSessionExpired}
-        handleClose={() => dispatch(setSessionExpired(false))}
-      />
-      <ErrSnackbar
         errMsg={globalError}
         open={showGlobalErr}
         handleClose={onGlobalErrClose}
+      />
+      <ErrSnackbar
+        errMsg="Your Session has Expired, Please Login again!"
+        open={isSessionExpired}
+        handleClose={() => dispatch(setSessionExpired(false))}
       />
     </>
   );
