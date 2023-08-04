@@ -2,7 +2,11 @@ import { Alert, Button, CircularProgress, Stack } from "@mui/material";
 import { FormEvent, useEffect, useState } from "react";
 
 import { IContractor, useAddOrRemoveContSkills } from "@gqlOps/contractor";
-import SkillsSelection, { addSkills } from "@appComps/SkillsSelection";
+import SkillsSelection, {
+  addSkills,
+  getNewSkills,
+} from "@appComps/SkillsSelection";
+import { ISkill, useSkills } from "@gqlOps/skill";
 
 interface Props {
   contrData: IContractor | undefined;
@@ -13,8 +17,10 @@ export default function UserSkillsEdit({ contrData, closeEdit }: Props) {
   const [selectedSkills, setSelectedSkills] = useState(
     addSkills(contrData?.skills)
   );
+  const [allSkills, setAllSkills] = useState<ISkill[]>([]);
   const { addOrRemoveContSkillsAsync, error, loading, contLoading } =
     useAddOrRemoveContSkills();
+  const { updateCache } = useSkills();
 
   useEffect(
     () => setSelectedSkills(addSkills(contrData?.skills)),
@@ -26,7 +32,15 @@ export default function UserSkillsEdit({ contrData, closeEdit }: Props) {
     if (contrData) {
       addOrRemoveContSkillsAsync({
         variables: { skills: selectedSkills, contId: contrData.id },
-        onSuccess: closeEdit,
+        onSuccess: (dt) => {
+          const newSkills = getNewSkills({
+            newList: dt.skills,
+            oldList: allSkills,
+          });
+          if (newSkills && newSkills?.length > 0)
+            updateCache("create", newSkills);
+          closeEdit();
+        },
       });
     }
   };
@@ -39,7 +53,11 @@ export default function UserSkillsEdit({ contrData, closeEdit }: Props) {
       autoComplete="off"
       onSubmit={handleSave}
     >
-      <SkillsSelection skills={selectedSkills} setSkills={setSelectedSkills} />
+      <SkillsSelection
+        skills={selectedSkills}
+        setSkills={setSelectedSkills}
+        setAllSkills={setAllSkills}
+      />
       <Button
         type="submit"
         variant="contained"

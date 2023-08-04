@@ -5,6 +5,7 @@ import JobType from "./JobType";
 import JobBudget from "./JobBudget";
 import JobDetails from "./JobDetails";
 import { IJob, ImagesToDelete, JobInput } from "@gqlOps/job";
+import { ISkill } from "@gqlOps/skill";
 
 export interface IJobError {
   title: string;
@@ -20,9 +21,15 @@ interface Props {
   onAddJob: (job: IJob | JobInput, imagesToDelete: ImagesToDelete) => void;
   job: IJob | JobInput;
   setJob: (job: IJob | JobInput) => void;
+  setAllSkills?: (skills: ISkill[]) => void;
 }
 
-export default function JobForm({ onAddJob, job, setJob }: Props) {
+export default function JobForm({
+  onAddJob,
+  job,
+  setJob,
+  setAllSkills,
+}: Props) {
   const [errors, setErrors] = useState<IJobError>(resetErr);
   const [activeStep, setActiveStep] = useState(0);
   const [imgsToDelete, setImgsToDelete] = useState<ImagesToDelete>([]);
@@ -30,7 +37,14 @@ export default function JobForm({ onAddJob, job, setJob }: Props) {
   const steps = [
     {
       label: "Job Type",
-      comp: <JobType job={job} setJob={setJob} errors={errors} />,
+      comp: (
+        <JobType
+          job={job}
+          setJob={setJob}
+          errors={errors}
+          setAllSkills={setAllSkills}
+        />
+      ),
     },
     {
       label: "Budget",

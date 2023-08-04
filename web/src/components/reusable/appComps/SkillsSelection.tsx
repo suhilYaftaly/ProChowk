@@ -1,20 +1,22 @@
 import { Autocomplete, TextField, IconButton, Chip, Grid } from "@mui/material";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
 
 import ErrSnackbar from "../ErrSnackbar";
-import { SkillInput, useSkills } from "@gqlOps/skill";
+import { ISkill, SkillInput, useSkills } from "@gqlOps/skill";
 
 interface Props {
   skills: SkillInput[] | undefined;
   setSkills: (skills: SkillInput[]) => void;
   setNewSkills?: Dispatch<SetStateAction<SkillInput[]>>;
+  setAllSkills?: (skills: ISkill[]) => void;
 }
 
 export default function SkillsSelection({
   skills,
   setSkills,
   setNewSkills,
+  setAllSkills,
 }: Props) {
   const [openErrBar, setOpenErrBar] = useState(false);
   const {
@@ -24,6 +26,10 @@ export default function SkillsSelection({
     error: allSkillsError,
   } = useSkills();
   const allSkillsData = allSkillsType?.skills;
+
+  useEffect(() => {
+    if (setAllSkills && allSkillsData) setAllSkills(allSkillsData);
+  }, [allSkillsData]);
 
   const handleAdd = (newSkill: SkillInput) => {
     const exists = skills?.some((s) => s.label === newSkill.label);
@@ -123,4 +129,19 @@ export default function SkillsSelection({
 export const addSkills = (skills: SkillInput[] | undefined) => {
   if (!skills) return [];
   return skills?.map((skill) => ({ label: skill.label }));
+};
+
+export const getNewSkills = ({
+  newList,
+  oldList,
+}: {
+  newList: ISkill[];
+  oldList: ISkill[];
+}): ISkill[] | undefined => {
+  if (newList?.length > 0 && oldList?.length > 0) {
+    return newList.filter(
+      (contSkill) =>
+        !oldList.some((listSkill) => listSkill.label === contSkill.label)
+    );
+  } else return undefined;
 };

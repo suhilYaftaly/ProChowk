@@ -114,52 +114,29 @@ export default {
           include: { skills: true },
         });
         canUserUpdate({ id: contractor.userId, authUser });
-
-        // Fetch all existing skill labels
-        const allSkills = await prisma.skill.findMany({
-          select: { label: true },
-        });
-        const allSkillLabels = allSkills.map((skill) => skill.label);
-
         if (!contractor) throw gqlError({ msg: "Contractor not found" });
 
-        // Separate the input skills into existing and new
-        const existingSkills = skills.filter((skill) =>
-          allSkillLabels.includes(skill.label)
-        );
-        const newSkills = skills.filter(
-          (skill) => !allSkillLabels.includes(skill.label)
-        );
+        // Determine the IDs of the skills to disconnect
+        const skillIdsToDisconnect = contractor.skills
+          .filter((skill) => !skills.some((s) => s.label === skill.label))
+          .map((skill) => ({ id: skill.id }));
 
-        // Disconnect the existing skills that are not in the input
-        const skillDisconnects = contractor.skills
-          .filter(
-            (skill) => !existingSkills.some((s) => s.label === skill.label)
-          )
-          .map((skill) =>
-            prisma.contractor.update({
-              where: { id: contId },
-              data: { skills: { disconnect: { id: skill.id } } },
-            })
-          );
+        // Prepare connectOrCreate operations
+        const connectOrCreateOperations = skills.map((skill) => ({
+          where: { label: skill.label },
+          create: skill,
+        }));
 
-        // Connect or create new skills
-        const skillConnects = [...existingSkills, ...newSkills].map((skill) =>
-          prisma.contractor.update({
-            where: { id: contId },
-            data: {
-              skills: {
-                connectOrCreate: {
-                  where: { label: skill.label },
-                  create: skill,
-                },
-              },
+        // Perform one update operation that disconnects and connects or creates skills
+        await prisma.contractor.update({
+          where: { id: contId },
+          data: {
+            skills: {
+              disconnect: skillIdsToDisconnect,
+              connectOrCreate: connectOrCreateOperations,
             },
-          })
-        );
-
-        // Execute the operations in parallel
-        await Promise.all([...skillDisconnects, ...skillConnects]);
+          },
+        });
 
         return await prisma.contractor.findUnique({
           where: { id: contId },

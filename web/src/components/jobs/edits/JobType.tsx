@@ -15,14 +15,16 @@ import {
 import SkillsSelection from "@appComps/SkillsSelection";
 import { IJobError } from "./JobForm";
 import { JobInput } from "@gqlOps/job";
+import { ISkill } from "@gqlOps/skill";
 
 interface Props {
   job: JobInput;
   setJob: (job: JobInput) => void;
   errors: IJobError;
+  setAllSkills?: (skills: ISkill[]) => void;
 }
 
-export default function JobType({ job, setJob, errors }: Props) {
+export default function JobType({ job, setJob, errors, setAllSkills }: Props) {
   const jobSizes: JobInput["jobSize"][] = ["Small", "Medium", "Large"];
   const onValueChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
@@ -74,6 +76,7 @@ export default function JobType({ job, setJob, errors }: Props) {
       <SkillsSelection
         skills={job.skills}
         setSkills={(skills) => setJob({ ...job, skills })}
+        setAllSkills={setAllSkills}
       />
       {Boolean(errors.skills) && (
         <Alert severity="error" color="error">

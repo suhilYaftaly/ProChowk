@@ -37,6 +37,8 @@ import {
 import ErrSnackbar from "@reusable/ErrSnackbar";
 import { removeServerMetadata, trimText } from "@utils/utilFuncs";
 import { paths } from "@routes/PageRoutes";
+import { ISkill, useSkills } from "@gqlOps/skill";
+import { getNewSkills } from "@appComps/SkillsSelection";
 
 export default function Jobs({ isMyProfile, userId, user }: IUserInfo) {
   const navigate = useNavigate();
@@ -44,10 +46,12 @@ export default function Jobs({ isMyProfile, userId, user }: IUserInfo) {
   const { createJobAsync, loading: createLoading } = useCreateJob();
   const { updateJobAsync, loading: updateLoading } = useUpdateJob();
   const { deleteJobAsync, loading: deleteLoading } = useDeleteJob();
+  const { updateCache } = useSkills();
   const [editJob, setEditJob] = useState<JobInput | IJob>();
   const [openAdd, setOpenAdd] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [openErrBar, setContErrBar] = useState(false);
+  const [allSkills, setAllSkills] = useState<ISkill[]>([]);
 
   useEffect(() => {
     if (userId) userJobsAsync({ variables: { userId } });
@@ -55,7 +59,17 @@ export default function Jobs({ isMyProfile, userId, user }: IUserInfo) {
 
   const onAddJob = (job: JobInput) => {
     if (userId) {
-      createJobAsync({ variables: { userId, jobInput: job } });
+      createJobAsync({
+        variables: { userId, jobInput: job },
+        onSuccess: (dt) => {
+          const newSkills = getNewSkills({
+            newList: dt.skills,
+            oldList: allSkills,
+          });
+          if (newSkills && newSkills?.length > 0)
+            updateCache("create", newSkills);
+        },
+      });
       setOpenAdd(false);
     }
   };
@@ -77,6 +91,14 @@ export default function Jobs({ isMyProfile, userId, user }: IUserInfo) {
             images: cleanedJob.images,
             address: cleanedJob.address,
           },
+        },
+        onSuccess: (dt) => {
+          const newSkills = getNewSkills({
+            newList: dt.skills,
+            oldList: allSkills,
+          });
+          if (newSkills && newSkills?.length > 0)
+            updateCache("create", newSkills);
         },
       });
       setOpenEdit(false);
@@ -188,11 +210,16 @@ export default function Jobs({ isMyProfile, userId, user }: IUserInfo) {
         )}
       </Grid>
       <CustomModal title="Post a new job" open={openAdd} onClose={setOpenAdd}>
-        <PostAJob onAddJob={onAddJob} />
+        <PostAJob onAddJob={onAddJob} setAllSkills={setAllSkills} />
       </CustomModal>
       {editJob && (
         <CustomModal title="Edit Job" open={openEdit} onClose={setOpenEdit}>
-          <JobForm onAddJob={onEditJob} job={editJob} setJob={setEditJob} />
+          <JobForm
+            onAddJob={onEditJob}
+            job={editJob}
+            setJob={setEditJob}
+            setAllSkills={setAllSkills}
+          />
         </CustomModal>
       )}
       <ErrSnackbar

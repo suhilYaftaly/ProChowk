@@ -1,4 +1,4 @@
-import { gql, useLazyQuery } from "@apollo/client";
+import { gql, useApolloClient, useLazyQuery } from "@apollo/client";
 import { asyncOps } from "./gqlFuncs";
 
 export const skillGqlResp = gql`
@@ -48,6 +48,7 @@ interface ISkillsIAsync {
 }
 
 export const useSkills = () => {
+  const client = useApolloClient();
   const [skills, { data, loading, error }] = useLazyQuery<ISkillsData>(
     skillOps.Queries.skills
   );
@@ -59,5 +60,44 @@ export const useSkills = () => {
       onError,
     });
 
-  return { skillsAsync, data, loading, error };
+  const updateCache = (
+    action: "create" | "update" | "delete",
+    skillsToUpdate: ISkill[]
+  ) => {
+    const cachedData = client.readQuery<ISkillsData>({
+      query: skillOps.Queries.skills,
+    });
+
+    if (cachedData) {
+      let newData = { ...cachedData };
+      switch (action) {
+        case "create":
+          newData.skills = [...newData.skills, ...skillsToUpdate];
+          break;
+        case "update":
+          skillsToUpdate.forEach((skill) => {
+            newData.skills = newData.skills.map((eSkill) =>
+              eSkill.label === skill.label ? skill : eSkill
+            );
+          });
+          break;
+        case "delete":
+          skillsToUpdate.forEach((skill) => {
+            newData.skills = newData.skills.filter(
+              (eSkill) => eSkill.label !== skill.label
+            );
+          });
+          break;
+        default:
+          return;
+      }
+
+      client.writeQuery({
+        query: skillOps.Queries.skills,
+        data: newData,
+      });
+    }
+  };
+
+  return { skillsAsync, updateCache, data, loading, error };
 };

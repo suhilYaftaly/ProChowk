@@ -1,13 +1,15 @@
 import { useState } from "react";
 
 import JobForm from "./JobForm";
-import { JobInput } from "@/graphql/operations/job";
+import { JobInput } from "@gqlOps/job";
+import { ISkill } from "@gqlOps/skill";
 
 interface Props {
   onAddJob: (job: JobInput) => void;
+  setAllSkills?: (skills: ISkill[]) => void;
 }
 
-export default function PostAJob({ onAddJob }: Props) {
+export default function PostAJob({ onAddJob, setAllSkills }: Props) {
   const [job, setJob] = useState<JobInput>({
     title: "",
     desc: "",
@@ -23,5 +25,12 @@ export default function PostAJob({ onAddJob }: Props) {
     address: undefined as any,
   });
 
-  return <JobForm onAddJob={onAddJob} job={job} setJob={setJob} />;
+  return (
+    <JobForm
+      onAddJob={onAddJob}
+      job={job}
+      setJob={setJob}
+      setAllSkills={setAllSkills}
+    />
+  );
 }
