@@ -253,7 +253,7 @@ export const useUserJobs = () => {
       let modifiedData: IJob[] = [...cachedData.userJobs];
       switch (action) {
         case "create":
-          modifiedData.push(job);
+          modifiedData.unshift(job);
           break;
         case "update":
           modifiedData = modifiedData.map((j) => (j.id === job.id ? job : j));
