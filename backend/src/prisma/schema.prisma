@@ -52,6 +52,7 @@ model Address {
     countryCode String
     lat         Float
     lng         Float
+    geometry    Json
     createdAt   DateTime @default(now())
     updatedAt   DateTime @updatedAt
     User        User[]

@@ -5,7 +5,7 @@ import {
   ISkillInput,
 } from "../../types/commonTypes";
 import checkAuth, { canUserUpdate } from "../../utils/checkAuth";
-import { getIErr, gqlError } from "../../utils/funcs";
+import { showInputError, gqlError } from "../../utils/funcs";
 
 export default {
   Query: {
@@ -24,7 +24,7 @@ export default {
           });
           if (!eContr) throw gqlError({ msg: "Contractor not found" });
           return eContr;
-        } else throw getIErr("userId or contractorId must be provided");
+        } else throw showInputError("userId or contractorId must be provided");
       } catch (error: any) {
         throw gqlError({ msg: error?.message });
       }

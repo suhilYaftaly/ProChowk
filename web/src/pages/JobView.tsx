@@ -11,9 +11,8 @@ import UserSection from "@jobs/jobView/UserSection";
 import DetailsSection from "@jobs/jobView/DetailsSection";
 
 export default function JobView() {
-  const { nameId, jobId } = useParams();
+  const { userId, jobId } = useParams();
   const { user: loggedInUser } = useUserStates();
-  const userId = nameId?.split("-")?.[1];
   const isMyProfile = userId === loggedInUser?.id;
   const {
     userAsync,

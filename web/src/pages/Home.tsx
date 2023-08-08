@@ -6,6 +6,7 @@ import {
   CardContent,
   Typography,
   CardMedia,
+  Divider,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
@@ -13,6 +14,7 @@ import userOps, { IUsersData } from "@gqlOps/user.ts";
 import { paths } from "@/routes/PageRoutes";
 import CenteredStack from "@reusable/CenteredStack";
 import { ppx } from "@/config/configConst";
+import SearchJobsBySkill from "@jobs/SearchJobsBySkill";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -20,6 +22,8 @@ export default function Home() {
 
   return (
     <CenteredStack mx={ppx}>
+      <SearchJobsBySkill />
+      <Divider sx={{ my: 3 }} />
       <Grid container direction={"row"} spacing={1}>
         {allUsers?.users?.map((user) => (
           <Grid item key={user.id}>

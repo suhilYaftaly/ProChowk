@@ -1,7 +1,8 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { googleLogout } from "@react-oauth/google";
-import { USER_PROFILE_KEY } from "../../constants/localStorageKeys";
+import { USER_PROFILE_KEY } from "@constants/localStorageKeys";
 import { IUser } from "@gqlOps/user";
+import { ILatLng } from "@gqlOps/address";
 
 interface UserState {
   userProfile: {
@@ -11,7 +12,7 @@ interface UserState {
   };
   isLoggedOut: boolean | undefined;
   userLocation: {
-    data: { lat: number; lng: number; [key: string]: any } | undefined;
+    data: ILatLng | undefined;
     isLoading: boolean;
     error: { message: string; [key: string]: any } | undefined;
   };

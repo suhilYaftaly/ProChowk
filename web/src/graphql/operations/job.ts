@@ -6,7 +6,7 @@ import {
 } from "@apollo/client";
 import { ISkill, SkillInput, skillGqlResp } from "./skill";
 import { IUser, userGqlResp } from "./user";
-import { AddressInput, IAddress, addressGqlResp } from "./address";
+import { AddressInput, IAddress, LatLngInput, addressGqlResp } from "./address";
 import { IImage, ImageInput } from "@/types/commonTypes";
 import { asyncOps } from "./gqlFuncs";
 
@@ -79,6 +79,24 @@ const jobOps = {
       ${jobGqlResp}
       query UserJobs($userId: ID!) {
         userJobs(userId: $userId) {
+          ...JobFields
+        }
+      }
+    `,
+    jobsBySkill: gql`
+      ${jobGqlResp}
+      query JobsBySkill(
+        $skill: String!
+        $latLng: LatLngInput!
+        $radius: Float
+        $limit: Float
+      ) {
+        jobsBySkill(
+          skill: $skill
+          latLng: $latLng
+          radius: $radius
+          limit: $limit
+        ) {
           ...JobFields
         }
       }
@@ -274,6 +292,77 @@ export const useUserJobs = () => {
   };
 
   return { userJobsAsync, updateUserJobsCache, data, loading, error };
+};
+
+//jobsBySkill op
+interface IJobsBySkillData {
+  jobsBySkill: IJob[];
+}
+interface IJobsBySkillInput {
+  skill: string;
+  latLng: LatLngInput;
+  radius?: number;
+  limit?: number;
+}
+interface IJobsBySkillIAsync {
+  variables: IJobsBySkillInput;
+  onSuccess?: (data: IJob[]) => void;
+  onError?: (error?: any) => void;
+}
+export const useJobsBySkill = () => {
+  const client = useApolloClient();
+  const [jobsBySkill, { data, loading, error }] = useLazyQuery<
+    IJobsBySkillData,
+    IJobsBySkillInput
+  >(jobOps.Queries.jobsBySkill);
+
+  const jobsBySkillAsync = async ({
+    variables,
+    onSuccess,
+    onError,
+  }: IJobsBySkillIAsync) =>
+    asyncOps({
+      operation: () => jobsBySkill({ variables }),
+      onSuccess: (dt: IJobsBySkillData) =>
+        onSuccess && onSuccess(dt.jobsBySkill),
+      onError,
+    });
+
+  const updateCache = (
+    action: "create" | "update" | "delete",
+    job: IJob,
+    variables: IJobsBySkillInput
+  ) => {
+    const cachedData = client.readQuery<IJobsBySkillData, IJobsBySkillInput>({
+      query: jobOps.Queries.jobsBySkill,
+      variables,
+    });
+
+    if (cachedData) {
+      let modifiedData: IJob[] = [...cachedData.jobsBySkill];
+      switch (action) {
+        case "create":
+          modifiedData.unshift(job);
+          break;
+        case "update":
+          modifiedData = modifiedData.map((j) => (j.id === job.id ? job : j));
+          break;
+        case "delete":
+          modifiedData = modifiedData.filter((j) => j.id !== job.id);
+          break;
+        default:
+          throw new Error("Invalid action type");
+      }
+
+      client.writeQuery<IJobsBySkillData, IJobsBySkillInput>({
+        query: jobOps.Queries.jobsBySkill,
+        data: { jobsBySkill: modifiedData },
+        variables,
+      });
+    }
+  };
+
+  return { jobsBySkillAsync, updateCache, data, loading, error };
 };
 
 //createJob op

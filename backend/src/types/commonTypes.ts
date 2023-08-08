@@ -10,12 +10,14 @@ import {
 } from "@prisma/client";
 import { PubSub } from "graphql-subscriptions";
 import { Context } from "graphql-ws/lib/server";
+import { MongoClient } from "mongodb";
 
 //server configs
 export interface GraphQLContext {
   req: any;
   prisma: PrismaClient;
   pubsub: PubSub;
+  mongoClient: MongoClient;
 }
 export interface SubsciptionContext extends Context {
   connectionParams: {

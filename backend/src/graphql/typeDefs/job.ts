@@ -4,7 +4,12 @@ export default gql`
   type Query {
     job(id: ID!): Job!
     userJobs(userId: ID!): [Job!]!
-    jobsBySkill(skillLabel: String!, lat: Float!, lng: Float!): [Job!]!
+    jobsBySkill(
+      skill: String!
+      latLng: LatLngInput!
+      radius: Float
+      limit: Float
+    ): [Job!]!
   }
   type Mutation {
     createJob(userId: ID!, jobInput: JobInput!): Job!

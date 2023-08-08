@@ -6,17 +6,12 @@ import qs from "querystring";
 import axios from "axios";
 
 import {
-  getIErr,
+  showInputError,
   gqlError,
   validateEmail,
   validatePhoneNum,
 } from "../../utils/funcs";
-import checkAuth, {
-  canUserUpdate,
-  generateToken,
-  isAdmin,
-  isSuperAdmin,
-} from "../../utils/checkAuth";
+import checkAuth, { canUserUpdate, generateToken } from "../../utils/checkAuth";
 import {
   GraphQLContext,
   IAddressInput,
@@ -85,7 +80,7 @@ export default {
           where: { email: { equals: email, mode: "insensitive" } },
         });
         if (existingUser) {
-          throw getIErr(
+          throw showInputError(
             "There is already an account registered with this email, Please login instead"
           );
         }
@@ -343,9 +338,8 @@ export default {
   },
 };
 
-const getUserProps = (user: User, token?) => {
-  return token ? { ...user, token } : user;
-};
+const getUserProps = (user: User, token?) =>
+  token ? { ...user, token } : user;
 
 /**
  * INTERFACES
@@ -378,21 +372,22 @@ interface IValidateUUI {
  * VALIDATORS
  */
 const validateUserName = (name: string) => {
-  if (name.trim()?.length < 3) return getIErr("Name must be more than 3 chars");
+  if (name.trim()?.length < 3)
+    return showInputError("Name must be more than 3 chars");
   return undefined;
 };
 
 const validateRegisterI = ({ name, password, email }: IRegisterUserInput) => {
   validateUserName(name);
-  if (!validateEmail(email)) return getIErr("Invalid email address");
-  if (password === "") return getIErr("Password must not be empty");
+  if (!validateEmail(email)) return showInputError("Invalid email address");
+  if (password === "") return showInputError("Password must not be empty");
 
   return undefined;
 };
 
 const validateLoginInput = ({ email, password }: ILoginUserInput) => {
-  if (!validateEmail(email)) return getIErr("Invalid email address");
-  if (password === "") return getIErr("Password must not be empty");
+  if (!validateEmail(email)) return showInputError("Invalid email address");
+  if (password === "") return showInputError("Password must not be empty");
 
   return undefined;
 };
@@ -413,19 +408,19 @@ const validateUpdateUserI = ({
 
   if (bio) {
     if (bio.trim()?.length < 10)
-      return { error: getIErr("bio must be more than 10 chars") };
+      return { error: showInputError("bio must be more than 10 chars") };
     data.bio = bio;
   }
 
   if (userTypes) {
     if (userTypes?.length < 1)
-      return { error: getIErr("User type cannot be empty") };
+      return { error: showInputError("User type cannot be empty") };
     data.userTypes = userTypes;
   }
 
   if (phoneNum) {
     if (!validatePhoneNum(phoneNum))
-      return { error: getIErr("Incorrect phone number format") };
+      return { error: showInputError("Incorrect phone number format") };
     data.phoneNum = phoneNum;
   }
 
@@ -435,13 +430,13 @@ const validateUpdateUserI = ({
 const validateUserImageI = (image: IUserImageInput) => {
   const validate = () => {
     if (typeof image !== "object" || image === null) {
-      return getIErr("Invalid image format");
+      return showInputError("Invalid image format");
     }
     if (!("url" in image)) {
-      return getIErr("Image must have a 'url' field");
+      return showInputError("Image must have a 'url' field");
     }
     if (typeof image.url !== "string" || image.url.trim() === "") {
-      return getIErr("Image url must be a non-empty string");
+      return showInputError("Image url must be a non-empty string");
     }
 
     return undefined;
@@ -469,22 +464,27 @@ const validateUserAddressI = (address: IAddressInput) => {
       lng,
     } = address;
 
-    if (street && street?.trim() === "") return getIErr("Street is required");
-    if (county && county?.trim() === "") return getIErr("County is required");
-    if (state && state?.trim() === "") return getIErr("State is required");
-    if (city && city?.trim() === "") return getIErr("City is required");
+    if (street && street?.trim() === "")
+      return showInputError("Street is required");
+    if (county && county?.trim() === "")
+      return showInputError("County is required");
+    if (state && state?.trim() === "")
+      return showInputError("State is required");
+    if (city && city?.trim() === "") return showInputError("City is required");
     if (stateCode && stateCode?.trim() === "")
-      return getIErr("State Code is required");
+      return showInputError("State Code is required");
     if (postalCode && postalCode?.trim() === "")
-      return getIErr("Postal code is required");
+      return showInputError("Postal code is required");
     if (country && country?.trim() === "")
-      return getIErr("Country is required");
+      return showInputError("Country is required");
     if (countryCode && countryCode?.trim() === "")
-      return getIErr("Country code is required");
+      return showInputError("Country code is required");
     if (displayName && displayName?.trim() === "")
-      return getIErr("Display name is required");
-    if (lat && isNaN(Number(lat))) return getIErr("Invalid latitude value");
-    if (lng && isNaN(Number(lng))) return getIErr("Invalid longitude value");
+      return showInputError("Display name is required");
+    if (lat && isNaN(Number(lat)))
+      return showInputError("Invalid latitude value");
+    if (lng && isNaN(Number(lng)))
+      return showInputError("Invalid longitude value");
 
     return undefined;
   };

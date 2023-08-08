@@ -1,8 +1,8 @@
 import * as dotenv from "dotenv";
 import jwt from "jsonwebtoken";
+import { Role, User } from "@prisma/client";
 
 import { gqlError } from "./funcs";
-import { Role, User } from "@prisma/client";
 
 interface ISignedProps {
   id: string;
@@ -51,7 +51,7 @@ export const generateToken = (user: User) => {
       roles: user.roles,
     } as ISignedProps,
     process.env.AUTH_SECRET as string,
-    { expiresIn: "30d" }
+    { expiresIn: "7d" }
   );
 
   if (!token)
@@ -66,9 +66,6 @@ export const generateToken = (user: User) => {
 export const isSuperAdmin = (roles: Role[] | undefined) =>
   roles?.includes("superAdmin");
 export const isAdmin = (roles: Role[] | undefined) => roles?.includes("admin");
-
-export const getIErr = (msg: string) =>
-  gqlError({ msg, code: "BAD_USER_INPUT" });
 
 interface ICanUserUpdate {
   id: string;

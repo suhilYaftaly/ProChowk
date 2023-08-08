@@ -40,8 +40,7 @@ import { paths } from "@routes/PageRoutes";
 import { ISkill, useSkills } from "@gqlOps/skill";
 import { getNewSkills } from "@appComps/SkillsSelection";
 
-export default function Jobs({ isMyProfile, userId, user }: IUserInfo) {
-  const navigate = useNavigate();
+export default function Jobs({ isMyProfile, userId }: IUserInfo) {
   const { userJobsAsync, data, loading, error } = useUserJobs();
   const { createJobAsync, loading: createLoading } = useCreateJob();
   const { updateJobAsync, loading: updateLoading } = useUpdateJob();
@@ -113,13 +112,6 @@ export default function Jobs({ isMyProfile, userId, user }: IUserInfo) {
     setOpenEdit(true);
   };
 
-  const onCardClick = (id: string) => {
-    if (user) {
-      const username = `${user.name}-${userId}`.replace(/\s/g, "");
-      navigate(paths.jobView(username, id));
-    }
-  };
-
   return (
     <>
       <Stack
@@ -133,82 +125,14 @@ export default function Jobs({ isMyProfile, userId, user }: IUserInfo) {
           </IconButton>
         )}
       </Stack>
-      <Grid container spacing={1} direction={"column"} sx={{ mt: 1 }}>
-        {data?.userJobs ? (
-          <>
-            {(updateLoading || createLoading || deleteLoading) && (
-              <Grid item>
-                <Skeleton variant="rounded" width={"100%"} height={100} />
-              </Grid>
-            )}
-            {data?.userJobs?.map((job) => (
-              <Grid item key={job.id}>
-                <Card sx={{ p: 1 }}>
-                  <Stack
-                    direction={"row"}
-                    sx={{
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      mb: 1,
-                    }}
-                  >
-                    <Typography>{job.title}</Typography>
-                    <Stack direction="row" sx={{ alignItems: "center" }}>
-                      <Chip
-                        label={job?.address?.city}
-                        variant="outlined"
-                        size="small"
-                      />
-                      {isMyProfile && (
-                        <MorePopover
-                          onDelete={() => onDeleteClick(job)}
-                          onEdit={() => onEditClick(job)}
-                        />
-                      )}
-                    </Stack>
-                  </Stack>
-                  <CardActionArea onClick={() => onCardClick(job.id)}>
-                    <Typography variant="caption" color="text.secondary">
-                      {job?.budget?.type}: ${job?.budget?.from}-$
-                      {job?.budget?.to}
-                      {job?.budget?.type === "Hourly" &&
-                        ` / ${job?.budget?.maxHours}Hrs`}
-                    </Typography>
-                    <Typography variant="body2">
-                      {trimText({ text: job.desc })}
-                    </Typography>
-                    <Grid container spacing={1} sx={{ mt: 2 }}>
-                      {job?.skills?.map((skill) => (
-                        <Grid item key={skill.label}>
-                          <Chip
-                            label={skill.label}
-                            variant="filled"
-                            size="small"
-                          />
-                        </Grid>
-                      ))}
-                    </Grid>
-                  </CardActionArea>
-                </Card>
-              </Grid>
-            ))}
-          </>
-        ) : (
-          loading && (
-            <>
-              <Grid item>
-                <Skeleton variant="rounded" width={"100%"} height={100} />
-              </Grid>
-              <Grid item>
-                <Skeleton variant="rounded" width={"100%"} height={100} />
-              </Grid>
-              <Grid item>
-                <Skeleton variant="rounded" width={"100%"} height={100} />
-              </Grid>
-            </>
-          )
-        )}
-      </Grid>
+      <JobsCards
+        jobs={data?.userJobs}
+        loading={loading}
+        isMyProfile={isMyProfile}
+        onDeleteClick={onDeleteClick}
+        onEditClick={onEditClick}
+        updateLoading={updateLoading || createLoading || deleteLoading}
+      />
       <CustomModal title="Post a new job" open={openAdd} onClose={setOpenAdd}>
         <PostAJob onAddJob={onAddJob} setAllSkills={setAllSkills} />
       </CustomModal>
@@ -231,11 +155,112 @@ export default function Jobs({ isMyProfile, userId, user }: IUserInfo) {
   );
 }
 
+interface JobsCardsProps {
+  jobs: IJob[] | undefined;
+  loading?: boolean;
+  updateLoading?: boolean;
+  isMyProfile?: boolean;
+  onDeleteClick?: (job: IJob) => void;
+  onEditClick?: (job: IJob) => void;
+}
+export const JobsCards = ({
+  jobs,
+  loading = false,
+  updateLoading = false,
+  isMyProfile = false,
+  onDeleteClick,
+  onEditClick,
+}: JobsCardsProps) => {
+  const navigate = useNavigate();
+
+  return (
+    <Grid container spacing={1} direction={"column"} sx={{ mt: 1 }}>
+      {jobs ? (
+        <>
+          {updateLoading && (
+            <Grid item>
+              <Skeleton variant="rounded" width={"100%"} height={100} />
+            </Grid>
+          )}
+          {jobs?.map((job) => (
+            <Grid item key={job.id}>
+              <Card sx={{ p: 1 }}>
+                <Stack
+                  direction={"row"}
+                  sx={{
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    mb: 1,
+                  }}
+                >
+                  <Typography>{job.title}</Typography>
+                  <Stack direction="row" sx={{ alignItems: "center" }}>
+                    <Chip
+                      label={job?.address?.city}
+                      variant="outlined"
+                      size="small"
+                    />
+                    {isMyProfile && onDeleteClick && onEditClick && (
+                      <MorePopover
+                        onDelete={() => onDeleteClick(job)}
+                        onEdit={() => onEditClick(job)}
+                      />
+                    )}
+                  </Stack>
+                </Stack>
+                <CardActionArea
+                  onClick={() =>
+                    job.userId && navigate(paths.jobView(job.userId, job.id))
+                  }
+                >
+                  <Typography variant="caption" color="text.secondary">
+                    {job?.budget?.type}: ${job?.budget?.from}-$
+                    {job?.budget?.to}
+                    {job?.budget?.type === "Hourly" &&
+                      ` / ${job?.budget?.maxHours}Hrs`}
+                  </Typography>
+                  <Typography variant="body2">
+                    {trimText({ text: job.desc })}
+                  </Typography>
+                  <Grid container spacing={1} sx={{ mt: 2 }}>
+                    {job?.skills?.map((skill) => (
+                      <Grid item key={skill.label}>
+                        <Chip
+                          label={skill.label}
+                          variant="filled"
+                          size="small"
+                        />
+                      </Grid>
+                    ))}
+                  </Grid>
+                </CardActionArea>
+              </Card>
+            </Grid>
+          ))}
+        </>
+      ) : (
+        loading && (
+          <>
+            <Grid item>
+              <Skeleton variant="rounded" width={"100%"} height={100} />
+            </Grid>
+            <Grid item>
+              <Skeleton variant="rounded" width={"100%"} height={100} />
+            </Grid>
+            <Grid item>
+              <Skeleton variant="rounded" width={"100%"} height={100} />
+            </Grid>
+          </>
+        )
+      )}
+    </Grid>
+  );
+};
+
 interface IMorePopover {
   onEdit: () => void;
   onDelete: () => void;
 }
-
 const MorePopover = ({ onEdit, onDelete }: IMorePopover) => {
   const theme = useTheme();
   const [moreAnchor, setMoreAnchor] = useState<HTMLButtonElement | null>(null);

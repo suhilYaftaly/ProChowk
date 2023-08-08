@@ -1,5 +1,6 @@
 import { gql } from "graphql-tag";
-const locationFields = `
+
+const addressFields = `
   displayName: String!
   street: String
   city: String
@@ -15,22 +16,44 @@ const locationFields = `
 
 export default gql`
   scalar GraphQLJSON
+
+  type GeoJson {
+    type: String!
+    coordinates: [Float!]!
+  }
+
   type Query {
     geocode(value: String!, lat: Float!, lng: Float!, limit: Float): [Geocode!]!
     reverseGeocode(lat: Float!, lng: Float!): Geocode!
   }
+
   type Geocode {
-    ${locationFields}
+    ${addressFields}
+    geometry: GeoJson!
     source: GraphQLJSON
   }
+
   type Address {
     id: ID!
-    ${locationFields}
+    ${addressFields}
+    geometry: GeoJson!
     createdAt: String!
     updatedAt: String!
   }
-
+  type LatLng{
+    lat: Float!
+    lng: Float!
+  }
+  input LatLngInput{
+    lat: Float!
+    lng: Float!
+  }
+  input GeoJsonInput {
+    type: String!
+    coordinates: [Float!]!
+  }
   input AddressInput {
-    ${locationFields}
+    ${addressFields}
+    geometry: GeoJsonInput!
   }
 `;

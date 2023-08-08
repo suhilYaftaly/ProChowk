@@ -1,7 +1,14 @@
 import { gql, useLazyQuery } from "@apollo/client";
 import { asyncOps } from "./gqlFuncs";
 
+const geoJsonGqlResp = gql`
+  fragment GeoJsonFields on GeoJson {
+    type
+    coordinates
+  }
+`;
 const geocodeGqlResp = gql`
+  ${geoJsonGqlResp}
   fragment GeocodeFields on Geocode {
     displayName
     street
@@ -14,9 +21,14 @@ const geocodeGqlResp = gql`
     countryCode
     lat
     lng
+    source
+    geometry {
+      ...GeoJsonFields
+    }
   }
 `;
 export const addressGqlResp = gql`
+  ${geoJsonGqlResp}
   fragment AddressFields on Address {
     id
     displayName
@@ -32,6 +44,9 @@ export const addressGqlResp = gql`
     lng
     createdAt
     updatedAt
+    geometry {
+      ...GeoJsonFields
+    }
   }
 `;
 
@@ -57,8 +72,12 @@ const addressOps = {
 };
 
 /**
- * INTERFACES/TYPES
+ * INTERFACES
  */
+interface GeoJson {
+  type: string;
+  coordinates: number[];
+}
 interface IGeoAddress {
   displayName: string;
   street: string;
@@ -71,14 +90,24 @@ interface IGeoAddress {
   countryCode: string;
   lat: number;
   lng: number;
+  source?: any;
+  geometry: GeoJson;
 }
 export interface IAddress extends IGeoAddress {
   id?: string;
   createdAt?: string;
   updatedAt?: string;
 }
-
-export interface AddressInput extends IGeoAddress {}
+export interface ILatLng extends LatLngInput {}
+//inputs
+export interface LatLngInput {
+  lat: number;
+  lng: number;
+}
+export interface GeoJsonInput extends GeoJson {}
+export interface AddressInput extends IGeoAddress {
+  geometry: GeoJsonInput;
+}
 
 /**
  * OPERATIONS

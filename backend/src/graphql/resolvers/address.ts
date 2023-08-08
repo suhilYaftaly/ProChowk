@@ -4,6 +4,7 @@ import checkAuth from "../../utils/checkAuth";
 import { gqlError } from "../../utils/funcs";
 import { GraphQLContext } from "../../types/commonTypes";
 import { MAP_QUEST_KEYS } from "../../utils/constants";
+import { Address } from "@prisma/client";
 
 export default {
   Query: {
@@ -11,7 +12,7 @@ export default {
       _: any,
       { value, lat, lng, limit = 5 }: GeocodeInput,
       context: GraphQLContext
-    ): Promise<[Address]> => {
+    ): Promise<[IGeocode]> => {
       const { req } = context;
       const user = checkAuth(req);
 
@@ -27,7 +28,7 @@ export default {
       _: any,
       { lat, lng }: { lat: number; lng: number },
       context: GraphQLContext
-    ): Promise<Address> => {
+    ): Promise<IGeocode> => {
       const { req } = context;
       const user = checkAuth(req);
 
@@ -47,8 +48,8 @@ const fetchMQGeocode = async ({
   lat,
   lng,
   limit,
-}: GeocodeInput): Promise<[Address]> => {
-  const getResponse = async (key: string): Promise<[Address]> => {
+}: GeocodeInput): Promise<[IGeocode]> => {
+  const getResponse = async (key: string): Promise<[IGeocode]> => {
     const resp = await axios.get(
       `https://www.mapquestapi.com/search/v3/prediction?key=${key}&limit=${limit}&collection=adminArea,poi,address,category,franchise,airport&q=${encodeURIComponent(
         value
@@ -78,11 +79,12 @@ const fetchMQGeocode = async ({
         postalCode: props.postalCode,
         country: props.country,
         countryCode: props.countryCode,
-        lat: res?.place?.geometry?.coordinates?.[0],
-        lng: res?.place?.geometry?.coordinates?.[1],
+        lat: res?.place?.geometry?.coordinates?.[1],
+        lng: res?.place?.geometry?.coordinates?.[0],
         source: { source: "MapQuest", ...res },
-      };
-    }) as [Address];
+        geometry: res?.place?.geometry,
+      } as IGeocode;
+    }) as [IGeocode];
   } else return undefined;
 };
 
@@ -92,8 +94,8 @@ const fetchMQReverseGeocode = async ({
 }: {
   lat: number;
   lng: number;
-}): Promise<Address> => {
-  const getResponse = async (key: string): Promise<Address> => {
+}): Promise<IGeocode> => {
+  const getResponse = async (key: string): Promise<IGeocode> => {
     const resp = await axios.get(
       `http://www.mapquestapi.com/geocoding/v1/reverse?key=${key}&location=${lat},${lng}`
     );
@@ -110,6 +112,7 @@ const fetchMQReverseGeocode = async ({
 
   if (response) {
     const props = response;
+    const { lat, lng } = props.latLng;
     return {
       displayName: `${props.street}, ${props.adminArea5}, ${props.adminArea3}, ${props.postalCode}, ${props.adminArea1}`,
       street: props.street,
@@ -120,10 +123,11 @@ const fetchMQReverseGeocode = async ({
       postalCode: props.postalCode,
       country: props.adminArea1,
       countryCode: props.adminArea1,
-      lat: props.latLng.lat,
-      lng: props.latLng.lng,
+      lat,
+      lng,
       source: { source: "MapQuest", ...response },
-    } as Address;
+      geometry: { type: "Point", coordinates: [lng, lat] },
+    } as IGeocode;
   } else return undefined;
 };
 
@@ -137,17 +141,6 @@ interface GeocodeInput {
   limit?: number;
 }
 
-interface Address {
-  displayName: string;
-  street: string;
-  city: string;
-  county: string;
-  state: string;
-  stateCode: string;
-  postalCode: string;
-  country: string;
-  countryCode: string;
-  lat: number;
-  lng: number;
+export type IGeocode = Omit<Address, "id" | "createdAt" | "updatedAt"> & {
   source: any;
-}
+};

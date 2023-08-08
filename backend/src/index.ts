@@ -1,68 +1,15 @@
-import { ApolloServer } from "@apollo/server";
-import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
 import { expressMiddleware } from "@apollo/server/express4";
-import { makeExecutableSchema } from "@graphql-tools/schema";
 import express from "express";
-import http from "http";
 import * as dotenv from "dotenv";
-import { PrismaClient } from "@prisma/client";
-import { WebSocketServer } from "ws";
-import { useServer } from "graphql-ws/lib/use/ws";
-import { PubSub } from "graphql-subscriptions";
 import cors from "cors";
 
-import typeDefs from "./graphql/typeDefs";
-import resolvers from "./graphql/resolvers";
-import { SubsciptionContext, GraphQLContext } from "./types/commonTypes";
+import { GraphQLContext } from "./types/commonTypes";
+import { apolloServerSetup } from "./utils/serverSetup";
 
 async function main() {
   dotenv.config();
-  const app = express();
-  const httpServer = http.createServer(app);
-  const wsServer = new WebSocketServer({
-    server: httpServer,
-    path: "/graphql/subscriptions",
-  });
-  const schema = makeExecutableSchema({
-    typeDefs,
-    resolvers,
-  });
-  const prisma = new PrismaClient();
-  const pubsub = new PubSub();
-
-  const serverCleanup = useServer(
-    {
-      schema,
-      context: async (ctx: SubsciptionContext): Promise<GraphQLContext> => {
-        if (ctx?.connectionParams?.session) {
-          const { session } = ctx.connectionParams;
-          return { req: session, prisma, pubsub };
-        }
-        return { req: null, prisma, pubsub };
-      },
-    },
-    wsServer
-  );
-
-  const server = new ApolloServer({
-    schema,
-    csrfPrevention: true,
-    plugins: [
-      // Proper shutdown for the HTTP server.
-      ApolloServerPluginDrainHttpServer({ httpServer }),
-      // Proper shutdown for the WebSocket server.
-      {
-        async serverWillStart() {
-          return {
-            async drainServer() {
-              await serverCleanup.dispose();
-            },
-          };
-        },
-      },
-    ],
-  });
-  await server.start();
+  const { app, server, prisma, pubsub, mongoClient, httpServer } =
+    await apolloServerSetup();
 
   app.use(
     "/graphql",
@@ -76,6 +23,7 @@ async function main() {
         req,
         prisma,
         pubsub,
+        mongoClient,
       }),
     })
   );
@@ -85,6 +33,13 @@ async function main() {
     httpServer.listen({ port: PORT }, resolve)
   );
   console.log(`Server is now running on http://localhost:${PORT}/graphql`);
+
+  // Close MongoDB connection when the application is about to exit
+  process.on("SIGINT", async () => {
+    console.log("Closing MongoDB client...");
+    await mongoClient.close();
+    process.exit(0);
+  });
 }
 
 main().catch((err) => console.log(err));

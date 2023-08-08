@@ -2,7 +2,7 @@ import { useState, useEffect, ChangeEvent } from "react";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import { Alert, Autocomplete, Grid, TextField } from "@mui/material";
 
-import { getUserLocation } from "@utils/utilFuncs";
+import { getUserLocation, removeTypename } from "@utils/utilFuncs";
 import { IAddress, useGeocode } from "@gqlOps/address";
 
 interface Props {
@@ -97,5 +97,6 @@ export const getAddressFormat = (adr: IAddress) => {
     countryCode: adr.countryCode,
     lat: adr.lat,
     lng: adr.lng,
+    geometry: removeTypename(adr.geometry),
   };
 };

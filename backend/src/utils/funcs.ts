@@ -29,5 +29,5 @@ export function validatePhoneNum(phoneNumber: string): boolean {
   return false;
 }
 
-export const getIErr = (msg: string) =>
+export const showInputError = (msg: string) =>
   gqlError({ msg, code: "BAD_USER_INPUT" });

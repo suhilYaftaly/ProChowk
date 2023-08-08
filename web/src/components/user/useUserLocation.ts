@@ -8,8 +8,9 @@ import {
   userLocationSuccess,
 } from "@rSlices/userSlice";
 import { useReverseGeocode } from "@gqlOps/address";
-import { getUserLocation, removeTypename } from "@utils/utilFuncs";
+import { getUserLocation } from "@utils/utilFuncs";
 import { useUpdateUser } from "@gqlOps/user";
+import { getAddressFormat } from "@appComps/AddressSearch";
 
 export default function useUserLocation() {
   const dispatch = useAppDispatch();
@@ -35,7 +36,7 @@ export default function useUserLocation() {
           updateUserAsync({
             variables: {
               id: user.id,
-              edits: { address: removeTypename(addr) },
+              edits: { address: getAddressFormat(addr) },
             },
           });
         },
