@@ -10,6 +10,7 @@ export default gql`
       radius: Float
       limit: Float
     ): [Job!]!
+    jobsByLocation(latLng: LatLngInput!, radius: Float, limit: Float): [Job!]!
   }
   type Mutation {
     createJob(userId: ID!, jobInput: JobInput!): Job!

@@ -96,10 +96,7 @@ export default {
               // Filter jobs that have the given skill
               $match: { "associatedJobs.skillIDs": { $in: [skillObj._id] } },
             },
-            {
-              // Limit the results based on the given limit
-              $limit: limit,
-            },
+            { $limit: limit },
           ])
           .toArray();
 
@@ -109,10 +106,71 @@ export default {
         );
 
         // Fetch detailed job data from Prisma
-        return await prisma.job.findMany({
+        const jobs = await prisma.job.findMany({
           where: { id: { in: jobIds } },
-          include: { address: true, images: true, skills: true, budget: true },
+          include: { address: true, skills: true, budget: true },
         });
+
+        // Reorder the jobs based on the order in jobIds
+        return jobIds.map((jobId) => jobs.find((job) => job.id === jobId));
+      } catch (error) {
+        console.error("Error:", error);
+        throw gqlError({ msg: error?.message });
+      }
+    },
+    jobsByLocation: async (
+      _: any,
+      { latLng, radius = 60, limit = 20 }: IJobsByLocationInput,
+      context: GraphQLContext
+    ): Promise<Job[]> => {
+      const { mongoClient, prisma } = context;
+      const db = mongoClient.db();
+      const distanceInMeters = radius * 1000;
+
+      try {
+        // Fetch addresses within a certain radius
+        const addresses = await db
+          .collection(ADDRESS_COLLECTION)
+          .aggregate([
+            {
+              // Geospatial query to find addresses near the given location
+              $geoNear: {
+                near: {
+                  type: "Point",
+                  coordinates: [latLng.lng, latLng.lat],
+                },
+                distanceField: "distance",
+                maxDistance: distanceInMeters,
+                spherical: true,
+              },
+            },
+            {
+              // Join with the Job collection to get the jobs at each address
+              $lookup: {
+                from: "Job",
+                localField: "_id",
+                foreignField: "addressId",
+                as: "associatedJobs",
+              },
+            },
+            { $unwind: "$associatedJobs" },
+            { $limit: limit },
+          ])
+          .toArray();
+
+        // Extract job IDs from the address results
+        const jobIds = addresses.map((address) =>
+          address.associatedJobs._id.toString()
+        );
+
+        // Fetch detailed job data from Prisma
+        const jobs = await prisma.job.findMany({
+          where: { id: { in: jobIds } },
+          include: { address: true, skills: true, budget: true },
+        });
+
+        // Reorder the jobs based on the order in jobIds
+        return jobIds.map((jobId) => jobs.find((job) => job.id === jobId));
       } catch (error) {
         console.error("Error:", error);
         throw gqlError({ msg: error?.message });
@@ -284,6 +342,11 @@ interface IUpdateJobInput {
 }
 interface IJobsBySkillInput {
   skill: string;
+  latLng: { lat: number; lng: number };
+  radius?: number;
+  limit?: number;
+}
+interface IJobsByLocationInput {
   latLng: { lat: number; lng: number };
   radius?: number;
   limit?: number;

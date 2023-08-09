@@ -28,7 +28,7 @@ export default function JobBudget({ job, setJob, errors }: Props) {
   };
   const onValueChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
-    setJob({ ...job, budget: { ...job.budget, [name]: value } });
+    setJob({ ...job, budget: { ...job.budget, [name]: Number(value) } });
   };
 
   return (

@@ -25,6 +25,7 @@ export default function AppHeader() {
         py: 1,
         boxShadow: 1,
         borderRadius: 0,
+        pointerEvents: trigger ? "none" : "auto",
       }}
     >
       <CenteredStack my={0}>

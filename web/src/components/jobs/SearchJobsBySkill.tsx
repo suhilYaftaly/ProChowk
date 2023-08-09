@@ -1,15 +1,9 @@
-import {
-  Autocomplete,
-  Button,
-  Stack,
-  TextField,
-  Typography,
-} from "@mui/material";
-import { useState, FormEvent } from "react";
+import { Autocomplete, Button, Stack, TextField } from "@mui/material";
+import { useState, FormEvent, useEffect } from "react";
 
 import ErrSnackbar from "@reusable/ErrSnackbar";
 import { SkillInput, useSkills } from "@gqlOps/skill";
-import { useJobsBySkill } from "@gqlOps/job";
+import { useJobsByLocation, useJobsBySkill } from "@gqlOps/job";
 import { useUserStates } from "@redux/reduxStates";
 import { JobsCards } from "./Jobs";
 
@@ -25,12 +19,18 @@ export default function SearchJobsBySkill({}: Props) {
   } = useSkills();
   const allSkillsData = allSkillsType?.skills;
   const [selectedSkill, setSelectedSkill] = useState("");
+  const { jobsBySkillAsync, loading: jBySLoading } = useJobsBySkill();
   const {
-    jobsBySkillAsync,
+    jobsByLocationAsync,
     data: jobsData,
-    loading: jobsLoading,
-  } = useJobsBySkill();
+    loading: jByLLoading,
+  } = useJobsByLocation();
   const { userLocation } = useUserStates();
+
+  useEffect(() => {
+    if (userLocation.data)
+      jobsByLocationAsync({ variables: { latLng: userLocation.data } });
+  }, [userLocation.data]);
 
   const onSkillSelection = (_: any, value: SkillInput | null | string) => {
     if (value && typeof value === "string") setSelectedSkill(value);
@@ -48,7 +48,6 @@ export default function SearchJobsBySkill({}: Props) {
 
   return (
     <Stack spacing={1}>
-      <Typography>UI WIP...😉</Typography>
       <Stack
         direction={"row"}
         component="form"
@@ -72,7 +71,11 @@ export default function SearchJobsBySkill({}: Props) {
         </Button>
       </Stack>
       <div>
-        <JobsCards jobs={jobsData?.jobsBySkill} loading={jobsLoading} />
+        <JobsCards
+          jobs={jobsData?.jobsByLocation}
+          loading={jByLLoading}
+          updateLoading={jBySLoading || jByLLoading}
+        />
       </div>
       <ErrSnackbar
         open={openErrBar}

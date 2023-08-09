@@ -101,6 +101,18 @@ const jobOps = {
         }
       }
     `,
+    jobsByLocation: gql`
+      ${jobGqlResp}
+      query JobsByLocation(
+        $latLng: LatLngInput!
+        $radius: Float
+        $limit: Float
+      ) {
+        jobsByLocation(latLng: $latLng, radius: $radius, limit: $limit) {
+          ...JobFields
+        }
+      }
+    `,
   },
   Mutations: {
     createJob: gql`
@@ -315,6 +327,7 @@ export const useJobsBySkill = () => {
     IJobsBySkillData,
     IJobsBySkillInput
   >(jobOps.Queries.jobsBySkill);
+  const { updateCache: updateJByLCache } = useJobsByLocation();
 
   const jobsBySkillAsync = async ({
     variables,
@@ -323,8 +336,14 @@ export const useJobsBySkill = () => {
   }: IJobsBySkillIAsync) =>
     asyncOps({
       operation: () => jobsBySkill({ variables }),
-      onSuccess: (dt: IJobsBySkillData) =>
+      onSuccess: (dt: IJobsBySkillData) => {
         onSuccess && onSuccess(dt.jobsBySkill),
+          updateJByLCache({
+            action: "updateAll",
+            jobs: dt.jobsBySkill,
+            variables,
+          });
+      },
       onError,
     });
 
@@ -363,6 +382,87 @@ export const useJobsBySkill = () => {
   };
 
   return { jobsBySkillAsync, updateCache, data, loading, error };
+};
+
+//jobsByLocation op
+interface IJobsByLocationData {
+  jobsByLocation: IJob[];
+}
+interface IJobsByLocationInput {
+  latLng: LatLngInput;
+  radius?: number;
+  limit?: number;
+}
+interface IJobsByLocationIAsync {
+  variables: IJobsByLocationInput;
+  onSuccess?: (data: IJob[]) => void;
+  onError?: (error?: any) => void;
+}
+export const useJobsByLocation = () => {
+  const client = useApolloClient();
+  const [jobsByLocation, { data, loading, error }] = useLazyQuery<
+    IJobsByLocationData,
+    IJobsByLocationInput
+  >(jobOps.Queries.jobsByLocation);
+
+  const jobsByLocationAsync = async ({
+    variables,
+    onSuccess,
+    onError,
+  }: IJobsByLocationIAsync) =>
+    asyncOps({
+      operation: () => jobsByLocation({ variables }),
+      onSuccess: (dt: IJobsByLocationData) =>
+        onSuccess && onSuccess(dt.jobsByLocation),
+      onError,
+    });
+
+  const updateCache = ({
+    action,
+    job,
+    jobs,
+    variables,
+  }: {
+    action: "create" | "update" | "delete" | "updateAll";
+    job?: IJob;
+    jobs?: IJob[];
+    variables: IJobsByLocationInput;
+  }) => {
+    const cachedData = client.readQuery<
+      IJobsByLocationData,
+      IJobsByLocationInput
+    >({
+      query: jobOps.Queries.jobsByLocation,
+      variables,
+    });
+    let modifiedData: IJob[] = [];
+    if (cachedData && job) {
+      modifiedData = [...cachedData.jobsByLocation];
+      switch (action) {
+        case "create":
+          modifiedData.unshift(job);
+          break;
+        case "update":
+          modifiedData = modifiedData.map((j) => (j.id === job.id ? job : j));
+          break;
+        case "delete":
+          modifiedData = modifiedData.filter((j) => j.id !== job.id);
+          break;
+        default:
+          throw new Error("Invalid action type");
+      }
+    } else if (jobs && action === "updateAll") modifiedData = jobs;
+
+    if (modifiedData?.length > 0) {
+      client.writeQuery<IJobsByLocationData, IJobsByLocationInput>({
+        query: jobOps.Queries.jobsByLocation,
+        data: { jobsByLocation: modifiedData },
+        variables,
+      });
+    }
+  };
+
+  return { jobsByLocationAsync, updateCache, data, loading, error };
 };
 
 //createJob op
@@ -455,6 +555,7 @@ interface IDeleteJobInput {
 interface IDeleteJobIAsync {
   variables: IDeleteJobInput;
   userId: string;
+  latLng: LatLngInput;
   onSuccess?: (data: IJob) => void;
   onError?: (error?: any) => void;
 }
@@ -464,18 +565,25 @@ export const useDeleteJob = () => {
     IDeleteJobInput
   >(jobOps.Mutations.deleteJob);
   const { updateUserJobsCache } = useUserJobs();
+  const { updateCache: updateJByLCache } = useJobsByLocation();
 
   const deleteJobAsync = async ({
     variables,
     onSuccess,
     onError,
     userId,
+    latLng,
   }: IDeleteJobIAsync) =>
     asyncOps({
       operation: () => deleteJob({ variables }),
       onSuccess: (dt: IDeleteJobData) => {
         onSuccess && onSuccess(dt.deleteJob);
         updateUserJobsCache("delete", dt.deleteJob, userId);
+        updateJByLCache({
+          action: "delete",
+          job: dt.deleteJob,
+          variables: { latLng },
+        });
       },
       onError,
     });

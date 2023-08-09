@@ -13,7 +13,6 @@ import {
   MenuItem,
   MenuList,
   useTheme,
-  CardActionArea,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
@@ -39,6 +38,7 @@ import { removeServerMetadata, trimText } from "@utils/utilFuncs";
 import { paths } from "@routes/PageRoutes";
 import { ISkill, useSkills } from "@gqlOps/skill";
 import { getNewSkills } from "@appComps/SkillsSelection";
+import { useUserStates } from "@redux/reduxStates";
 
 export default function Jobs({ isMyProfile, userId }: IUserInfo) {
   const { userJobsAsync, data, loading, error } = useUserJobs();
@@ -51,6 +51,7 @@ export default function Jobs({ isMyProfile, userId }: IUserInfo) {
   const [openEdit, setOpenEdit] = useState(false);
   const [openErrBar, setContErrBar] = useState(false);
   const [allSkills, setAllSkills] = useState<ISkill[]>([]);
+  const { userLocation } = useUserStates();
 
   useEffect(() => {
     if (userId) userJobsAsync({ variables: { userId } });
@@ -105,7 +106,12 @@ export default function Jobs({ isMyProfile, userId }: IUserInfo) {
   };
 
   const onDeleteClick = (j: IJob | any) => {
-    if (userId && j.id) deleteJobAsync({ userId, variables: { id: j.id } });
+    if (userId && j.id && userLocation.data)
+      deleteJobAsync({
+        userId,
+        variables: { id: j.id },
+        latLng: userLocation.data,
+      });
   };
   const onEditClick = (job: IJob) => {
     setEditJob(job);
@@ -172,6 +178,7 @@ export const JobsCards = ({
   onEditClick,
 }: JobsCardsProps) => {
   const navigate = useNavigate();
+  const theme = useTheme();
 
   return (
     <Grid container spacing={1} direction={"column"} sx={{ mt: 1 }}>
@@ -184,7 +191,24 @@ export const JobsCards = ({
           )}
           {jobs?.map((job) => (
             <Grid item key={job.id}>
-              <Card sx={{ p: 1 }}>
+              <Card
+                sx={{
+                  p: 1,
+                  cursor: "pointer",
+                  transition: "0.3s",
+                  "&:hover": {
+                    backgroundColor:
+                      theme.palette.mode === "light"
+                        ? theme.palette.grey[100]
+                        : "undefined",
+                    backgroundImage:
+                      "linear-gradient(rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.12))",
+                  },
+                }}
+                onClick={() =>
+                  job.userId && navigate(paths.jobView(job.userId, job.id))
+                }
+              >
                 <Stack
                   direction={"row"}
                   sx={{
@@ -208,32 +232,22 @@ export const JobsCards = ({
                     )}
                   </Stack>
                 </Stack>
-                <CardActionArea
-                  onClick={() =>
-                    job.userId && navigate(paths.jobView(job.userId, job.id))
-                  }
-                >
-                  <Typography variant="caption" color="text.secondary">
-                    {job?.budget?.type}: ${job?.budget?.from}-$
-                    {job?.budget?.to}
-                    {job?.budget?.type === "Hourly" &&
-                      ` / ${job?.budget?.maxHours}Hrs`}
-                  </Typography>
-                  <Typography variant="body2">
-                    {trimText({ text: job.desc })}
-                  </Typography>
-                  <Grid container spacing={1} sx={{ mt: 2 }}>
-                    {job?.skills?.map((skill) => (
-                      <Grid item key={skill.label}>
-                        <Chip
-                          label={skill.label}
-                          variant="filled"
-                          size="small"
-                        />
-                      </Grid>
-                    ))}
-                  </Grid>
-                </CardActionArea>
+                <Typography variant="caption" color="text.secondary">
+                  {job?.budget?.type}: ${job?.budget?.from}-$
+                  {job?.budget?.to}
+                  {job?.budget?.type === "Hourly" &&
+                    ` / ${job?.budget?.maxHours}Hrs`}
+                </Typography>
+                <Typography variant="body2">
+                  {trimText({ text: job.desc })}
+                </Typography>
+                <Grid container spacing={1} sx={{ mt: 2 }}>
+                  {job?.skills?.map((skill) => (
+                    <Grid item key={skill.label}>
+                      <Chip label={skill.label} variant="filled" size="small" />
+                    </Grid>
+                  ))}
+                </Grid>
               </Card>
             </Grid>
           ))}
@@ -267,23 +281,31 @@ const MorePopover = ({ onEdit, onDelete }: IMorePopover) => {
   const errColor = theme.palette.error.main;
 
   const openMore = (event: MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
     setMoreAnchor(event.currentTarget);
   };
   const closeMore = () => setMoreAnchor(null);
   const moreIsOpen = Boolean(moreAnchor);
   const moreId = moreIsOpen ? "job-more-popover" : undefined;
 
-  const onEditClick = () => {
+  const onEditClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
     onEdit();
     closeMore();
   };
-  const onDeleteClick = () => {
+  const onDeleteClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
     onDelete();
     closeMore();
   };
 
+  const handlePopoverClose = (event: React.SyntheticEvent) => {
+    event.stopPropagation();
+    closeMore();
+  };
+
   return (
-    <>
+    <Stack>
       <IconButton aria-describedby={moreId} onClick={openMore} size="small">
         <MoreVertIcon />
       </IconButton>
@@ -291,7 +313,7 @@ const MorePopover = ({ onEdit, onDelete }: IMorePopover) => {
         id={moreId}
         open={moreIsOpen}
         anchorEl={moreAnchor}
-        onClose={closeMore}
+        onClose={handlePopoverClose}
         anchorOrigin={{
           vertical: "bottom",
           horizontal: "left",
@@ -312,6 +334,6 @@ const MorePopover = ({ onEdit, onDelete }: IMorePopover) => {
           </MenuItem>
         </MenuList>
       </Popover>
-    </>
+    </Stack>
   );
 };
