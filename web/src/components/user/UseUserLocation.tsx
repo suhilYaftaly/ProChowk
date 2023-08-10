@@ -86,7 +86,9 @@ export default function UserLocationPermission() {
     closeLocationDialog();
   };
 
-  const getLocation = (hideErr = false) => {
+  const getLocation = (
+    errMessage = "Location permission denied or access not provided yet."
+  ) => {
     getUserLocation({
       onSuccess: ({ lat, lng }) => {
         clearTimeout(locPermTimeout.current!);
@@ -98,20 +100,17 @@ export default function UserLocationPermission() {
         userLocationError({ message });
         setShowLocationModal(true);
         hasHandledLocation.current = true;
-        if (!hideErr) {
-          dispatch(
-            setGlobalError(
-              "Location permission denied or access not provided yet."
-            )
-          );
-        }
+        dispatch(setGlobalError(errMessage));
       },
     });
   };
 
-  const closeLocationDialog = (hideErr = false) => {
+  const closeLocationDialog = () => {
     if (userLocation?.data) closeDialog();
-    else getLocation(hideErr);
+    else
+      getLocation(
+        "User denied the request for Geolocation. Please grant access from settings"
+      );
   };
 
   const closeDialog = () => {
@@ -119,50 +118,6 @@ export default function UserLocationPermission() {
 
     if (locPermTimeout.current) clearTimeout(locPermTimeout.current);
     if (intervalIdRef.current) clearInterval(intervalIdRef.current);
-  };
-
-  const enableLocation = () => {
-    closeLocationDialog(true);
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(handleSuccess, handleError);
-    } else {
-      dispatch(setGlobalError("Geolocation is not supported by this browser."));
-    }
-  };
-
-  const handleSuccess = (position: GeolocationPosition) => {
-    const lat = position.coords.latitude;
-    const lng = position.coords.longitude;
-    dispatch(userLocationSuccess({ lat, lng }));
-  };
-
-  const handleError = (error: GeolocationPositionError) => {
-    switch (error.code) {
-      case error.PERMISSION_DENIED:
-        dispatch(
-          setGlobalError(
-            "User denied the request for Geolocation. Please grant access through settings"
-          )
-        );
-        break;
-      case error.POSITION_UNAVAILABLE:
-        dispatch(setGlobalError("Location information is unavailable"));
-        break;
-      case error.TIMEOUT:
-        dispatch(
-          setGlobalError(
-            "The request to get user location timed out. Please grant access through settings"
-          )
-        );
-        break;
-      default:
-        dispatch(
-          setGlobalError(
-            "An unknown error occurred. Please grant access through settings"
-          )
-        );
-        break;
-    }
   };
 
   return (
@@ -193,7 +148,7 @@ export default function UserLocationPermission() {
       </DialogContent>
       <DialogActions style={{ justifyContent: "center" }}>
         <Button
-          onClick={enableLocation}
+          onClick={closeLocationDialog}
           color="primary"
           variant="contained"
           sx={{ borderRadius: 5 }}
