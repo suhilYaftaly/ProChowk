@@ -7,6 +7,7 @@ import { paths } from "@routes/PageRoutes";
 import { useSettingsStates } from "@redux/reduxStates";
 import { useAppDispatch } from "@/utils/hooks/hooks";
 import { setGlobalError, setSessionExpired } from "@rSlices/settingsSlice";
+import UserLocationPermission from "@user/UseUserLocation";
 
 export default function RootLayout() {
   const { isSessionExpired, globalError } = useSettingsStates();
@@ -41,6 +42,7 @@ export default function RootLayout() {
         open={isSessionExpired}
         handleClose={() => dispatch(setSessionExpired(false))}
       />
+      <UserLocationPermission />
     </>
   );
 }

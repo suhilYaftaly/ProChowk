@@ -8,7 +8,6 @@ import { ReactNode, useMemo } from "react";
 import { client } from "../graphql/apollo-client";
 import { store } from "@redux/store";
 import { useSettingsStates } from "@redux/reduxStates";
-import useUserLocation from "./user/useUserLocation";
 import PageRoutes from "@routes/PageRoutes";
 
 const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
@@ -28,7 +27,6 @@ export default function Providers() {
 }
 
 const MUIProvider = ({ children }: { children: ReactNode }) => {
-  useUserLocation();
   const { colorMode: mode } = useSettingsStates();
   const theme = useMemo(
     () =>
