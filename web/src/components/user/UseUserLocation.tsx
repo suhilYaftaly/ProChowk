@@ -86,7 +86,7 @@ export default function UserLocationPermission() {
     closeLocationDialog();
   };
 
-  const getLocation = () => {
+  const getLocation = (hideErr = false) => {
     getUserLocation({
       onSuccess: ({ lat, lng }) => {
         clearTimeout(locPermTimeout.current!);
@@ -98,18 +98,20 @@ export default function UserLocationPermission() {
         userLocationError({ message });
         setShowLocationModal(true);
         hasHandledLocation.current = true;
-        dispatch(
-          setGlobalError(
-            "Location permission denied or access not provided yet."
-          )
-        );
+        if (!hideErr) {
+          dispatch(
+            setGlobalError(
+              "Location permission denied or access not provided yet."
+            )
+          );
+        }
       },
     });
   };
 
-  const closeLocationDialog = () => {
+  const closeLocationDialog = (hideErr = false) => {
     if (userLocation?.data) closeDialog();
-    else getLocation();
+    else getLocation(hideErr);
   };
 
   const closeDialog = () => {
@@ -120,6 +122,7 @@ export default function UserLocationPermission() {
   };
 
   const enableLocation = () => {
+    closeLocationDialog(true);
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(handleSuccess, handleError);
     } else {
@@ -189,12 +192,13 @@ export default function UserLocationPermission() {
         </DialogContentText>
       </DialogContent>
       <DialogActions style={{ justifyContent: "center" }}>
-        <Button onClick={enableLocation} color="primary" variant="contained">
+        <Button
+          onClick={enableLocation}
+          color="primary"
+          variant="contained"
+          sx={{ borderRadius: 5 }}
+        >
           Enable Location
-        </Button>
-
-        <Button onClick={closeLocationDialog} color="primary">
-          I've granted access
         </Button>
       </DialogActions>
     </Dialog>
