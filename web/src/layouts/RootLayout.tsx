@@ -37,12 +37,12 @@ export default function RootLayout() {
         open={showGlobalErr}
         handleClose={onGlobalErrClose}
       />
+      <UserLocationPermission />
       <ErrSnackbar
         errMsg="Your Session has Expired, Please Login again!"
         open={isSessionExpired}
         handleClose={() => dispatch(setSessionExpired(false))}
       />
-      <UserLocationPermission />
     </>
   );
 }
