@@ -119,6 +119,49 @@ export default function UserLocationPermission() {
     if (intervalIdRef.current) clearInterval(intervalIdRef.current);
   };
 
+  const enableLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(handleSuccess, handleError);
+    } else {
+      dispatch(setGlobalError("Geolocation is not supported by this browser."));
+    }
+  };
+
+  const handleSuccess = (position: GeolocationPosition) => {
+    const lat = position.coords.latitude;
+    const lng = position.coords.longitude;
+    dispatch(userLocationSuccess({ lat, lng }));
+  };
+
+  const handleError = (error: GeolocationPositionError) => {
+    switch (error.code) {
+      case error.PERMISSION_DENIED:
+        dispatch(
+          setGlobalError(
+            "User denied the request for Geolocation. Please grant access through settings"
+          )
+        );
+        break;
+      case error.POSITION_UNAVAILABLE:
+        dispatch(setGlobalError("Location information is unavailable"));
+        break;
+      case error.TIMEOUT:
+        dispatch(
+          setGlobalError(
+            "The request to get user location timed out. Please grant access through settings"
+          )
+        );
+        break;
+      default:
+        dispatch(
+          setGlobalError(
+            "An unknown error occurred. Please grant access through settings"
+          )
+        );
+        break;
+    }
+  };
+
   return (
     <Dialog
       open={showLocationModal}
@@ -146,6 +189,10 @@ export default function UserLocationPermission() {
         </DialogContentText>
       </DialogContent>
       <DialogActions style={{ justifyContent: "center" }}>
+        <Button onClick={enableLocation} color="primary" variant="contained">
+          Enable Location
+        </Button>
+
         <Button onClick={closeLocationDialog} color="primary">
           I've granted access
         </Button>
