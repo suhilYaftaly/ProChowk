@@ -134,7 +134,6 @@ export default function UserBasicInfo({
                   <QRCodeModal
                     modalTitle="Your Profile's QR Code."
                     description="Share this QR code with anyone so they can view your profile."
-                    shareProps={{ text: "Here is the QR code for my profile:" }}
                     fileName={user.name}
                     value={userLink(`${user?.name}-${user?.id}`)}
                   />

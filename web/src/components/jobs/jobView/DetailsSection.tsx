@@ -72,7 +72,6 @@ export default function DetailsSection({ job, loading, userId }: Props) {
                 <QRCodeModal
                   modalTitle="Job QR Code."
                   description="Share this QR code with anyone so they can view this job."
-                  shareProps={{ text: "Here is the QR code for a job:" }}
                   fileName={job?.title}
                   value={jobLink(userId, job?.id)}
                   qrIconSize={30}
