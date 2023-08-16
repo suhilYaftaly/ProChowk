@@ -15,13 +15,16 @@ import { IJob } from "@gqlOps/job";
 import { convertUnixToDate } from "@utils/utilFuncs";
 import { useRespVal } from "@utils/hooks/hooks";
 import FullScreenModal from "@reusable/FullScreenModal";
+import QRCodeModal from "@/components/reusable/QRCodeModal";
+import { jobLink } from "@/constants/links";
 
 interface Props {
   job: IJob | undefined;
   loading: boolean;
+  userId: string | undefined;
 }
 
-export default function DetailsSection({ job, loading }: Props) {
+export default function DetailsSection({ job, loading, userId }: Props) {
   const [activeImg, setActiveImg] = useState(job?.images?.[0]);
   const [openFullImg, setOpenFullImg] = useState(false);
   const fsWidth = useRespVal("100%", undefined);
@@ -58,9 +61,24 @@ export default function DetailsSection({ job, loading }: Props) {
           </>
         ) : (
           <>
-            <Typography variant="h5" sx={{ textAlign: "center" }}>
-              {job?.title}
-            </Typography>
+            <Stack
+              direction={"row"}
+              sx={{ display: "flex", justifyContent: "center" }}
+            >
+              <Typography variant="h5" sx={{ mr: 2 }}>
+                {job?.title}
+              </Typography>
+              {userId && job?.id && (
+                <QRCodeModal
+                  modalTitle="Job QR Code."
+                  description="Share this QR code with anyone so they can view this job."
+                  shareProps={{ text: "Here is the QR code for a job:" }}
+                  fileName={job?.title}
+                  value={jobLink(userId, job?.id)}
+                  qrIconSize={30}
+                />
+              )}
+            </Stack>
             <Stack
               direction={"row"}
               sx={{

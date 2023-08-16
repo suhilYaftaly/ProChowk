@@ -70,6 +70,7 @@ export default function JobType({ job, setJob, errors, setAllSkills }: Props) {
         placeholder={"I need my washroom to be tiled"}
         error={Boolean(errors.title)}
         helperText={errors.title}
+        inputProps={{ style: { textTransform: "capitalize" } }}
       />
       <Divider />
       <Typography>Add skills required</Typography>

@@ -10,8 +10,15 @@ import {
   gqlError,
   validateEmail,
   validatePhoneNum,
+  sendEmail,
+  EmailParams,
 } from "../../utils/funcs";
-import checkAuth, { canUserUpdate, generateToken } from "../../utils/checkAuth";
+import checkAuth, {
+  canUserUpdate,
+  generateEmailVerificationToken,
+  generateUserToken,
+  verifyToken,
+} from "../../utils/checkAuth";
 import {
   GraphQLContext,
   IAddressInput,
@@ -91,8 +98,33 @@ export default {
           include: { image: true, address: true },
         });
 
-        const token = generateToken(newUser);
+        const token = generateUserToken(newUser);
+        // await sendVerificationEmail(newUser);
         return getUserProps(newUser, token);
+      } catch (error: any) {
+        throw gqlError({ msg: error?.message });
+      }
+    },
+    verifyEmail: async (
+      _: any,
+      { token }: { token: string },
+      context: GraphQLContext
+    ): Promise<User> => {
+      const { prisma } = context;
+
+      try {
+        const verifiedUser = verifyToken(token);
+        if (!verifiedUser)
+          throw gqlError({
+            msg: "Invalid verification token.",
+            code: "UNAUTHENTICATED",
+          });
+
+        // Mark the email as verified in the database
+        return await prisma.user.update({
+          where: { id: verifiedUser.id },
+          data: { emailVerified: true },
+        });
       } catch (error: any) {
         throw gqlError({ msg: error?.message });
       }
@@ -130,7 +162,7 @@ export default {
           });
         }
 
-        const token = generateToken(foundUser);
+        const token = generateUserToken(foundUser);
         return getUserProps(foundUser, token);
       } catch (error: any) {
         throw gqlError({ msg: error?.message });
@@ -188,11 +220,11 @@ export default {
                 include: { image: true, address: true },
               });
 
-              const token = generateToken(newUser);
+              const token = generateUserToken(newUser);
               return getUserProps(newUser, token);
             }
 
-            const token = generateToken(foundUser);
+            const token = generateUserToken(foundUser);
             return getUserProps(foundUser, token);
           } else {
             throw gqlError({
@@ -252,11 +284,12 @@ export default {
               include: { image: true, address: true },
             });
 
-            const token = generateToken(newUser);
+            const token = generateUserToken(newUser);
             return getUserProps(newUser, token);
           }
 
-          const token = generateToken(foundUser);
+          // await sendVerificationEmail(foundUser);
+          const token = generateUserToken(foundUser);
           return getUserProps(foundUser, token);
         } else {
           throw gqlError({ msg: "Could not decode credentials" });
@@ -367,6 +400,30 @@ interface IValidateUUI {
   bio?: string;
   userTypes?: UserType[];
 }
+
+const sendVerificationEmail = async (user: User) => {
+  const token = generateEmailVerificationToken(user);
+  const verificationLink = `https://yourdomain.com/verify?token=${token}`;
+
+  const emailParams: EmailParams = {
+    from: {
+      email: "noreply@prochowk.com",
+      name: "Pro Chowk",
+    },
+    to: [
+      {
+        email: user.email,
+        name: user.name,
+      },
+    ],
+    subject: "Verify your email address",
+    text: `Please verify your email by clicking the link: ${verificationLink}`,
+    html: `Please verify your email by clicking the <a href="${verificationLink}">link</a>`,
+    variables: [],
+  };
+
+  return await sendEmail(emailParams);
+};
 
 /**
  * VALIDATORS

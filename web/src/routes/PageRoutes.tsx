@@ -14,7 +14,7 @@ import JobView from "@pages/JobView";
 export const paths = {
   login: "/login",
   user: (nameId: string) => `/user/${nameId}`, //nameId = (suhilmohammad-647edfd209ee1be1232asd)
-  jobView: (userId: string, jobId: string) => `/job-view/${userId}/${jobId}`, //userId = (suhilmohammad-647edfd209ee1be1232asd)
+  jobView: (userId: string, jobId: string) => `/job-view/${userId}/${jobId}`,
 };
 
 const router = createBrowserRouter(

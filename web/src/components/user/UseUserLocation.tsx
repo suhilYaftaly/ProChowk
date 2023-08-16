@@ -55,7 +55,7 @@ export default function UserLocationPermission() {
     };
 
     // Periodically check for location permission status.
-    intervalIdRef.current = setInterval(checkPermission, 15000);
+    intervalIdRef.current = setInterval(checkPermission, 5000);
     return () => clearInterval(intervalIdRef.current!);
   }, [lat, lng]);
 

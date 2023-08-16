@@ -14,17 +14,14 @@ interface ISignedProps {
   token?: string;
 }
 
+dotenv.config();
 export default (req: any): ISignedProps => {
-  dotenv.config();
   const authHeader = req?.headers?.authorization;
   if (authHeader) {
     const token = authHeader.split("Bearer ")?.[1];
     if (token) {
       try {
-        const user = jwt.verify(
-          token,
-          process.env.AUTH_SECRET as string
-        ) as ISignedProps;
+        const user = verifyToken(token);
         return { ...user, token };
       } catch (error: any) {
         console.log("Invalid/Expired token", error);
@@ -42,7 +39,7 @@ export default (req: any): ISignedProps => {
   });
 };
 
-export const generateToken = (user: User) => {
+const generateToken = (user: User, expiresIn = "7d") => {
   const token = jwt.sign(
     {
       id: user.id,
@@ -51,7 +48,7 @@ export const generateToken = (user: User) => {
       roles: user.roles,
     } as ISignedProps,
     process.env.AUTH_SECRET as string,
-    { expiresIn: "7d" }
+    { expiresIn }
   );
 
   if (!token)
@@ -62,6 +59,12 @@ export const generateToken = (user: User) => {
 
   return token;
 };
+export const generateUserToken = (user: User) => generateToken(user);
+export const generateEmailVerificationToken = (user: User) =>
+  generateToken(user, "7d");
+
+export const verifyToken = (token: string) =>
+  jwt.verify(token, process.env.AUTH_SECRET) as ISignedProps;
 
 export const isSuperAdmin = (roles: Role[] | undefined) =>
   roles?.includes("superAdmin");

@@ -21,6 +21,8 @@ import { useUpdateUser } from "@gqlOps/user";
 import CustomModal from "@reusable/CustomModal";
 import ErrSnackbar from "@reusable/ErrSnackbar";
 import ShowMoreTxt from "@reusable/ShowMoreTxt";
+import { userLink } from "@constants/links";
+import QRCodeModal from "@reusable/QRCodeModal";
 
 export default function UserBasicInfo({
   user,
@@ -127,11 +129,22 @@ export default function UserBasicInfo({
                   </>
                 )}
               </Stack>
-              {isMyProfile && (
-                <IconButton onClick={() => setOpenEdit(true)}>
-                  <EditIcon />
-                </IconButton>
-              )}
+              <Stack direction={"row"}>
+                {user && (
+                  <QRCodeModal
+                    modalTitle="Your Profile's QR Code."
+                    description="Share this QR code with anyone so they can view your profile."
+                    shareProps={{ text: "Here is the QR code for my profile:" }}
+                    fileName={user.name}
+                    value={userLink(`${user?.name}-${user?.id}`)}
+                  />
+                )}
+                {isMyProfile && (
+                  <IconButton sx={{ ml: 1 }} onClick={() => setOpenEdit(true)}>
+                    <EditIcon />
+                  </IconButton>
+                )}
+              </Stack>
             </Stack>
             <ShowMoreTxt text={user?.bio} />
           </>

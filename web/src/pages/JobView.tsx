@@ -56,7 +56,7 @@ export default function JobView() {
               {error.message}
             </Alert>
           )}
-          <DetailsSection job={job?.job} loading={loading} />
+          <DetailsSection job={job?.job} loading={loading} userId={userId} />
         </Paper>
         <Paper variant="outlined" sx={paperContStyle}>
           {userErr && (

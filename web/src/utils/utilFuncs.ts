@@ -254,3 +254,14 @@ export const trimText = ({ text, maxLength = 200 }: ITrimTxt) => {
   }
   return text;
 };
+
+export const isMobileDevice = () => {
+  const hasTouchScreen =
+    "ontouchstart" in window || navigator.maxTouchPoints > 0;
+  const userAgent = navigator.userAgent;
+  const isMobileUA =
+    /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(
+      userAgent
+    );
+  return hasTouchScreen && isMobileUA;
+};
