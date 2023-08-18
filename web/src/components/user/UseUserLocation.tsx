@@ -78,7 +78,8 @@ export default function UserLocationPermission() {
 
   //if coordinates are available and user doesnt have address then assigne address to user
   useEffect(() => {
-    if (lat && lng && !user?.address?.city && user?.id) assignUserAddress();
+    if (lat && lng && !user?.address?.city && user?.id && user.emailVerified)
+      assignUserAddress();
   }, [lat, lng, user]);
 
   const handleCloseDialog = (_: any, reason: string) => {
