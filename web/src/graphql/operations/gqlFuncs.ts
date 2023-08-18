@@ -1,7 +1,7 @@
-import { store } from "@redux/store";
-import { setGlobalError } from "@rSlices/settingsSlice";
+import { toast } from "react-toastify";
 
-const { dispatch } = store;
+import { paths } from "@routes/Routes";
+import { navigate } from "@routes/navigationService";
 
 interface IAsyncOps {
   onStart?: () => void;
@@ -26,6 +26,11 @@ export const asyncOps = async ({
   } catch (error: any) {
     console.log("Async operation error:", error.message);
     onError && onError(error.message);
-    showGlobalErr && dispatch(setGlobalError(error.message));
+    if (showGlobalErr) {
+      toast.error(error.message);
+      if (error.message === "Unverified email. Please verify your email.") {
+        navigate(paths.verifyEmail);
+      }
+    }
   }
 };

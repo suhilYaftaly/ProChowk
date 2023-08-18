@@ -6,9 +6,12 @@ import {
 } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import { onError } from "@apollo/client/link/error";
+import { toast } from "react-toastify";
+
 import { store } from "@redux/store";
 import { logOut } from "@rSlices/userSlice";
-import { setSessionExpired } from "@rSlices/settingsSlice";
+import { paths } from "@routes/Routes";
+import { navigate } from "@routes/navigationService";
 
 const httpLink = new HttpLink({
   uri: import.meta.env.VITE_API_URL,
@@ -45,7 +48,8 @@ const errorLink = onError(
           console.log("Operation", operation);
           console.log("Forward", forward);
           store.dispatch(logOut());
-          store.dispatch(setSessionExpired(true));
+          toast.error("Your Session has Expired, Please Login again!");
+          navigate(paths.login);
         }
       }
     }

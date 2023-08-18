@@ -38,7 +38,7 @@ export default function UserSkills({
         {contrData?.skills
           ? contrData?.skills?.map((skill) => (
               <Grid item key={skill.id}>
-                <Chip label={skill.label} color="primary" />
+                <Chip label={skill.label} />
               </Grid>
             ))
           : contProfLoading && (

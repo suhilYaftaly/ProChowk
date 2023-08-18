@@ -17,7 +17,7 @@ import { useNavigate } from "react-router-dom";
 
 import { useUserStates } from "@redux/reduxStates";
 import LogOut from "./LogOut";
-import { paths } from "@routes/PageRoutes";
+import { paths } from "@/routes/Routes";
 
 export default function UserProfilePopover() {
   const navigate = useNavigate();

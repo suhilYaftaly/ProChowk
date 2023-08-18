@@ -8,6 +8,7 @@ import {
   Button,
 } from "@mui/material";
 import ShareLocationIcon from "@mui/icons-material/ShareLocation";
+import { toast } from "react-toastify";
 
 import { useUserStates } from "@redux/reduxStates";
 import { useAppDispatch } from "@utils/hooks/hooks";
@@ -20,7 +21,6 @@ import { useReverseGeocode } from "@gqlOps/address";
 import { getUserLocation } from "@utils/utilFuncs";
 import { useUpdateUser } from "@gqlOps/user";
 import { getAddressFormat } from "@appComps/AddressSearch";
-import { setGlobalError } from "@rSlices/settingsSlice";
 
 export default function UserLocationPermission() {
   const dispatch = useAppDispatch();
@@ -100,7 +100,7 @@ export default function UserLocationPermission() {
         userLocationError({ message });
         setShowLocationModal(true);
         hasHandledLocation.current = true;
-        dispatch(setGlobalError(errMessage));
+        toast.error(errMessage);
       },
     });
   };

@@ -2,7 +2,7 @@ import { format, startOfDay } from "date-fns";
 import { NavigateFunction } from "react-router-dom";
 
 import { IUser } from "@gqlOps/user";
-import { paths } from "@routes/PageRoutes";
+import { paths } from "@/routes/Routes";
 import { IAddress } from "@gqlOps/address";
 
 export function decodeJwtToken(token: string | undefined) {
@@ -139,14 +139,18 @@ export const openUserIfNewUser = ({
   user: IUser | undefined;
   navigate: NavigateFunction;
 }) => {
-  if (
-    user &&
-    convertUnixToDate(user?.createdAt)?.fullDate.toDateString() ==
-      startOfDay(new Date()).toDateString()
-  ) {
-    const username = `${user.name}-${user.id}`.replace(/\s/g, "");
-    navigate(paths.user(username));
-  } else navigate("/");
+  if (!user?.emailVerified) {
+    navigate(paths.verifyEmail);
+  } else {
+    if (
+      user &&
+      convertUnixToDate(user?.createdAt)?.fullDate.toDateString() ==
+        startOfDay(new Date()).toDateString()
+    ) {
+      const username = `${user.name}-${user.id}`.replace(/\s/g, "");
+      navigate(paths.user(username));
+    } else navigate("/");
+  }
 };
 
 interface IUserLocation {

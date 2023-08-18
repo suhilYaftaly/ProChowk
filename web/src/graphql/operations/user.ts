@@ -77,6 +77,11 @@ const userOps = {
         }
       }
     `,
+    verifyEmail: gql`
+      mutation VerifyEmail($token: String!) {
+        verifyEmail(token: $token)
+      }
+    `,
     loginUser: gql`
       ${userGqlResp}
       mutation LoginUser($email: String!, $password: String!) {
@@ -110,6 +115,11 @@ const userOps = {
         updateUser(id: $id, edits: $edits) {
           ...UserFields
         }
+      }
+    `,
+    sendVerificationEmail: gql`
+      mutation SendVerificationEmail($email: String!) {
+        sendVerificationEmail(email: $email)
       }
     `,
   },
@@ -336,6 +346,7 @@ export const useGOneTapLogin = () => {
   return { gOneTapLoginAsync, data, loading, error };
 };
 
+//registerUser op
 interface IRegisterUserInput {
   name: string;
   email: string;
@@ -368,4 +379,68 @@ export const useRegisterUser = () => {
     });
 
   return { registerUserAsync, data, loading, error };
+};
+
+//verifyEmail op
+interface IVerifyEmailInput {
+  token: string;
+}
+interface IVerifyEmailData {
+  verifyEmail: string;
+}
+interface IVEAsyncInput {
+  variables: IVerifyEmailInput;
+  onSuccess?: () => void;
+  onError?: (error?: any) => void;
+}
+export const useVerifyEmail = () => {
+  const [verifyEmail, { data, loading, error }] = useMutation<
+    IVerifyEmailData,
+    IVerifyEmailInput
+  >(userOps.Mutations.verifyEmail);
+
+  const verifyEmailAsync = async ({
+    variables,
+    onSuccess,
+    onError,
+  }: IVEAsyncInput) =>
+    asyncOps({
+      operation: () => verifyEmail({ variables }),
+      onSuccess: () => onSuccess && onSuccess(),
+      onError,
+    });
+
+  return { verifyEmailAsync, data, loading, error };
+};
+
+//sendVerificationEmail op
+interface ISendVEInput {
+  email: string;
+}
+interface ISendVEData {
+  sendVerificationEmail: boolean;
+}
+interface IVEmailAsyncInput {
+  variables: ISendVEInput;
+  onSuccess?: () => void;
+  onError?: (error?: any) => void;
+}
+export const useSendVerificationEmail = () => {
+  const [sendVerificationEmail, { data, loading, error }] = useMutation<
+    ISendVEData,
+    ISendVEInput
+  >(userOps.Mutations.sendVerificationEmail);
+
+  const sendVerificationEmailAsync = async ({
+    variables,
+    onSuccess,
+    onError,
+  }: IVEmailAsyncInput) =>
+    asyncOps({
+      operation: () => sendVerificationEmail({ variables }),
+      onSuccess: () => onSuccess && onSuccess(),
+      onError,
+    });
+
+  return { sendVerificationEmailAsync, data, loading, error };
 };

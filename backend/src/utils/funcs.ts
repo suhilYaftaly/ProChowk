@@ -77,7 +77,6 @@ export const sendEmail = async (params: EmailParams) => {
 
   try {
     const response = await axios.post(API_URL, data, { headers });
-    console.log("Email sent successfully:", response.data);
     return response.data;
   } catch (error) {
     console.error(

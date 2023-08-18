@@ -12,7 +12,8 @@ export default gql`
     googleLogin(accessToken: String!): User!
     googleOneTapLogin(credential: String!): User!
     updateUser(id: ID!, edits: UpdateUserInput!): User!
-    verifyEmail(token: String!): User!
+    verifyEmail(token: String!): String!
+    sendVerificationEmail(email: String!): Boolean!
   }
 
   type User {

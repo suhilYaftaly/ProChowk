@@ -95,8 +95,9 @@ export const logOut = () => (dispatch: any) => {
   localStorage.removeItem(USER_PROFILE_KEY);
 };
 export const setUserProfile =
-  (payload: IUser) => (dispatch: any, getState: any) => {
-    const token = getState().user.userProfile.data?.token;
+  (payload: IUser, tokenToUse = "") =>
+  (dispatch: any, getState: any) => {
+    const token = tokenToUse || getState().user.userProfile.data?.token;
     const pData = { ...payload, token };
     dispatch(setUserProfileInfo(pData));
     localStorage.setItem(USER_PROFILE_KEY, JSON.stringify(pData));

@@ -24,7 +24,7 @@ export default function Login() {
     <Box sx={pageCont}>
       <Card sx={{ boxShadow: 4, py: 2, width: 300 }}>
         <Box sx={{ textAlign: "center" }}>
-          <AppLogo size={60} />
+          <AppLogo size={60} linkStyle={{ display: "inline" }} />
         </Box>
         <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
           <Tabs

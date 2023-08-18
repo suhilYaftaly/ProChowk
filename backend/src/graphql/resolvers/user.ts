@@ -99,7 +99,7 @@ export default {
         });
 
         const token = generateUserToken(newUser);
-        // await sendVerificationEmail(newUser);
+        await sendVerificationEmail(newUser);
         return getUserProps(newUser, token);
       } catch (error: any) {
         throw gqlError({ msg: error?.message });
@@ -109,7 +109,7 @@ export default {
       _: any,
       { token }: { token: string },
       context: GraphQLContext
-    ): Promise<User> => {
+    ): Promise<string> => {
       const { prisma } = context;
 
       try {
@@ -121,10 +121,11 @@ export default {
           });
 
         // Mark the email as verified in the database
-        return await prisma.user.update({
+        const user = await prisma.user.update({
           where: { id: verifiedUser.id },
           data: { emailVerified: true },
         });
+        if (user) return generateUserToken(user);
       } catch (error: any) {
         throw gqlError({ msg: error?.message });
       }
@@ -220,6 +221,7 @@ export default {
                 include: { image: true, address: true },
               });
 
+              await sendVerificationEmail(foundUser);
               const token = generateUserToken(newUser);
               return getUserProps(newUser, token);
             }
@@ -284,11 +286,11 @@ export default {
               include: { image: true, address: true },
             });
 
+            await sendVerificationEmail(foundUser);
             const token = generateUserToken(newUser);
             return getUserProps(newUser, token);
           }
 
-          // await sendVerificationEmail(foundUser);
           const token = generateUserToken(foundUser);
           return getUserProps(foundUser, token);
         } else {
@@ -368,6 +370,29 @@ export default {
         throw gqlError({ msg: error?.message });
       }
     },
+    sendVerificationEmail: async (
+      _: any,
+      { email }: { email: string },
+      context: GraphQLContext
+    ): Promise<boolean> => {
+      const { prisma } = context;
+
+      try {
+        //validate email input
+        if (!validateEmail(email))
+          gqlError({ msg: "Invalid email address", code: "BAD_USER_INPUT" });
+
+        const eUser = await prisma.user.findFirst({
+          where: { email: { equals: email, mode: "insensitive" } },
+        });
+        if (eUser) {
+          await sendVerificationEmail(eUser);
+          return true;
+        } else throw gqlError({ msg: "User Not Found!" });
+      } catch (error: any) {
+        throw gqlError({ msg: error?.message });
+      }
+    },
   },
 };
 
@@ -401,9 +426,13 @@ interface IValidateUUI {
   userTypes?: UserType[];
 }
 
+/**
+ * HELPER FUNCTIONS
+ */
 const sendVerificationEmail = async (user: User) => {
   const token = generateEmailVerificationToken(user);
-  const verificationLink = `https://yourdomain.com/verify?token=${token}`;
+  const baseUrl = process.env.CLIENT_ORIGIN;
+  const verificationLink = `${baseUrl}/verify-email?token=${token}`;
 
   const emailParams: EmailParams = {
     from: {
@@ -418,7 +447,25 @@ const sendVerificationEmail = async (user: User) => {
     ],
     subject: "Verify your email address",
     text: `Please verify your email by clicking the link: ${verificationLink}`,
-    html: `Please verify your email by clicking the <a href="${verificationLink}">link</a>`,
+    html: `
+      <div style="background-color: #f6f6f6; padding: 20px; font-family: Arial, sans-serif;">
+        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 4px; padding: 20px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+          <div style="text-align: center;">
+            <img src="${baseUrl}/logo.png" alt="Logo" style="width: 100px;" />
+            <h2 style="margin-top: 20px; color: #333333;">Verify your email</h2>
+          </div>
+          <p style="font-size: 16px; line-height: 1.5; color: #666666; text-align: center;">
+            Hello ${user.name}, thank you for signing up. To complete your registration, please click the button below to verify your email.
+          </p>
+          <div style="text-align: center;">
+            <a href="${verificationLink}" style="background-color: #d94f14; color: #ffffff; font-size: 16px; padding: 12px 24px; text-decoration: none; border-radius: 4px; margin-top: 20px; display: inline-block;">Verify Email</a>
+          </div>
+          <p style="font-size: 14px; color: #999999; text-align: center; margin-top: 30px;">
+            If you did not sign up for an account, you can ignore this email.
+          </p>
+        </div>
+      </div>
+    `,
     variables: [],
   };
 

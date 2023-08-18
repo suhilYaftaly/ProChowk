@@ -11,7 +11,7 @@ import {
 import { useNavigate } from "react-router-dom";
 
 import userOps, { IUsersData } from "@gqlOps/user.ts";
-import { paths } from "@/routes/PageRoutes";
+import { paths } from "@/routes/Routes";
 import CenteredStack from "@reusable/CenteredStack";
 import { ppx } from "@/config/configConst";
 import SearchJobsBySkill from "@jobs/SearchJobsBySkill";

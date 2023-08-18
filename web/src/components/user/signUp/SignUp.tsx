@@ -16,7 +16,7 @@ import { validateEmail } from "@utils/utilFuncs";
 import { useRegisterUser } from "@gqlOps/user";
 import { useAppDispatch } from "@utils/hooks/hooks";
 import { logIn, userProfileBegin, userProfileError } from "@rSlices/userSlice";
-import { paths } from "@/routes/PageRoutes";
+import { paths } from "@/routes/Routes";
 
 interface Props {
   setRedirectToHome: (redirect: boolean) => void;
@@ -73,8 +73,7 @@ export default function SignUp({ setRedirectToHome }: Props) {
       },
       onSuccess: (d) => {
         dispatch(logIn(d));
-        const username = `${d.name}-${d.id}`.replace(/\s/g, "");
-        navigate(paths.user(username));
+        navigate(paths.verifyEmail);
       },
       onError: (err) => dispatch(userProfileError({ message: err?.message })),
     });

@@ -1,5 +1,6 @@
-import { Stack } from "@mui/material";
+import { Stack, SxProps, Theme } from "@mui/material";
 import { ReactNode } from "react";
+
 import { ppy, layoutCardsMaxWidth } from "@config/configConst";
 import { useRespVal } from "@/utils/hooks/hooks";
 
@@ -9,9 +10,11 @@ interface Props {
   mx?: number;
   /** responsive margin-y*/
   my?: number;
+  /**The system prop, which allows defining system overrides as well as additional CSS styles. */
+  sx?: SxProps<Theme>;
 }
 
-export default function CenteredStack({ children, mx, my = ppy }: Props) {
+export default function CenteredStack({ children, mx, my = ppy, sx }: Props) {
   const mrgx = mx && useRespVal(mx, undefined);
   return (
     <Stack
@@ -23,7 +26,7 @@ export default function CenteredStack({ children, mx, my = ppy }: Props) {
         mx: mrgx,
       }}
     >
-      <Stack sx={{ maxWidth: layoutCardsMaxWidth, width: "100%" }}>
+      <Stack sx={{ maxWidth: layoutCardsMaxWidth, width: "100%", ...sx }}>
         {children}
       </Stack>
     </Stack>

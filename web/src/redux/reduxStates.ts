@@ -1,10 +1,8 @@
 import { useAppSelector } from "../utils/hooks/hooks";
 
 export const useSettingsStates = () => {
-  const { colorMode, isSessionExpired, globalError } = useAppSelector(
-    (state) => state.settings
-  );
-  return { colorMode, isSessionExpired, globalError };
+  const { colorMode } = useAppSelector((state) => state.settings);
+  return { colorMode };
 };
 
 export const useUserStates = () => {

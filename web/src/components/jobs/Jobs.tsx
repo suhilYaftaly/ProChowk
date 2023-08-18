@@ -35,7 +35,7 @@ import {
 } from "@gqlOps/job";
 import ErrSnackbar from "@reusable/ErrSnackbar";
 import { removeServerMetadata, trimText } from "@utils/utilFuncs";
-import { paths } from "@routes/PageRoutes";
+import { paths } from "@/routes/Routes";
 import { ISkill, useSkills } from "@gqlOps/skill";
 import { getNewSkills } from "@appComps/SkillsSelection";
 import { useUserStates } from "@redux/reduxStates";

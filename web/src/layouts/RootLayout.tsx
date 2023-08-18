@@ -1,47 +1,36 @@
 import { Outlet, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
+import { useTheme } from "@mui/material";
+import { useEffect } from "react";
 
 import AppHeader from "@components/headerSection/AppHeader";
-import ErrSnackbar from "@reusable/ErrSnackbar";
-import { paths } from "@routes/PageRoutes";
-import { useSettingsStates } from "@redux/reduxStates";
-import { useAppDispatch } from "@/utils/hooks/hooks";
-import { setGlobalError, setSessionExpired } from "@rSlices/settingsSlice";
 import UserLocationPermission from "@user/UseUserLocation";
+import { setNavigator } from "@routes/navigationService";
 
 export default function RootLayout() {
-  const { isSessionExpired, globalError } = useSettingsStates();
-  const [showGlobalErr, setShowGlobalErr] = useState(false);
+  const theme = useTheme();
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (isSessionExpired) navigate(paths.login);
-  }, [isSessionExpired]);
-
-  useEffect(() => {
-    if (globalError) setShowGlobalErr(true);
-  }, [globalError]);
-
-  const onGlobalErrClose = () => {
-    setShowGlobalErr(false);
-    dispatch(setGlobalError(undefined));
-  };
+    setNavigator(navigate);
+  }, [navigate]);
 
   return (
     <>
       <AppHeader />
       <Outlet />
-      <ErrSnackbar
-        errMsg={globalError}
-        open={showGlobalErr}
-        handleClose={onGlobalErrClose}
-      />
       <UserLocationPermission />
-      <ErrSnackbar
-        errMsg="Your Session has Expired, Please Login again!"
-        open={isSessionExpired}
-        handleClose={() => dispatch(setSessionExpired(false))}
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme={theme.palette.mode}
       />
     </>
   );

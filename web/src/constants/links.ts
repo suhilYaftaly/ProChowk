@@ -1,4 +1,4 @@
-import { paths } from "@/routes/PageRoutes";
+import { paths } from "@/routes/Routes";
 
 const env = import.meta.env;
 

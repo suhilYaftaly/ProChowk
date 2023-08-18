@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import { convertUnixToDate, getBasicAdd, openPhone } from "@utils/utilFuncs";
 import { IUser } from "@gqlOps/user";
-import { paths } from "@routes/PageRoutes";
+import { paths } from "@/routes/Routes";
 
 interface Props {
   loading: boolean;

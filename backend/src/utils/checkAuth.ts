@@ -8,6 +8,7 @@ interface ISignedProps {
   id: string;
   name: string;
   email: string;
+  emailVerified: boolean;
   roles?: Role[];
   iat?: number;
   exp?: number;
@@ -46,6 +47,7 @@ const generateToken = (user: User, expiresIn = "7d") => {
       name: user.name,
       email: user.email,
       roles: user.roles,
+      emailVerified: user.emailVerified,
     } as ISignedProps,
     process.env.AUTH_SECRET as string,
     { expiresIn }
@@ -83,6 +85,14 @@ export const canUserUpdate = ({ id, authUser }: ICanUserUpdate) => {
     ) {
       throw gqlError({
         msg: "Unauthorized User. You cannot update someone else's account",
+        code: "FORBIDDEN",
+      });
+    }
+
+    //verify email
+    if (!authUser.emailVerified) {
+      throw gqlError({
+        msg: "Unverified email. Please verify your email.",
         code: "FORBIDDEN",
       });
     }

@@ -8,7 +8,7 @@ import { ReactNode, useMemo } from "react";
 import { client } from "../graphql/apollo-client";
 import { store } from "@redux/store";
 import { useSettingsStates } from "@redux/reduxStates";
-import PageRoutes from "@routes/PageRoutes";
+import Routes from "@/routes/Routes";
 
 const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
@@ -18,7 +18,7 @@ export default function Providers() {
       <Provider store={store}>
         <GoogleOAuthProvider clientId={clientId}>
           <MUIProvider>
-            <PageRoutes />
+            <Routes />
           </MUIProvider>
         </GoogleOAuthProvider>
       </Provider>
