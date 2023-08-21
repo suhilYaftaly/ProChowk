@@ -248,15 +248,6 @@ export const openEmail = ({ email, subject, body }: IOpenEmail) => {
   window.location.href = mailtoURL;
 };
 
-export const openEmailClient = () => {
-  const a = document.createElement("a");
-  a.href = "data:message/rfc822,";
-  a.download = "";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-};
-
 interface ITrimTxt {
   text: string;
   maxLength?: number;

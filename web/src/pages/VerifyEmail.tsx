@@ -1,13 +1,6 @@
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import {
-  Alert,
-  Card,
-  CircularProgress,
-  IconButton,
-  Link,
-  Typography,
-} from "@mui/material";
+import { Alert, Card, CircularProgress, Link, Typography } from "@mui/material";
 import { toast } from "react-toastify";
 import EmailIcon from "@mui/icons-material/Email";
 
@@ -17,7 +10,6 @@ import { useAppDispatch } from "@utils/hooks/hooks";
 import { setUserProfile, setUserProfileInfo } from "@rSlices/userSlice";
 import { paths } from "@routes/Routes";
 import CenteredStack from "@reusable/CenteredStack";
-import { openEmailClient } from "@utils/utilFuncs";
 import { ppx } from "@config/configConst";
 import { USER_PROFILE_KEY } from "@constants/localStorageKeys";
 
@@ -98,9 +90,7 @@ export default function VerifyEmail() {
       <Card sx={{ textAlign: "center", p: 3 }}>
         {user && !user.emailVerified && (
           <>
-            <IconButton onClick={openEmailClient}>
-              <EmailIcon sx={{ width: 170, height: 170 }} />
-            </IconButton>
+            <EmailIcon sx={{ width: 170, height: 170 }} />
             <Typography variant="h4">
               We've sent a verification email to: {user?.email}
             </Typography>
