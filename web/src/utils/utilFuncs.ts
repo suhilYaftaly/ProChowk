@@ -249,7 +249,12 @@ export const openEmail = ({ email, subject, body }: IOpenEmail) => {
 };
 
 export const openEmailClient = () => {
-  window.location.href = "mailto:";
+  const a = document.createElement("a");
+  a.href = "data:message/rfc822,";
+  a.download = "";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 };
 
 interface ITrimTxt {
