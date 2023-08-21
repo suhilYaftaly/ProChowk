@@ -66,6 +66,28 @@ export default {
         throw gqlError({ msg: error?.message });
       }
     },
+    isUserEmailVerified: async (
+      _: any,
+      { id }: { id: string },
+      context: GraphQLContext
+    ): Promise<boolean> => {
+      const { prisma } = context;
+
+      try {
+        const foundUser = await prisma.user.findFirst({ where: { id } });
+        if (!foundUser)
+          throw gqlError({ msg: "User not found", code: "BAD_REQUEST" });
+
+        if (foundUser.emailVerified) return true;
+        else
+          throw gqlError({
+            msg: "Unverified email. Please verify your email.",
+          });
+      } catch (error: any) {
+        console.log("user query error", error);
+        throw gqlError({ msg: error?.message });
+      }
+    },
   },
   Mutation: {
     registerUser: async (
@@ -113,7 +135,7 @@ export default {
       const { prisma } = context;
 
       try {
-        const verifiedUser = verifyToken(token);
+        const verifiedUser = verifyToken({ token, type: "email" });
         if (!verifiedUser)
           throw gqlError({
             msg: "Invalid verification token.",

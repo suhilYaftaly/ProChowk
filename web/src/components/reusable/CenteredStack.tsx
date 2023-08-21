@@ -8,7 +8,7 @@ interface Props {
   children: ReactNode;
   /** responsive margin-x, applies to mobile screens*/
   mx?: number;
-  /** responsive margin-y*/
+  /** responsive margin-y @default 1*/
   my?: number;
   /**The system prop, which allows defining system overrides as well as additional CSS styles. */
   sx?: SxProps<Theme>;

@@ -19,10 +19,9 @@ export const asyncOps = async ({
 }: IAsyncOps) => {
   try {
     onStart && onStart();
-    const { data } = await operation();
-    if (data) {
-      onSuccess && onSuccess(data);
-    } else throw new Error("Data not found");
+    const { data, error } = await operation();
+    if (data) onSuccess && onSuccess(data);
+    else throw new Error(error.message);
   } catch (error: any) {
     console.log("Async operation error:", error.message);
     onError && onError(error.message);

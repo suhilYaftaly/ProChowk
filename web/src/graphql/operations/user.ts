@@ -62,6 +62,11 @@ const userOps = {
         }
       }
     `,
+    isUserEmailVerified: gql`
+      query IsUserEmailVerified($id: ID!) {
+        isUserEmailVerified(id: $id)
+      }
+    `,
   },
   Mutations: {
     registerUser: gql`
@@ -443,4 +448,36 @@ export const useSendVerificationEmail = () => {
     });
 
   return { sendVerificationEmailAsync, data, loading, error };
+};
+
+//isUserEmailVerified op
+interface IIsEmailVerifiedInput {
+  id: string;
+}
+interface IIsEmailVerifiedData {
+  isUserEmailVerified: boolean;
+}
+interface IIsEmailVerifiedAsyncInput {
+  variables: IIsEmailVerifiedInput;
+  onSuccess?: () => void;
+  onError?: (error?: any) => void;
+}
+export const useIsUserEmailVerified = () => {
+  const [isUserEmailVerified, { data, loading, error }] = useLazyQuery<
+    IIsEmailVerifiedData,
+    IIsEmailVerifiedInput
+  >(userOps.Queries.isUserEmailVerified);
+
+  const isUserEmailVerifiedAsync = async ({
+    variables,
+    onSuccess,
+    onError,
+  }: IIsEmailVerifiedAsyncInput) =>
+    asyncOps({
+      operation: () => isUserEmailVerified({ variables }),
+      onSuccess: () => onSuccess && onSuccess(),
+      onError,
+    });
+
+  return { isUserEmailVerifiedAsync, data, loading, error };
 };

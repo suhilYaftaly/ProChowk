@@ -248,6 +248,10 @@ export const openEmail = ({ email, subject, body }: IOpenEmail) => {
   window.location.href = mailtoURL;
 };
 
+export const openEmailClient = () => {
+  window.location.href = "mailto:";
+};
+
 interface ITrimTxt {
   text: string;
   maxLength?: number;

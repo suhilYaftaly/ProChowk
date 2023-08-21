@@ -78,9 +78,9 @@ export const {
   userLocationBegin,
   userLocationSuccess,
   userLocationError,
+  setUserProfileInfo,
 } = slice.actions;
-const { userProfileSuccess, setIsLoggedOut, setUserProfileInfo } =
-  slice.actions;
+const { userProfileSuccess, setIsLoggedOut } = slice.actions;
 export default slice.reducer;
 
 export const logIn = (payload: IUser) => (dispatch: any) => {

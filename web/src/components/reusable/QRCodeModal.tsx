@@ -26,7 +26,7 @@ export default function QRCodeModal({
 }: Props) {
   const [showModal, setShowModal] = useState(false);
   const qrCodeRef = useRef<HTMLDivElement | null>(null);
-  fileName = "ProChowk-" + fileName;
+  fileName = "ProChowk-QRCode-" + fileName;
 
   return (
     <>
