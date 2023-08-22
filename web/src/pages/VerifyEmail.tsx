@@ -101,7 +101,7 @@ export default function VerifyEmail() {
                 <CircularProgress size={15} color="inherit" />
               ) : (
                 <Link
-                  color="inherit"
+                  color="text.secondary"
                   sx={{ cursor: "pointer" }}
                   onClick={resendEmail}
                 >

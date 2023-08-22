@@ -16,6 +16,7 @@ import { openUserIfNewUser, validateEmail } from "@utils/utilFuncs";
 import { useLoginUser } from "@gqlOps/user";
 import { useAppDispatch } from "@utils/hooks/hooks";
 import { logIn, userProfileBegin, userProfileError } from "@rSlices/userSlice";
+import { paths } from "@routes/Routes";
 
 interface Props {
   setRedirectToHome: (redirect: boolean) => void;
@@ -66,7 +67,13 @@ export default function CredentialLogin({ setRedirectToHome }: Props) {
   };
 
   return (
-    <Stack component="form" spacing={1} noValidate onSubmit={onLogin}>
+    <Stack
+      component="form"
+      spacing={1}
+      noValidate
+      onSubmit={onLogin}
+      sx={{ textAlign: "center" }}
+    >
       <TextField
         label="Email"
         id={"email"}
@@ -105,10 +112,10 @@ export default function CredentialLogin({ setRedirectToHome }: Props) {
         }}
       />
       <Link
-        component="button"
         variant="caption"
         color="text.secondary"
-        onClick={() => console.info("Don't remember your password? (TODO)")}
+        onClick={() => navigate(paths.resetPassword)}
+        sx={{ cursor: "pointer" }}
       >
         Don't remember your password?
       </Link>

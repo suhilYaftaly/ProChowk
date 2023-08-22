@@ -62,11 +62,6 @@ const userOps = {
         }
       }
     `,
-    isUserEmailVerified: gql`
-      query IsUserEmailVerified($id: ID!) {
-        isUserEmailVerified(id: $id)
-      }
-    `,
   },
   Mutations: {
     registerUser: gql`
@@ -80,11 +75,6 @@ const userOps = {
           ...UserFields
           token
         }
-      }
-    `,
-    verifyEmail: gql`
-      mutation VerifyEmail($token: String!) {
-        verifyEmail(token: $token)
       }
     `,
     loginUser: gql`
@@ -125,6 +115,21 @@ const userOps = {
     sendVerificationEmail: gql`
       mutation SendVerificationEmail($email: String!) {
         sendVerificationEmail(email: $email)
+      }
+    `,
+    verifyEmail: gql`
+      mutation VerifyEmail($token: String!) {
+        verifyEmail(token: $token)
+      }
+    `,
+    requestPasswordReset: gql`
+      mutation RequestPasswordReset($email: String!) {
+        requestPasswordReset(email: $email)
+      }
+    `,
+    resetPassword: gql`
+      mutation ResetPassword($token: String!, $newPassword: String!) {
+        resetPassword(token: $token, newPassword: $newPassword)
       }
     `,
   },
@@ -386,38 +391,6 @@ export const useRegisterUser = () => {
   return { registerUserAsync, data, loading, error };
 };
 
-//verifyEmail op
-interface IVerifyEmailInput {
-  token: string;
-}
-interface IVerifyEmailData {
-  verifyEmail: string;
-}
-interface IVEAsyncInput {
-  variables: IVerifyEmailInput;
-  onSuccess?: () => void;
-  onError?: (error?: any) => void;
-}
-export const useVerifyEmail = () => {
-  const [verifyEmail, { data, loading, error }] = useMutation<
-    IVerifyEmailData,
-    IVerifyEmailInput
-  >(userOps.Mutations.verifyEmail);
-
-  const verifyEmailAsync = async ({
-    variables,
-    onSuccess,
-    onError,
-  }: IVEAsyncInput) =>
-    asyncOps({
-      operation: () => verifyEmail({ variables }),
-      onSuccess: () => onSuccess && onSuccess(),
-      onError,
-    });
-
-  return { verifyEmailAsync, data, loading, error };
-};
-
 //sendVerificationEmail op
 interface ISendVEInput {
   email: string;
@@ -450,34 +423,99 @@ export const useSendVerificationEmail = () => {
   return { sendVerificationEmailAsync, data, loading, error };
 };
 
-//isUserEmailVerified op
-interface IIsEmailVerifiedInput {
-  id: string;
+//verifyEmail op
+interface IVerifyEmailInput {
+  token: string;
 }
-interface IIsEmailVerifiedData {
-  isUserEmailVerified: boolean;
+interface IVerifyEmailData {
+  verifyEmail: string;
 }
-interface IIsEmailVerifiedAsyncInput {
-  variables: IIsEmailVerifiedInput;
+interface IVEAsyncInput {
+  variables: IVerifyEmailInput;
   onSuccess?: () => void;
   onError?: (error?: any) => void;
 }
-export const useIsUserEmailVerified = () => {
-  const [isUserEmailVerified, { data, loading, error }] = useLazyQuery<
-    IIsEmailVerifiedData,
-    IIsEmailVerifiedInput
-  >(userOps.Queries.isUserEmailVerified);
+export const useVerifyEmail = () => {
+  const [verifyEmail, { data, loading, error }] = useMutation<
+    IVerifyEmailData,
+    IVerifyEmailInput
+  >(userOps.Mutations.verifyEmail);
 
-  const isUserEmailVerifiedAsync = async ({
+  const verifyEmailAsync = async ({
     variables,
     onSuccess,
     onError,
-  }: IIsEmailVerifiedAsyncInput) =>
+  }: IVEAsyncInput) =>
     asyncOps({
-      operation: () => isUserEmailVerified({ variables }),
+      operation: () => verifyEmail({ variables }),
       onSuccess: () => onSuccess && onSuccess(),
       onError,
     });
 
-  return { isUserEmailVerifiedAsync, data, loading, error };
+  return { verifyEmailAsync, data, loading, error };
+};
+
+//requestPasswordReset op
+interface IRPRInput {
+  email: string;
+}
+interface IRPRData {
+  requestPasswordReset: boolean;
+}
+interface IRPRAsyncInput {
+  variables: IRPRInput;
+  onSuccess?: () => void;
+  onError?: (error?: any) => void;
+}
+export const useRequestPasswordReset = () => {
+  const [requestPasswordReset, { data, loading, error }] = useMutation<
+    IRPRData,
+    IRPRInput
+  >(userOps.Mutations.requestPasswordReset);
+
+  const requestPasswordResetAsync = async ({
+    variables,
+    onSuccess,
+    onError,
+  }: IRPRAsyncInput) =>
+    asyncOps({
+      operation: () => requestPasswordReset({ variables }),
+      onSuccess: () => onSuccess && onSuccess(),
+      onError,
+    });
+
+  return { requestPasswordResetAsync, data, loading, error };
+};
+
+//resetPassword op
+interface IRPInput {
+  token: string;
+  newPassword: string;
+}
+interface IRPData {
+  resetPassword: boolean;
+}
+interface IRPAsyncInput {
+  variables: IRPInput;
+  onSuccess?: () => void;
+  onError?: (error?: any) => void;
+}
+export const useResetPassword = () => {
+  const [resetPassword, { data, loading, error }] = useMutation<
+    IRPData,
+    IRPInput
+  >(userOps.Mutations.resetPassword);
+
+  const resetPasswordAsync = async ({
+    variables,
+    onSuccess,
+    onError,
+  }: IRPAsyncInput) =>
+    asyncOps({
+      operation: () => resetPassword({ variables }),
+      onSuccess: () => onSuccess && onSuccess(),
+      onError,
+    });
+
+  return { resetPasswordAsync, data, loading, error };
 };

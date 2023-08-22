@@ -41,7 +41,7 @@ export default (req: any): ISignedProps => {
   });
 };
 
-type TokenType = "session" | "email";
+type TokenType = "session" | "email" | "password";
 interface IGenerateToken {
   user: User;
   expiresIn?: SignOptions["expiresIn"];
@@ -74,8 +74,10 @@ const generateToken = ({
   return token;
 };
 export const generateUserToken = (user: User) => generateToken({ user });
-export const generateEmailVerificationToken = (user: User) =>
-  generateToken({ user, expiresIn: "7d", type: "email" });
+export const generateEmailToken = (user: User) =>
+  generateToken({ user, expiresIn: "1d", type: "email" });
+export const generatePasswordToken = (user: User) =>
+  generateToken({ user, expiresIn: "1h", type: "password" });
 
 interface IVerifyToken {
   token: string;

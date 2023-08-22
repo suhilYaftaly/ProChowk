@@ -12,10 +12,12 @@ import {
   validatePhoneNum,
   sendEmail,
   EmailParams,
+  generateEmailTemplate,
 } from "../../utils/funcs";
 import checkAuth, {
   canUserUpdate,
-  generateEmailVerificationToken,
+  generateEmailToken,
+  generatePasswordToken,
   generateUserToken,
   verifyToken,
 } from "../../utils/checkAuth";
@@ -66,28 +68,6 @@ export default {
         throw gqlError({ msg: error?.message });
       }
     },
-    isUserEmailVerified: async (
-      _: any,
-      { id }: { id: string },
-      context: GraphQLContext
-    ): Promise<boolean> => {
-      const { prisma } = context;
-
-      try {
-        const foundUser = await prisma.user.findFirst({ where: { id } });
-        if (!foundUser)
-          throw gqlError({ msg: "User not found", code: "BAD_REQUEST" });
-
-        if (foundUser.emailVerified) return true;
-        else
-          throw gqlError({
-            msg: "Unverified email. Please verify your email.",
-          });
-      } catch (error: any) {
-        console.log("user query error", error);
-        throw gqlError({ msg: error?.message });
-      }
-    },
   },
   Mutation: {
     registerUser: async (
@@ -127,31 +107,6 @@ export default {
         throw gqlError({ msg: error?.message });
       }
     },
-    verifyEmail: async (
-      _: any,
-      { token }: { token: string },
-      context: GraphQLContext
-    ): Promise<string> => {
-      const { prisma } = context;
-
-      try {
-        const verifiedUser = verifyToken({ token, type: "email" });
-        if (!verifiedUser)
-          throw gqlError({
-            msg: "Invalid verification token.",
-            code: "UNAUTHENTICATED",
-          });
-
-        // Mark the email as verified in the database
-        const user = await prisma.user.update({
-          where: { id: verifiedUser.id },
-          data: { emailVerified: true },
-        });
-        if (user) return generateUserToken(user);
-      } catch (error: any) {
-        throw gqlError({ msg: error?.message });
-      }
-    },
     loginUser: async (
       _: any,
       { password, email }: ILoginUserInput,
@@ -167,7 +122,7 @@ export default {
           where: { email: { equals: email, mode: "insensitive" } },
           include: { image: true, address: true },
         });
-        if (!foundUser) {
+        if (!foundUser || !foundUser.password) {
           throw gqlError({
             msg: "Incorrect email or password",
             code: "BAD_REQUEST",
@@ -407,10 +362,90 @@ export default {
         const eUser = await prisma.user.findFirst({
           where: { email: { equals: email, mode: "insensitive" } },
         });
+
         if (eUser) {
           await sendVerificationEmail(eUser);
           return true;
         } else throw gqlError({ msg: "User Not Found!" });
+      } catch (error: any) {
+        throw gqlError({ msg: error?.message });
+      }
+    },
+    verifyEmail: async (
+      _: any,
+      { token }: { token: string },
+      context: GraphQLContext
+    ): Promise<string> => {
+      const { prisma } = context;
+
+      try {
+        const verifiedUser = verifyToken({ token, type: "email" });
+        if (!verifiedUser)
+          throw gqlError({
+            msg: "Invalid email verification token. Please resend verification email.",
+            code: "UNAUTHENTICATED",
+          });
+
+        // Mark the email as verified in the database
+        const user = await prisma.user.update({
+          where: { id: verifiedUser.id },
+          data: { emailVerified: true },
+        });
+        if (user) return generateUserToken(user);
+      } catch (error: any) {
+        throw gqlError({ msg: error?.message });
+      }
+    },
+    requestPasswordReset: async (
+      _: any,
+      { email }: { email: string },
+      context: GraphQLContext
+    ): Promise<boolean> => {
+      const { prisma } = context;
+
+      try {
+        //validate email input
+        if (!validateEmail(email))
+          throw gqlError({
+            msg: "Invalid email address",
+            code: "BAD_USER_INPUT",
+          });
+
+        const user = await prisma.user.findFirst({
+          where: { email: { equals: email, mode: "insensitive" } },
+        });
+        if (!user) throw gqlError({ msg: "User Not Found!" });
+        //if provider is not credentials then just return true for security reasons
+        if (user.provider !== "Credentials") return true;
+
+        requestPasswordReset(user);
+        return true;
+      } catch (error: any) {
+        throw gqlError({ msg: error?.message });
+      }
+    },
+    resetPassword: async (
+      _: any,
+      { token, newPassword }: { token: string; newPassword: string },
+      context: GraphQLContext
+    ): Promise<boolean> => {
+      const { prisma } = context;
+
+      try {
+        const user = verifyToken({ token, type: "password" });
+        if (!user)
+          throw gqlError({
+            msg: "Invalid password reset token.",
+            code: "UNAUTHENTICATED",
+          });
+
+        const hashedPassword = await bcrypt.hash(newPassword, 12);
+        const updatedUser = await prisma.user.update({
+          where: { id: user.id },
+          data: { password: hashedPassword },
+        });
+        if (updatedUser) return true;
+        else throw gqlError({ msg: "User update failed. Please try again." });
       } catch (error: any) {
         throw gqlError({ msg: error?.message });
       }
@@ -420,6 +455,56 @@ export default {
 
 const getUserProps = (user: User, token?) =>
   token ? { ...user, token } : user;
+
+/**
+ * HELPER FUNCTIONS
+ */
+const sendVerificationEmail = async (user: User) => {
+  const token = generateEmailToken(user);
+  const baseUrl = process.env.CLIENT_ORIGIN;
+  const verificationLink = `${baseUrl}/verify-email?token=${token}`;
+
+  const html = generateEmailTemplate({
+    subject: "Verify your email",
+    message: `Hello ${user.name}, thank you for signing up. To complete your registration, please click the button below to verify your email.`,
+    buttonText: "Verify Email",
+    buttonLink: verificationLink,
+  });
+
+  const emailParams: EmailParams = {
+    from: { email: "noreply@prochowk.com", name: "Pro Chowk" },
+    to: [{ email: user.email, name: user.name }],
+    subject: "Verify your email address",
+    text: `Please verify your email by clicking the link: ${verificationLink}`,
+    html,
+    variables: [],
+  };
+
+  return await sendEmail(emailParams);
+};
+
+const requestPasswordReset = async (user: User) => {
+  const token = generatePasswordToken(user);
+  const resetLink = `${process.env.CLIENT_ORIGIN}/reset-password?token=${token}`;
+
+  const html = generateEmailTemplate({
+    subject: "Password Reset Request",
+    message: `Hello ${user.name}, we received a request to reset your password. Click the button below to proceed.`,
+    buttonText: "Reset Password",
+    buttonLink: resetLink,
+  });
+
+  const emailParams: EmailParams = {
+    from: { email: "noreply@prochowk.com", name: "Pro Chowk" },
+    to: [{ email: user.email, name: user.name }],
+    subject: "Password Reset Request",
+    text: `You have requested a password reset. Click the following link to reset your password: ${resetLink}`,
+    html,
+    variables: [],
+  };
+
+  return await sendEmail(emailParams);
+};
 
 /**
  * INTERFACES
@@ -447,52 +532,6 @@ interface IValidateUUI {
   bio?: string;
   userTypes?: UserType[];
 }
-
-/**
- * HELPER FUNCTIONS
- */
-const sendVerificationEmail = async (user: User) => {
-  const token = generateEmailVerificationToken(user);
-  const baseUrl = process.env.CLIENT_ORIGIN;
-  const verificationLink = `${baseUrl}/verify-email?token=${token}`;
-
-  const emailParams: EmailParams = {
-    from: {
-      email: "noreply@prochowk.com",
-      name: "Pro Chowk",
-    },
-    to: [
-      {
-        email: user.email,
-        name: user.name,
-      },
-    ],
-    subject: "Verify your email address",
-    text: `Please verify your email by clicking the link: ${verificationLink}`,
-    html: `
-      <div style="background-color: #f6f6f6; padding: 20px; font-family: Arial, sans-serif;">
-        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 4px; padding: 20px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
-          <div style="text-align: center;">
-            <img src="${baseUrl}/logo.png" alt="Logo" style="width: 100px;" />
-            <h2 style="margin-top: 20px; color: #333333;">Verify your email</h2>
-          </div>
-          <p style="font-size: 16px; line-height: 1.5; color: #666666; text-align: center;">
-            Hello ${user.name}, thank you for signing up. To complete your registration, please click the button below to verify your email.
-          </p>
-          <div style="text-align: center;">
-            <a href="${verificationLink}" style="background-color: #d94f14; color: #ffffff; font-size: 16px; padding: 12px 24px; text-decoration: none; border-radius: 4px; margin-top: 20px; display: inline-block;">Verify Email</a>
-          </div>
-          <p style="font-size: 14px; color: #999999; text-align: center; margin-top: 30px;">
-            If you did not sign up for an account, you can ignore this email.
-          </p>
-        </div>
-      </div>
-    `,
-    variables: [],
-  };
-
-  return await sendEmail(emailParams);
-};
 
 /**
  * VALIDATORS

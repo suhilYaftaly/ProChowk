@@ -3,6 +3,7 @@ import { GraphQLError } from "graphql";
 import * as dotenv from "dotenv";
 
 dotenv.config();
+const baseUrl = process.env.CLIENT_ORIGIN;
 
 interface IGQLError {
   msg: string;
@@ -83,6 +84,40 @@ export const sendEmail = async (params: EmailParams) => {
       "Error sending email:",
       error.response ? error.response.data : error.message
     );
-    throw error;
+    throw gqlError({ msg: error?.message });
   }
+};
+
+interface IEmailTemplate {
+  subject: string;
+  message: string;
+  buttonText: string;
+  buttonLink: string;
+}
+
+export const generateEmailTemplate = ({
+  subject,
+  message,
+  buttonText,
+  buttonLink,
+}: IEmailTemplate): string => {
+  return `
+    <div style="background-color: #f6f6f6; padding: 20px; font-family: Arial, sans-serif;">
+      <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 4px; padding: 20px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+        <div style="text-align: center;">
+          <img src="${baseUrl}/logo.png" alt="Logo" style="width: 100px;" />
+          <h2 style="margin-top: 20px; color: #333333;">${subject}</h2>
+        </div>
+        <p style="font-size: 16px; line-height: 1.5; color: #666666; text-align: center;">
+          ${message}
+        </p>
+        <div style="text-align: center;">
+          <a href="${buttonLink}" style="background-color: #d94f14; color: #ffffff; font-size: 16px; padding: 12px 24px; text-decoration: none; border-radius: 4px; margin-top: 20px; display: inline-block;">${buttonText}</a>
+        </div>
+        <p style="font-size: 14px; color: #999999; text-align: center; margin-top: 30px;">
+          If you did not request this, you can safely ignore this email.
+        </p>
+      </div>
+    </div>
+  `;
 };

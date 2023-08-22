@@ -4,7 +4,6 @@ export default gql`
   type Query {
     user(id: ID!): User!
     users: [User!]!
-    isUserEmailVerified(id: ID!): Boolean!
   }
 
   type Mutation {
@@ -13,8 +12,10 @@ export default gql`
     googleLogin(accessToken: String!): User!
     googleOneTapLogin(credential: String!): User!
     updateUser(id: ID!, edits: UpdateUserInput!): User!
-    verifyEmail(token: String!): String!
     sendVerificationEmail(email: String!): Boolean!
+    verifyEmail(token: String!): String!
+    requestPasswordReset(email: String!): Boolean!
+    resetPassword(token: String!, newPassword: String!): Boolean!
   }
 
   type User {
