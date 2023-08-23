@@ -15,7 +15,7 @@ export default gql`
     sendVerificationEmail(email: String!): Boolean!
     verifyEmail(token: String!): String!
     requestPasswordReset(email: String!): Boolean!
-    resetPassword(token: String!, newPassword: String!): Boolean!
+    resetPassword(token: String!, newPassword: String!): User!
   }
 
   type User {

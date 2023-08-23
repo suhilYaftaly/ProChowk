@@ -380,11 +380,6 @@ export default {
 
       try {
         const verifiedUser = verifyToken({ token, type: "email" });
-        if (!verifiedUser)
-          throw gqlError({
-            msg: "Invalid email verification token. Please resend verification email.",
-            code: "UNAUTHENTICATED",
-          });
 
         // Mark the email as verified in the database
         const user = await prisma.user.update({
@@ -428,24 +423,22 @@ export default {
       _: any,
       { token, newPassword }: { token: string; newPassword: string },
       context: GraphQLContext
-    ): Promise<boolean> => {
+    ): Promise<User> => {
       const { prisma } = context;
 
       try {
         const user = verifyToken({ token, type: "password" });
-        if (!user)
-          throw gqlError({
-            msg: "Invalid password reset token.",
-            code: "UNAUTHENTICATED",
-          });
 
         const hashedPassword = await bcrypt.hash(newPassword, 12);
         const updatedUser = await prisma.user.update({
           where: { id: user.id },
           data: { password: hashedPassword },
+          include: { image: true, address: true },
         });
-        if (updatedUser) return true;
-        else throw gqlError({ msg: "User update failed. Please try again." });
+        if (updatedUser) {
+          const token = generateUserToken(updatedUser);
+          return getUserProps(updatedUser, token);
+        } else throw gqlError({ msg: "User update failed. Please try again." });
       } catch (error: any) {
         throw gqlError({ msg: error?.message });
       }

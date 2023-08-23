@@ -128,8 +128,12 @@ const userOps = {
       }
     `,
     resetPassword: gql`
+      ${userGqlResp}
       mutation ResetPassword($token: String!, $newPassword: String!) {
-        resetPassword(token: $token, newPassword: $newPassword)
+        resetPassword(token: $token, newPassword: $newPassword) {
+          ...UserFields
+          token
+        }
       }
     `,
   },
@@ -493,11 +497,11 @@ interface IRPInput {
   newPassword: string;
 }
 interface IRPData {
-  resetPassword: boolean;
+  resetPassword: IUser;
 }
 interface IRPAsyncInput {
   variables: IRPInput;
-  onSuccess?: () => void;
+  onSuccess?: (data: IUser) => void;
   onError?: (error?: any) => void;
 }
 export const useResetPassword = () => {
@@ -513,7 +517,7 @@ export const useResetPassword = () => {
   }: IRPAsyncInput) =>
     asyncOps({
       operation: () => resetPassword({ variables }),
-      onSuccess: () => onSuccess && onSuccess(),
+      onSuccess: (dt: IRPData) => onSuccess && onSuccess(dt.resetPassword),
       onError,
     });
 

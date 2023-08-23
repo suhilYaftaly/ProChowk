@@ -84,11 +84,35 @@ interface IVerifyToken {
   type?: TokenType;
 }
 export const verifyToken = ({ token, type = "session" }: IVerifyToken) => {
-  const results = jwt.verify(token, process.env.AUTH_SECRET) as ISignedProps;
-  if (type === results.type) return results;
-  else {
-    console.log("incorrect token type in (verifyToken)");
-    return undefined;
+  try {
+    const results = jwt.verify(token, process.env.AUTH_SECRET) as ISignedProps;
+    if (!results) {
+      throw gqlError({ msg: "Invalid token.", code: "UNAUTHENTICATED" });
+    }
+    if (type !== results.type) throw gqlError({ msg: "incorrect token type." });
+    return results;
+  } catch (error) {
+    if (error.name === "TokenExpiredError")
+      switch (type) {
+        case "session":
+          throw gqlError({
+            msg: "Your Session has Expired, Please Login again!",
+          });
+        case "password":
+          throw gqlError({
+            msg: "Token expired. Please resent a new link to reset password.",
+          });
+        case "email":
+          throw gqlError({
+            msg: "Token expired. Please resent a new link to verify your email.",
+          });
+        default:
+          throw new Error(error.message);
+      }
+    else {
+      // other errors
+      throw new Error(error.message);
+    }
   }
 };
 

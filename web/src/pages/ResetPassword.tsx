@@ -17,12 +17,11 @@ import { Visibility, VisibilityOff, LockPerson } from "@mui/icons-material";
 import { useRequestPasswordReset, useResetPassword } from "@gqlOps/user";
 import { useUserStates } from "@redux/reduxStates";
 import { useAppDispatch } from "@utils/hooks/hooks";
-import { setUserProfileInfo } from "@rSlices/userSlice";
-import { paths } from "@routes/Routes";
+import { logIn, setUserProfileInfo } from "@rSlices/userSlice";
 import CenteredStack from "@reusable/CenteredStack";
 import { ppx } from "@config/configConst";
 import { USER_PROFILE_KEY } from "@constants/localStorageKeys";
-import { validateEmail } from "@/utils/utilFuncs";
+import { validateEmail } from "@utils/utilFuncs";
 
 export default function ResetPassword() {
   const { user } = useUserStates();
@@ -80,9 +79,10 @@ export default function ResetPassword() {
     if (token && formData.newPassword) {
       resetPasswordAsync({
         variables: { token, newPassword: formData.newPassword },
-        onSuccess: () => {
-          toast.success("Password reset successful. Please login.");
-          navigate(paths.login);
+        onSuccess: (dt) => {
+          dispatch(logIn(dt));
+          toast.success("Password reset successful.");
+          navigate("/");
         },
       });
     }

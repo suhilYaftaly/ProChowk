@@ -6,7 +6,6 @@ import {
 } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import { onError } from "@apollo/client/link/error";
-import { toast } from "react-toastify";
 
 import { store } from "@redux/store";
 import { logOut } from "@rSlices/userSlice";
@@ -48,7 +47,6 @@ const errorLink = onError(
           console.log("Operation", operation);
           console.log("Forward", forward);
           store.dispatch(logOut());
-          toast.error("Your Session has Expired, Please Login again!");
           navigate(paths.login);
         }
       }
