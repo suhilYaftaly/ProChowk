@@ -16,6 +16,7 @@ export default gql`
     verifyEmail(token: String!): String!
     requestPasswordReset(email: String!): Boolean!
     resetPassword(token: String!, newPassword: String!): User!
+    validateRefreshToken(refreshToken: String!): ValidateRefreshToken!
   }
 
   type User {
@@ -23,16 +24,17 @@ export default gql`
     name: String!
     email: String!
     emailVerified: Boolean
-    createdAt: String!
-    updatedAt: String!
     phoneNum: String
     bio: String
+    createdAt: String!
+    updatedAt: String!
     provider: Provider
     roles: [Role]
     userTypes: [UserType]
     image: UserImage
     address: Address
     token: String
+    refreshToken: String
     contractor: Contractor
   }
   type UserImage {
@@ -43,6 +45,10 @@ export default gql`
     type: String
     createdAt: String
     updatedAt: String
+  }
+  type ValidateRefreshToken {
+    accessToken: String!
+    refreshToken: String!
   }
 
   input UserImageInput {

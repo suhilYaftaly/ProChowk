@@ -74,6 +74,7 @@ const userOps = {
         registerUser(name: $name, email: $email, password: $password) {
           ...UserFields
           token
+          refreshToken
         }
       }
     `,
@@ -83,6 +84,7 @@ const userOps = {
         loginUser(email: $email, password: $password) {
           ...UserFields
           token
+          refreshToken
         }
       }
     `,
@@ -92,6 +94,7 @@ const userOps = {
         googleLogin(accessToken: $accessToken) {
           ...UserFields
           token
+          refreshToken
         }
       }
     `,
@@ -101,6 +104,7 @@ const userOps = {
         googleOneTapLogin(credential: $credential) {
           ...UserFields
           token
+          refreshToken
         }
       }
     `,
@@ -133,6 +137,15 @@ const userOps = {
         resetPassword(token: $token, newPassword: $newPassword) {
           ...UserFields
           token
+          refreshToken
+        }
+      }
+    `,
+    validateRefreshToken: gql`
+      mutation ValidateRefreshToken($refreshToken: String!) {
+        validateRefreshToken(refreshToken: $refreshToken) {
+          accessToken
+          refreshToken
         }
       }
     `,
@@ -152,6 +165,7 @@ export interface IUser {
   updatedAt: string;
   image: IImage;
   token: string;
+  refreshToken: string;
   provider: Provider;
   roles?: Role[];
   phoneNum?: string;
@@ -522,4 +536,37 @@ export const useResetPassword = () => {
     });
 
   return { resetPasswordAsync, data, loading, error };
+};
+
+//validateRefreshToken op
+export interface IRefreshTokenInput {
+  refreshToken: string;
+}
+export interface IRefreshTokenData {
+  validateRefreshToken: { accessToken: string; refreshToken: string };
+}
+interface IVRTAsyncInput {
+  variables: IRefreshTokenInput;
+  onSuccess?: (data: IRefreshTokenData["validateRefreshToken"]) => void;
+  onError?: (error?: any) => void;
+}
+export const useValidateRefreshToken = () => {
+  const [validateRefreshToken, { data, loading, error }] = useMutation<
+    IRefreshTokenData,
+    IRefreshTokenInput
+  >(userOps.Mutations.validateRefreshToken);
+
+  const validateRefreshTokenAsync = async ({
+    variables,
+    onSuccess,
+    onError,
+  }: IVRTAsyncInput) =>
+    asyncOps({
+      operation: () => validateRefreshToken({ variables }),
+      onSuccess: (dt: IRefreshTokenData) =>
+        onSuccess && onSuccess(dt.validateRefreshToken),
+      onError,
+    });
+
+  return { validateRefreshTokenAsync, data, loading, error };
 };

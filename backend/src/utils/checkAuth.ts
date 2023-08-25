@@ -41,7 +41,7 @@ export default (req: any): ISignedProps => {
   });
 };
 
-type TokenType = "session" | "email" | "password";
+type TokenType = "session" | "email" | "password" | "";
 interface IGenerateToken {
   user: User;
   expiresIn?: SignOptions["expiresIn"];
@@ -49,7 +49,7 @@ interface IGenerateToken {
 }
 const generateToken = ({
   user,
-  expiresIn = "7d",
+  expiresIn = "1h",
   type = "session",
 }: IGenerateToken) => {
   const token = jwt.sign(
@@ -73,6 +73,42 @@ const generateToken = ({
 
   return token;
 };
+
+interface IGenerateRefreshToken {
+  userId: string;
+  expiresIn?: SignOptions["expiresIn"];
+}
+interface RefreshTokenData {
+  refreshToken: string;
+  expiresAt: Date;
+}
+export const generateRefreshToken = ({
+  userId,
+  expiresIn = "30d",
+}: IGenerateRefreshToken): RefreshTokenData => {
+  const refreshToken = jwt.sign(
+    { id: userId },
+    process.env.AUTH_SECRET as string,
+    { expiresIn }
+  );
+
+  if (!refreshToken) {
+    throw gqlError({
+      msg: "Error generating token",
+      code: "UNAUTHENTICATED",
+    });
+  }
+
+  // Decode the token to get the 'exp' claim
+  const decoded = jwt.decode(refreshToken);
+  if (!decoded || typeof decoded !== "object" || !("exp" in decoded)) {
+    throw new Error("Invalid token");
+  }
+  const expiresAt = new Date(decoded.exp * 1000);
+
+  return { refreshToken, expiresAt };
+};
+
 export const generateUserToken = (user: User) => generateToken({ user });
 export const generateEmailToken = (user: User) =>
   generateToken({ user, expiresIn: "1d", type: "email" });
@@ -81,15 +117,17 @@ export const generatePasswordToken = (user: User) =>
 
 interface IVerifyToken {
   token: string;
+  /**pass empty to skip type checking @default "session" */
   type?: TokenType;
 }
 export const verifyToken = ({ token, type = "session" }: IVerifyToken) => {
   try {
     const results = jwt.verify(token, process.env.AUTH_SECRET) as ISignedProps;
     if (!results) {
-      throw gqlError({ msg: "Invalid token.", code: "UNAUTHENTICATED" });
+      throw gqlError({ msg: "Invalid token", code: "UNAUTHENTICATED" });
     }
-    if (type !== results.type) throw gqlError({ msg: "incorrect token type." });
+    if (type && type !== results.type)
+      throw gqlError({ msg: "incorrect token type." });
     return results;
   } catch (error) {
     if (error.name === "TokenExpiredError")
@@ -100,12 +138,14 @@ export const verifyToken = ({ token, type = "session" }: IVerifyToken) => {
           });
         case "password":
           throw gqlError({
-            msg: "Token expired. Please resent a new link to reset password.",
+            msg: "Link expired. Please resent a new link to reset password.",
           });
         case "email":
           throw gqlError({
-            msg: "Token expired. Please resent a new link to verify your email.",
+            msg: "Link expired. Please resent a new link to verify your email.",
           });
+        case "":
+          throw gqlError({ msg: "Token expired" });
         default:
           throw new Error(error.message);
       }

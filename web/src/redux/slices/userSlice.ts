@@ -98,7 +98,10 @@ export const setUserProfile =
   (payload: IUser, tokenToUse = "") =>
   (dispatch: any, getState: any) => {
     const token = tokenToUse || getState().user.userProfile.data?.token;
-    const pData = { ...payload, token };
+    const eUser = getState().user.userProfile.data;
+    const pData = eUser
+      ? { ...eUser, ...payload, token }
+      : { ...payload, token };
     dispatch(setUserProfileInfo(pData));
     localStorage.setItem(USER_PROFILE_KEY, JSON.stringify(pData));
   };

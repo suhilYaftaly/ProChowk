@@ -18,6 +18,7 @@ import checkAuth, {
   canUserUpdate,
   generateEmailToken,
   generatePasswordToken,
+  generateRefreshToken,
   generateUserToken,
   verifyToken,
 } from "../../utils/checkAuth";
@@ -46,7 +47,7 @@ export default {
         if (!foundUser)
           throw gqlError({ msg: "User not found", code: "BAD_REQUEST" });
 
-        return getUserProps(foundUser);
+        return foundUser;
       } catch (error: any) {
         console.log("user query error", error);
         throw gqlError({ msg: error?.message });
@@ -100,9 +101,10 @@ export default {
           include: { image: true, address: true },
         });
 
-        const token = generateUserToken(newUser);
+        const accessToken = generateUserToken(newUser);
         await sendVerificationEmail(newUser);
-        return getUserProps(newUser, token);
+        const refreshToken = await createRefreshToken(prisma, newUser);
+        return getUserProps(newUser, accessToken, refreshToken);
       } catch (error: any) {
         throw gqlError({ msg: error?.message });
       }
@@ -124,7 +126,7 @@ export default {
         });
         if (!foundUser || !foundUser.password) {
           throw gqlError({
-            msg: "Incorrect email or password",
+            msg: "Invalid credentials",
             code: "BAD_REQUEST",
           });
         }
@@ -135,13 +137,14 @@ export default {
         );
         if (!matchPass) {
           throw gqlError({
-            msg: "Incorrect email or password",
+            msg: "Invalid credentials",
             code: "BAD_REQUEST",
           });
         }
 
-        const token = generateUserToken(foundUser);
-        return getUserProps(foundUser, token);
+        const accessToken = generateUserToken(foundUser);
+        const refreshToken = await updateRefreshToken(prisma, foundUser);
+        return getUserProps(foundUser, accessToken, refreshToken);
       } catch (error: any) {
         throw gqlError({ msg: error?.message });
       }
@@ -178,33 +181,13 @@ export default {
               verified_email: emailVerified,
             } = userInfoResp.data;
 
-            const foundUser = await prisma.user.findFirst({
-              where: {
-                email: { equals: email, mode: "insensitive" },
-                provider: "Google",
-              },
-              include: { image: true, address: true },
+            return createOrLoginWithGoogle({
+              prisma,
+              email,
+              url,
+              emailVerified,
+              name,
             });
-
-            if (!foundUser) {
-              const newUser = await prisma.user.create({
-                data: {
-                  name,
-                  email,
-                  provider: "Google",
-                  image: { create: { url } },
-                  emailVerified,
-                },
-                include: { image: true, address: true },
-              });
-
-              await sendVerificationEmail(foundUser);
-              const token = generateUserToken(newUser);
-              return getUserProps(newUser, token);
-            }
-
-            const token = generateUserToken(foundUser);
-            return getUserProps(foundUser, token);
           } else {
             throw gqlError({
               msg:
@@ -243,33 +226,13 @@ export default {
           if (process.env.GOOGLE_CLIENT_ID !== aud)
             throw gqlError({ msg: "Token not verified", code: "FORBIDDEN" });
 
-          const foundUser = await prisma.user.findFirst({
-            where: {
-              email: { equals: email, mode: "insensitive" },
-              provider: "Google",
-            },
-            include: { image: true, address: true },
+          return createOrLoginWithGoogle({
+            prisma,
+            email,
+            url,
+            emailVerified,
+            name,
           });
-
-          if (!foundUser) {
-            const newUser = await prisma.user.create({
-              data: {
-                name,
-                email,
-                provider: "Google",
-                image: { create: { url } },
-                emailVerified,
-              },
-              include: { image: true, address: true },
-            });
-
-            await sendVerificationEmail(foundUser);
-            const token = generateUserToken(newUser);
-            return getUserProps(newUser, token);
-          }
-
-          const token = generateUserToken(foundUser);
-          return getUserProps(foundUser, token);
         } else {
           throw gqlError({ msg: "Could not decode credentials" });
         }
@@ -342,7 +305,7 @@ export default {
           include: { image: true, address: true },
         });
 
-        return getUserProps(updatedUser);
+        return updatedUser;
       } catch (error: any) {
         throw gqlError({ msg: error?.message });
       }
@@ -437,17 +400,53 @@ export default {
         });
         if (updatedUser) {
           const token = generateUserToken(updatedUser);
-          return getUserProps(updatedUser, token);
+          const refreshToken = await updateRefreshToken(prisma, updatedUser);
+          return getUserProps(updatedUser, token, refreshToken);
         } else throw gqlError({ msg: "User update failed. Please try again." });
       } catch (error: any) {
+        throw gqlError({ msg: error?.message });
+      }
+    },
+    validateRefreshToken: async (
+      _: any,
+      { refreshToken }: { refreshToken: string },
+      context: GraphQLContext
+    ): Promise<{ accessToken; refreshToken }> => {
+      const { prisma } = context;
+      try {
+        const decoded = verifyToken({ token: refreshToken, type: "" });
+
+        const storedToken = await prisma.refreshToken.findFirst({
+          where: { userId: decoded.id },
+        });
+
+        if (!storedToken || storedToken.token !== refreshToken) {
+          throw gqlError({
+            msg: "Invalid refresh token.",
+            code: "UNAUTHENTICATED",
+          });
+        }
+
+        const user = await prisma.user.findUnique({
+          where: { id: decoded.id },
+        });
+
+        const newAccessToken = generateUserToken(user);
+        const newRefreshToken = updateRefreshToken(prisma, user);
+
+        return { accessToken: newAccessToken, refreshToken: newRefreshToken };
+      } catch (error) {
         throw gqlError({ msg: error?.message });
       }
     },
   },
 };
 
-const getUserProps = (user: User, token?) =>
-  token ? { ...user, token } : user;
+const getUserProps = (user: User, token: string, refreshToken: string) => ({
+  ...user,
+  token,
+  refreshToken,
+});
 
 /**
  * HELPER FUNCTIONS
@@ -460,7 +459,7 @@ const sendVerificationEmail = async (user: User) => {
   const html = generateEmailTemplate({
     subject: "Verify your email",
     message: `Hello ${user.name}, thank you for signing up. To complete your registration, please click the button below to verify your email.`,
-    buttonText: "Verify Email",
+    buttonText: "VERIFY EMAIL",
     buttonLink: verificationLink,
   });
 
@@ -483,7 +482,7 @@ const requestPasswordReset = async (user: User) => {
   const html = generateEmailTemplate({
     subject: "Password Reset Request",
     message: `Hello ${user.name}, we received a request to reset your password. Click the button below to proceed.`,
-    buttonText: "Reset Password",
+    buttonText: "RESET PASSWORD",
     buttonLink: resetLink,
   });
 
@@ -497,6 +496,85 @@ const requestPasswordReset = async (user: User) => {
   };
 
   return await sendEmail(emailParams);
+};
+
+const updateRefreshToken = async (
+  prisma: GraphQLContext["prisma"],
+  user: User
+) => {
+  const { refreshToken, expiresAt } = generateRefreshToken({ userId: user.id });
+
+  // Handle existing refreshTokens
+  await prisma.refreshToken.deleteMany({ where: { userId: user.id } });
+  await prisma.refreshToken.create({
+    data: {
+      token: refreshToken,
+      userId: user.id,
+      expiresAt: expiresAt,
+    },
+  });
+
+  return refreshToken;
+};
+const createRefreshToken = async (
+  prisma: GraphQLContext["prisma"],
+  user: User
+) => {
+  const { refreshToken, expiresAt } = generateRefreshToken({ userId: user.id });
+
+  await prisma.refreshToken.create({
+    data: {
+      token: refreshToken,
+      userId: user.id,
+      expiresAt: expiresAt,
+    },
+  });
+  return refreshToken;
+};
+
+interface ICreateOrLoginWithG {
+  prisma: GraphQLContext["prisma"];
+  email: string;
+  url: string;
+  emailVerified: boolean;
+  name: string;
+}
+const createOrLoginWithGoogle = async ({
+  prisma,
+  email,
+  url,
+  emailVerified,
+  name,
+}: ICreateOrLoginWithG) => {
+  const foundUser = await prisma.user.findFirst({
+    where: {
+      email: { equals: email, mode: "insensitive" },
+      provider: "Google",
+    },
+    include: { image: true, address: true },
+  });
+
+  if (!foundUser) {
+    const newUser = await prisma.user.create({
+      data: {
+        name,
+        email,
+        provider: "Google",
+        image: { create: { url } },
+        emailVerified,
+      },
+      include: { image: true, address: true },
+    });
+
+    await sendVerificationEmail(newUser);
+    const token = generateUserToken(newUser);
+    const refreshToken = await createRefreshToken(prisma, newUser);
+    return getUserProps(newUser, token, refreshToken);
+  }
+
+  const token = generateUserToken(foundUser);
+  const refreshToken = await updateRefreshToken(prisma, foundUser);
+  return getUserProps(foundUser, token, refreshToken);
 };
 
 /**

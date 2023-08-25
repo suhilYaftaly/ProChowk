@@ -112,6 +112,7 @@ export default function SignUp({ setRedirectToHome }: Props) {
         helperText={formError.email ? "Invalid email format" : ""}
         size="small"
         required
+        inputProps={{ style: { textTransform: "lowercase" } }}
       />
       <TextField
         label="Password"
