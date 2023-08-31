@@ -133,13 +133,13 @@ export default function UserBasicInfo({
                 {user && (
                   <QRCodeModal
                     modalTitle="Your Profile's QR Code."
-                    description="Share this QR code with anyone so they can view your profile."
+                    description="Print and stick it in your truck, sign boards, shop window and etc."
                     fileName={user.name}
                     value={userLink(`${user?.name}-${user?.id}`)}
                   />
                 )}
                 {isMyProfile && (
-                  <IconButton sx={{ ml: 1 }} onClick={() => setOpenEdit(true)}>
+                  <IconButton onClick={() => setOpenEdit(true)}>
                     <EditIcon />
                   </IconButton>
                 )}

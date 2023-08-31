@@ -155,7 +155,7 @@ export const openUserIfNewUser = ({
 
 interface IUserLocation {
   onSuccess: ({ lat, lng }: { lat: number; lng: number }) => void;
-  onError?: (msg: string) => void;
+  onError?: (msg: any) => void;
 }
 export const getUserLocation = ({ onSuccess, onError }: IUserLocation) => {
   if (navigator.geolocation) {
@@ -165,7 +165,7 @@ export const getUserLocation = ({ onSuccess, onError }: IUserLocation) => {
         onSuccess({ lat, lng });
       },
       (error) => {
-        onError && onError("Location permission denied: " + error);
+        onError && onError(error);
         console.error("Location permission denied:", error);
       }
     );

@@ -38,7 +38,7 @@ export default function DetailsSection({ job, loading, userId }: Props) {
   ];
   const rightTxts = [
     {
-      label: "Posted At",
+      label: "Posted On",
       txt: convertUnixToDate(job?.createdAt)?.monthDayYear,
     },
     {
@@ -63,18 +63,19 @@ export default function DetailsSection({ job, loading, userId }: Props) {
           <>
             <Stack
               direction={"row"}
-              sx={{ display: "flex", justifyContent: "center" }}
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
             >
-              <Typography variant="h5" sx={{ mr: 2 }}>
-                {job?.title}
-              </Typography>
+              <Typography variant="h5">{job?.title}</Typography>
               {userId && job?.id && (
                 <QRCodeModal
                   modalTitle="Job QR Code."
                   description="Share this QR code with anyone so they can view this job."
                   fileName={job?.title}
                   value={jobLink(userId, job?.id)}
-                  qrIconSize={30}
                 />
               )}
             </Stack>

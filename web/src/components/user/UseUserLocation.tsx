@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -10,54 +10,50 @@ import {
 import ShareLocationIcon from "@mui/icons-material/ShareLocation";
 import { toast } from "react-toastify";
 
-import { useUserStates } from "@redux/reduxStates";
 import { useAppDispatch } from "@utils/hooks/hooks";
 import {
   logIn,
   userLocationError,
   userLocationSuccess,
 } from "@rSlices/userSlice";
-import { useReverseGeocode } from "@gqlOps/address";
 import { getUserLocation } from "@utils/utilFuncs";
+import { useReverseGeocode } from "@gqlOps/address";
 import { useUpdateUser } from "@gqlOps/user";
+import { useUserStates } from "@redux/reduxStates";
 import { getAddressFormat } from "@appComps/AddressSearch";
 
 export default function UserLocationPermission() {
   const dispatch = useAppDispatch();
   const { userLocation, user } = useUserStates();
-  const { lat, lng } = useUserStates()?.userLocation?.data || {};
+  const { lat, lng } = userLocation?.data || {};
   const { reverseGeocodeAsync } = useReverseGeocode();
   const { updateUserAsync } = useUpdateUser();
   const [showLocationModal, setShowLocationModal] = useState(false);
-  const locPermTimeout = useRef<ReturnType<typeof setTimeout> | null>(null); //locationPermissionTimeout
-  const intervalIdRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const hasHandledLocation = useRef(false);
+  const [isPermissionDenied, setIsPermissionDenied] = useState(false);
 
-  useEffect(() => {
-    getLocation();
-    // If the user doesn't answer the location request within 10 seconds, show the modal.
-    locPermTimeout.current = setTimeout(() => {
-      if (!hasHandledLocation.current) setShowLocationModal(true);
-    }, 10000);
-  }, []);
-
-  //check if permission has been granted from settings
-  useEffect(() => {
-    const checkPermission = async () => {
-      if (navigator && navigator.permissions) {
-        const status = await navigator.permissions.query({
-          name: "geolocation",
-        });
-        if (status.state === "granted" && !lat && !lng) getLocation();
-        if (status.state === "denied" && !lat && !lng)
-          setShowLocationModal(true);
-      }
-    };
-
-    // Periodically check for location permission status.
-    intervalIdRef.current = setInterval(checkPermission, 5000);
-    return () => clearInterval(intervalIdRef.current!);
-  }, [lat, lng]);
+  const getLocation = () =>
+    getUserLocation({
+      onSuccess: ({ lat, lng }) => {
+        setShowLocationModal(false);
+        dispatch(userLocationSuccess({ lat, lng }));
+      },
+      onError: (error) => {
+        dispatch(userLocationError({ error }));
+        setShowLocationModal(true);
+        toast.error(error?.message);
+        navigator.permissions
+          .query({ name: "geolocation" })
+          .then((permissionStatus) => {
+            if (permissionStatus.state === "denied") {
+              setIsPermissionDenied(true);
+              toast.warning(
+                "Please enable location services from the browser settings",
+                { autoClose: 15000 }
+              );
+            }
+          });
+      },
+    });
 
   const assignUserAddress = async () => {
     if (lat && lng && !user?.address?.city && user?.id) {
@@ -76,58 +72,31 @@ export default function UserLocationPermission() {
     }
   };
 
+  useEffect(() => {
+    // Initial permission check
+    navigator.permissions
+      .query({ name: "geolocation" })
+      .then((permissionStatus) => {
+        if (permissionStatus.state === "prompt") setShowLocationModal(true);
+        else if (permissionStatus.state === "granted") getLocation();
+        else {
+          setShowLocationModal(true);
+          setIsPermissionDenied(true);
+        }
+      });
+  }, []);
+
   //if coordinates are available and user doesnt have address then assigne address to user
   useEffect(() => {
     if (lat && lng && !user?.address?.city && user?.id && user.emailVerified)
       assignUserAddress();
   }, [lat, lng, user]);
 
-  const handleCloseDialog = (_: any, reason: string) => {
-    if (reason === "backdropClick" || reason === "escapeKeyDown") return; // Don't close the dialog for these reasons
-    closeLocationDialog();
-  };
-
-  const getLocation = (
-    errMessage = "Location permission denied or access not provided yet."
-  ) => {
-    getUserLocation({
-      onSuccess: ({ lat, lng }) => {
-        clearTimeout(locPermTimeout.current!);
-        dispatch(userLocationSuccess({ lat, lng }));
-        closeDialog();
-        hasHandledLocation.current = true;
-      },
-      onError: (message) => {
-        userLocationError({ message });
-        setShowLocationModal(true);
-        hasHandledLocation.current = true;
-        toast.error(errMessage);
-      },
-    });
-  };
-
-  const closeLocationDialog = () => {
-    if (userLocation?.data) closeDialog();
-    else
-      getLocation(
-        "User denied the request for Geolocation. Please grant access from settings"
-      );
-  };
-
-  const closeDialog = () => {
-    setShowLocationModal(false);
-
-    if (locPermTimeout.current) clearTimeout(locPermTimeout.current);
-    if (intervalIdRef.current) clearInterval(intervalIdRef.current);
-  };
-
   return (
     <Dialog
       open={showLocationModal}
-      onClose={handleCloseDialog}
       aria-labelledby="alert-dialog-title"
       aria-describedby="alert-dialog-description"
-      disableEscapeKeyDown
     >
       <DialogTitle id="alert-dialog-title" style={{ textAlign: "center" }}>
         {"Location Permission Required"}
@@ -137,23 +106,63 @@ export default function UserLocationPermission() {
           color="primary"
           sx={{ width: 100, height: 100, mb: 1 }}
         />
-        <DialogContentText
-          id="alert-dialog-description"
-          style={{ textAlign: "center" }}
-        >
-          To provide you with the best experience, we need access to your
-          location. This is essential for many of our application's features. If
-          you've already granted access from your settings, please click on the
-          "I've granted access" button below.
-        </DialogContentText>
+        {isPermissionDenied ? (
+          <DialogContentText
+            id="alert-dialog-description"
+            style={{ textAlign: "center" }}
+          >
+            We noticed you've denied location access.
+            <br />
+            <br />
+            While you can still use our app, enabling location helps us:
+            <br />
+            - Customize content and services for you
+            <br />
+            - Provide location-specific recommendations
+            <br />
+            - Enhance user experience
+            <br />
+            <br />
+            To enable location services later, you can do so from the browser
+            settings.
+            <br />
+            <br />
+            Your privacy matters to us. Your location data is secure and will
+            never be shared without your consent.
+          </DialogContentText>
+        ) : (
+          <DialogContentText
+            id="alert-dialog-description"
+            style={{ textAlign: "center" }}
+          >
+            To enhance your experience and provide personalized services, we'd
+            like to access your location data.
+            <br />
+            <br />
+            Why we collect your location:
+            <br />
+            - Tailor content, services, and offers specific to your region.
+            <br />
+            - Provide location-based assistance or recommendations. <br />-
+            Improve our website's functionality and your user experience. <br />
+            <br />
+            Your privacy matters:
+            <br />
+            Your location data is collected and stored securely. We do not share
+            this information with third parties without your consent, and you
+            can withdraw your permission at any time in the settings.
+          </DialogContentText>
+        )}
       </DialogContent>
       <DialogActions style={{ justifyContent: "center" }}>
         <Button
-          onClick={closeLocationDialog}
-          color="primary"
-          variant="contained"
-          sx={{ borderRadius: 5 }}
+          onClick={() => setShowLocationModal(false)}
+          variant="outlined"
+          color="inherit"
         >
+          Not Now
+        </Button>
+        <Button onClick={getLocation} color="primary" variant="contained">
           Enable Location
         </Button>
       </DialogActions>

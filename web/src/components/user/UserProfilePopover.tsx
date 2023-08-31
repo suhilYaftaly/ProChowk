@@ -8,11 +8,9 @@ import {
   ListItem,
   ListItemButton,
   ListItemIcon,
-  ListItemText,
   Popover,
   Typography,
 } from "@mui/material";
-import InboxIcon from "@mui/icons-material/Inbox";
 import { useNavigate } from "react-router-dom";
 
 import { useUserStates } from "@redux/reduxStates";
@@ -66,22 +64,21 @@ export default function UserProfilePopover() {
             sx={{ width: "100%", maxWidth: 360 }}
             onMouseLeave={closePopover}
           >
-            <Box sx={{ padding: "8px 16px" }}>
-              <Typography variant="h6">{user?.name}</Typography>
-            </Box>
+            <List>
+              <ListItemComp onClick={openMyProfile}>
+                <ListItemIcon>
+                  <Avatar
+                    alt={user?.name}
+                    src={user?.image?.url}
+                    sx={{ width: 24, height: 24 }}
+                  />
+                </ListItemIcon>
+                <Typography variant="h6">{user?.name}</Typography>
+              </ListItemComp>
+            </List>
             <Divider />
-            <nav aria-label="items with icon">
+            {/* <nav aria-label="items with icon">
               <List>
-                <ListItemComp onClick={openMyProfile}>
-                  <ListItemIcon>
-                    <Avatar
-                      alt={user?.name}
-                      src={user?.image?.url}
-                      sx={{ width: 24, height: 24 }}
-                    />
-                  </ListItemIcon>
-                  <ListItemText primary="My Profile" />
-                </ListItemComp>
                 <ListItemComp>
                   <ListItemIcon>
                     <InboxIcon />
@@ -97,7 +94,7 @@ export default function UserProfilePopover() {
                   <ListItemText primary="My Ads" />
                 </ListItemComp>
               </List>
-            </nav>
+            </nav> */}
             <Divider />
             <nav aria-label="log out">
               <List>
