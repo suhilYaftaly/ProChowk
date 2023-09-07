@@ -8,29 +8,48 @@ import { ApolloServer } from "@apollo/server";
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
 import { makeExecutableSchema } from "@graphql-tools/schema";
 import http from "http";
+import { GraphQLError } from "graphql";
 
 import resolvers from "../graphql/resolvers";
 import typeDefs from "../graphql/typeDefs";
 import { SubsciptionContext, GraphQLContext } from "../types/commonTypes";
-import { ADDRESS_COLLECTION, SKILL_COLLECTION } from "./dbCollectionNames";
+import {
+  ADDRESS_COLLECTION,
+  LOGS_COLLECTION,
+  SKILL_COLLECTION,
+} from "../constants/dbCollectionNames";
+import { logger } from "./logger/logger";
 
 export const connectToMongoDB = async (): Promise<MongoClient> => {
   const mongoClient = new MongoClient(process.env.MONGODB_URI);
   try {
     await mongoClient.connect();
 
-    //create indexes
+    // create indexes and capped collection
     const db = mongoClient.db();
-    // Ensure 2dsphere index on the "Address" collection
+
+    // automatically remove the oldest log entries when a certain size is reached.
+    const collections = await db
+      .listCollections({ name: LOGS_COLLECTION })
+      .toArray();
+    if (collections.length === 0) {
+      await db.createCollection(LOGS_COLLECTION, {
+        capped: true,
+        size: 5242880,
+      }); // 5MB
+    }
+
+    // create 2dsphere index on the "Address" collection
     await db
       .collection(ADDRESS_COLLECTION)
       .createIndex({ geometry: "2dsphere" });
+
     //create skill label (case insensitive) index for faster queries
     await db
       .collection(SKILL_COLLECTION)
       .createIndex({ label: 1 }, { collation: { locale: "en", strength: 2 } });
   } catch (error) {
-    console.error("Failed to connect to MongoDB", error);
+    logger.error("Failed to connect to MongoDB", { metadata: error });
     process.exit(1);
   }
   return mongoClient;
@@ -43,7 +62,14 @@ export const apolloServerSetup = async () => {
     server: httpServer,
     path: "/graphql/subscriptions",
   });
-  const schema = makeExecutableSchema({ typeDefs, resolvers });
+
+  // Wrap all resolvers with the withCatch
+  const wrappedResolvers = wrapResolvers(resolvers, withCatch);
+  // Create the schema using wrapped resolvers
+  const schema = makeExecutableSchema({
+    typeDefs,
+    resolvers: wrappedResolvers,
+  });
   const prisma = new PrismaClient();
   const pubsub = new PubSub();
   const mongoClient = await connectToMongoDB();
@@ -82,4 +108,34 @@ export const apolloServerSetup = async () => {
   });
   await server.start();
   return { app, server, prisma, pubsub, mongoClient, httpServer };
+};
+
+// utility function to wrap each resolver with the errorHandler
+const wrapResolvers = (resolvers, errorHandler) => {
+  const wrappedResolvers = {};
+  for (const [type, typeResolvers] of Object.entries(resolvers)) {
+    wrappedResolvers[type] = {};
+    for (const [key, resolver] of Object.entries(typeResolvers)) {
+      wrappedResolvers[type][key] = errorHandler(resolver);
+    }
+  }
+  return wrappedResolvers;
+};
+
+const withCatch = (resolverFunction: Function) => {
+  return async (...args: any[]) => {
+    try {
+      return await resolverFunction(...args);
+    } catch (error: any) {
+      const meta = {
+        name: error.name,
+        stack: error.stack,
+        path: error.path,
+        locations: error.locations,
+        extensions: error.extensions,
+      };
+      logger.error(error?.message, meta);
+      throw new GraphQLError(error?.message, error);
+    }
+  };
 };

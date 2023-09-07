@@ -2,7 +2,7 @@ import * as dotenv from "dotenv";
 import jwt, { SignOptions } from "jsonwebtoken";
 import { Role, User } from "@prisma/client";
 
-import { gqlError } from "./funcs";
+import { gqlError } from "../utils/funcs";
 
 interface ISignedProps {
   id: string;

@@ -1,11 +1,11 @@
 import { Job } from "@prisma/client";
 import { GraphQLContext, IJobInput } from "../../types/commonTypes";
-import checkAuth, { canUserUpdate } from "../../utils/checkAuth";
+import checkAuth, { canUserUpdate } from "../../middlewares/checkAuth";
 import { gqlError } from "../../utils/funcs";
 import {
   ADDRESS_COLLECTION,
   SKILL_COLLECTION,
-} from "../../utils/dbCollectionNames";
+} from "../../constants/dbCollectionNames";
 
 export default {
   Query: {
@@ -16,17 +16,13 @@ export default {
     ): Promise<Job> => {
       const { prisma } = context;
 
-      try {
-        const jobRes = await prisma.job.findUnique({
-          where: { id },
-          include: { address: true, images: true, skills: true, budget: true },
-        });
-        if (!jobRes) throw gqlError({ msg: "Failed to get the job" });
+      const jobRes = await prisma.job.findUnique({
+        where: { id },
+        include: { address: true, images: true, skills: true, budget: true },
+      });
+      if (!jobRes) throw gqlError({ msg: "Failed to get the job" });
 
-        return jobRes;
-      } catch (error: any) {
-        throw gqlError({ msg: error?.message });
-      }
+      return jobRes;
     },
     userJobs: async (
       _: any,
@@ -35,17 +31,13 @@ export default {
     ): Promise<Job[]> => {
       const { prisma } = context;
 
-      try {
-        const jobsRes = await prisma.job.findMany({
-          where: { userId },
-          orderBy: { createdAt: "desc" },
-          include: { address: true, images: true, skills: true, budget: true },
-        });
-        if (!jobsRes) throw gqlError({ msg: "Failed to get jobs" });
-        return jobsRes;
-      } catch (error: any) {
-        throw gqlError({ msg: error?.message });
-      }
+      const jobsRes = await prisma.job.findMany({
+        where: { userId },
+        orderBy: { createdAt: "desc" },
+        include: { address: true, images: true, skills: true, budget: true },
+      });
+      if (!jobsRes) throw gqlError({ msg: "Failed to get jobs" });
+      return jobsRes;
     },
     jobsBySkill: async (
       _: any,
@@ -56,67 +48,62 @@ export default {
       const db = mongoClient.db();
       const distanceInMeters = radius * 1000;
 
-      try {
-        // Find the skill object by its label (case insensitive)
-        const skillObj = await db
-          .collection(SKILL_COLLECTION)
-          .findOne(
-            { label: { $regex: skill, $options: "i" } },
-            { collation: { locale: "en", strength: 2 } }
-          );
-        if (!skillObj) throw new Error("Skill not found");
-
-        // Fetch addresses within a certain radius that are related to jobs with the given skill
-        const addresses = await db
-          .collection(ADDRESS_COLLECTION)
-          .aggregate([
-            {
-              // Geospatial query to find addresses near the given location
-              $geoNear: {
-                near: {
-                  type: "Point",
-                  coordinates: [latLng.lng, latLng.lat],
-                },
-                distanceField: "distance",
-                maxDistance: distanceInMeters,
-                spherical: true,
-              },
-            },
-            {
-              // Join with the Job collection to get the jobs at each address
-              $lookup: {
-                from: "Job",
-                localField: "_id",
-                foreignField: "addressId",
-                as: "associatedJobs",
-              },
-            },
-            { $unwind: "$associatedJobs" },
-            {
-              // Filter jobs that have the given skill
-              $match: { "associatedJobs.skillIDs": { $in: [skillObj._id] } },
-            },
-            { $limit: limit },
-          ])
-          .toArray();
-
-        // Extract job IDs from the address results
-        const jobIds = addresses.map((address) =>
-          address.associatedJobs._id.toString()
+      // Find the skill object by its label (case insensitive)
+      const skillObj = await db
+        .collection(SKILL_COLLECTION)
+        .findOne(
+          { label: { $regex: skill, $options: "i" } },
+          { collation: { locale: "en", strength: 2 } }
         );
+      if (!skillObj) throw new Error("Skill not found");
 
-        // Fetch detailed job data from Prisma
-        const jobs = await prisma.job.findMany({
-          where: { id: { in: jobIds } },
-          include: { address: true, skills: true, budget: true },
-        });
+      // Fetch addresses within a certain radius that are related to jobs with the given skill
+      const addresses = await db
+        .collection(ADDRESS_COLLECTION)
+        .aggregate([
+          {
+            // Geospatial query to find addresses near the given location
+            $geoNear: {
+              near: {
+                type: "Point",
+                coordinates: [latLng.lng, latLng.lat],
+              },
+              distanceField: "distance",
+              maxDistance: distanceInMeters,
+              spherical: true,
+            },
+          },
+          {
+            // Join with the Job collection to get the jobs at each address
+            $lookup: {
+              from: "Job",
+              localField: "_id",
+              foreignField: "addressId",
+              as: "associatedJobs",
+            },
+          },
+          { $unwind: "$associatedJobs" },
+          {
+            // Filter jobs that have the given skill
+            $match: { "associatedJobs.skillIDs": { $in: [skillObj._id] } },
+          },
+          { $limit: limit },
+        ])
+        .toArray();
 
-        // Reorder the jobs based on the order in jobIds
-        return jobIds.map((jobId) => jobs.find((job) => job.id === jobId));
-      } catch (error) {
-        console.error("Error:", error);
-        throw gqlError({ msg: error?.message });
-      }
+      // Extract job IDs from the address results
+      const jobIds = addresses.map((address) =>
+        address.associatedJobs._id.toString()
+      );
+
+      // Fetch detailed job data from Prisma
+      const jobs = await prisma.job.findMany({
+        where: { id: { in: jobIds } },
+        include: { address: true, skills: true, budget: true },
+      });
+
+      // Reorder the jobs based on the order in jobIds
+      return jobIds.map((jobId) => jobs.find((job) => job.id === jobId));
     },
     jobsByLocation: async (
       _: any,
@@ -127,54 +114,49 @@ export default {
       const db = mongoClient.db();
       const distanceInMeters = radius * 1000;
 
-      try {
-        // Fetch addresses within a certain radius
-        const addresses = await db
-          .collection(ADDRESS_COLLECTION)
-          .aggregate([
-            {
-              // Geospatial query to find addresses near the given location
-              $geoNear: {
-                near: {
-                  type: "Point",
-                  coordinates: [latLng.lng, latLng.lat],
-                },
-                distanceField: "distance",
-                maxDistance: distanceInMeters,
-                spherical: true,
+      // Fetch addresses within a certain radius
+      const addresses = await db
+        .collection(ADDRESS_COLLECTION)
+        .aggregate([
+          {
+            // Geospatial query to find addresses near the given location
+            $geoNear: {
+              near: {
+                type: "Point",
+                coordinates: [latLng.lng, latLng.lat],
               },
+              distanceField: "distance",
+              maxDistance: distanceInMeters,
+              spherical: true,
             },
-            {
-              // Join with the Job collection to get the jobs at each address
-              $lookup: {
-                from: "Job",
-                localField: "_id",
-                foreignField: "addressId",
-                as: "associatedJobs",
-              },
+          },
+          {
+            // Join with the Job collection to get the jobs at each address
+            $lookup: {
+              from: "Job",
+              localField: "_id",
+              foreignField: "addressId",
+              as: "associatedJobs",
             },
-            { $unwind: "$associatedJobs" },
-            { $limit: limit },
-          ])
-          .toArray();
+          },
+          { $unwind: "$associatedJobs" },
+          { $limit: limit },
+        ])
+        .toArray();
 
-        // Extract job IDs from the address results
-        const jobIds = addresses.map((address) =>
-          address.associatedJobs._id.toString()
-        );
+      // Extract job IDs from the address results
+      const jobIds = addresses.map((address) =>
+        address.associatedJobs._id.toString()
+      );
 
-        // Fetch detailed job data from Prisma
-        const jobs = await prisma.job.findMany({
-          where: { id: { in: jobIds } },
-          include: { address: true, skills: true, budget: true },
-        });
+      // Fetch detailed job data from Prisma
+      const jobs = await prisma.job.findMany({
+        where: { id: { in: jobIds } },
+        include: { address: true, skills: true, budget: true },
+      });
 
-        // Reorder the jobs based on the order in jobIds
-        return jobIds.map((jobId) => jobs.find((job) => job.id === jobId));
-      } catch (error) {
-        console.error("Error:", error);
-        throw gqlError({ msg: error?.message });
-      }
+      // Reorder the jobs based on the order in jobIds
+      return jobIds.map((jobId) => jobs.find((job) => job.id === jobId));
     },
   },
   Mutation: {
@@ -187,23 +169,19 @@ export default {
       const authUser = checkAuth(req);
       canUserUpdate({ id: userId, authUser });
 
-      try {
-        const createdJob = await prisma.job.create({
-          data: {
-            title: jobInput.title,
-            desc: jobInput.desc,
-            jobSize: jobInput.jobSize,
-            user: { connect: { id: userId } },
-            ...buildJobInputs(jobInput),
-            budget: { create: jobInput.budget },
-          },
-          include: { address: true, images: true, skills: true, budget: true },
-        });
-        if (!createdJob) throw gqlError({ msg: "Failed to update job" });
-        return createdJob;
-      } catch (error: any) {
-        throw gqlError({ msg: error?.message });
-      }
+      const createdJob = await prisma.job.create({
+        data: {
+          title: jobInput.title,
+          desc: jobInput.desc,
+          jobSize: jobInput.jobSize,
+          user: { connect: { id: userId } },
+          ...buildJobInputs(jobInput),
+          budget: { create: jobInput.budget },
+        },
+        include: { address: true, images: true, skills: true, budget: true },
+      });
+      if (!createdJob) throw gqlError({ msg: "Failed to update job" });
+      return createdJob;
     },
     updateJob: async (
       _: any,
@@ -213,58 +191,54 @@ export default {
       const { prisma, req } = context;
       const authUser = checkAuth(req);
 
-      try {
-        const job = await prisma.job.findUnique({
-          where: { id },
-          include: { skills: true, images: true },
+      const job = await prisma.job.findUnique({
+        where: { id },
+        include: { skills: true, images: true },
+      });
+      if (!job) throw gqlError({ msg: "Job not found" });
+      canUserUpdate({ id: job.userId, authUser });
+
+      const imagesToUpdate = jobInput.images.filter(
+        (newImage) =>
+          !job.images.some(
+            (existingImage) => existingImage.url === newImage.url
+          )
+      );
+      const imageData =
+        imagesToUpdate.length > 0
+          ? { createMany: { data: imagesToUpdate } }
+          : {};
+
+      const disconnectSkills = job.skills
+        .filter((s) => !jobInput.skills.some((IS) => IS.label === s.label))
+        .map((skill) => ({ label: skill.label }));
+
+      if (imagesToDelete?.length > 0) {
+        await prisma.jobImage.deleteMany({
+          where: { id: { in: imagesToDelete } },
         });
-        if (!job) throw gqlError({ msg: "Job not found" });
-        canUserUpdate({ id: job.userId, authUser });
-
-        const imagesToUpdate = jobInput.images.filter(
-          (newImage) =>
-            !job.images.some(
-              (existingImage) => existingImage.url === newImage.url
-            )
-        );
-        const imageData =
-          imagesToUpdate.length > 0
-            ? { createMany: { data: imagesToUpdate } }
-            : {};
-
-        const disconnectSkills = job.skills
-          .filter((s) => !jobInput.skills.some((IS) => IS.label === s.label))
-          .map((skill) => ({ label: skill.label }));
-
-        if (imagesToDelete?.length > 0) {
-          await prisma.jobImage.deleteMany({
-            where: { id: { in: imagesToDelete } },
-          });
-        }
-
-        const skillsInput = {
-          disconnect: disconnectSkills,
-          ...buildJobInputs(jobInput).skills,
-        };
-
-        const updatedJob = await prisma.job.update({
-          where: { id },
-          data: {
-            title: jobInput.title,
-            desc: jobInput.desc,
-            jobSize: jobInput.jobSize,
-            address: buildJobInputs(jobInput).address,
-            skills: skillsInput,
-            images: imageData,
-            budget: { update: jobInput.budget },
-          },
-          include: { address: true, images: true, skills: true, budget: true },
-        });
-        if (!updatedJob) throw gqlError({ msg: "Failed to update job" });
-        return updatedJob;
-      } catch (error: any) {
-        throw gqlError({ msg: error?.message });
       }
+
+      const skillsInput = {
+        disconnect: disconnectSkills,
+        ...buildJobInputs(jobInput).skills,
+      };
+
+      const updatedJob = await prisma.job.update({
+        where: { id },
+        data: {
+          title: jobInput.title,
+          desc: jobInput.desc,
+          jobSize: jobInput.jobSize,
+          address: buildJobInputs(jobInput).address,
+          skills: skillsInput,
+          images: imageData,
+          budget: { update: jobInput.budget },
+        },
+        include: { address: true, images: true, skills: true, budget: true },
+      });
+      if (!updatedJob) throw gqlError({ msg: "Failed to update job" });
+      return updatedJob;
     },
     deleteJob: async (
       _: any,
@@ -274,33 +248,29 @@ export default {
       const { prisma, req } = context;
       const authUser = checkAuth(req);
 
-      try {
-        const job = await prisma.job.findUnique({
-          where: { id },
-          include: { images: true, budget: true },
+      const job = await prisma.job.findUnique({
+        where: { id },
+        include: { images: true, budget: true },
+      });
+      if (!job) throw gqlError({ msg: "Job not found" });
+      canUserUpdate({ id: job.userId, authUser });
+
+      // Deleting associated images
+      if (job.images) {
+        await prisma.jobImage.deleteMany({
+          where: { id: { in: job.images.map((img) => img.id) } },
         });
-        if (!job) throw gqlError({ msg: "Job not found" });
-        canUserUpdate({ id: job.userId, authUser });
-
-        // Deleting associated images
-        if (job.images) {
-          await prisma.jobImage.deleteMany({
-            where: { id: { in: job.images.map((img) => img.id) } },
-          });
-        }
-
-        // Deleting associated budget
-        if (job.budget) {
-          await prisma.budget.delete({ where: { id: job.budget.id } });
-        }
-
-        // Finally, deleting the job
-        const deletedJob = await prisma.job.delete({ where: { id } });
-        if (!deletedJob) throw gqlError({ msg: "Failed to delete job" });
-        return deletedJob;
-      } catch (error: any) {
-        throw gqlError({ msg: error?.message });
       }
+
+      // Deleting associated budget
+      if (job.budget) {
+        await prisma.budget.delete({ where: { id: job.budget.id } });
+      }
+
+      // Finally, deleting the job
+      const deletedJob = await prisma.job.delete({ where: { id } });
+      if (!deletedJob) throw gqlError({ msg: "Failed to delete job" });
+      return deletedJob;
     },
   },
 };

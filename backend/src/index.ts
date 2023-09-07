@@ -4,7 +4,7 @@ import * as dotenv from "dotenv";
 import cors from "cors";
 
 import { GraphQLContext } from "./types/commonTypes";
-import { apolloServerSetup } from "./utils/serverSetup";
+import { apolloServerSetup } from "./middlewares/serverSetup";
 
 async function main() {
   dotenv.config();

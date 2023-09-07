@@ -1,10 +1,10 @@
 import axios from "axios";
+import { Address } from "@prisma/client";
 
-import checkAuth from "../../utils/checkAuth";
+import checkAuth from "../../middlewares/checkAuth";
 import { gqlError } from "../../utils/funcs";
 import { GraphQLContext } from "../../types/commonTypes";
-import { MAP_QUEST_KEYS } from "../../utils/constants";
-import { Address } from "@prisma/client";
+import { MAP_QUEST_KEYS } from "../../constants/constants";
 
 export default {
   Query: {
@@ -17,12 +17,8 @@ export default {
       const user = checkAuth(req);
 
       const mqResults = await fetchMQGeocode({ value, lat, lng, limit });
-      try {
-        if (mqResults) return mqResults;
-        else gqlError({ msg: "Failed to retrieve data" });
-      } catch (error: any) {
-        throw gqlError({ msg: error?.message });
-      }
+      if (mqResults) return mqResults;
+      else gqlError({ msg: "Failed to retrieve data" });
     },
     reverseGeocode: async (
       _: any,
@@ -33,12 +29,8 @@ export default {
       const user = checkAuth(req);
 
       const mqResults = await fetchMQReverseGeocode({ lat, lng });
-      try {
-        if (mqResults) return mqResults;
-        else gqlError({ msg: "Failed to retrieve data" });
-      } catch (error: any) {
-        throw gqlError({ msg: error?.message });
-      }
+      if (mqResults) return mqResults;
+      else gqlError({ msg: "Failed to retrieve data" });
     },
   },
 };

@@ -11,13 +11,9 @@ export default {
     ): Promise<Skill[]> => {
       const { prisma } = context;
 
-      try {
-        const skills = await prisma.skill.findMany();
-        if (!skills) throw gqlError({ msg: "Skills not found" });
-        return skills;
-      } catch (error: any) {
-        throw gqlError({ msg: error?.message });
-      }
+      const skills = await prisma.skill.findMany();
+      if (!skills) throw gqlError({ msg: "Skills not found" });
+      return skills;
     },
   },
 };

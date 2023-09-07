@@ -41,7 +41,7 @@ export default function UserProfilePopover() {
       <>
         <IconButton
           aria-describedby={id}
-          onClick={openPopover}
+          // onClick={openPopover}
           onMouseEnter={openPopover}
         >
           <Avatar

@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { CircleF, GoogleMap, useLoadScript } from "@react-google-maps/api";
-import { useUserStates } from "@/redux/reduxStates";
 import {
   Alert,
   Box,
@@ -13,7 +12,8 @@ import {
 } from "@mui/material";
 import MyLocationIcon from "@mui/icons-material/MyLocation";
 
-import { getUserLocation } from "@/utils/utilFuncs";
+import { useUserStates } from "@redux/reduxStates";
+import { getUserLocation } from "@utils/utilFuncs";
 import { useQuery } from "@apollo/client";
 import gMapKeyOps from "@gqlOps/googleMapKey";
 
