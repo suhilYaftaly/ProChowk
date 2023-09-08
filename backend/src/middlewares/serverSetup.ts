@@ -9,6 +9,7 @@ import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHt
 import { makeExecutableSchema } from "@graphql-tools/schema";
 import http from "http";
 import { GraphQLError } from "graphql";
+import jwt from "jsonwebtoken";
 
 import resolvers from "../graphql/resolvers";
 import typeDefs from "../graphql/typeDefs";
@@ -19,6 +20,7 @@ import {
   SKILL_COLLECTION,
 } from "../constants/dbCollectionNames";
 import { logger } from "./logger/logger";
+import { IGQLError } from "../utils/funcs";
 
 export const connectToMongoDB = async (): Promise<MongoClient> => {
   const mongoClient = new MongoClient(process.env.MONGODB_URI);
@@ -127,14 +129,21 @@ const withCatch = (resolverFunction: Function) => {
     try {
       return await resolverFunction(...args);
     } catch (error: any) {
-      const meta = {
-        name: error.name,
-        stack: error.stack,
-        path: error.path,
-        locations: error.locations,
-        extensions: error.extensions,
-      };
-      logger.error(error?.message, meta);
+      if ((error?.extensions?.type as IGQLError["type"]) !== "skipLogging") {
+        const [, , context] = args;
+        const authHeader = context?.req?.headers?.authorization;
+        const token = authHeader?.split("Bearer ")?.[1];
+        const decodedToken = jwt.decode(token);
+
+        const meta = {
+          name: error.name,
+          stack: error.stack,
+          path: error.path,
+          locations: error.locations,
+          extensions: { ...error.extensions, user: decodedToken },
+        };
+        logger.error(error?.message, meta);
+      }
       throw new GraphQLError(error?.message, error);
     }
   };

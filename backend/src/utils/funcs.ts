@@ -5,8 +5,9 @@ import * as dotenv from "dotenv";
 dotenv.config();
 const baseUrl = process.env.CLIENT_ORIGIN;
 
-interface IGQLError {
+export interface IGQLError {
   msg: string;
+  type?: "skipLogging";
   code?:
     | "BAD_REQUEST"
     | "BAD_USER_INPUT"
@@ -19,8 +20,8 @@ interface IGQLError {
     | "UNAUTHENTICATED"
     | "FORBIDDEN";
 }
-export const gqlError = ({ msg, code }: IGQLError) => {
-  return new GraphQLError(msg, { extensions: { code } });
+export const gqlError = ({ msg, code, type }: IGQLError) => {
+  return new GraphQLError(msg, { extensions: { code, type } });
 };
 
 export function validateEmail(email: string): boolean {
