@@ -55,7 +55,6 @@ export default {
       context: GraphQLContext
     ): Promise<User[]> => {
       const { prisma } = context;
-      throw gqlError({ msg: "testing session" });
 
       return await prisma.user.findMany({
         include: { image: true, address: true },
@@ -346,7 +345,7 @@ export default {
 
       //if provider is not credentials then just return true for security reasons
       if (user.provider !== "Credentials") {
-        logger.warn("Wrong provider when requestPasswordReset()", user);
+        logger.warn("Wrong provider when requestPasswordReset()", { user });
         return true;
       }
       requestPasswordReset(user);

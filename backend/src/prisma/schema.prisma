@@ -149,6 +149,14 @@ model Budget {
     job       Job        @relation(fields: [jobId], references: [id])
 }
 
+model Log {
+    id        String    @id @default(auto()) @map("_id") @db.ObjectId
+    timestamp DateTime  @default(now())
+    level     LogsLevel
+    message   String
+    meta      Json
+}
+
 enum BudgetType {
     Hourly
     Project
@@ -156,6 +164,7 @@ enum BudgetType {
 
 enum Role {
     user
+    dev
     admin
     superAdmin
 }
@@ -174,4 +183,11 @@ enum JobSize {
     Small
     Medium
     Large
+}
+
+enum LogsLevel {
+    error
+    warn
+    info
+    log
 }

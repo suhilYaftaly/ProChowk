@@ -135,30 +135,39 @@ export const verifyToken = ({ token, type = "session" }: IVerifyToken) => {
         case "session":
           throw gqlError({
             msg: "Your Session has Expired, Please Login again!",
+            code: error.code,
           });
         case "password":
           throw gqlError({
             msg: "Link expired. Please resent a new link to reset password.",
+            code: error.code,
           });
         case "email":
           throw gqlError({
             msg: "Link expired. Please resent a new link to verify your email.",
+            code: error.code,
           });
         case "":
-          throw gqlError({ msg: "Token expired" });
+          throw gqlError({ msg: "Token expired", code: error.code });
         default:
-          throw new Error(error.message);
+          throw gqlError({ msg: error.message, code: error.code });
       }
     else {
       // other errors
-      throw new Error(error.message);
+      throw gqlError({ msg: error.message, code: error.code });
     }
   }
 };
 
 export const isSuperAdmin = (roles: Role[] | undefined) =>
-  roles?.includes("superAdmin");
-export const isAdmin = (roles: Role[] | undefined) => roles?.includes("admin");
+  roles?.includes("superAdmin") || false;
+export const isAdmin = (roles: Role[] | undefined): boolean =>
+  roles?.includes("admin") || roles?.includes("superAdmin") || false;
+export const isDeveloper = (roles: Role[] | undefined): boolean =>
+  roles?.includes("dev") ||
+  roles?.includes("admin") ||
+  roles?.includes("superAdmin") ||
+  false;
 
 interface ICanUserUpdate {
   id: string;
@@ -170,28 +179,20 @@ export const canUserUpdate = ({
   authUser,
   checkEmail = true,
 }: ICanUserUpdate) => {
-  try {
-    if (
-      id !== authUser.id &&
-      !isAdmin(authUser.roles) &&
-      !isSuperAdmin(authUser.roles)
-    ) {
+  if (id !== authUser.id && !isAdmin(authUser.roles)) {
+    throw gqlError({
+      msg: "Unauthorized User. You cannot update someone else's account",
+      code: "FORBIDDEN",
+    });
+  }
+
+  if (checkEmail) {
+    //verify email
+    if (!authUser.emailVerified) {
       throw gqlError({
-        msg: "Unauthorized User. You cannot update someone else's account",
+        msg: "Unverified email. Please verify your email.",
         code: "FORBIDDEN",
       });
     }
-
-    if (checkEmail) {
-      //verify email
-      if (!authUser.emailVerified) {
-        throw gqlError({
-          msg: "Unverified email. Please verify your email.",
-          code: "FORBIDDEN",
-        });
-      }
-    }
-  } catch (error) {
-    throw gqlError({ msg: error?.message });
   }
 };

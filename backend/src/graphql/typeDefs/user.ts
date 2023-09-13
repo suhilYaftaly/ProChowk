@@ -68,6 +68,7 @@ export default gql`
 
   enum Role {
     user
+    dev
     admin
     superAdmin
   }

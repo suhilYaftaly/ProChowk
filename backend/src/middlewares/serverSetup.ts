@@ -16,7 +16,7 @@ import typeDefs from "../graphql/typeDefs";
 import { SubsciptionContext, GraphQLContext } from "../types/commonTypes";
 import {
   ADDRESS_COLLECTION,
-  LOGS_COLLECTION,
+  LOG_COLLECTION,
   SKILL_COLLECTION,
 } from "../constants/dbCollectionNames";
 import { logger } from "./logger/logger";
@@ -32,10 +32,10 @@ export const connectToMongoDB = async (): Promise<MongoClient> => {
 
     // automatically remove the oldest log entries when a certain size is reached.
     const collections = await db
-      .listCollections({ name: LOGS_COLLECTION })
+      .listCollections({ name: LOG_COLLECTION })
       .toArray();
     if (collections.length === 0) {
-      await db.createCollection(LOGS_COLLECTION, {
+      await db.createCollection(LOG_COLLECTION, {
         capped: true,
         size: 5242880,
       }); // 5MB
@@ -140,7 +140,8 @@ const withCatch = (resolverFunction: Function) => {
           stack: error.stack,
           path: error.path,
           locations: error.locations,
-          extensions: { ...error.extensions, user: decodedToken },
+          user: decodedToken,
+          extensions: { ...error.extensions },
         };
         logger.error(error?.message, meta);
       }

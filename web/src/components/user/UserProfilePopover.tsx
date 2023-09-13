@@ -8,6 +8,7 @@ import {
   ListItem,
   ListItemButton,
   ListItemIcon,
+  ListItemText,
   Popover,
   Typography,
 } from "@mui/material";
@@ -16,6 +17,7 @@ import { useNavigate } from "react-router-dom";
 import { useUserStates } from "@redux/reduxStates";
 import LogOut from "./LogOut";
 import { paths } from "@/routes/Routes";
+import { isDeveloper } from "@/utils/auth";
 
 export default function UserProfilePopover() {
   const navigate = useNavigate();
@@ -34,6 +36,10 @@ export default function UserProfilePopover() {
       const username = `${user.name}-${user.id}`.replace(/\s/g, "");
       navigate(paths.user(username));
     }
+  };
+  const openLogsPage = () => {
+    closePopover();
+    navigate(paths.logs);
   };
 
   if (user) {
@@ -86,16 +92,20 @@ export default function UserProfilePopover() {
                   <ListItemText primary="My Inbox" />
                 </ListItemComp>
               </List>
-            </nav>
-            <Divider />
-            <nav aria-label="items">
-              <List>
-                <ListItemComp>
-                  <ListItemText primary="My Ads" />
-                </ListItemComp>
-              </List>
             </nav> */}
-            <Divider />
+            {/* <Divider /> */}
+            {isDeveloper(user?.roles) && (
+              <>
+                <nav aria-label="items">
+                  <List>
+                    <ListItemComp onClick={openLogsPage}>
+                      <ListItemText primary="Logs" />
+                    </ListItemComp>
+                  </List>
+                </nav>
+                <Divider />
+              </>
+            )}
             <nav aria-label="log out">
               <List>
                 <LogOut onLogout={closePopover} />

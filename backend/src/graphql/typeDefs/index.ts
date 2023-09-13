@@ -4,5 +4,6 @@ import googleMapKey from "./googleMapKey";
 import address from "./address";
 import job from "./job";
 import skill from "./skill";
+import log from "./log";
 
-export default [user, contractor, googleMapKey, address, job, skill];
+export default [user, contractor, googleMapKey, address, job, skill, log];

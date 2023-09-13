@@ -184,7 +184,7 @@ interface UpdateUserInput {
   userTypes?: UserType[];
 }
 //custom types
-type Role = "user" | "admin" | "superAdmin";
+export type Role = "user" | "dev" | "admin" | "superAdmin";
 type Provider = "Google" | "Credentials";
 type UserType = "client" | "contractor";
 

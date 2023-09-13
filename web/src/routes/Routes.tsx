@@ -12,6 +12,7 @@ import User from "@pages/User";
 import JobView from "@pages/JobView";
 import VerifyEmail from "@pages/VerifyEmail";
 import ResetPassword from "@pages/ResetPassword";
+import Logs from "@pages/Logs";
 
 export const paths = {
   login: "/login",
@@ -19,6 +20,7 @@ export const paths = {
   jobView: (userId: string, jobId: string) => `/job-view/${userId}/${jobId}`,
   verifyEmail: `/verify-email`,
   resetPassword: `/reset-password`,
+  logs: `/logs`,
 };
 
 const router = createBrowserRouter(
@@ -30,6 +32,7 @@ const router = createBrowserRouter(
       <Route path={paths.jobView(":userId", ":jobId")} element={<JobView />} />
       <Route path={paths.verifyEmail} element={<VerifyEmail />} />
       <Route path={paths.resetPassword} element={<ResetPassword />} />
+      <Route path={paths.logs} element={<Logs />} />
     </Route>
   )
 );

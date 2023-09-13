@@ -3,7 +3,7 @@ import winston from "winston";
 import "winston-mongodb";
 import DailyRotateFile from "winston-daily-rotate-file";
 
-import { LOGS_COLLECTION } from "../../constants/dbCollectionNames";
+import { LOG_COLLECTION } from "../../constants/dbCollectionNames";
 
 dotenv.config();
 
@@ -23,19 +23,19 @@ const createdLogger = winston.createLogger({
     }),
     new winston.transports.MongoDB({
       db: process.env.MONGODB_URI,
-      collection: LOGS_COLLECTION,
+      collection: LOG_COLLECTION,
     }),
   ],
   exceptionHandlers: [
     new winston.transports.MongoDB({
       db: process.env.MONGODB_URI,
-      collection: LOGS_COLLECTION,
+      collection: LOG_COLLECTION,
     }),
   ],
   rejectionHandlers: [
     new winston.transports.MongoDB({
       db: process.env.MONGODB_URI,
-      collection: LOGS_COLLECTION,
+      collection: LOG_COLLECTION,
     }),
   ],
 });
