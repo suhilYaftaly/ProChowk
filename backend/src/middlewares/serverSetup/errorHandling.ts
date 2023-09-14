@@ -34,7 +34,8 @@ export const withCatch = (resolverFunction: Function) => {
           path: error.path,
           locations: error.locations,
           user: decodedToken,
-          extensions: { ...error.extensions, userAgent },
+          userAgent,
+          extensions: { ...error.extensions },
         };
         logger.error(error?.message, meta);
       }
