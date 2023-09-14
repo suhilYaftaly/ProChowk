@@ -67,7 +67,7 @@ export default {
       { name, password, email }: IRegisterUserInput,
       context: GraphQLContext
     ): Promise<User> => {
-      const { prisma } = context;
+      const { prisma, userAgent } = context;
 
       const inputErr = validateRegisterI({
         name,
@@ -93,7 +93,7 @@ export default {
 
       const accessToken = generateUserToken(newUser);
       await sendVerificationEmail(newUser);
-      const refreshToken = await createRefreshToken(prisma, newUser);
+      const refreshToken = await createRefreshToken(prisma, newUser, userAgent);
       return getUserProps(newUser, accessToken, refreshToken);
     },
     loginUser: async (
@@ -101,7 +101,7 @@ export default {
       { password, email }: ILoginUserInput,
       context: GraphQLContext
     ): Promise<User> => {
-      const { prisma } = context;
+      const { prisma, userAgent } = context;
 
       const inputErr = validateLoginInput({ email, password });
       if (inputErr) throw inputErr;
@@ -129,7 +129,11 @@ export default {
       }
 
       const accessToken = generateUserToken(foundUser);
-      const refreshToken = await updateRefreshToken(prisma, foundUser);
+      const refreshToken = await updateRefreshToken(
+        prisma,
+        foundUser,
+        userAgent
+      );
       return getUserProps(foundUser, accessToken, refreshToken);
     },
     googleLogin: async (
@@ -137,7 +141,7 @@ export default {
       { accessToken }: { accessToken: string },
       context: GraphQLContext
     ): Promise<User> => {
-      const { prisma } = context;
+      const { prisma, userAgent } = context;
 
       // get token info
       const tokenInfoResp = await axios.post(
@@ -169,6 +173,7 @@ export default {
             url,
             emailVerified,
             name,
+            userAgent,
           });
         } else {
           throw gqlError({
@@ -186,7 +191,7 @@ export default {
       { credential }: { credential: string },
       context: GraphQLContext
     ): Promise<User> => {
-      const { prisma } = context;
+      const { prisma, userAgent } = context;
       const decodedToken = jwt.decode(credential);
 
       if (typeof decodedToken === "object" && decodedToken !== null) {
@@ -207,6 +212,7 @@ export default {
           url,
           emailVerified,
           name,
+          userAgent,
         });
       } else throw gqlError({ msg: "Could not decode credentials" });
     },
@@ -356,7 +362,7 @@ export default {
       { token, newPassword }: { token: string; newPassword: string },
       context: GraphQLContext
     ): Promise<User> => {
-      const { prisma } = context;
+      const { prisma, userAgent } = context;
 
       const user = verifyToken({ token, type: "password" });
 
@@ -368,7 +374,11 @@ export default {
       });
       if (updatedUser) {
         const token = generateUserToken(updatedUser);
-        const refreshToken = await updateRefreshToken(prisma, updatedUser);
+        const refreshToken = await updateRefreshToken(
+          prisma,
+          updatedUser,
+          userAgent
+        );
         return getUserProps(updatedUser, token, refreshToken);
       } else throw gqlError({ msg: "User update failed. Please try again." });
     },
@@ -377,14 +387,14 @@ export default {
       { refreshToken }: { refreshToken: string },
       context: GraphQLContext
     ): Promise<{ accessToken; refreshToken }> => {
-      const { prisma } = context;
+      const { prisma, userAgent } = context;
       const decoded = verifyToken({ token: refreshToken, type: "" });
 
-      const storedToken = await prisma.refreshToken.findFirst({
-        where: { userId: decoded.id },
+      const storedToken = await prisma.refreshToken.findUnique({
+        where: { token: refreshToken },
       });
 
-      if (!storedToken || storedToken.token !== refreshToken) {
+      if (!storedToken) {
         throw gqlError({
           msg: "Invalid refresh token.",
           code: "UNAUTHENTICATED",
@@ -394,7 +404,7 @@ export default {
 
       const user = await prisma.user.findUnique({ where: { id: decoded.id } });
       const newAccessToken = generateUserToken(user);
-      const newRefreshToken = updateRefreshToken(prisma, user);
+      const newRefreshToken = updateRefreshToken(prisma, user, userAgent);
 
       return { accessToken: newAccessToken, refreshToken: newRefreshToken };
     },
@@ -459,17 +469,21 @@ const requestPasswordReset = async (user: User) => {
 
 const updateRefreshToken = async (
   prisma: GraphQLContext["prisma"],
-  user: User
+  user: User,
+  userAgent: string
 ) => {
   const { refreshToken, expiresAt } = generateRefreshToken({ userId: user.id });
 
   // Handle existing refreshTokens
-  await prisma.refreshToken.deleteMany({ where: { userId: user.id } });
+  await prisma.refreshToken.deleteMany({
+    where: { userId: user.id, userAgent },
+  });
   await prisma.refreshToken.create({
     data: {
       token: refreshToken,
       userId: user.id,
       expiresAt: expiresAt,
+      userAgent,
     },
   });
 
@@ -477,7 +491,8 @@ const updateRefreshToken = async (
 };
 const createRefreshToken = async (
   prisma: GraphQLContext["prisma"],
-  user: User
+  user: User,
+  userAgent: string
 ) => {
   const { refreshToken, expiresAt } = generateRefreshToken({ userId: user.id });
 
@@ -486,6 +501,7 @@ const createRefreshToken = async (
       token: refreshToken,
       userId: user.id,
       expiresAt: expiresAt,
+      userAgent,
     },
   });
   return refreshToken;
@@ -497,6 +513,7 @@ interface ICreateOrLoginWithG {
   url: string;
   emailVerified: boolean;
   name: string;
+  userAgent: string;
 }
 const createOrLoginWithGoogle = async ({
   prisma,
@@ -504,6 +521,7 @@ const createOrLoginWithGoogle = async ({
   url,
   emailVerified,
   name,
+  userAgent,
 }: ICreateOrLoginWithG) => {
   const foundUser = await prisma.user.findFirst({
     where: {
@@ -527,12 +545,12 @@ const createOrLoginWithGoogle = async ({
 
     await sendVerificationEmail(newUser);
     const token = generateUserToken(newUser);
-    const refreshToken = await createRefreshToken(prisma, newUser);
+    const refreshToken = await createRefreshToken(prisma, newUser, userAgent);
     return getUserProps(newUser, token, refreshToken);
   }
 
   const token = generateUserToken(foundUser);
-  const refreshToken = await updateRefreshToken(prisma, foundUser);
+  const refreshToken = await updateRefreshToken(prisma, foundUser, userAgent);
   return getUserProps(foundUser, token, refreshToken);
 };
 

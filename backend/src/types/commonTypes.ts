@@ -18,6 +18,7 @@ export interface GraphQLContext {
   prisma: PrismaClient;
   pubsub: PubSub;
   mongoClient: MongoClient;
+  userAgent: string;
 }
 export interface SubsciptionContext extends Context {
   connectionParams: {

@@ -221,7 +221,11 @@ export default function Logs() {
                       {new Date(log.timestamp).toLocaleString()}
                     </TableCell>
                     <TableCell>
-                      <Chip label={log.level} color={chipColor(log.level)} />
+                      <Chip
+                        size="small"
+                        label={log.level}
+                        color={chipColor(log.level)}
+                      />
                     </TableCell>
                     <TableCell>{log.message}</TableCell>
                     <TableCell>{log?.meta?.user?.name}</TableCell>
@@ -249,7 +253,7 @@ export default function Logs() {
             />
           </TableContainer>
           {isAdmin(user?.roles) && (
-            <Tooltip title="Warning, deletion is permanent!">
+            <Tooltip title="Warning, deletion is permanent!" arrow>
               <span style={{ alignSelf: "flex-end" }}>
                 <Button
                   disabled={selectedLogs?.length < 1}

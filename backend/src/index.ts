@@ -4,12 +4,12 @@ import * as dotenv from "dotenv";
 import cors from "cors";
 
 import { GraphQLContext } from "./types/commonTypes";
-import { apolloServerSetup } from "./middlewares/serverSetup";
+import { serverSetup } from "./middlewares/serverSetup/serverSetup";
 
 async function main() {
   dotenv.config();
   const { app, server, prisma, pubsub, mongoClient, httpServer } =
-    await apolloServerSetup();
+    await serverSetup();
 
   app.use(
     "/graphql",
@@ -24,6 +24,7 @@ async function main() {
         prisma,
         pubsub,
         mongoClient,
+        userAgent: req?.headers?.["user-agent"],
       }),
     })
   );

@@ -7,6 +7,13 @@ import { LOG_COLLECTION } from "../../constants/dbCollectionNames";
 
 dotenv.config();
 
+const mongoDBTransporter = new winston.transports.MongoDB({
+  db: process.env.MONGODB_URI,
+  collection: LOG_COLLECTION,
+  capped: true,
+  cappedSize: 10000000, //10MB
+});
+
 const createdLogger = winston.createLogger({
   level: "info",
   format: winston.format.json(),
@@ -21,31 +28,25 @@ const createdLogger = winston.createLogger({
       handleExceptions: true,
       handleRejections: true,
     }),
-    new winston.transports.MongoDB({
-      db: process.env.MONGODB_URI,
-      collection: LOG_COLLECTION,
-    }),
+    mongoDBTransporter,
   ],
-  exceptionHandlers: [
-    new winston.transports.MongoDB({
-      db: process.env.MONGODB_URI,
-      collection: LOG_COLLECTION,
-    }),
-  ],
-  rejectionHandlers: [
-    new winston.transports.MongoDB({
-      db: process.env.MONGODB_URI,
-      collection: LOG_COLLECTION,
-    }),
-  ],
+  exceptionHandlers: [mongoDBTransporter],
+  rejectionHandlers: [mongoDBTransporter],
 });
 
-// If we're not in production then log to the `console` with the format:
-// `${info.level}: ${info.message} JSON.stringify({ ...rest }) `
+// If we're not in production then log to the `console`
 if (process.env.NODE_ENV !== "production") {
-  createdLogger.add(
-    new winston.transports.Console({ format: winston.format.simple() })
+  // Combine multiple formats
+  const combineFormats = winston.format.combine(
+    winston.format.colorize(),
+    winston.format.timestamp(),
+    winston.format.align(),
+    winston.format.printf(
+      (info) => `${info.timestamp} ${info.level}: ${info.message}`
+    )
   );
+
+  createdLogger.add(new winston.transports.Console({ format: combineFormats }));
 }
 
 // Overload the logging functions
