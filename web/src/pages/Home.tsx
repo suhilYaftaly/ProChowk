@@ -14,7 +14,7 @@ import userOps, { IUsersData } from "@gqlOps/user.ts";
 import { paths } from "@/routes/Routes";
 import CenteredStack from "@reusable/CenteredStack";
 import { ppx } from "@/config/configConst";
-import SearchJobsBySkill from "@jobs/SearchJobsBySkill";
+import SearchJobsByText from "@jobs/SearchJobsByText";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -22,7 +22,7 @@ export default function Home() {
 
   return (
     <CenteredStack mx={ppx}>
-      <SearchJobsBySkill />
+      <SearchJobsByText />
       <Divider sx={{ my: 3 }} />
       <Grid container direction={"row"} spacing={1}>
         {allUsers?.users?.map((user) => (

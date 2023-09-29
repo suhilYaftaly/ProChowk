@@ -8,9 +8,15 @@ export default gql`
       skill: String!
       latLng: LatLngInput!
       radius: Float
-      limit: Float
+      limit: Int
     ): [Job!]!
-    jobsByLocation(latLng: LatLngInput!, radius: Float, limit: Float): [Job!]!
+    jobsByLocation(latLng: LatLngInput!, radius: Float, limit: Int): [Job!]!
+    jobsByText(
+      inputText: String!
+      latLng: LatLngInput!
+      radius: Float
+      limit: Int
+    ): [Job!]!
   }
   type Mutation {
     createJob(userId: ID!, jobInput: JobInput!): Job!

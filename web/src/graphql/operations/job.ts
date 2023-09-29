@@ -89,7 +89,7 @@ const jobOps = {
         $skill: String!
         $latLng: LatLngInput!
         $radius: Float
-        $limit: Float
+        $limit: Int
       ) {
         jobsBySkill(
           skill: $skill
@@ -103,12 +103,26 @@ const jobOps = {
     `,
     jobsByLocation: gql`
       ${jobGqlResp}
-      query JobsByLocation(
+      query JobsByLocation($latLng: LatLngInput!, $radius: Float, $limit: Int) {
+        jobsByLocation(latLng: $latLng, radius: $radius, limit: $limit) {
+          ...JobFields
+        }
+      }
+    `,
+    jobsByText: gql`
+      ${jobGqlResp}
+      query JobsByText(
+        $inputText: String!
         $latLng: LatLngInput!
         $radius: Float
-        $limit: Float
+        $limit: Int
       ) {
-        jobsByLocation(latLng: $latLng, radius: $radius, limit: $limit) {
+        jobsByText(
+          inputText: $inputText
+          latLng: $latLng
+          radius: $radius
+          limit: $limit
+        ) {
           ...JobFields
         }
       }
@@ -451,9 +465,10 @@ export const useJobsByLocation = () => {
         default:
           throw new Error("Invalid action type");
       }
-    } else if (jobs && action === "updateAll") modifiedData = jobs;
+    } else if (Array.isArray(jobs) && action === "updateAll")
+      modifiedData = jobs;
 
-    if (modifiedData?.length > 0) {
+    if (modifiedData !== undefined) {
       client.writeQuery<IJobsByLocationData, IJobsByLocationInput>({
         query: jobOps.Queries.jobsByLocation,
         data: { jobsByLocation: modifiedData },
@@ -463,6 +478,84 @@ export const useJobsByLocation = () => {
   };
 
   return { jobsByLocationAsync, updateCache, data, loading, error };
+};
+
+//jobsByText op
+interface IJobsByTextData {
+  jobsByText: IJob[];
+}
+interface IJobsByTextInput {
+  inputText: string;
+  latLng: LatLngInput;
+  radius?: number;
+  limit?: number;
+}
+interface IJobsByTextIAsync {
+  variables: IJobsByTextInput;
+  onSuccess?: (data: IJob[]) => void;
+  onError?: (error?: any) => void;
+}
+export const useJobsByText = () => {
+  const client = useApolloClient();
+  const [jobsByText, { data, loading, error }] = useLazyQuery<
+    IJobsByTextData,
+    IJobsByTextInput
+  >(jobOps.Queries.jobsByText);
+  const { updateCache: updateJByLCache } = useJobsByLocation();
+
+  const jobsByTextAsync = async ({
+    variables,
+    onSuccess,
+    onError,
+  }: IJobsByTextIAsync) =>
+    asyncOps({
+      operation: () => jobsByText({ variables }),
+      onSuccess: (dt: IJobsByTextData) => {
+        onSuccess && onSuccess(dt.jobsByText);
+        updateJByLCache({
+          action: "updateAll",
+          jobs: dt.jobsByText,
+          variables,
+        });
+      },
+      onError,
+    });
+
+  const updateCache = (
+    action: "create" | "update" | "delete",
+    job: IJob,
+    variables: IJobsByTextInput
+  ) => {
+    const cachedData = client.readQuery<IJobsByTextData, IJobsByTextInput>({
+      query: jobOps.Queries.jobsByText,
+      variables,
+    });
+
+    if (cachedData) {
+      let modifiedData: IJob[] = [...cachedData.jobsByText];
+      switch (action) {
+        case "create":
+          modifiedData.unshift(job);
+          break;
+        case "update":
+          modifiedData = modifiedData.map((j) => (j.id === job.id ? job : j));
+          break;
+        case "delete":
+          modifiedData = modifiedData.filter((j) => j.id !== job.id);
+          break;
+        default:
+          throw new Error("Invalid action type");
+      }
+
+      client.writeQuery<IJobsByTextData, IJobsByTextInput>({
+        query: jobOps.Queries.jobsByText,
+        data: { jobsByText: modifiedData },
+        variables,
+      });
+    }
+  };
+
+  return { jobsByTextAsync, updateCache, data, loading, error };
 };
 
 //createJob op

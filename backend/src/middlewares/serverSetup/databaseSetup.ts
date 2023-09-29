@@ -1,9 +1,9 @@
 import { Db, MongoClient } from "mongodb";
 import {
-  LOG_COLLECTION,
   ADDRESS_COLLECTION,
   SKILL_COLLECTION,
   REFRESH_TOKEN_COLLECTION,
+  JOB_COLLECTION,
 } from "../../constants/dbCollectionNames";
 import { logger } from "../logger/logger";
 
@@ -26,6 +26,12 @@ export const setupMongoIndexes = async (db: Db): Promise<void> => {
   await db
     .collection(SKILL_COLLECTION)
     .createIndex({ label: 1 }, { collation: { locale: "en", strength: 2 } });
+
+  // text indexs for MongoDB's $text operator
+  await db.collection(SKILL_COLLECTION).createIndex({ label: "text" });
+  await db
+    .collection(JOB_COLLECTION)
+    .createIndex({ title: "text", desc: "text" });
 
   //TTL(Time-to-Live) to remove old and expired token
   await db

@@ -158,6 +158,76 @@ export default {
       // Reorder the jobs based on the order in jobIds
       return jobIds.map((jobId) => jobs.find((job) => job.id === jobId));
     },
+    jobsByText: async (
+      _: any,
+      { inputText, latLng, radius = 60, limit = 20 }: IJobsByTextInput,
+      context: GraphQLContext
+    ): Promise<Job[]> => {
+      const { mongoClient, prisma } = context;
+      const db = mongoClient.db();
+      const distanceInMeters = radius * 1000;
+
+      // Fetching skills based on text
+      const skills = await db
+        .collection(SKILL_COLLECTION)
+        .find({ $text: { $search: inputText } })
+        .toArray();
+
+      const skillIds = skills.map((skill) => skill._id);
+
+      // Fetching addresses within a certain radius that are related to jobs with the found skills or having the input text in title or description
+      const addresses = await db
+        .collection(ADDRESS_COLLECTION)
+        .aggregate([
+          {
+            $geoNear: {
+              near: {
+                type: "Point",
+                coordinates: [latLng.lng, latLng.lat],
+              },
+              distanceField: "distance",
+              maxDistance: distanceInMeters,
+              spherical: true,
+            },
+          },
+          {
+            $lookup: {
+              from: "Job",
+              localField: "_id",
+              foreignField: "addressId",
+              as: "associatedJobs",
+            },
+          },
+          { $unwind: "$associatedJobs" },
+          {
+            $match: {
+              $or: [
+                { "associatedJobs.skillIDs": { $in: skillIds } },
+                {
+                  "associatedJobs.title": { $regex: inputText, $options: "i" },
+                },
+                { "associatedJobs.desc": { $regex: inputText, $options: "i" } },
+              ],
+            },
+          },
+          { $limit: limit },
+        ])
+        .toArray();
+
+      // Extract job IDs from the address results
+      const jobIds = addresses.map((address) =>
+        address.associatedJobs._id.toString()
+      );
+
+      // Fetch detailed job data from Prisma
+      const jobs = await prisma.job.findMany({
+        where: { id: { in: jobIds } },
+        include: { address: true, skills: true, budget: true },
+      });
+
+      // Reorder the jobs based on the order in jobIds
+      return jobIds.map((jobId) => jobs.find((job) => job.id === jobId));
+    },
   },
   Mutation: {
     createJob: async (
@@ -317,6 +387,12 @@ interface IJobsBySkillInput {
   limit?: number;
 }
 interface IJobsByLocationInput {
+  latLng: { lat: number; lng: number };
+  radius?: number;
+  limit?: number;
+}
+interface IJobsByTextInput {
+  inputText: string;
   latLng: { lat: number; lng: number };
   radius?: number;
   limit?: number;
