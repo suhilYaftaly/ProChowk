@@ -79,13 +79,14 @@ export const sendEmail = async (params: EmailParams) => {
 
   try {
     const response = await axios.post(API_URL, data, { headers });
-    return response.data;
+    return response?.data;
   } catch (error) {
-    console.error(
-      "Error sending email:",
-      error.response ? error.response.data : error.message
-    );
-    throw gqlError({ msg: error?.message });
+    const errMsg =
+      "MailerSend: " + error?.response
+        ? error?.response?.data?.message
+        : error?.message;
+    console.error(errMsg);
+    throw gqlError({ msg: errMsg });
   }
 };
 

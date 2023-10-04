@@ -354,7 +354,7 @@ export default {
         logger.warn("Wrong provider when requestPasswordReset()", { user });
         return true;
       }
-      requestPasswordReset(user);
+      await requestPasswordReset(user);
       return true;
     },
     resetPassword: async (
@@ -420,7 +420,7 @@ const getUserProps = (user: User, token: string, refreshToken: string) => ({
 /**
  * HELPER FUNCTIONS
  */
-const sendVerificationEmail = async (user: User) => {
+const sendVerificationEmail = async (user: User): Promise<any> => {
   const token = generateEmailToken(user);
   const baseUrl = process.env.CLIENT_ORIGIN;
   const verificationLink = `${baseUrl}/verify-email?token=${token}`;
@@ -444,7 +444,7 @@ const sendVerificationEmail = async (user: User) => {
   return await sendEmail(emailParams);
 };
 
-const requestPasswordReset = async (user: User) => {
+const requestPasswordReset = async (user: User): Promise<any> => {
   const token = generatePasswordToken(user);
   const resetLink = `${process.env.CLIENT_ORIGIN}/reset-password?token=${token}`;
 
