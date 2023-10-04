@@ -433,7 +433,7 @@ const sendVerificationEmail = async (user: User) => {
   });
 
   const emailParams: EmailParams = {
-    from: { email: "noreply@prochowk.com", name: "Pro Chowk" },
+    from: { email: "noreply@nexabind.com", name: "Nexa Bind" },
     to: [{ email: user.email, name: user.name }],
     subject: "Verify your email address",
     text: `Please verify your email by clicking the link: ${verificationLink}`,
@@ -456,7 +456,7 @@ const requestPasswordReset = async (user: User) => {
   });
 
   const emailParams: EmailParams = {
-    from: { email: "noreply@prochowk.com", name: "Pro Chowk" },
+    from: { email: "noreply@nexabind.com", name: "Nexa Bind" },
     to: [{ email: user.email, name: user.name }],
     subject: "Password Reset Request",
     text: `You have requested a password reset. Click the following link to reset your password: ${resetLink}`,

@@ -1,7 +1,7 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "prochowk backend with graphql",
+  "description": "nexabind backend with graphql",
   "main": "index.js",
   "scripts": {
     "dev": "nodemon src/index.ts",

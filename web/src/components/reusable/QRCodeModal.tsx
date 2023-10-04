@@ -13,7 +13,7 @@ interface Props {
   /**@default "QR Code." */
   modalTitle?: string;
   description?: string;
-  /**exported file name @default "ProChowk-QRCode" */
+  /**exported file name @default "NexaBind-QRCode" */
   fileName?: string;
 }
 
@@ -25,7 +25,7 @@ export default function QRCodeModal({
 }: Props) {
   const [showModal, setShowModal] = useState(false);
   const qrCodeRef = useRef<HTMLDivElement | null>(null);
-  fileName = "ProChowk-QRCode-" + fileName;
+  fileName = "NexaBind-QRCode-" + fileName;
 
   const imageSettings = {
     src: logoWhiteOutline,

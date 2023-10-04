@@ -1,3 +1,3 @@
 export default Object.freeze({
-  appName: "Pro Chowk",
+  appName: "Nexa Bind",
 });
