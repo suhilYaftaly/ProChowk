@@ -155,7 +155,7 @@ model Log {
     timestamp DateTime  @default(now())
     level     LogsLevel
     message   String
-    meta      Json
+    meta      Json?
 }
 
 enum BudgetType {

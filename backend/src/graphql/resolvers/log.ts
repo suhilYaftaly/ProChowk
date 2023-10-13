@@ -1,7 +1,7 @@
 import { Log, LogsLevel } from "@prisma/client";
 
 import { GraphQLContext } from "../../types/commonTypes";
-import checkAuth, { isAdmin, isDeveloper } from "../../middlewares/checkAuth";
+import checkAuth, { isDeveloper } from "../../middlewares/checkAuth";
 import { gqlError } from "../../utils/funcs";
 
 export default {
@@ -30,23 +30,6 @@ export default {
       });
 
       return { logs, total };
-    },
-  },
-  Mutation: {
-    deleteLogs: async (
-      _: any,
-      { logIds }: { logIds: string[] },
-      context: GraphQLContext
-    ): Promise<Boolean> => {
-      const { prisma, req } = context;
-      const authUser = checkAuth(req);
-
-      if (!isAdmin(authUser.roles)) {
-        throw gqlError({ msg: "Unauthorized User", code: "FORBIDDEN" });
-      }
-
-      await prisma.log.deleteMany({ where: { id: { in: logIds } } });
-      return true;
     },
   },
 };

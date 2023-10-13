@@ -1,9 +1,4 @@
-import {
-  gql,
-  useApolloClient,
-  useLazyQuery,
-  useMutation,
-} from "@apollo/client";
+import { gql, useApolloClient, useLazyQuery } from "@apollo/client";
 import { asyncOps } from "./gqlFuncs";
 
 export const logGqlResp = gql`
@@ -27,13 +22,6 @@ const logOps = {
             ...LogFields
           }
         }
-      }
-    `,
-  },
-  Mutations: {
-    deleteLogs: gql`
-      mutation DeleteLogs($logIds: [ID!]!) {
-        deleteLogs(logIds: $logIds)
       }
     `,
   },
@@ -145,48 +133,4 @@ export const useLogs = () => {
   };
 
   return { logsAsync, updateLogsCache, data, loading, error };
-};
-
-//useDeleteLogs op
-interface IDeleteLogsAsync {
-  variables: IDeleteLogsInput;
-  onSuccess?: (data: boolean) => void;
-  onError?: (error?: any) => void;
-  logsCacheVars: ILogsInput;
-}
-
-interface IDeleteLogsInput {
-  logs: ILog[];
-}
-interface IDeleteLogsIdsInput {
-  logIds: string[];
-}
-
-// useDeleteLogs hook
-export const useDeleteLogs = () => {
-  const [deleteLogsMutation, { data, loading, error }] = useMutation<
-    boolean,
-    IDeleteLogsIdsInput
-  >(logOps.Mutations.deleteLogs);
-  const { updateLogsCache } = useLogs();
-
-  const deleteLogsAsync = async ({
-    variables,
-    onSuccess,
-    onError,
-    logsCacheVars,
-  }: IDeleteLogsAsync) => {
-    const logIds = variables.logs.map((log) => log.id); // Extract IDs from ILog objects
-
-    asyncOps({
-      operation: () => deleteLogsMutation({ variables: { logIds } }),
-      onSuccess: (dt) => {
-        updateLogsCache("deleteMany", variables.logs, logsCacheVars);
-        onSuccess && onSuccess(dt);
-      },
-      onError,
-    });
-  };
-
-  return { deleteLogsAsync, data, loading, error };
 };

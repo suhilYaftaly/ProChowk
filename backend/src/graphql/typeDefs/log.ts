@@ -12,9 +12,6 @@ export default gql`
       level: LogsLevel
     ): LogsResponse!
   }
-  type Mutation {
-    deleteLogs(logIds: [ID!]!): Boolean!
-  }
 
   type Log {
     id: ID!

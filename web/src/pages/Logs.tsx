@@ -9,30 +9,25 @@ import {
   Paper,
   Chip,
   TableSortLabel,
-  Checkbox,
   CircularProgress,
   TablePagination,
-  Button,
-  Tooltip,
   Accordion,
   AccordionDetails,
   AccordionSummary,
 } from "@mui/material";
-import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import { useNavigate } from "react-router-dom";
 
-import { ILog, useDeleteLogs, useLogs } from "@gqlOps/log";
+import { ILog, useLogs } from "@gqlOps/log";
 import CenteredStack from "@reusable/CenteredStack";
 import { ppx } from "@config/configConst";
 import { useUserStates } from "@redux/reduxStates";
-import { isAdmin, isDeveloper } from "@utils/auth";
+import { isDeveloper } from "@utils/auth";
 
 type OrderBy = { [key in FieldNames]?: "asc" | "desc" };
 
 export default function Logs() {
   const { user } = useUserStates();
   const navigate = useNavigate();
-  const [selectedLogs, setSelectedLogs] = useState<string[]>([]);
   const [orderBy, setOrderBy] = useState<OrderBy>({
     timestamp: "desc",
     level: "asc",
@@ -45,7 +40,6 @@ export default function Logs() {
   const [localSortedData, setLocalSortedData] = useState<ILog[]>([]);
 
   const { logsAsync, data, loading } = useLogs();
-  const { deleteLogsAsync } = useDeleteLogs();
   const logsVars = {
     skip: page * rowsPerPage,
     take: rowsPerPage,
@@ -68,32 +62,6 @@ export default function Logs() {
   useEffect(() => {
     if (data?.logs?.logs) setLocalSortedData([...data.logs.logs]);
   }, [data]);
-
-  const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.checked) {
-      const newSelectedLogs = localSortedData.map((log) => log.id);
-      setSelectedLogs(newSelectedLogs);
-    } else setSelectedLogs([]);
-  };
-
-  const handleSelect = (log: ILog) => {
-    const newSelectedLogs = selectedLogs.includes(log.id)
-      ? selectedLogs.filter((id: string) => id !== log.id)
-      : [...selectedLogs, log.id];
-
-    setSelectedLogs(newSelectedLogs);
-  };
-
-  const deleteSelected = () => {
-    const selectedLogObjects = localSortedData.filter((log) =>
-      selectedLogs.includes(log.id)
-    );
-    deleteLogsAsync({
-      variables: { logs: selectedLogObjects },
-      onSuccess: () => setSelectedLogs([]),
-      logsCacheVars: logsVars,
-    });
-  };
 
   const handleSort = (field: FieldNames) => {
     const newOrderBy = orderBy[field] === "desc" ? "asc" : "desc";
@@ -143,21 +111,6 @@ export default function Logs() {
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  {isAdmin(user?.roles) && (
-                    <TableCell padding="checkbox">
-                      <Checkbox
-                        indeterminate={
-                          selectedLogs.length > 0 &&
-                          selectedLogs.length < localSortedData.length
-                        }
-                        checked={
-                          localSortedData.length > 0 &&
-                          selectedLogs.length === localSortedData.length
-                        }
-                        onChange={handleSelectAll}
-                      />
-                    </TableCell>
-                  )}
                   <TableCell>
                     <TableSortLabel
                       active={true}
@@ -209,14 +162,6 @@ export default function Logs() {
               <TableBody>
                 {localSortedData?.map((log) => (
                   <TableRow key={log.id}>
-                    {isAdmin(user?.roles) && (
-                      <TableCell padding="checkbox">
-                        <Checkbox
-                          checked={selectedLogs.includes(log.id)}
-                          onChange={() => handleSelect(log)}
-                        />
-                      </TableCell>
-                    )}
                     <TableCell>
                       {new Date(log.timestamp).toLocaleString()}
                     </TableCell>
@@ -252,22 +197,6 @@ export default function Logs() {
               onRowsPerPageChange={handleChangeRowsPerPage}
             />
           </TableContainer>
-          {isAdmin(user?.roles) && (
-            <Tooltip title="Warning, deletion is permanent!" arrow>
-              <span style={{ alignSelf: "flex-end" }}>
-                <Button
-                  disabled={selectedLogs?.length < 1}
-                  onClick={deleteSelected}
-                  color="error"
-                  startIcon={<DeleteForeverIcon sx={{ mb: 0.3 }} />}
-                  variant="contained"
-                  sx={{ mt: 2 }}
-                >
-                  Delete Selected Logs
-                </Button>
-              </span>
-            </Tooltip>
-          )}
         </>
       )}
     </CenteredStack>
