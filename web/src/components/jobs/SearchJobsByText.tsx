@@ -1,4 +1,10 @@
-import { Autocomplete, Button, Stack, TextField } from "@mui/material";
+import {
+  Autocomplete,
+  Button,
+  Stack,
+  TextField,
+  useTheme,
+} from "@mui/material";
 import { useState, FormEvent, useEffect } from "react";
 
 import ErrSnackbar from "@reusable/ErrSnackbar";
@@ -10,6 +16,7 @@ import { JobsCards } from "./Jobs";
 interface Props {}
 
 export default function SearchJobsByText({}: Props) {
+  const theme = useTheme();
   const [openErrBar, setOpenErrBar] = useState(false);
   const {
     skillsAsync,
@@ -65,12 +72,20 @@ export default function SearchJobsByText({}: Props) {
           onChange={onTextChange}
           onInputChange={onInputChange}
           size="small"
-          sx={{ width: "100%", mr: 2 }}
+          sx={{
+            width: "100%",
+            mr: 2,
+            backgroundColor: theme.palette.background.paper,
+          }}
           renderInput={(params) => (
             <TextField {...params} label="Search nearby jobs" />
           )}
         />
-        <Button variant="outlined" type="submit">
+        <Button
+          variant="outlined"
+          type="submit"
+          sx={{ backgroundColor: theme.palette.background.paper }}
+        >
           Search
         </Button>
       </Stack>

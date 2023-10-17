@@ -13,11 +13,9 @@ import {
   MenuItem,
   MenuList,
   useTheme,
+  Divider,
 } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { Add, Edit, Delete, MoreVert, LocationOn } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
 import { IUserInfo } from "@user/userProfile/UserInfo";
@@ -127,7 +125,7 @@ export default function Jobs({ isMyProfile, userId }: IUserInfo) {
         <Typography variant="h5">Jobs</Typography>
         {isMyProfile && (
           <IconButton onClick={() => setOpenAdd(true)}>
-            <AddIcon />
+            <Add />
           </IconButton>
         )}
       </Stack>
@@ -184,11 +182,13 @@ export const JobsCards = ({
     <Grid container spacing={1} direction={"column"} sx={{ mt: 1 }}>
       {jobs ? (
         <>
+          <Grid item></Grid>
           {updateLoading && (
             <Grid item>
               <Skeleton variant="rounded" width={"100%"} height={100} />
             </Grid>
           )}
+
           {jobs?.map((job) => (
             <Grid item key={job.id}>
               <Card
@@ -217,26 +217,32 @@ export const JobsCards = ({
                     mb: 1,
                   }}
                 >
-                  <Typography>{job.title}</Typography>
-                  <Stack direction="row" sx={{ alignItems: "center" }}>
-                    <Chip
-                      label={job?.address?.city}
-                      variant="outlined"
-                      size="small"
+                  <Typography
+                    sx={{ fontWeight: "450", color: theme.palette.text.dark }}
+                  >
+                    {job.title}
+                  </Typography>
+                  {isMyProfile && onDeleteClick && onEditClick && (
+                    <MorePopover
+                      onDelete={() => onDeleteClick(job)}
+                      onEdit={() => onEditClick(job)}
                     />
-                    {isMyProfile && onDeleteClick && onEditClick && (
-                      <MorePopover
-                        onDelete={() => onDeleteClick(job)}
-                        onEdit={() => onEditClick(job)}
-                      />
-                    )}
-                  </Stack>
+                  )}
                 </Stack>
-                <Typography variant="caption" color="text.secondary">
-                  {job?.budget?.type}: ${job?.budget?.from}-$
-                  {job?.budget?.to}
-                  {job?.budget?.type === "Hourly" &&
-                    ` / ${job?.budget?.maxHours}Hrs`}
+                <Typography variant="body2" sx={{ mb: 1, fontWeight: "500" }}>
+                  {job?.budget?.type}:{" "}
+                  <span style={{ fontWeight: "400" }}>
+                    ${job?.budget?.from}-${job?.budget?.to}
+                  </span>
+                  {job?.budget?.type === "Hourly" && (
+                    <>
+                      {" "}
+                      | Max Hours:{" "}
+                      <span style={{ fontWeight: "400" }}>
+                        {job?.budget?.maxHours}Hrs
+                      </span>
+                    </>
+                  )}
                 </Typography>
                 <Typography variant="body2">
                   {trimText({ text: job.desc })}
@@ -248,6 +254,26 @@ export const JobsCards = ({
                     </Grid>
                   ))}
                 </Grid>
+                <Divider sx={{ my: 2 }} />
+                <Stack direction={"row"} sx={{ alignItems: "center" }}>
+                  <LocationOn
+                    sx={{
+                      border: "2px solid",
+                      padding: 0.4,
+                      borderRadius: 5,
+                      color: theme.palette.text.light,
+                    }}
+                  />
+                  <Typography
+                    sx={{
+                      fontWeight: "450",
+                      ml: 1,
+                      color: theme.palette.text.dark,
+                    }}
+                  >
+                    {job?.address?.city}
+                  </Typography>
+                </Stack>
               </Card>
             </Grid>
           ))}
@@ -307,7 +333,7 @@ const MorePopover = ({ onEdit, onDelete }: IMorePopover) => {
   return (
     <Stack>
       <IconButton aria-describedby={moreId} onClick={openMore} size="small">
-        <MoreVertIcon />
+        <MoreVert />
       </IconButton>
       <Popover
         id={moreId}
@@ -322,13 +348,13 @@ const MorePopover = ({ onEdit, onDelete }: IMorePopover) => {
         <MenuList onMouseLeave={closeMore}>
           <MenuItem onClick={onEditClick}>
             <ListItemIcon>
-              <EditIcon />
+              <Edit />
             </ListItemIcon>
             <ListItemText>Edit</ListItemText>
           </MenuItem>
           <MenuItem onClick={onDeleteClick} sx={{ color: errColor }}>
             <ListItemIcon sx={{ color: errColor }}>
-              <DeleteIcon />
+              <Delete />
             </ListItemIcon>
             <ListItemText>Delete</ListItemText>
           </MenuItem>

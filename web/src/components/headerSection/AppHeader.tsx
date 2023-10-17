@@ -9,7 +9,7 @@ import CenteredStack from "@reusable/CenteredStack";
 
 export default function AppHeader() {
   const theme = useTheme();
-  const backgroundColor = alpha(theme.palette.background.default, 0.9);
+  const backgroundColor = alpha(theme.palette.secondary.dark, 0.9);
   const trigger = useScrollTrigger({ threshold: 110 });
 
   return (

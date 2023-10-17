@@ -1,4 +1,4 @@
-import { IconButton } from "@mui/material";
+import { IconButton, useTheme } from "@mui/material";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import { useEffect } from "react";
@@ -9,6 +9,7 @@ import { useAppDispatch } from "../../utils/hooks/hooks";
 import { setColorMode } from "../../redux/slices/settingsSlice";
 
 export default function ColorModeIcon() {
+  const theme = useTheme();
   const dispatch = useAppDispatch();
   const { colorMode } = useSettingsStates();
   const savedMode = localStorage.getItem(COLOR_MODE_KEY) as typeof colorMode;
@@ -25,7 +26,11 @@ export default function ColorModeIcon() {
 
   return (
     <IconButton onClick={toggleColorMode} color="inherit">
-      {colorMode === "dark" ? <DarkModeIcon /> : <LightModeIcon />}
+      {colorMode === "dark" ? (
+        <DarkModeIcon />
+      ) : (
+        <LightModeIcon sx={{ color: theme.palette.common.white }} />
+      )}
     </IconButton>
   );
 }

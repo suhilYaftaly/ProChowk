@@ -1,11 +1,12 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
+export type ThemeMode = "light" | "dark";
 interface SettingsState {
-  colorMode: "light" | "dark";
+  colorMode: ThemeMode;
 }
 
 const initialState: SettingsState = {
-  colorMode: "dark",
+  colorMode: "light",
 };
 
 type SettingsAction<T extends keyof SettingsState> = PayloadAction<
