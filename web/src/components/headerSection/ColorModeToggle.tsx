@@ -62,11 +62,7 @@ const MobileUI = ({ colorMode, toggleColorMode }: UIProps) => {
         <Text type="subtitle">
           {colorMode === "dark" ? "Light" : "Dark"} Mode
         </Text>
-        {colorMode === "dark" ? (
-          <DarkModeIcon sx={{ width: 35, height: 35 }} />
-        ) : (
-          <LightModeIcon sx={{ width: 35, height: 35 }} />
-        )}
+        {colorMode === "dark" ? <DarkModeIcon /> : <LightModeIcon />}
       </ListItemButton>
     </ListItem>
   );

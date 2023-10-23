@@ -1,5 +1,6 @@
 import { ListItem, ListItemButton, ListItemText } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import LogoutIcon from "@mui/icons-material/Logout";
 
 import { useAppDispatch } from "../../utils/hooks/hooks";
 import { logOut } from "../../redux/slices/userSlice";
@@ -31,8 +32,12 @@ export default function LogOut({ onLogout, ui = "desktop" }: Props) {
   } else {
     return (
       <ListItem disableGutters>
-        <ListItemButton onClick={handleLogOut}>
+        <ListItemButton
+          onClick={handleLogOut}
+          sx={{ justifyContent: "space-between" }}
+        >
           <Text type="subtitle">Log Out</Text>
+          <LogoutIcon />
         </ListItemButton>
       </ListItem>
     );

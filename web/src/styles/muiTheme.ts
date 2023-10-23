@@ -59,7 +59,7 @@ export const muiTheme = (mode: ThemeMode) => {
             },
             primary: {
               main: "#f3723f", //400
-              contrastText: "#000",
+              contrastText: cc.white,
             },
             secondary: {
               //TODO: change the colors to appropriate colors
