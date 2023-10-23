@@ -71,13 +71,15 @@ export default function JobType({ job, setJob, errors, setAllSkills }: Props) {
         error={Boolean(errors.title)}
         helperText={errors.title}
         inputProps={{ style: { textTransform: "capitalize" } }}
+        required
       />
       <Divider />
-      <Typography>Add skills required</Typography>
+      <Typography>Add skills</Typography>
       <SkillsSelection
         skills={job.skills}
         setSkills={(skills) => setJob({ ...job, skills })}
         setAllSkills={setAllSkills}
+        required
       />
       {Boolean(errors.skills) && (
         <Alert severity="error" color="error">

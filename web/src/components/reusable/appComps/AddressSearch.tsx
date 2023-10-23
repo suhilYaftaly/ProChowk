@@ -8,9 +8,14 @@ import { IAddress, useGeocode } from "@gqlOps/address";
 interface Props {
   onSelect: (address: IAddress) => void;
   address?: IAddress;
+  required?: boolean;
 }
 
-export default function AddressSearch({ onSelect, address }: Props) {
+export default function AddressSearch({
+  onSelect,
+  address,
+  required = false,
+}: Props) {
   const [userCoord, setUserCoord] = useState({ lat: 0, lng: 0 });
   const { geocodeAsync, data, error, loading } = useGeocode();
   const [adr, setAdr] = useState<IAddress | undefined>(address);
@@ -62,6 +67,7 @@ export default function AddressSearch({ onSelect, address }: Props) {
               //   </InputAdornment>
               // ),
             }}
+            required={required}
           />
         )}
         renderOption={(props, option: any) => (

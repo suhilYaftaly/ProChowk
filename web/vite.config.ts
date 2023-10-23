@@ -20,6 +20,7 @@ export default defineConfig({
       "@redux": `${path.resolve(__dirname, "./src/redux/")}`,
       "@rSlices": `${path.resolve(__dirname, "./src/redux/slices/")}`,
       "@utils": `${path.resolve(__dirname, "./src/utils/")}`,
+      "@hooks": `${path.resolve(__dirname, "./src/utils/hooks/")}`,
       "@constants": `${path.resolve(__dirname, "./src/constants/")}`,
       "@routes": `${path.resolve(__dirname, "./src/routes/")}`,
       "@config": `${path.resolve(__dirname, "./src/config/")}`,

@@ -66,6 +66,7 @@ export default function JobBudget({ job, setJob, errors }: Props) {
           }}
           error={Boolean(errors.budgetFrom)}
           helperText={errors.budgetFrom}
+          required
         />
         <TextField
           label={"To"}
@@ -81,6 +82,7 @@ export default function JobBudget({ job, setJob, errors }: Props) {
           }}
           error={Boolean(errors.budgetTo)}
           helperText={errors.budgetTo}
+          required
         />
         {job?.budget?.type === "Hourly" && (
           <TextField
@@ -94,6 +96,7 @@ export default function JobBudget({ job, setJob, errors }: Props) {
             placeholder={"Max hours"}
             error={Boolean(errors.budgetMaxHour)}
             helperText={errors.budgetMaxHour}
+            required
           />
         )}
       </Stack>

@@ -1,4 +1,11 @@
-import { Box, Button, Step, StepLabel, Stepper } from "@mui/material";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Step,
+  StepLabel,
+  Stepper,
+} from "@mui/material";
 import { useState, Dispatch, SetStateAction } from "react";
 
 import JobType from "./JobType";
@@ -22,6 +29,7 @@ interface Props {
   job: IJob | JobInput;
   setJob: (job: IJob | JobInput) => void;
   setAllSkills?: (skills: ISkill[]) => void;
+  loading: boolean;
 }
 
 export default function JobForm({
@@ -29,6 +37,7 @@ export default function JobForm({
   job,
   setJob,
   setAllSkills,
+  loading,
 }: Props) {
   const [errors, setErrors] = useState<IJobError>(resetErr);
   const [activeStep, setActiveStep] = useState(0);
@@ -99,24 +108,30 @@ export default function JobForm({
         ))}
       </Stepper>
       <Box sx={{ my: 4, mx: 1 }}>{steps?.[activeStep]?.comp}</Box>
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "space-between",
-        }}
-      >
-        <Button
-          color="inherit"
-          disabled={activeStep === 0}
-          onClick={handleBack}
+      {loading ? (
+        <div style={{ justifyContent: "center", display: "flex" }}>
+          <CircularProgress size={40} color="primary" />
+        </div>
+      ) : (
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+          }}
         >
-          Back
-        </Button>
-        <Button onClick={handleNext}>
-          {activeStep === steps.length - 1 ? "Finish" : "Next"}
-        </Button>
-      </Box>
+          <Button
+            color="inherit"
+            disabled={activeStep === 0}
+            onClick={handleBack}
+          >
+            Back
+          </Button>
+          <Button onClick={handleNext}>
+            {activeStep === steps.length - 1 ? "Finish" : "Next"}
+          </Button>
+        </Box>
+      )}
     </Box>
   );
 }

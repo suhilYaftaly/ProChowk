@@ -46,10 +46,12 @@ export default function JobDetails({
         multiline
         rows={5}
         inputProps={{ maxLength: 5000 }}
+        required
       />
       <AddressSearch
         onSelect={(adr) => setJob({ ...job, address: adr })}
         address={job.address}
+        required
       />
       <Divider />
       <ImageUpload onImageUpload={onAddImage} />

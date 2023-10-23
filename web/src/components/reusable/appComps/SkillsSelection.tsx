@@ -10,6 +10,7 @@ interface Props {
   setSkills: (skills: SkillInput[]) => void;
   setNewSkills?: Dispatch<SetStateAction<SkillInput[]>>;
   setAllSkills?: (skills: ISkill[]) => void;
+  required?: boolean;
 }
 
 export default function SkillsSelection({
@@ -17,6 +18,7 @@ export default function SkillsSelection({
   setSkills,
   setNewSkills,
   setAllSkills,
+  required = false,
 }: Props) {
   const [openErrBar, setOpenErrBar] = useState(false);
   const {
@@ -100,6 +102,7 @@ export default function SkillsSelection({
                 </>
               ),
             }}
+            required={required}
           />
         )}
       />

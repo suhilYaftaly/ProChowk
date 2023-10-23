@@ -25,6 +25,7 @@
       "@redux/*": ["src/redux/*"],
       "@rSlices/*": ["src/redux/slices/*"],
       "@utils/*": ["src/utils/*"],
+      "@hooks/*": ["src/utils/hooks/*"],
       "@constants/*": ["src/constants/*"],
       "@routes/*": ["src/routes/*"],
       "@config/*": ["src/config/*"],

@@ -37,10 +37,11 @@ import { paths } from "@/routes/Routes";
 import { ISkill, useSkills } from "@gqlOps/skill";
 import { getNewSkills } from "@appComps/SkillsSelection";
 import { useUserStates } from "@redux/reduxStates";
+import Text from "../reusable/Text";
 
 export default function Jobs({ isMyProfile, userId }: IUserInfo) {
   const { userJobsAsync, data, loading, error } = useUserJobs();
-  const { createJobAsync, loading: createLoading } = useCreateJob();
+  const { loading: createLoading } = useCreateJob();
   const { updateJobAsync, loading: updateLoading } = useUpdateJob();
   const { deleteJobAsync, loading: deleteLoading } = useDeleteJob();
   const { updateCache } = useSkills();
@@ -54,23 +55,6 @@ export default function Jobs({ isMyProfile, userId }: IUserInfo) {
   useEffect(() => {
     if (userId) userJobsAsync({ variables: { userId } });
   }, []);
-
-  const onAddJob = (job: JobInput) => {
-    if (userId) {
-      createJobAsync({
-        variables: { userId, jobInput: job },
-        onSuccess: (dt) => {
-          const newSkills = getNewSkills({
-            newList: dt.skills,
-            oldList: allSkills,
-          });
-          if (newSkills && newSkills?.length > 0)
-            updateCache("create", newSkills);
-        },
-      });
-      setOpenAdd(false);
-    }
-  };
 
   const onEditJob = (j: IJob | any, imagesToDelete: ImagesToDelete) => {
     if (userId && j.id) {
@@ -137,9 +121,11 @@ export default function Jobs({ isMyProfile, userId }: IUserInfo) {
         onEditClick={onEditClick}
         updateLoading={updateLoading || createLoading || deleteLoading}
       />
-      <CustomModal title="Post a new job" open={openAdd} onClose={setOpenAdd}>
-        <PostAJob onAddJob={onAddJob} setAllSkills={setAllSkills} />
-      </CustomModal>
+      <PostAJob
+        open={openAdd}
+        setOpen={setOpenAdd}
+        onSuccess={() => setOpenAdd(false)}
+      />
       {editJob && (
         <CustomModal title="Edit Job" open={openEdit} onClose={setOpenEdit}>
           <JobForm
@@ -147,6 +133,7 @@ export default function Jobs({ isMyProfile, userId }: IUserInfo) {
             job={editJob}
             setJob={setEditJob}
             setAllSkills={setAllSkills}
+            loading={updateLoading}
           />
         </CustomModal>
       )}
@@ -217,11 +204,7 @@ export const JobsCards = ({
                     mb: 1,
                   }}
                 >
-                  <Typography
-                    sx={{ fontWeight: "450", color: theme.palette.text.dark }}
-                  >
-                    {job.title}
-                  </Typography>
+                  <Text type="subtitle">{job.title}</Text>
                   {isMyProfile && onDeleteClick && onEditClick && (
                     <MorePopover
                       onDelete={() => onDeleteClick(job)}
@@ -264,15 +247,9 @@ export const JobsCards = ({
                       color: theme.palette.text.light,
                     }}
                   />
-                  <Typography
-                    sx={{
-                      fontWeight: "450",
-                      ml: 1,
-                      color: theme.palette.text.dark,
-                    }}
-                  >
+                  <Text sx={{ ml: 0.5 }} type="subtitle">
                     {job?.address?.city}
-                  </Typography>
+                  </Text>
                 </Stack>
               </Card>
             </Grid>
