@@ -1,17 +1,18 @@
 import { Button, CircularProgress } from "@mui/material";
 import { useEffect } from "react";
-import { NavLink } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { useAppDispatch } from "@utils/hooks/hooks";
 import { logIn } from "@rSlices/userSlice";
 import { useUserStates } from "@redux/reduxStates";
 import { getLocalData } from "@utils/utilFuncs";
 import { USER_PROFILE_KEY } from "@constants/localStorageKeys";
-import GoogleOneTapLogin from "./google/GoogleOneTapLogin";
+import GoogleOneTapLogin from "../user/login/google/GoogleOneTapLogin";
 import { paths } from "@/routes/Routes";
 
 export default function LogInButton() {
   const savedUserProfile = getLocalData(USER_PROFILE_KEY);
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { userProfile, isLoggedOut } = useUserStates();
 
@@ -25,16 +26,14 @@ export default function LogInButton() {
         (userProfile.isLoading ? (
           <CircularProgress size={20} color="inherit" />
         ) : (
-          <NavLink to={paths.login}>
-            <Button
-              variant="outlined"
-              size="small"
-              sx={{ borderRadius: 50 }}
-              // onClick={handleOpen}
-            >
-              Log In
-            </Button>
-          </NavLink>
+          <Button
+            variant="outlined"
+            size="small"
+            sx={{ borderRadius: 50 }}
+            onClick={() => navigate(paths.login)}
+          >
+            Log In
+          </Button>
         ))}
       {!savedUserProfile && !isLoggedOut && <GoogleOneTapLogin />}
     </>

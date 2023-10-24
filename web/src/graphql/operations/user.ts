@@ -186,7 +186,7 @@ interface UpdateUserInput {
 //custom types
 export type Role = "user" | "dev" | "admin" | "superAdmin";
 type Provider = "Google" | "Credentials";
-type UserType = "client" | "contractor";
+export type UserType = "client" | "contractor";
 
 //operation interfaces
 export interface IUsersData {

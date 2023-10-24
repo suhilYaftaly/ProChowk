@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import AppHeader from "@components/headerSection/AppHeader";
 import UserLocationPermission from "@user/UseUserLocation";
 import { setNavigator } from "@routes/navigationService";
+import GlobalModals from "@pages/GlobalModals";
 
 export default function RootLayout() {
   const theme = useTheme();
@@ -21,6 +22,7 @@ export default function RootLayout() {
       <AppHeader />
       <Outlet />
       <UserLocationPermission />
+      <GlobalModals />
       <ToastContainer
         position="top-center"
         autoClose={5000}

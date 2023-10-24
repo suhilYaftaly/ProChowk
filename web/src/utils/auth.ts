@@ -1,4 +1,4 @@
-import { Role } from "@gqlOps/user";
+import { Role, UserType } from "@gqlOps/user";
 
 export const isSuperAdmin = (roles: Role[] | undefined) =>
   roles?.includes("superAdmin") || false;
@@ -9,3 +9,6 @@ export const isDeveloper = (roles: Role[] | undefined): boolean =>
   roles?.includes("admin") ||
   roles?.includes("superAdmin") ||
   false;
+
+export const isContractor = (userTypes: UserType[] | undefined): boolean =>
+  userTypes?.includes("contractor") || false;

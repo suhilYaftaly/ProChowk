@@ -2,7 +2,7 @@ import { Avatar, IconButton, Stack, useTheme } from "@mui/material";
 import { useState } from "react";
 
 import AppLogo from "@reusable/AppLogo";
-import LogInButton from "@user/login/LogInButton";
+import LogInButton from "@/components/headerSection/LogInButton";
 import MMyProfileDrawer from "./MMyProfileDrawer";
 import { useUserStates } from "@/redux/reduxStates";
 
@@ -13,8 +13,11 @@ export default function MHeader() {
 
   return (
     <>
-      <Stack direction="row" sx={{ justifyContent: "space-between" }}>
-        <AppLogo />
+      <Stack
+        direction="row"
+        sx={{ justifyContent: "space-between", alignItems: "center" }}
+      >
+        <AppLogo type="text" />
         <Stack direction="row" alignItems={"center"}>
           <LogInButton />
           <IconButton

@@ -1,18 +1,21 @@
 import { Stack } from "@mui/material";
 
-import ColorModeToggle from "../ColorModeToggle";
+import ColorThemeToggle from "../ColorThemeToggle";
+import DMyProfilePopover from "./MMyProfilePopover";
+import LogInButton from "@/components/headerSection/LogInButton";
 import AppLogo from "@reusable/AppLogo";
-import UserProfilePopover from "@user/UserProfilePopover";
-import LogInButton from "@user/login/LogInButton";
 
 export default function DHeader() {
   return (
-    <Stack direction="row" sx={{ justifyContent: "space-between" }}>
-      <AppLogo />
+    <Stack
+      direction="row"
+      sx={{ justifyContent: "space-between", alignItems: "center" }}
+    >
+      <AppLogo type="text" />
       <Stack direction="row" alignItems={"center"}>
         <LogInButton />
-        <UserProfilePopover />
-        <ColorModeToggle />
+        <DMyProfilePopover />
+        <ColorThemeToggle />
       </Stack>
     </Stack>
   );

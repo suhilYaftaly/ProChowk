@@ -76,10 +76,10 @@ export default {
       });
       if (inputErr) throw inputErr;
 
-      const existingUser = await prisma.user.findFirst({
+      const foundUser = await prisma.user.findFirst({
         where: { email: { equals: email, mode: "insensitive" } },
       });
-      if (existingUser) {
+      if (foundUser) {
         throw showInputError(
           "There is already an account registered with this email, Please login instead"
         );
@@ -524,12 +524,14 @@ const createOrLoginWithGoogle = async ({
   userAgent,
 }: ICreateOrLoginWithG) => {
   const foundUser = await prisma.user.findFirst({
-    where: {
-      email: { equals: email, mode: "insensitive" },
-      provider: "Google",
-    },
+    where: { email: { equals: email, mode: "insensitive" } },
     include: { image: true, address: true },
   });
+
+  if (foundUser && foundUser?.provider !== "Google")
+    throw showInputError(
+      "There is already an account registered with this email, Please login instead"
+    );
 
   if (!foundUser) {
     const newUser = await prisma.user.create({
@@ -543,7 +545,7 @@ const createOrLoginWithGoogle = async ({
       include: { image: true, address: true },
     });
 
-    await sendVerificationEmail(newUser);
+    if (!emailVerified) await sendVerificationEmail(newUser);
     const token = generateUserToken(newUser);
     const refreshToken = await createRefreshToken(prisma, newUser, userAgent);
     return getUserProps(newUser, token, refreshToken);

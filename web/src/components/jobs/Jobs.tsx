@@ -20,7 +20,6 @@ import { useNavigate } from "react-router-dom";
 
 import { IUserInfo } from "@user/userProfile/UserInfo";
 import CustomModal from "@reusable/CustomModal";
-import PostAJob from "./edits/PostAJob";
 import JobForm from "./edits/JobForm";
 import {
   IJob,
@@ -38,15 +37,17 @@ import { ISkill, useSkills } from "@gqlOps/skill";
 import { getNewSkills } from "@appComps/SkillsSelection";
 import { useUserStates } from "@redux/reduxStates";
 import Text from "../reusable/Text";
+import { setOpenJobPost } from "@rSlices/globalModalsSlice";
+import { useAppDispatch } from "@hooks/hooks";
 
 export default function Jobs({ isMyProfile, userId }: IUserInfo) {
+  const dispatch = useAppDispatch();
   const { userJobsAsync, data, loading, error } = useUserJobs();
   const { loading: createLoading } = useCreateJob();
   const { updateJobAsync, loading: updateLoading } = useUpdateJob();
   const { deleteJobAsync, loading: deleteLoading } = useDeleteJob();
   const { updateCache } = useSkills();
   const [editJob, setEditJob] = useState<JobInput | IJob>();
-  const [openAdd, setOpenAdd] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [openErrBar, setContErrBar] = useState(false);
   const [allSkills, setAllSkills] = useState<ISkill[]>([]);
@@ -108,7 +109,7 @@ export default function Jobs({ isMyProfile, userId }: IUserInfo) {
       >
         <Typography variant="h5">Jobs</Typography>
         {isMyProfile && (
-          <IconButton onClick={() => setOpenAdd(true)}>
+          <IconButton onClick={() => dispatch(setOpenJobPost(true))}>
             <Add />
           </IconButton>
         )}
@@ -120,11 +121,6 @@ export default function Jobs({ isMyProfile, userId }: IUserInfo) {
         onDeleteClick={onDeleteClick}
         onEditClick={onEditClick}
         updateLoading={updateLoading || createLoading || deleteLoading}
-      />
-      <PostAJob
-        open={openAdd}
-        setOpen={setOpenAdd}
-        onSuccess={() => setOpenAdd(false)}
       />
       {editJob && (
         <CustomModal title="Edit Job" open={openEdit} onClose={setOpenEdit}>

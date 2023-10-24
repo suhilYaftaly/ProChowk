@@ -10,9 +10,8 @@ import CustomModal from "@reusable/CustomModal";
 interface Props {
   open: boolean;
   setOpen: (toggle: boolean) => void;
-  onSuccess: () => void;
 }
-export default function PostAJob({ open, setOpen, onSuccess }: Props) {
+export default function PostAJob({ open, setOpen }: Props) {
   const { user } = useUserStates();
   const { createJobAsync, loading } = useCreateJob();
   const { updateCache } = useSkills();
@@ -46,7 +45,7 @@ export default function PostAJob({ open, setOpen, onSuccess }: Props) {
             updateCache("create", newSkills);
 
           setJob(jobInitialVals);
-          onSuccess();
+          setOpen(false);
         },
       });
     }

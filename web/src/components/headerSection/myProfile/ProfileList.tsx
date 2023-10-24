@@ -1,0 +1,99 @@
+import {
+  List,
+  ListItem,
+  ListItemButton,
+  Avatar,
+  Divider,
+  ListItemIcon,
+  useTheme,
+} from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import AssignmentIcon from "@mui/icons-material/Assignment";
+
+import LogOut from "@user/LogOut";
+import ColorThemeToggle from "../ColorThemeToggle";
+import Text from "@reusable/Text";
+import { useUserStates } from "@redux/reduxStates";
+import { paths } from "@routes/Routes";
+import { isContractor, isDeveloper } from "@/utils/auth";
+import { ReactNode } from "react";
+
+interface Props {
+  onItemClick?: () => void;
+}
+export default function ProfileList({ onItemClick }: Props) {
+  const { user } = useUserStates();
+  const navigate = useNavigate();
+  const theme = useTheme();
+  const iconColor = theme.palette.text?.dark;
+
+  const openMyProfile = () => {
+    if (user?.name && user?.id) {
+      const username = `${user.name}-${user.id}`.replace(/\s/g, "");
+      navigate(paths.user(username));
+    }
+    onItemClick && onItemClick();
+  };
+
+  const openLogsPage = () => {
+    navigate(paths.logs);
+    onItemClick && onItemClick();
+  };
+
+  return (
+    <List component="nav">
+      <ListItem sx={{ my: 1 }} disableGutters>
+        <ListItemButton onClick={openMyProfile}>
+          <Avatar
+            alt={user?.name}
+            src={user?.image?.url}
+            sx={{ width: 60, height: 60, mr: 2 }}
+          />
+          <div>
+            <Text type="subtitle">{user?.name}</Text>
+            <Text cColor="dark">
+              {isContractor(user?.userTypes) ? "Contractor" : "Client"}
+            </Text>
+          </div>
+        </ListItemButton>
+      </ListItem>
+      <Divider />
+      <ColorThemeToggle ui="mobile" />
+      {isDeveloper(user?.roles) && (
+        <CListItem
+          label="Logs"
+          onClick={openLogsPage}
+          icon={<AssignmentIcon sx={{ color: iconColor }} />}
+        />
+      )}
+      <LogOut ui="mobile" onLogout={onItemClick} />
+      <Divider />
+    </List>
+  );
+}
+
+interface CListItemProps {
+  onClick?: () => void;
+  label: string;
+  icon?: ReactNode;
+}
+/**custom list item */
+const CListItem = ({ onClick, label, icon }: CListItemProps) => {
+  if (onClick) {
+    return (
+      <ListItem disableGutters>
+        <ListItemButton onClick={onClick}>
+          {icon && <ListItemIcon>{icon}</ListItemIcon>}
+          <Text type="subtitle">{label}</Text>
+        </ListItemButton>
+      </ListItem>
+    );
+  } else {
+    return (
+      <ListItem>
+        {icon && <ListItemIcon>{icon}</ListItemIcon>}
+        <Text type="subtitle">{label}</Text>
+      </ListItem>
+    );
+  }
+};

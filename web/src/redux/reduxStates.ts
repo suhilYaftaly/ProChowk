@@ -1,19 +1,15 @@
 import { useAppSelector } from "../utils/hooks/hooks";
 
-export const useSettingsStates = () => {
-  const { colorMode } = useAppSelector((state) => state.settings);
-  return { colorMode };
-};
+export const useSettingsStates = () =>
+  useAppSelector((state) => state.settings);
 
 export const useUserStates = () => {
-  const { userProfile, isLoggedOut, userLocation } = useAppSelector(
-    (state) => state.user
-  );
-  const user = userProfile?.data;
-  return { userProfile, user, isLoggedOut, userLocation };
+  const userStates = useAppSelector((state) => state.user);
+  const user = userStates?.userProfile?.data;
+  return { ...userStates, user };
 };
 
-export const useConfigsStates = () => {
-  const { gKey } = useAppSelector((state) => state.configs);
-  return { gKey };
-};
+export const useConfigsStates = () => useAppSelector((state) => state.configs);
+
+export const useGlobalModalsStates = () =>
+  useAppSelector((state) => state.globalModals);
