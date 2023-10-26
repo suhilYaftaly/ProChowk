@@ -59,7 +59,11 @@ export interface EmailParams {
   }[];
 }
 
-export const sendEmail = async (params: EmailParams) => {
+interface ISendEmail {
+  params: EmailParams;
+  onSuccess?: () => void;
+}
+export const sendEmail = async ({ params, onSuccess }: ISendEmail) => {
   const API_URL = "https://api.mailersend.com/v1/email";
   const API_KEY = process.env.MAILER_SEND_API_KEY;
 
@@ -79,6 +83,7 @@ export const sendEmail = async (params: EmailParams) => {
 
   try {
     const response = await axios.post(API_URL, data, { headers });
+    onSuccess && (await onSuccess());
     return response?.data;
   } catch (error) {
     const errMsg =

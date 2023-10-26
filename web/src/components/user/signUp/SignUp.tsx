@@ -97,7 +97,6 @@ export default function SignUp({ setRedirectToHome }: Props) {
         helperText={formError.name ? "Must be more than 3 chars" : ""}
         size="small"
         required
-        inputProps={{ style: { textTransform: "capitalize" } }}
       />
       <TextField
         label="Email"
@@ -112,7 +111,6 @@ export default function SignUp({ setRedirectToHome }: Props) {
         helperText={formError.email ? "Invalid email format" : ""}
         size="small"
         required
-        inputProps={{ style: { textTransform: "lowercase" } }}
       />
       <TextField
         label="Password"

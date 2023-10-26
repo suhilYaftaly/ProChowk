@@ -432,7 +432,7 @@ const sendVerificationEmail = async (user: User): Promise<any> => {
     buttonLink: verificationLink,
   });
 
-  const emailParams: EmailParams = {
+  const params: EmailParams = {
     from: { email: "noreply@nexabind.com", name: "NexaBind" },
     to: [{ email: user.email, name: user.name }],
     subject: "Verify your email address",
@@ -441,7 +441,11 @@ const sendVerificationEmail = async (user: User): Promise<any> => {
     variables: [],
   };
 
-  return await sendEmail(emailParams);
+  return await sendEmail({
+    params,
+    onSuccess: () =>
+      logger.info(`Email Verification Requested for ${user.email}`),
+  });
 };
 
 const requestPasswordReset = async (user: User): Promise<any> => {
@@ -455,7 +459,7 @@ const requestPasswordReset = async (user: User): Promise<any> => {
     buttonLink: resetLink,
   });
 
-  const emailParams: EmailParams = {
+  const params: EmailParams = {
     from: { email: "noreply@nexabind.com", name: "NexaBind" },
     to: [{ email: user.email, name: user.name }],
     subject: "Password Reset Request",
@@ -464,7 +468,10 @@ const requestPasswordReset = async (user: User): Promise<any> => {
     variables: [],
   };
 
-  return await sendEmail(emailParams);
+  return await sendEmail({
+    params,
+    onSuccess: () => logger.info(`Password Reset Requested for ${user.email}`),
+  });
 };
 
 const updateRefreshToken = async (

@@ -10,7 +10,6 @@ export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 //other hooks follows
 export const useIsMobile = () =>
   useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
-//useResponsiveValue, return given values for small screen or otherwise
-export const useRespVal = (smallVal: any, otherVal: any) => {
-  return useIsMobile() ? smallVal : otherVal;
-};
+/**return mobile/desktop value based on screen size*/
+export const useRespVal = (mobile: any, desktop: any) =>
+  useIsMobile() ? mobile : desktop;

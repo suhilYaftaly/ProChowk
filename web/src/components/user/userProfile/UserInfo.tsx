@@ -39,7 +39,7 @@ export default function UserInfo({
     borderLeft: useRespVal(0, undefined),
   };
   return (
-    <CenteredStack>
+    <CenteredStack mmx={0}>
       <Stack spacing={1}>
         <Paper variant="outlined" sx={paperContStyle}>
           <UserBasicInfo

@@ -121,7 +121,6 @@ export default function UserBasicInfoEdit({ user, closeEdit }: Props) {
           helperText={formError.name && "Must be more than 2 chars"}
           placeholder={"your name"}
           required
-          inputProps={{ style: { textTransform: "capitalize" } }}
         />
         <TextField
           label={"Phone Number"}

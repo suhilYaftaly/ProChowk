@@ -65,6 +65,28 @@ const jobGqlResp = gql`
   }
 `;
 
+const jobGqlRespShort = gql`
+  fragment JobFieldsShort on Job {
+    id
+    title
+    desc
+    jobSize
+    userId
+    skills {
+      label
+    }
+    budget {
+      type
+      from
+      to
+      maxHours
+    }
+    address {
+      city
+    }
+  }
+`;
+
 const jobOps = {
   Queries: {
     job: gql`
@@ -84,7 +106,7 @@ const jobOps = {
       }
     `,
     jobsBySkill: gql`
-      ${jobGqlResp}
+      ${jobGqlRespShort}
       query JobsBySkill(
         $skill: String!
         $latLng: LatLngInput!
@@ -97,20 +119,20 @@ const jobOps = {
           radius: $radius
           limit: $limit
         ) {
-          ...JobFields
+          ...JobFieldsShort
         }
       }
     `,
     jobsByLocation: gql`
-      ${jobGqlResp}
+      ${jobGqlRespShort}
       query JobsByLocation($latLng: LatLngInput!, $radius: Float, $limit: Int) {
         jobsByLocation(latLng: $latLng, radius: $radius, limit: $limit) {
-          ...JobFields
+          ...JobFieldsShort
         }
       }
     `,
     jobsByText: gql`
-      ${jobGqlResp}
+      ${jobGqlRespShort}
       query JobsByText(
         $inputText: String!
         $latLng: LatLngInput!
@@ -123,7 +145,7 @@ const jobOps = {
           radius: $radius
           limit: $limit
         ) {
-          ...JobFields
+          ...JobFieldsShort
         }
       }
     `,

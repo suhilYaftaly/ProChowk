@@ -5,10 +5,11 @@ import { Stack, Paper, Alert } from "@mui/material";
 import { useUserStates } from "@redux/reduxStates";
 import { useUser } from "@gqlOps/user";
 import { useJob } from "@gqlOps/job";
-import { pp, layoutCardsMaxWidth, ppx, ppy } from "@config/configConst";
+import { maxWidthPG, ppx, ppy } from "@config/configConst";
 import { useRespVal } from "@utils/hooks/hooks";
 import UserSection from "@jobs/jobView/UserSection";
 import DetailsSection from "@jobs/jobView/DetailsSection";
+import CenteredStack from "@/components/reusable/CenteredStack";
 
 export default function JobView() {
   const { userId, jobId } = useParams();
@@ -41,15 +42,8 @@ export default function JobView() {
   }, [jobId]);
 
   return (
-    <Stack
-      sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        my: pp,
-      }}
-    >
-      <Stack spacing={1} sx={{ maxWidth: layoutCardsMaxWidth, width: "100%" }}>
+    <CenteredStack mmx={0}>
+      <Stack spacing={1} sx={{ maxWidth: maxWidthPG, width: "100%" }}>
         <Paper variant="outlined" sx={paperContStyle}>
           {error && (
             <Alert severity="error" color="error">
@@ -67,6 +61,6 @@ export default function JobView() {
           <UserSection user={user} loading={userLoading} />
         </Paper>
       </Stack>
-    </Stack>
+    </CenteredStack>
   );
 }

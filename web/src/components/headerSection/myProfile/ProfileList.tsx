@@ -67,7 +67,7 @@ export default function ProfileList({ onItemClick }: Props) {
         />
       )}
       <LogOut ui="mobile" onLogout={onItemClick} />
-      <Divider />
+      {/* <Divider /> */}
     </List>
   );
 }

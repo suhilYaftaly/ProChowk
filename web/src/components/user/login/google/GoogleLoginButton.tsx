@@ -37,8 +37,9 @@ export default function GoogleLoginButton({ setRedirectToHome }: Props) {
   return (
     <>
       <Button
-        variant="contained"
+        variant="outlined"
         onClick={() => login()}
+        color="inherit"
         startIcon={
           loading ? (
             <CircularProgress size={20} color="inherit" />

@@ -1,59 +1,44 @@
-import { useQuery } from "@apollo/client";
-import {
-  Grid,
-  Card,
-  CardActionArea,
-  CardContent,
-  Typography,
-  CardMedia,
-  Divider,
-} from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { Card, Divider, Stack } from "@mui/material";
 
-import userOps, { IUsersData } from "@gqlOps/user.ts";
-import { paths } from "@/routes/Routes";
 import CenteredStack from "@reusable/CenteredStack";
-import { ppx } from "@/config/configConst";
 import SearchJobsByText from "@jobs/SearchJobsByText";
+import { isDeveloper } from "@/utils/auth";
+import { useUserStates } from "@/redux/reduxStates";
+import Text from "@reusable/Text";
+import ViewAllUsers from "@user/ViewAllUsers";
+import ProfileList from "@/components/headerSection/myProfile/ProfileList";
+import { useIsMobile } from "@/utils/hooks/hooks";
+import PostJobBtn from "@/components/headerSection/PostJobBtn";
 
 export default function Home() {
-  const navigate = useNavigate();
-  const { data: allUsers } = useQuery<IUsersData, {}>(userOps.Queries.users);
+  const { user } = useUserStates();
+  const isMobile = useIsMobile();
 
   return (
-    <CenteredStack mx={ppx}>
-      <SearchJobsByText />
-      <Divider sx={{ my: 3 }} />
-      <Grid container direction={"row"} spacing={1}>
-        {allUsers?.users?.map((user) => (
-          <Grid item key={user.id}>
-            <Card sx={{ width: 180 }}>
-              <CardActionArea
-                onClick={() => {
-                  const username = `${user.name}-${user.id}`.replace(/\s/g, "");
-                  navigate(paths.user(username));
-                }}
-              >
-                <CardMedia
-                  component="img"
-                  image={user?.image?.url}
-                  alt={user?.name}
-                  sx={{ maxHeight: 170 }}
-                />
-                <CardContent>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    className="ellipsis2Line"
-                  >
-                    {user.name}
-                  </Typography>
-                </CardContent>
-              </CardActionArea>
+    <CenteredStack>
+      <Stack direction={"row"}>
+        <div>
+          <SearchJobsByText />
+          {isDeveloper(user?.roles) && (
+            <>
+              <Divider sx={{ my: 3 }} />
+              <Text type="subtitle" sx={{ mb: 2 }} cColor="info">
+                ℹ👉 Showing below users profile to (DEVS) only for testing
+                purposes.
+              </Text>
+              <ViewAllUsers />
+            </>
+          )}
+        </div>
+        {!isMobile && (
+          <Stack sx={{ minWidth: 300, ml: 2 }}>
+            <Card>
+              <ProfileList />
             </Card>
-          </Grid>
-        ))}
-      </Grid>
+            <PostJobBtn sx={{ mt: 2 }} />
+          </Stack>
+        )}
+      </Stack>
     </CenteredStack>
   );
 }

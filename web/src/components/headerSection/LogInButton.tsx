@@ -24,7 +24,7 @@ export default function LogInButton() {
     <>
       {!userProfile?.data &&
         (userProfile.isLoading ? (
-          <CircularProgress size={20} color="inherit" />
+          <CircularProgress size={20} color="primary" />
         ) : (
           <Button
             variant="outlined"
@@ -32,7 +32,7 @@ export default function LogInButton() {
             sx={{ borderRadius: 50 }}
             onClick={() => navigate(paths.login)}
           >
-            Log In
+            Login
           </Button>
         ))}
       {!savedUserProfile && !isLoggedOut && <GoogleOneTapLogin />}

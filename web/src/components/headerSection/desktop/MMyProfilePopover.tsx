@@ -1,14 +1,11 @@
 import { useState, MouseEvent } from "react";
-import { Avatar, Box, Button, IconButton, Popover } from "@mui/material";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import { Avatar, Box, IconButton, Popover } from "@mui/material";
 
 import { useUserStates } from "@redux/reduxStates";
 import ProfileList from "../myProfile/ProfileList";
-import { setOpenJobPost } from "@rSlices/globalModalsSlice";
-import { useAppDispatch } from "@hooks/hooks";
+import PostJobBtn from "../PostJobBtn";
 
 export default function DMyProfilePopover() {
-  const dispatch = useAppDispatch();
   const { user } = useUserStates();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const open = Boolean(anchorEl);
@@ -17,11 +14,6 @@ export default function DMyProfilePopover() {
   const openPopover = (event: MouseEvent<HTMLButtonElement>) =>
     setAnchorEl(event.currentTarget);
   const closePopover = () => setAnchorEl(null);
-
-  const onPostJob = () => {
-    closePopover();
-    dispatch(setOpenJobPost(true));
-  };
 
   if (user) {
     return (
@@ -50,15 +42,7 @@ export default function DMyProfilePopover() {
           <Box onMouseLeave={closePopover}>
             <ProfileList onItemClick={closePopover} />
             <Box sx={{ m: 2 }}>
-              <Button
-                variant="contained"
-                endIcon={<ChevronRightIcon />}
-                onClick={onPostJob}
-                size="large"
-                fullWidth
-              >
-                Post A Job
-              </Button>
+              <PostJobBtn onSubmit={closePopover} />
             </Box>
           </Box>
         </Popover>
