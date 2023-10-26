@@ -30,7 +30,7 @@ export default function Home() {
             </>
           )}
         </div>
-        {!isMobile && (
+        {user && !isMobile && (
           <Stack sx={{ minWidth: 300, ml: 2 }}>
             <Card>
               <ProfileList />
