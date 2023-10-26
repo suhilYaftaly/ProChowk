@@ -20,19 +20,21 @@ export default function MHeader() {
         <AppLogo type="text" />
         <Stack direction="row" alignItems={"center"}>
           <LogInButton />
-          <IconButton
-            sx={{ color: theme.palette.common.white }}
-            onClick={() => setOpenDrawer(!openDrawer)}
-          >
-            <Avatar
-              alt={user?.name}
-              src={user?.image?.url}
-              sx={{ width: 30, height: 30 }}
-            />
-          </IconButton>
+          {user && (
+            <IconButton
+              sx={{ color: theme.palette.common.white }}
+              onClick={() => setOpenDrawer(!openDrawer)}
+            >
+              <Avatar
+                alt={user?.name}
+                src={user?.image?.url}
+                sx={{ width: 30, height: 30 }}
+              />
+            </IconButton>
+          )}
         </Stack>
       </Stack>
-      <MMyProfileDrawer open={openDrawer} setOpen={setOpenDrawer} />
+      {user && <MMyProfileDrawer open={openDrawer} setOpen={setOpenDrawer} />}
     </>
   );
 }
