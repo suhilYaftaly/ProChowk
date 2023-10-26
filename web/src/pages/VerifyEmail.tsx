@@ -10,7 +10,6 @@ import { useAppDispatch } from "@utils/hooks/hooks";
 import { setUserProfile, setUserProfileInfo } from "@rSlices/userSlice";
 import { paths } from "@routes/Routes";
 import CenteredStack from "@reusable/CenteredStack";
-import { ppx } from "@config/configConst";
 import { USER_PROFILE_KEY } from "@constants/localStorageKeys";
 
 export default function VerifyEmail() {
@@ -80,7 +79,7 @@ export default function VerifyEmail() {
   };
 
   return (
-    <CenteredStack mx={ppx}>
+    <CenteredStack mmx={0}>
       {error && (
         <Alert severity="error" color="error">
           Email Verification failed. Please try again or request another

@@ -17,7 +17,7 @@ export default function Home() {
   return (
     <CenteredStack>
       <Stack direction={"row"}>
-        <div>
+        <div style={{ width: "100%" }}>
           <SearchJobsByText />
           {isDeveloper(user?.roles) && (
             <>

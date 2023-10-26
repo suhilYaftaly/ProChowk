@@ -19,7 +19,6 @@ import { useNavigate } from "react-router-dom";
 
 import { ILog, useLogs } from "@gqlOps/log";
 import CenteredStack from "@reusable/CenteredStack";
-import { ppx } from "@config/configConst";
 import { useUserStates } from "@redux/reduxStates";
 import { isDeveloper } from "@utils/auth";
 
@@ -102,7 +101,7 @@ export default function Logs() {
   };
 
   return (
-    <CenteredStack mx={ppx}>
+    <CenteredStack mmx={0}>
       {loading ? (
         <CircularProgress size={150} sx={{ p: 2, alignSelf: "center" }} />
       ) : (

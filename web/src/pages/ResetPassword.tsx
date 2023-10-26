@@ -19,7 +19,6 @@ import { useUserStates } from "@redux/reduxStates";
 import { useAppDispatch } from "@utils/hooks/hooks";
 import { logIn, setUserProfileInfo } from "@rSlices/userSlice";
 import CenteredStack from "@reusable/CenteredStack";
-import { ppx } from "@config/configConst";
 import { USER_PROFILE_KEY } from "@constants/localStorageKeys";
 import { validateEmail } from "@utils/utilFuncs";
 
@@ -116,7 +115,7 @@ export default function ResetPassword() {
   };
 
   return (
-    <CenteredStack mx={ppx}>
+    <CenteredStack mmx={0}>
       <Card sx={{ textAlign: "center", p: 3 }}>
         {token ? (
           <Stack
