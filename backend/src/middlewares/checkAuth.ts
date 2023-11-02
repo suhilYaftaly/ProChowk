@@ -4,7 +4,7 @@ import { Role, User } from "@prisma/client";
 
 import { gqlError } from "../utils/funcs";
 
-interface ISignedProps {
+export interface ISignedProps {
   id: string;
   name: string;
   email: string;

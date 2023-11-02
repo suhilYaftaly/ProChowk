@@ -7,12 +7,17 @@ import { ApolloServer } from "@apollo/server";
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
 import { makeExecutableSchema } from "@graphql-tools/schema";
 import http from "http";
+import depthLimit from "graphql-depth-limit";
 
 import { SubsciptionContext, GraphQLContext } from "../../types/commonTypes";
-import { connectToMongoDB } from "./databaseSetup";
+import { connectToMongoDB } from "../db/mongodb";
 import resolvers from "../../graphql/resolvers";
 import typeDefs from "../../graphql/typeDefs";
 import { withCatch, wrapResolvers } from "./errorHandling";
+import {
+  rateLimitDirectiveTransformer,
+  rateLimitDirectiveTypeDefs,
+} from "./rateLimiter";
 
 export const apolloServerSetup = async () => {
   const app = express();
@@ -25,10 +30,13 @@ export const apolloServerSetup = async () => {
   // Wrap all resolvers with the withCatch
   const wrappedResolvers = wrapResolvers(resolvers, withCatch);
   // Create the schema using wrapped resolvers
-  const schema = makeExecutableSchema({
-    typeDefs,
-    resolvers: wrappedResolvers,
-  });
+  const schema = rateLimitDirectiveTransformer(
+    makeExecutableSchema({
+      typeDefs: [rateLimitDirectiveTypeDefs, ...typeDefs],
+      resolvers: wrappedResolvers,
+    })
+  );
+
   const prisma = new PrismaClient();
   const pubsub = new PubSub();
   const mongoClient = await connectToMongoDB();
@@ -55,6 +63,7 @@ export const apolloServerSetup = async () => {
 
   const server = new ApolloServer({
     schema,
+    validationRules: [depthLimit(4)],
     csrfPrevention: true,
     plugins: [
       // Proper shutdown for the HTTP server.

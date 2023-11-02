@@ -1,6 +1,8 @@
 import axios from "axios";
 import { GraphQLError } from "graphql";
 import * as dotenv from "dotenv";
+import jwt from "jsonwebtoken";
+import { ISignedProps } from "../middlewares/checkAuth";
 
 dotenv.config();
 const baseUrl = process.env.CLIENT_ORIGIN;
@@ -127,4 +129,23 @@ export const generateEmailTemplate = ({
       </div>
     </div>
   `;
+};
+
+export const getUserFromContext = (ctx: any): ISignedProps => {
+  const authHeader = ctx?.req?.headers?.authorization;
+  const token = authHeader?.split("Bearer ")?.[1];
+  return jwt.decode(token) as ISignedProps;
+};
+
+export const getClientIP = (req: any) => {
+  const forwardedIpsStr = req?.header("x-forwarded-for");
+  if (forwardedIpsStr) {
+    // 'x-forwarded-for' header may return multiple IP addresses in
+    // the format: "client IP, proxy 1 IP, proxy 2 IP"
+    // Therefore, the client IP is the first one in the list
+    return forwardedIpsStr.split(",")[0];
+  }
+  // If the request was not passed through any proxies, or if the platform does not
+  // add the 'x-forwarded-for' header, then fall back to the remote address
+  return req?.socket?.remoteAddress;
 };

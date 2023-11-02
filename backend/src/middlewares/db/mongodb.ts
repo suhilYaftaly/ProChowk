@@ -13,6 +13,7 @@ export const connectToMongoDB = async (): Promise<MongoClient> => {
     await mongoClient.connect();
   } catch (error) {
     logger.error("Failed to connect to MongoDB", { metadata: error });
+    console.error("MongoDB error:", error);
     process.exit(1);
   }
   return mongoClient;

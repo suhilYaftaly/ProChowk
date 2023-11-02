@@ -23,8 +23,8 @@ export default gql`
   }
 
   type Query {
-    geocode(value: String!, lat: Float!, lng: Float!, limit: Float): [Geocode!]!
-    reverseGeocode(lat: Float!, lng: Float!): Geocode!
+    geocode(value: String!, lat: Float!, lng: Float!, limit: Float): [Geocode!]! @rateLimit(limit: 100, duration: 60)
+    reverseGeocode(lat: Float!, lng: Float!): Geocode! @rateLimit(limit: 100, duration: 60)
   }
 
   type Geocode {

@@ -33,6 +33,7 @@ export default function RootLayout() {
         draggable
         pauseOnHover
         theme={theme.palette.mode}
+        style={{ width: "auto" }}
       />
     </>
   );

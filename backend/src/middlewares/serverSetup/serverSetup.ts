@@ -1,4 +1,4 @@
-import { connectToMongoDB, setupMongoIndexes } from "./databaseSetup";
+import { connectToMongoDB, setupMongoIndexes } from "../db/mongodb";
 import { apolloServerSetup } from "./apolloServerSetup";
 
 export const serverSetup = async () => {
