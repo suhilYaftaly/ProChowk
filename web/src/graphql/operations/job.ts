@@ -105,28 +105,20 @@ const jobOps = {
         }
       }
     `,
-    jobsBySkill: gql`
-      ${jobGqlRespShort}
-      query JobsBySkill(
-        $skill: String!
-        $latLng: LatLngInput!
-        $radius: Float
-        $limit: Int
-      ) {
-        jobsBySkill(
-          skill: $skill
-          latLng: $latLng
-          radius: $radius
-          limit: $limit
-        ) {
-          ...JobFieldsShort
-        }
-      }
-    `,
     jobsByLocation: gql`
       ${jobGqlRespShort}
-      query JobsByLocation($latLng: LatLngInput!, $radius: Float, $limit: Int) {
-        jobsByLocation(latLng: $latLng, radius: $radius, limit: $limit) {
+      query JobsByLocation(
+        $latLng: LatLngInput!
+        $radius: Float
+        $page: Int
+        $pageSize: Int
+      ) {
+        jobsByLocation(
+          latLng: $latLng
+          radius: $radius
+          page: $page
+          pageSize: $pageSize
+        ) {
           ...JobFieldsShort
         }
       }
@@ -137,13 +129,17 @@ const jobOps = {
         $inputText: String!
         $latLng: LatLngInput!
         $radius: Float
-        $limit: Int
+        $page: Int
+        $pageSize: Int
+        $budget: JobsByTxtBudgetInput
       ) {
         jobsByText(
           inputText: $inputText
           latLng: $latLng
           radius: $radius
-          limit: $limit
+          page: $page
+          pageSize: $pageSize
+          budget: $budget
         ) {
           ...JobFieldsShort
         }
@@ -210,7 +206,7 @@ interface IJobBudget extends JobBudgetInput {
 
 //types
 type JobSize = "Small" | "Medium" | "Large";
-type BudgetType = "Hourly" | "Project";
+export type BudgetType = "Hourly" | "Project";
 
 //inputes
 interface JobBudgetInput {
@@ -227,6 +223,11 @@ export interface JobInput {
   budget: JobBudgetInput;
   address: AddressInput;
   images?: ImageInput[];
+}
+
+export interface JobsByTxtBudgetInput {
+  types: BudgetType[];
+  maxHours?: number;
 }
 
 /**
@@ -342,84 +343,6 @@ export const useUserJobs = () => {
   return { userJobsAsync, updateUserJobsCache, data, loading, error };
 };
 
-//jobsBySkill op
-interface IJobsBySkillData {
-  jobsBySkill: IJob[];
-}
-interface IJobsBySkillInput {
-  skill: string;
-  latLng: LatLngInput;
-  radius?: number;
-  limit?: number;
-}
-interface IJobsBySkillIAsync {
-  variables: IJobsBySkillInput;
-  onSuccess?: (data: IJob[]) => void;
-  onError?: (error?: any) => void;
-}
-export const useJobsBySkill = () => {
-  const client = useApolloClient();
-  const [jobsBySkill, { data, loading, error }] = useLazyQuery<
-    IJobsBySkillData,
-    IJobsBySkillInput
-  >(jobOps.Queries.jobsBySkill);
-  const { updateCache: updateJByLCache } = useJobsByLocation();
-
-  const jobsBySkillAsync = async ({
-    variables,
-    onSuccess,
-    onError,
-  }: IJobsBySkillIAsync) =>
-    asyncOps({
-      operation: () => jobsBySkill({ variables }),
-      onSuccess: (dt: IJobsBySkillData) => {
-        onSuccess && onSuccess(dt.jobsBySkill),
-          updateJByLCache({
-            action: "updateAll",
-            jobs: dt.jobsBySkill,
-            variables,
-          });
-      },
-      onError,
-    });
-
-  const updateCache = (
-    action: "create" | "update" | "delete",
-    job: IJob,
-    variables: IJobsBySkillInput
-  ) => {
-    const cachedData = client.readQuery<IJobsBySkillData, IJobsBySkillInput>({
-      query: jobOps.Queries.jobsBySkill,
-      variables,
-    });
-
-    if (cachedData) {
-      let modifiedData: IJob[] = [...cachedData.jobsBySkill];
-      switch (action) {
-        case "create":
-          modifiedData.unshift(job);
-          break;
-        case "update":
-          modifiedData = modifiedData.map((j) => (j.id === job.id ? job : j));
-          break;
-        case "delete":
-          modifiedData = modifiedData.filter((j) => j.id !== job.id);
-          break;
-        default:
-          throw new Error("Invalid action type");
-      }
-
-      client.writeQuery<IJobsBySkillData, IJobsBySkillInput>({
-        query: jobOps.Queries.jobsBySkill,
-        data: { jobsBySkill: modifiedData },
-        variables,
-      });
-    }
-  };
-
-  return { jobsBySkillAsync, updateCache, data, loading, error };
-};
-
 //jobsByLocation op
 interface IJobsByLocationData {
   jobsByLocation: IJob[];
@@ -427,7 +350,8 @@ interface IJobsByLocationData {
 interface IJobsByLocationInput {
   latLng: LatLngInput;
   radius?: number;
-  limit?: number;
+  page?: number;
+  pageSize?: number;
 }
 interface IJobsByLocationIAsync {
   variables: IJobsByLocationInput;
@@ -510,7 +434,9 @@ interface IJobsByTextInput {
   inputText: string;
   latLng: LatLngInput;
   radius?: number;
-  limit?: number;
+  page?: number;
+  pageSize?: number;
+  budget?: JobsByTxtBudgetInput;
 }
 interface IJobsByTextIAsync {
   variables: IJobsByTextInput;

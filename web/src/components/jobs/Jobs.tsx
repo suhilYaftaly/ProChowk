@@ -14,7 +14,6 @@ import {
   MenuList,
   useTheme,
   Divider,
-  CardActionArea,
 } from "@mui/material";
 import { Add, Edit, Delete, MoreVert, LocationOn } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
@@ -164,7 +163,19 @@ export const JobsCards = ({
 
   return (
     <Grid container spacing={1} direction={"column"}>
-      {jobs ? (
+      {loading ? (
+        <>
+          <Grid item>
+            <Skeleton variant="rounded" width={"100%"} height={100} />
+          </Grid>
+          <Grid item>
+            <Skeleton variant="rounded" width={"100%"} height={100} />
+          </Grid>
+          <Grid item>
+            <Skeleton variant="rounded" width={"100%"} height={100} />
+          </Grid>
+        </>
+      ) : (
         <>
           {updateLoading && (
             <Grid item>
@@ -174,91 +185,83 @@ export const JobsCards = ({
 
           {jobs?.map((job) => (
             <Grid item key={job.id}>
-              <Card>
-                <CardActionArea
-                  sx={{ p: 1 }}
-                  onClick={() =>
-                    job.userId && navigate(paths.jobView(job.userId, job.id))
-                  }
+              <Card
+                sx={{
+                  p: 1,
+                  cursor: "pointer",
+                  transition: "0.3s",
+                  "&:hover": {
+                    backgroundColor:
+                      theme.palette.mode === "light"
+                        ? theme.palette.grey[100]
+                        : "undefined",
+                    backgroundImage:
+                      "linear-gradient(rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.12))",
+                  },
+                }}
+                onClick={() =>
+                  job.userId && navigate(paths.jobView(job.userId, job.id))
+                }
+              >
+                <Stack
+                  direction={"row"}
+                  sx={{
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    mb: 1,
+                  }}
                 >
-                  <Stack
-                    direction={"row"}
-                    sx={{
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      mb: 1,
-                    }}
-                  >
-                    <Text type="subtitle">{job.title}</Text>
-                    {isMyProfile && onDeleteClick && onEditClick && (
-                      <MorePopover
-                        onDelete={() => onDeleteClick(job)}
-                        onEdit={() => onEditClick(job)}
-                      />
-                    )}
-                  </Stack>
-                  <Typography variant="body2" sx={{ mb: 1, fontWeight: "500" }}>
-                    {job?.budget?.type}:{" "}
-                    <span style={{ fontWeight: "400" }}>
-                      ${job?.budget?.from}-${job?.budget?.to}
-                    </span>
-                    {job?.budget?.type === "Hourly" && (
-                      <>
-                        {" "}
-                        | Max Hours:{" "}
-                        <span style={{ fontWeight: "400" }}>
-                          {job?.budget?.maxHours}Hrs
-                        </span>
-                      </>
-                    )}
-                  </Typography>
-                  <Typography variant="body2">
-                    {trimText({ text: job.desc })}
-                  </Typography>
-                  <Grid container spacing={1} sx={{ mt: 2 }}>
-                    {job?.skills?.map((skill) => (
-                      <Grid item key={skill.label}>
-                        <Chip
-                          label={skill.label}
-                          variant="filled"
-                          size="small"
-                        />
-                      </Grid>
-                    ))}
-                  </Grid>
-                  <Divider sx={{ my: 2 }} />
-                  <Stack direction={"row"} sx={{ alignItems: "center" }}>
-                    <LocationOn
-                      sx={{
-                        border: "2px solid",
-                        padding: 0.4,
-                        borderRadius: 5,
-                        color: theme.palette.text.light,
-                      }}
+                  <Text type="subtitle">{job.title}</Text>
+                  {isMyProfile && onDeleteClick && onEditClick && (
+                    <MorePopover
+                      onDelete={() => onDeleteClick(job)}
+                      onEdit={() => onEditClick(job)}
                     />
-                    <Text sx={{ ml: 0.5 }} type="subtitle">
-                      {job?.address?.city}
-                    </Text>
-                  </Stack>
-                </CardActionArea>
+                  )}
+                </Stack>
+                <Typography variant="body2" sx={{ mb: 1, fontWeight: "500" }}>
+                  {job?.budget?.type}:{" "}
+                  <span style={{ fontWeight: "400" }}>
+                    ${job?.budget?.from}-${job?.budget?.to}
+                  </span>
+                  {job?.budget?.type === "Hourly" && (
+                    <>
+                      {" "}
+                      | Max Hours:{" "}
+                      <span style={{ fontWeight: "400" }}>
+                        {job?.budget?.maxHours}Hrs
+                      </span>
+                    </>
+                  )}
+                </Typography>
+                <Typography variant="body2">
+                  {trimText({ text: job.desc })}
+                </Typography>
+                <Grid container spacing={1} sx={{ mt: 2 }}>
+                  {job?.skills?.map((skill) => (
+                    <Grid item key={skill.label}>
+                      <Chip label={skill.label} variant="filled" size="small" />
+                    </Grid>
+                  ))}
+                </Grid>
+                <Divider sx={{ my: 2 }} />
+                <Stack direction={"row"} sx={{ alignItems: "center" }}>
+                  <LocationOn
+                    sx={{
+                      border: "2px solid",
+                      padding: 0.4,
+                      borderRadius: 5,
+                      color: theme.palette.text.light,
+                    }}
+                  />
+                  <Text sx={{ ml: 1 }} type="subtitle">
+                    {job?.address?.city}
+                  </Text>
+                </Stack>
               </Card>
             </Grid>
           ))}
         </>
-      ) : (
-        loading && (
-          <>
-            <Grid item>
-              <Skeleton variant="rounded" width={"100%"} height={100} />
-            </Grid>
-            <Grid item>
-              <Skeleton variant="rounded" width={"100%"} height={100} />
-            </Grid>
-            <Grid item>
-              <Skeleton variant="rounded" width={"100%"} height={100} />
-            </Grid>
-          </>
-        )
       )}
     </Grid>
   );

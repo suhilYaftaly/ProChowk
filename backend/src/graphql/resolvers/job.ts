@@ -1,4 +1,4 @@
-import { Job } from "@prisma/client";
+import { BudgetType, Job } from "@prisma/client";
 import { GraphQLContext, IJobInput } from "../../types/commonTypes";
 import checkAuth, { canUserUpdate } from "../../middlewares/checkAuth";
 import { gqlError } from "../../utils/funcs";
@@ -39,81 +39,16 @@ export default {
       if (!jobsRes) throw gqlError({ msg: "Failed to get jobs" });
       return jobsRes;
     },
-    jobsBySkill: async (
-      _: any,
-      { skill, latLng, radius = 60, limit = 20 }: IJobsBySkillInput,
-      context: GraphQLContext
-    ): Promise<Job[]> => {
-      const { mongoClient, prisma } = context;
-      const db = mongoClient.db();
-      const distanceInMeters = radius * 1000;
-
-      // Find the skill object by its label (case insensitive)
-      const skillObj = await db
-        .collection(SKILL_COLLECTION)
-        .findOne(
-          { label: { $regex: skill, $options: "i" } },
-          { collation: { locale: "en", strength: 2 } }
-        );
-      if (!skillObj) throw new Error("Skill not found");
-
-      // Fetch addresses within a certain radius that are related to jobs with the given skill
-      const addresses = await db
-        .collection(ADDRESS_COLLECTION)
-        .aggregate([
-          {
-            // Geospatial query to find addresses near the given location
-            $geoNear: {
-              near: {
-                type: "Point",
-                coordinates: [latLng.lng, latLng.lat],
-              },
-              distanceField: "distance",
-              maxDistance: distanceInMeters,
-              spherical: true,
-            },
-          },
-          {
-            // Join with the Job collection to get the jobs at each address
-            $lookup: {
-              from: "Job",
-              localField: "_id",
-              foreignField: "addressId",
-              as: "associatedJobs",
-            },
-          },
-          { $unwind: "$associatedJobs" },
-          {
-            // Filter jobs that have the given skill
-            $match: { "associatedJobs.skillIDs": { $in: [skillObj._id] } },
-          },
-          { $limit: limit },
-        ])
-        .toArray();
-
-      // Extract job IDs from the address results
-      const jobIds = addresses.map((address) =>
-        address.associatedJobs._id.toString()
-      );
-
-      // Fetch detailed job data from Prisma
-      const jobs = await prisma.job.findMany({
-        where: { id: { in: jobIds } },
-        include: { address: true, skills: true, budget: true },
-      });
-
-      // Reorder the jobs based on the order in jobIds
-      return jobIds.map((jobId) => jobs.find((job) => job.id === jobId));
-    },
     jobsByLocation: async (
       _: any,
-      { latLng, radius = 60, limit = 20 }: IJobsByLocationInput,
+      { latLng, radius = 60, page = 1, pageSize = 20 }: IJobsByLocationInput,
       context: GraphQLContext
     ): Promise<Job[]> => {
       const { mongoClient, prisma } = context;
       const db = mongoClient.db();
       const distanceInMeters = radius * 1000;
 
+      const skip = (page - 1) * pageSize;
       // Fetch addresses within a certain radius
       const addresses = await db
         .collection(ADDRESS_COLLECTION)
@@ -140,7 +75,8 @@ export default {
             },
           },
           { $unwind: "$associatedJobs" },
-          { $limit: limit },
+          { $skip: skip },
+          { $limit: pageSize },
         ])
         .toArray();
 
@@ -160,7 +96,14 @@ export default {
     },
     jobsByText: async (
       _: any,
-      { inputText, latLng, radius = 60, limit = 20 }: IJobsByTextInput,
+      {
+        inputText,
+        latLng,
+        radius = 60,
+        page = 1,
+        pageSize = 20,
+        budget,
+      }: IJobsByTextInput,
       context: GraphQLContext
     ): Promise<Job[]> => {
       const { mongoClient, prisma } = context;
@@ -172,8 +115,47 @@ export default {
         .collection(SKILL_COLLECTION)
         .find({ $text: { $search: inputText } })
         .toArray();
-
       const skillIds = skills.map((skill) => skill._id);
+
+      // Initial match condition for text search and skills
+      let baseMatchCondition = {
+        $or: [
+          { "associatedJobs.skillIDs": { $in: skillIds } },
+          { "associatedJobs.title": { $regex: inputText, $options: "i" } },
+          { "associatedJobs.desc": { $regex: inputText, $options: "i" } },
+        ],
+      };
+
+      let budgetConditions = [];
+
+      // Match condition for budget types
+      if (budget?.types) {
+        budgetConditions.push({
+          "associatedJobs.budget.type": { $in: budget.types },
+        });
+      }
+
+      // Additional match condition for maxHours, but only for 'Hourly' type
+      if (budget?.maxHours !== undefined) {
+        budgetConditions.push({
+          $or: [
+            { "associatedJobs.budget.type": { $ne: "Hourly" } },
+            {
+              $and: [
+                { "associatedJobs.budget.type": "Hourly" },
+                { "associatedJobs.budget.maxHours": { $lte: budget.maxHours } },
+              ],
+            },
+          ],
+        });
+      }
+
+      // Combine the match conditions with the base condition
+      let matchCondition = {
+        $and: [baseMatchCondition, ...budgetConditions],
+      };
+
+      const skip = (page - 1) * pageSize;
 
       // Fetching addresses within a certain radius that are related to jobs with the found skills or having the input text in title or description
       const addresses = await db
@@ -200,17 +182,17 @@ export default {
           },
           { $unwind: "$associatedJobs" },
           {
-            $match: {
-              $or: [
-                { "associatedJobs.skillIDs": { $in: skillIds } },
-                {
-                  "associatedJobs.title": { $regex: inputText, $options: "i" },
-                },
-                { "associatedJobs.desc": { $regex: inputText, $options: "i" } },
-              ],
+            $lookup: {
+              from: "Budget",
+              localField: "associatedJobs._id",
+              foreignField: "jobId",
+              as: "associatedJobs.budget",
             },
           },
-          { $limit: limit },
+          { $unwind: "$associatedJobs.budget" },
+          { $match: matchCondition },
+          { $skip: skip },
+          { $limit: pageSize },
         ])
         .toArray();
 
@@ -380,20 +362,18 @@ interface IUpdateJobInput {
   imagesToDelete?: string[];
   jobInput: IJobInput;
 }
-interface IJobsBySkillInput {
-  skill: string;
-  latLng: { lat: number; lng: number };
-  radius?: number;
-  limit?: number;
-}
 interface IJobsByLocationInput {
   latLng: { lat: number; lng: number };
   radius?: number;
-  limit?: number;
+  page?: number;
+  pageSize?: number;
 }
+
 interface IJobsByTextInput {
   inputText: string;
   latLng: { lat: number; lng: number };
   radius?: number;
-  limit?: number;
+  page?: number;
+  pageSize?: number;
+  budget?: { types: BudgetType[]; maxHours?: number };
 }

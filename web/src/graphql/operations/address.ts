@@ -54,7 +54,7 @@ const addressOps = {
   Queries: {
     geocode: gql`
       ${geocodeGqlResp}
-      query Query($value: String!, $lat: Float!, $lng: Float!, $limit: Float) {
+      query Query($value: String!, $lat: Float, $lng: Float, $limit: Float) {
         geocode(value: $value, lat: $lat, lng: $lng, limit: $limit) {
           ...GeocodeFields
         }
@@ -117,8 +117,8 @@ interface IGeocodeData {
 }
 interface IGeocodeI {
   value: string;
-  lat: number;
-  lng: number;
+  lat?: number;
+  lng?: number;
   limit?: number;
 }
 interface IGeocodeAsyncI {

@@ -6,14 +6,40 @@ import {
   JOB_COLLECTION,
 } from "../../constants/dbCollectionNames";
 import { logger } from "../logger/logger";
+import { gqlError, sendFailureEmailNotification } from "../../utils/funcs";
+
+let mongoErrorNotified = false;
 
 export const connectToMongoDB = async (): Promise<MongoClient> => {
-  const mongoClient = new MongoClient(process.env.MONGODB_URI);
+  const mongoUri = process.env.MONGODB_URI;
+  if (!mongoUri) {
+    logger.error("MONGODB_URI is not set in environment variables");
+    throw gqlError({ msg: "MONGODB_URI is not set in environment variables" });
+  }
+
+  const mongoClient = new MongoClient(mongoUri);
   try {
     await mongoClient.connect();
   } catch (error) {
     logger.error("Failed to connect to MongoDB", { metadata: error });
     console.error("MongoDB error:", error);
+
+    if (!mongoErrorNotified) {
+      try {
+        await sendFailureEmailNotification({
+          subject: "MongoDB Connection Failure Alert",
+          message:
+            "The application encountered an error while trying to connect to MongoDB. Immediate attention is required.",
+          buttonText: "Check MongoDB",
+        });
+        mongoErrorNotified = true; // Prevents sending an email on every error event
+      } catch (notificationError) {
+        logger.error("Failed to send MongoDB failure notification", {
+          metadata: notificationError,
+        });
+      }
+    }
+
     process.exit(1);
   }
   return mongoClient;

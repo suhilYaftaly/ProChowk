@@ -4,18 +4,19 @@ export default gql`
   type Query {
     job(id: ID!): Job!
     userJobs(userId: ID!): [Job!]!
-    jobsBySkill(
-      skill: String!
+    jobsByLocation(
       latLng: LatLngInput!
       radius: Float
-      limit: Int
+      page: Int
+      pageSize: Int
     ): [Job!]!
-    jobsByLocation(latLng: LatLngInput!, radius: Float, limit: Int): [Job!]!
     jobsByText(
       inputText: String!
       latLng: LatLngInput!
       radius: Float
-      limit: Int
+      page: Int
+      pageSize: Int
+      budget: JobsByTxtBudgetInput
     ): [Job!]!
   }
   type Mutation {
@@ -78,6 +79,10 @@ export default gql`
     size: Float
     type: String
     url: String!
+  }
+  input JobsByTxtBudgetInput {
+    types: [BudgetType!]!
+    maxHours: Float
   }
 
   enum JobSize {

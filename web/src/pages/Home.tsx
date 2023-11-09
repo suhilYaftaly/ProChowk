@@ -1,7 +1,7 @@
 import { Card, Divider, Stack } from "@mui/material";
 
 import CenteredStack from "@reusable/CenteredStack";
-import SearchJobsByText from "@jobs/SearchJobsByText";
+import SearchJobsByText from "@/components/jobs/searchJobs/SearchJobsByText";
 import { isDeveloper } from "@/utils/auth";
 import { useUserStates } from "@/redux/reduxStates";
 import Text from "@reusable/Text";

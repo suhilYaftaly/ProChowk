@@ -3,6 +3,8 @@ import { GraphQLError } from "graphql";
 import * as dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import { ISignedProps } from "../middlewares/checkAuth";
+import { appName, appNamePascalCase } from "../constants/constants";
+import { logger } from "../middlewares/logger/logger";
 
 dotenv.config();
 const baseUrl = process.env.CLIENT_ORIGIN;
@@ -102,6 +104,7 @@ interface IEmailTemplate {
   message: string;
   buttonText: string;
   buttonLink: string;
+  bottonInfoTxt?: string;
 }
 
 export const generateEmailTemplate = ({
@@ -109,6 +112,7 @@ export const generateEmailTemplate = ({
   message,
   buttonText,
   buttonLink,
+  bottonInfoTxt = "If you did not request this, you can safely ignore this email.",
 }: IEmailTemplate): string => {
   return `
     <div style="background-color: #f6f6f6; padding: 20px; font-family: Arial, sans-serif;">
@@ -123,13 +127,44 @@ export const generateEmailTemplate = ({
         <div style="text-align: center;">
           <a href="${buttonLink}" style="background-color: #d94f14; color: #ffffff; font-size: 16px; padding: 12px 24px; text-decoration: none; border-radius: 4px; margin-top: 20px; display: inline-block;">${buttonText}</a>
         </div>
-        <p style="font-size: 14px; color: #999999; text-align: center; margin-top: 30px;">
-          If you did not request this, you can safely ignore this email.
-        </p>
+        <p style="font-size: 14px; color: #999999; text-align: center; margin-top: 30px;">${bottonInfoTxt}</p>
       </div>
     </div>
   `;
 };
+
+interface IEmailFailureNoti {
+  subject: string;
+  message: string;
+  buttonText: string;
+}
+export async function sendFailureEmailNotification({
+  subject,
+  message,
+  buttonText,
+}: IEmailFailureNoti) {
+  const baseUrl = process.env.CLIENT_ORIGIN;
+  const html = generateEmailTemplate({
+    subject,
+    message,
+    buttonText,
+    buttonLink: baseUrl + "/logs",
+  });
+
+  const params = {
+    from: { email: `support@${appName}.com`, name: appNamePascalCase },
+    to: [{ email: `suhail278@gmail.com`, name: "Admin" }],
+    subject,
+    text: message,
+    html,
+    variables: [],
+  };
+
+  return await sendEmail({
+    params,
+    onSuccess: () => logger.info(`Failure notification sent to admin.`),
+  });
+}
 
 export const getUserFromContext = (ctx: any): ISignedProps => {
   const authHeader = ctx?.req?.headers?.authorization;

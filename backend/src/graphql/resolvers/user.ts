@@ -28,6 +28,7 @@ import {
   IUserImageInput,
 } from "../../types/commonTypes";
 import { logger } from "../../middlewares/logger/logger";
+import { appName, appNamePascalCase } from "../../constants/constants";
 
 dotenv.config();
 
@@ -433,7 +434,7 @@ const sendVerificationEmail = async (user: User): Promise<any> => {
   });
 
   const params: EmailParams = {
-    from: { email: "noreply@nexabind.com", name: "NexaBind" },
+    from: { email: `noreply@${appName}.com`, name: appNamePascalCase },
     to: [{ email: user.email, name: user.name }],
     subject: "Verify your email address",
     text: `Please verify your email by clicking the link: ${verificationLink}`,
@@ -460,7 +461,7 @@ const requestPasswordReset = async (user: User): Promise<any> => {
   });
 
   const params: EmailParams = {
-    from: { email: "noreply@nexabind.com", name: "NexaBind" },
+    from: { email: `noreply@${appName}.com`, name: appNamePascalCase },
     to: [{ email: user.email, name: user.name }],
     subject: "Password Reset Request",
     text: `You have requested a password reset. Click the following link to reset your password: ${resetLink}`,

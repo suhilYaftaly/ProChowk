@@ -14,7 +14,7 @@ export default {
       context: GraphQLContext
     ): Promise<[IGeocode]> => {
       const { req } = context;
-      const user = checkAuth(req);
+      // const user = checkAuth(req);
 
       const mqResults = await fetchMQGeocode({ value, lat, lng, limit });
       if (mqResults) return mqResults;
@@ -42,11 +42,15 @@ const fetchMQGeocode = async ({
   limit,
 }: GeocodeInput): Promise<[IGeocode]> => {
   const getResponse = async (key: string): Promise<[IGeocode]> => {
-    const resp = await axios.get(
-      `https://www.mapquestapi.com/search/v3/prediction?key=${key}&limit=${limit}&collection=adminArea,poi,address,category,franchise,airport&q=${encodeURIComponent(
+    const getUrl = () => {
+      let url = `https://www.mapquestapi.com/search/v3/prediction?key=${key}&limit=${limit}&collection=adminArea,poi,address,category,franchise,airport&q=${encodeURIComponent(
         value
-      )}&location=${lng},${lat}`
-    );
+      )}`;
+      if (lat && lng) url = url + `&location=${lng},${lat}`;
+      return url;
+    };
+
+    const resp = await axios.get(getUrl());
 
     if (resp?.data?.results) return resp?.data?.results;
     return undefined;
@@ -128,8 +132,8 @@ const fetchMQReverseGeocode = async ({
  */
 interface GeocodeInput {
   value: string;
-  lat: number;
-  lng: number;
+  lat?: number;
+  lng?: number;
   limit?: number;
 }
 
