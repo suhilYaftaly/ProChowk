@@ -126,7 +126,7 @@ export default function SignUp({ setRedirectToHome }: Props) {
         required
         type={showPassword ? "text" : "password"}
         InputProps={{
-          endAdornment: formData.password?.length > 0 && (
+          endAdornment: (
             <InputAdornment position="end">
               <IconButton onClick={togglePasswordVisibility}>
                 {showPassword ? <Visibility /> : <VisibilityOff />}

@@ -1,9 +1,11 @@
 import { format, startOfDay } from "date-fns";
 import { NavigateFunction } from "react-router-dom";
+import { toast } from "react-toastify";
 
 import { IUser } from "@gqlOps/user";
 import { paths } from "@/routes/Routes";
 import { IAddress } from "@gqlOps/address";
+import NoUserLocationMsg from "@appComps/NoUserLocationMsg";
 
 export function decodeJwtToken(token: string | undefined) {
   if (token) {
@@ -166,11 +168,13 @@ export const getUserLocation = ({ onSuccess, onError }: IUserLocation) => {
       },
       (error) => {
         onError && onError(error);
+        toast.error(NoUserLocationMsg);
         console.error("Location permission denied:", error);
       }
     );
   } else {
     onError && onError("Geolocation is not supported by this browser.");
+    toast.error(NoUserLocationMsg);
     console.error("Geolocation is not supported by this browser.");
   }
 };

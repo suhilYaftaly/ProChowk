@@ -21,6 +21,8 @@ import { useReverseGeocode } from "@gqlOps/address";
 import { useUpdateUser } from "@gqlOps/user";
 import { useUserStates } from "@redux/reduxStates";
 import { getAddressFormat } from "@appComps/AddressSearch";
+import Text from "@reusable/Text";
+import { userLocationLearnMoreLink } from "@constants/links";
 
 export default function UserLocationPermission() {
   const dispatch = useAppDispatch();
@@ -40,14 +42,13 @@ export default function UserLocationPermission() {
       onError: (error) => {
         dispatch(userLocationError({ error }));
         setShowLocationModal(true);
-        toast.error(error?.message);
         navigator.permissions
           .query({ name: "geolocation" })
           .then((permissionStatus) => {
             if (permissionStatus.state === "denied") {
               setIsPermissionDenied(true);
               toast.warning(
-                "Please enable location services from the browser settings",
+                "We noticed you've denied location access, Please enable location services from the browser settings",
                 { autoClose: 15000 }
               );
             }
@@ -92,6 +93,9 @@ export default function UserLocationPermission() {
       assignUserAddress();
   }, [lat, lng, user]);
 
+  const onLearnMore = () =>
+    window.open(userLocationLearnMoreLink, "_blank", "noreferrer");
+
   return (
     <Dialog
       open={showLocationModal}
@@ -111,7 +115,9 @@ export default function UserLocationPermission() {
             id="alert-dialog-description"
             style={{ textAlign: "center" }}
           >
-            We noticed you've denied location access.
+            <Text type="subtitle" cColor="info">
+              We noticed you've denied location access.
+            </Text>
             <br />
             <br />
             While you can still use our app, enabling location helps us:
@@ -124,7 +130,7 @@ export default function UserLocationPermission() {
             <br />
             <br />
             To enable location services later, you can do so from the browser
-            settings.
+            settings. <Button onClick={onLearnMore}>Learn More</Button>
             <br />
             <br />
             Your privacy matters to us. Your location data is secure and will

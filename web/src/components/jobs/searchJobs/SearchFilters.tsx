@@ -17,6 +17,7 @@ import AddressSearch from "@appComps/AddressSearch";
 import { IAddress, LatLngInput } from "@gqlOps/address";
 import { BudgetType } from "@gqlOps/job";
 import { searchFilterConfigs as CC } from "@config/configConst";
+import { useUserStates } from "@/redux/reduxStates";
 
 export interface ISearchFilters {
   radius: number;
@@ -50,6 +51,7 @@ export default function SearchFilters({
 }: Props) {
   /**horizontal padding */
   const px = 2;
+  const { userLocation } = useUserStates();
 
   const toggleDrawer = () => setOpen(!open);
 
@@ -113,7 +115,7 @@ export default function SearchFilters({
     >
       <Stack
         direction="row"
-        sx={{ alignItems: "center", px, pt: px, minWidth: 270 }}
+        sx={{ alignItems: "center", px, pt: px, minWidth: 300 }}
       >
         <FilterAltIcon sx={{ mr: 2 }} />
         <Text type="subtitle">Filters</Text>
@@ -125,9 +127,11 @@ export default function SearchFilters({
         </Text>
         <AddressSearch
           label=""
+          value={userLocation.data ? "My Location" : ""}
           address={filters?.address}
           onSelect={onAddressSelect}
           helperText={filterErrors.address}
+          enableMyLocationBtn
         />
       </Stack>
       <Divider sx={{ my: px }} />
@@ -216,35 +220,45 @@ export const checkFilterOptionsError = ({
   filters,
   setErrors,
 }: ICheckFilterOptions) => {
-  let error = false;
+  let errors = [];
   const {
     radius,
     latLng,
-    budget: { maxHours },
+    budget: { maxHours, types },
   } = filters;
 
-  if (radius < CC.minRadius || radius > CC.maxRadius) {
-    setErrors((prev) => ({
-      ...prev,
-      radius: `Must be between ${CC.minRadius}KM and ${CC.maxRadius}KM.`,
-    }));
-    error = true;
-  } else setErrors((prev) => ({ ...prev, radius: "" }));
-
   if (!latLng?.lat && !latLng?.lng) {
-    setErrors((prev) => ({ ...prev, address: `A location must be selected.` }));
-    error = true;
+    const errMsg = `A location must be selected.`;
+    setErrors((prev) => ({ ...prev, address: errMsg }));
+    errors.push(errMsg);
   } else setErrors((prev) => ({ ...prev, address: "" }));
 
-  if (maxHours < CC.budget.minMaxHours || maxHours > CC.budget.maxMaxHours) {
+  if (radius < CC.minRadius || radius > CC.maxRadius) {
+    const errMsg = `Radius must be between ${CC.minRadius}KM and ${CC.maxRadius}KM.`;
+    setErrors((prev) => ({ ...prev, radius: errMsg }));
+    errors.push(errMsg);
+  } else setErrors((prev) => ({ ...prev, radius: "" }));
+
+  if (types.length < 1) {
+    const errMsg = `At least 1 Project type must be selected`;
     setErrors((prev) => ({
       ...prev,
-      budget: {
-        ...prev.budget,
-        maxHours: `Must be between ${CC.budget.minMaxHours} and ${CC.budget.maxMaxHours}.`,
-      },
+      budget: { ...prev.budget, type: errMsg },
     }));
-    error = true;
+    errors.push(errMsg);
+  } else
+    setErrors((prev) => ({ ...prev, budget: { ...prev.budget, type: "" } }));
+
+  if (
+    types.includes("Hourly") &&
+    (maxHours < CC.budget.minMaxHours || maxHours > CC.budget.maxMaxHours)
+  ) {
+    const errMsg = `Max Hours must be between ${CC.budget.minMaxHours} and ${CC.budget.maxMaxHours}.`;
+    setErrors((prev) => ({
+      ...prev,
+      budget: { ...prev.budget, maxHours: errMsg },
+    }));
+    errors.push(errMsg);
   } else {
     setErrors((prev) => ({
       ...prev,
@@ -252,7 +266,7 @@ export const checkFilterOptionsError = ({
     }));
   }
 
-  return error;
+  return errors;
 };
 
 interface ICheckboxWithLable {

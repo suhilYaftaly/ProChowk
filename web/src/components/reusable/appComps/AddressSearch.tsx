@@ -1,8 +1,15 @@
 import { useState, useEffect, ChangeEvent } from "react";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
-import { Autocomplete, Grid, TextField } from "@mui/material";
+import {
+  Autocomplete,
+  Grid,
+  IconButton,
+  InputAdornment,
+  TextField,
+} from "@mui/material";
+import MyLocationIcon from "@mui/icons-material/MyLocation";
 
-import { removeTypename } from "@utils/utilFuncs";
+import { getUserLocation, removeTypename } from "@utils/utilFuncs";
 import { IAddress, useGeocode } from "@gqlOps/address";
 import { useUserStates } from "@/redux/reduxStates";
 import { useAppDispatch } from "@/utils/hooks/hooks";
@@ -16,6 +23,9 @@ interface Props {
   label?: string;
   /**Text Field helper text to show error message */
   helperText?: string;
+  /**The value of the autocomplete. */
+  value?: string;
+  enableMyLocationBtn?: boolean;
 }
 
 export default function AddressSearch({
@@ -24,6 +34,8 @@ export default function AddressSearch({
   required = false,
   label = "Address Search",
   helperText,
+  value,
+  enableMyLocationBtn,
 }: Props) {
   const dispatch = useAppDispatch();
   const { userLocation } = useUserStates();
@@ -31,47 +43,70 @@ export default function AddressSearch({
   const lng = userLocation?.data?.lng;
   const { geocodeAsync, data, loading } = useGeocode();
   const [adr, setAdr] = useState<IAddress | undefined>(address);
+  const [displayValue, setDisplayValue] = useState(value || "");
 
-  useEffect(() => address && setAdr(getAddressFormat(address)), [address]);
+  useEffect(() => {
+    if (address) {
+      const formattedAdr = getAddressFormat(address);
+      setAdr(formattedAdr);
+      setDisplayValue(formattedAdr.displayName);
+    }
+  }, [address]);
+
+  useEffect(() => {
+    if (value) setDisplayValue(value);
+  }, [value]);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const { value } = e.target;
     if (value.trim().length > 2) geocodeAsync({ vars: { value, lat, lng } });
   };
 
-  const onAddressSelect = (value: IAddress) => {
-    const address = getAddressFormat(value);
-    onSelect(address);
-    if (!lat && !lng) {
-      dispatch(userLocationSuccess({ lat: address.lat, lng: address.lng }));
-    }
+  const onMyLocationClick = () => {
+    getUserLocation({
+      onSuccess: ({ lat, lng }) => dispatch(userLocationSuccess({ lat, lng })),
+    });
   };
 
   return (
     <>
       <Autocomplete
         freeSolo
-        value={adr?.displayName || ""}
+        value={displayValue}
         loading={loading}
         getOptionLabel={(option) =>
           typeof option === "string" ? option : option.displayName
         }
         options={data?.geocode || []}
         disableClearable
-        onChange={(_, value: any) => onAddressSelect(value)}
+        onChange={(_, value: any) => onSelect(getAddressFormat(value))}
         renderInput={(params) => (
           <TextField
             {...params}
             label={label}
             value={adr}
-            placeholder="23 McSweeney Cres..."
+            placeholder="16 Glennie Dr..."
             onChange={handleInputChange}
             autoComplete="off"
             size="small"
-            InputProps={{ ...params.InputProps, type: "search" }}
             required={required}
             error={Boolean(helperText)}
             helperText={helperText}
+            InputProps={{
+              ...params.InputProps,
+              type: "search",
+              endAdornment: enableMyLocationBtn && (
+                <InputAdornment position="end">
+                  <IconButton
+                    color="primary"
+                    size="small"
+                    onClick={onMyLocationClick}
+                  >
+                    <MyLocationIcon />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
         )}
         renderOption={(props, option: any) => (

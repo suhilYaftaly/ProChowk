@@ -65,13 +65,13 @@ export default function SearchJobsByText({}: Props) {
 
   const onSearch = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const error = checkFilterOptionsError({
+    const errors = checkFilterOptionsError({
       filters: filters,
       setErrors: setFilterErrors,
     });
 
-    if (error) {
-      toast.error("Missing or incorrect fields in filters");
+    if (errors.length > 0) {
+      toast.error(FilterBannerErrorsJsx(errors));
       setOpenDrawer(true);
     }
     if (!searchText) toast.warning("Search text is empty.");
@@ -126,3 +126,15 @@ export default function SearchJobsByText({}: Props) {
     </>
   );
 }
+
+const FilterBannerErrorsJsx = (errors: string[]) => {
+  return (
+    <>
+      {errors.map((err, i) => (
+        <>
+          {err} {errors.length != i + 1 && <br />}
+        </>
+      ))}
+    </>
+  );
+};
