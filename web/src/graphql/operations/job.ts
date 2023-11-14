@@ -228,6 +228,8 @@ export interface JobInput {
 export interface JobsByTxtBudgetInput {
   types: BudgetType[];
   maxHours?: number;
+  from?: number;
+  to?: number;
 }
 
 /**

@@ -25,12 +25,17 @@ export default function SearchJobsByText({}: Props) {
     radius: FCC.defaultRadius,
     address: undefined,
     latLng: undefined,
-    budget: { types: initialTypes, maxHours: FCC.budget.defaultMaxHours },
+    budget: {
+      types: initialTypes,
+      maxHours: FCC.budget.defaultMaxHours,
+      from: FCC.budget.from,
+      to: FCC.budget.to,
+    },
   });
   const [filterErrors, setFilterErrors] = useState<ISearchFilterErrors>({
     radius: "",
     address: "",
-    budget: { types: "", maxHours: "" },
+    budget: { types: "", maxHours: "", from: "", to: "" },
   });
   const {
     skillsAsync,
@@ -63,8 +68,9 @@ export default function SearchJobsByText({}: Props) {
     }
   }, [userLocation?.data]);
 
-  const onSearch = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const onSearch = (e?: FormEvent<HTMLFormElement>) => {
+    e?.preventDefault();
+    setOpenDrawer(false);
     const errors = checkFilterOptionsError({
       filters: filters,
       setErrors: setFilterErrors,
@@ -82,7 +88,12 @@ export default function SearchJobsByText({}: Props) {
         variables: {
           inputText: searchText,
           latLng: filters.latLng,
-          budget: { ...fBudget, maxHours: Number(fBudget.maxHours) },
+          budget: {
+            ...fBudget,
+            maxHours: Number(fBudget.maxHours),
+            from: Number(fBudget.from),
+            to: Number(fBudget.to),
+          },
           radius: Number(filters.radius),
         },
       });
@@ -122,19 +133,23 @@ export default function SearchJobsByText({}: Props) {
         setFilters={setFilters}
         filterErrors={filterErrors}
         setFilterErrors={setFilterErrors}
+        onSearch={onSearch}
       />
     </>
   );
 }
 
-const FilterBannerErrorsJsx = (errors: string[]) => {
-  return (
-    <>
-      {errors.map((err, i) => (
-        <>
-          {err} {errors.length != i + 1 && <br />}
-        </>
-      ))}
-    </>
-  );
-};
+const FilterBannerErrorsJsx = (errors: string[]) => (
+  <>
+    {errors.map((err, i) =>
+      errors.length != i + 1 ? (
+        <div style={{ marginBottom: 5 }}>
+          {err}
+          <br />
+        </div>
+      ) : (
+        <>{err}</>
+      )
+    )}
+  </>
+);

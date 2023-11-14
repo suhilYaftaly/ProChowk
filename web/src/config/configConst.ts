@@ -16,5 +16,11 @@ export const searchFilterConfigs = {
     minMaxHours: 1,
     maxMaxHours: 2000,
     defaultMaxHours: 150,
+    from: 1,
+    to: 50000,
+    fromMin: 1,
+    fromMax: 100000,
+    toMin: 1,
+    toMax: 100000,
   },
 };

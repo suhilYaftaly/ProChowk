@@ -1,4 +1,5 @@
 import {
+  Button,
   Checkbox,
   Divider,
   FormControlLabel,
@@ -11,6 +12,7 @@ import {
 } from "@mui/material";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import { SetStateAction, Dispatch } from "react";
+import SearchIcon from "@mui/icons-material/Search";
 
 import Text from "@reusable/Text";
 import AddressSearch from "@appComps/AddressSearch";
@@ -23,12 +25,12 @@ export interface ISearchFilters {
   radius: number;
   address?: IAddress;
   latLng?: LatLngInput;
-  budget: { types: BudgetType[]; maxHours: number };
+  budget: { types: BudgetType[]; maxHours: number; from: number; to: number };
 }
 export interface ISearchFilterErrors {
   radius: string;
   address?: string;
-  budget: { types: string; maxHours: string };
+  budget: { types: string; maxHours: string; from: string; to: string };
 }
 
 interface Props {
@@ -39,6 +41,7 @@ interface Props {
   setFilters: Dispatch<SetStateAction<ISearchFilters>>;
   filterErrors: ISearchFilterErrors;
   setFilterErrors: Dispatch<SetStateAction<ISearchFilterErrors>>;
+  onSearch: () => void;
 }
 export default function SearchFilters({
   open,
@@ -48,6 +51,7 @@ export default function SearchFilters({
   filters,
   setFilterErrors,
   filterErrors,
+  onSearch,
 }: Props) {
   /**horizontal padding */
   const px = 2;
@@ -104,6 +108,25 @@ export default function SearchFilters({
       });
       return newOptions;
     });
+  };
+
+  const onBudgetPriceChange = (value: number | string, name: "from" | "to") => {
+    const price = value as number;
+    setFilters((prev) => {
+      const newOptions = { ...prev, budget: { ...prev.budget, [name]: price } };
+      checkFilterOptionsError({
+        filters: newOptions,
+        setErrors: setFilterErrors,
+      });
+      return newOptions;
+    });
+  };
+
+  const onBudgetPriceRangeChange = (_: Event, number: number | number[]) => {
+    if (Array.isArray(number)) {
+      onBudgetPriceChange(number[0], "from");
+      onBudgetPriceChange(number[1], "to");
+    }
   };
 
   return (
@@ -175,12 +198,54 @@ export default function SearchFilters({
           />
         ))}
       </FormGroup>
+      <Divider sx={{ my: px }} />
+      <Stack sx={{ mx: px }}>
+        <Text type="title" sx={{ fontSize: 16, mb: 1 }}>
+          Price Range*
+        </Text>
+        <Stack direction="row" sx={{ justifyContent: "space-between" }}>
+          <TextField
+            variant="outlined"
+            size="small"
+            name={"from"}
+            value={filters.budget.from}
+            type="number"
+            onChange={(e) => onBudgetPriceChange(e.target.value, "from")}
+            error={Boolean(filterErrors.budget.from)}
+            helperText={filterErrors.budget.from}
+            required
+            inputProps={{ min: CC.budget.fromMin, max: CC.budget.fromMax }}
+            sx={{ width: 127 }}
+          />
+          <TextField
+            variant="outlined"
+            size="small"
+            name={"to"}
+            value={filters.budget.to}
+            type="number"
+            onChange={(e) => onBudgetPriceChange(e.target.value, "to")}
+            error={Boolean(filterErrors.budget.to)}
+            helperText={filterErrors.budget.to}
+            required
+            inputProps={{ min: CC.budget.toMin, max: CC.budget.toMax }}
+            sx={{ width: 127 }}
+          />
+        </Stack>
+        <Slider
+          value={[Number(filters.budget.from), Number(filters.budget.to)]}
+          onChange={onBudgetPriceRangeChange}
+          min={CC.budget.fromMin}
+          max={CC.budget.toMax}
+          onMouseDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
+        />
+      </Stack>
       {filters.budget.types.includes("Hourly") && (
         <>
           <Divider sx={{ my: px }} />
           <Stack sx={{ mx: px }}>
             <Text type="title" sx={{ fontSize: 16, mb: 1 }}>
-              Project Max Hours*
+              Max Hours*
             </Text>
             <TextField
               variant="outlined"
@@ -208,6 +273,15 @@ export default function SearchFilters({
           </Stack>
         </>
       )}
+      <Divider sx={{ my: px }} />
+      <Button
+        variant="contained"
+        onClick={onSearch}
+        sx={{ mx: px }}
+        endIcon={<SearchIcon />}
+      >
+        Search
+      </Button>
     </SwipeableDrawer>
   );
 }
@@ -224,21 +298,24 @@ export const checkFilterOptionsError = ({
   const {
     radius,
     latLng,
-    budget: { maxHours, types },
+    budget: { maxHours, types, from, to },
   } = filters;
 
+  //location check
   if (!latLng?.lat && !latLng?.lng) {
     const errMsg = `A location must be selected.`;
     setErrors((prev) => ({ ...prev, address: errMsg }));
     errors.push(errMsg);
   } else setErrors((prev) => ({ ...prev, address: "" }));
 
+  //radius check
   if (radius < CC.minRadius || radius > CC.maxRadius) {
     const errMsg = `Radius must be between ${CC.minRadius}KM and ${CC.maxRadius}KM.`;
     setErrors((prev) => ({ ...prev, radius: errMsg }));
     errors.push(errMsg);
   } else setErrors((prev) => ({ ...prev, radius: "" }));
 
+  //budget project type check
   if (types.length < 1) {
     const errMsg = `At least 1 Project type must be selected`;
     setErrors((prev) => ({
@@ -249,6 +326,7 @@ export const checkFilterOptionsError = ({
   } else
     setErrors((prev) => ({ ...prev, budget: { ...prev.budget, type: "" } }));
 
+  //budget maxHours check
   if (
     types.includes("Hourly") &&
     (maxHours < CC.budget.minMaxHours || maxHours > CC.budget.maxMaxHours)
@@ -264,6 +342,34 @@ export const checkFilterOptionsError = ({
       ...prev,
       budget: { ...prev.budget, maxHours: "" },
     }));
+  }
+
+  //budget price from check
+  if (from < CC.budget.fromMin || from > CC.budget.fromMax) {
+    const errMsg = `From range must be between ${CC.budget.fromMin} and ${CC.budget.fromMax}.`;
+    setErrors((prev) => ({
+      ...prev,
+      budget: { ...prev.budget, from: errMsg },
+    }));
+    errors.push(errMsg);
+  } else if (Number(from) > Number(to)) {
+    const errMsg = `From range cannot be greater than To range.`;
+    setErrors((prev) => ({
+      ...prev,
+      budget: { ...prev.budget, from: errMsg },
+    }));
+    errors.push(errMsg);
+  } else {
+    setErrors((prev) => ({ ...prev, budget: { ...prev.budget, from: "" } }));
+  }
+
+  //budget price tp check
+  if (to < CC.budget.toMin || to > CC.budget.toMax) {
+    const errMsg = `To range must be between ${CC.budget.toMin} and ${CC.budget.toMax}.`;
+    setErrors((prev) => ({ ...prev, budget: { ...prev.budget, to: errMsg } }));
+    errors.push(errMsg);
+  } else {
+    setErrors((prev) => ({ ...prev, budget: { ...prev.budget, to: "" } }));
   }
 
   return errors;

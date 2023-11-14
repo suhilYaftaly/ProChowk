@@ -1,4 +1,4 @@
-import { Stack, SwipeableDrawer } from "@mui/material";
+import { Divider, Stack, SwipeableDrawer } from "@mui/material";
 
 import ProfileList from "../myProfile/ProfileList";
 import PostJobBtn from "../PostJobBtn";
@@ -17,8 +17,9 @@ export default function MMyProfileDrawer({ open, setOpen }: Props) {
       onClose={toggle}
       onOpen={toggle}
     >
-      <Stack style={{ justifyContent: "space-between", flex: 1 }}>
+      <Stack>
         <ProfileList onItemClick={toggle} />
+        <Divider />
         <Stack sx={{ m: 2 }}>
           <PostJobBtn onSubmit={toggle} />
         </Stack>

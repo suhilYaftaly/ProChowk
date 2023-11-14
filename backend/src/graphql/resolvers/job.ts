@@ -150,10 +150,20 @@ export default {
         });
       }
 
+      // Additional match condition for price range (from and to)
+      if (budget.from !== undefined) {
+        budgetConditions.push({
+          "associatedJobs.budget.from": { $gte: budget.from },
+        });
+      }
+      if (budget.to !== undefined) {
+        budgetConditions.push({
+          "associatedJobs.budget.to": { $lte: budget.to },
+        });
+      }
+
       // Combine the match conditions with the base condition
-      let matchCondition = {
-        $and: [baseMatchCondition, ...budgetConditions],
-      };
+      let matchCondition = { $and: [baseMatchCondition, ...budgetConditions] };
 
       const skip = (page - 1) * pageSize;
 
@@ -375,5 +385,10 @@ interface IJobsByTextInput {
   radius?: number;
   page?: number;
   pageSize?: number;
-  budget?: { types: BudgetType[]; maxHours?: number };
+  budget?: {
+    types: BudgetType[];
+    maxHours?: number;
+    from?: number;
+    to?: number;
+  };
 }
