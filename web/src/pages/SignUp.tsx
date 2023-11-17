@@ -46,6 +46,7 @@ export default function SignUp() {
     setFormData((pv) => ({ ...pv, [name]: value }));
   };
 
+  /**returns true if there is/are error(s) */
   const validateFields = () => {
     let error = false;
     if (formData.name?.length < 4) {
@@ -81,8 +82,7 @@ export default function SignUp() {
 
   const onRegister = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
-    const error = validateFields();
-    if (error) return;
+    if (validateFields()) return;
     setDisableSignUpBtn(true);
 
     dispatch(userProfileBegin());

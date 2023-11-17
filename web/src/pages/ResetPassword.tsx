@@ -20,7 +20,7 @@ import { useAppDispatch } from "@utils/hooks/hooks";
 import { logIn, setUserProfileInfo } from "@rSlices/userSlice";
 import CenteredStack from "@reusable/CenteredStack";
 import { USER_PROFILE_KEY } from "@constants/localStorageKeys";
-import { validateEmail } from "@utils/utilFuncs";
+import { validateEmail, validatePassword } from "@utils/utilFuncs";
 
 export default function ResetPassword() {
   const { user } = useUserStates();
@@ -40,8 +40,16 @@ export default function ResetPassword() {
     error: reqError,
     data: reqData,
   } = useRequestPasswordReset();
-  const [formData, setFormData] = useState({ email: "", newPassword: "" });
-  const [formError, setFormError] = useState({ email: "", newPassword: "" });
+  const [formData, setFormData] = useState({
+    email: "",
+    newPassword: "",
+    confirmNewPass: "",
+  });
+  const [formError, setFormError] = useState({
+    email: "",
+    newPassword: "",
+    confirmNewPass: "",
+  });
   const [show, setShow] = useState({ newPassword: false });
 
   //if logged in and email is verified then redirect screen
@@ -66,15 +74,32 @@ export default function ResetPassword() {
     };
   }, [dispatch, navigate]);
 
-  const handleResetPassword = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (formData.newPassword?.length < 6) {
+  /**returns true if there is/are error(s) */
+  const validateResetPassFields = () => {
+    let error = false;
+    if (validatePassword(formData.newPassword)) {
       setFormError((pv) => ({
         ...pv,
-        newPassword: "Password must be more than 6 characters.",
+        newPassword: validatePassword(formData.newPassword),
       }));
-      return;
+      error = true;
     }
+
+    if (formData.newPassword !== formData.confirmNewPass) {
+      setFormError((pv) => ({
+        ...pv,
+        confirmNewPass: "Password and Confirm Password must match.",
+      }));
+      error = true;
+    }
+
+    return error;
+  };
+
+  const handleResetPassword = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (validateResetPassFields()) return;
+
     if (token && formData.newPassword) {
       resetPasswordAsync({
         variables: { token, newPassword: formData.newPassword },
@@ -106,7 +131,6 @@ export default function ResetPassword() {
 
   const handleFDataChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
-    setFormError((pv) => ({ ...pv, [name]: false }));
     setFormData((pv) => ({ ...pv, [name]: value }));
   };
 
@@ -132,7 +156,6 @@ export default function ResetPassword() {
             </div>
             <TextField
               label="New Password"
-              id={"newPassword"}
               placeholder={"your new password"}
               variant="outlined"
               name={"newPassword"}
@@ -144,7 +167,7 @@ export default function ResetPassword() {
               required
               type={show.newPassword ? "text" : "password"}
               InputProps={{
-                endAdornment: formData.newPassword?.length > 0 && (
+                endAdornment: (
                   <InputAdornment position="end">
                     <IconButton onClick={() => toggleShow("newPassword")}>
                       {show.newPassword ? <Visibility /> : <VisibilityOff />}
@@ -153,7 +176,29 @@ export default function ResetPassword() {
                 ),
               }}
             />
-            <Button type="submit" variant="contained">
+            <TextField
+              label="Confirm Password"
+              placeholder={"Confirm your new password"}
+              variant="outlined"
+              name={"confirmNewPass"}
+              value={formData.confirmNewPass}
+              onChange={handleFDataChange}
+              error={Boolean(formError.confirmNewPass)}
+              helperText={formError.confirmNewPass}
+              size="small"
+              required
+              type={show.newPassword ? "text" : "password"}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={() => toggleShow("newPassword")}>
+                      {show.newPassword ? <Visibility /> : <VisibilityOff />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <Button type="submit" variant="contained" sx={{ borderRadius: 5 }}>
               {resetLoading ? (
                 <CircularProgress size={20} color="inherit" />
               ) : (
@@ -214,7 +259,7 @@ export default function ResetPassword() {
             </Button>
             {reqError && (
               <Alert severity="error" color="error">
-                {reqError.message}
+                {reqError?.message}
               </Alert>
             )}
           </Stack>
