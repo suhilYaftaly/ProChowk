@@ -1,6 +1,13 @@
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Alert, Card, CircularProgress, Link, Typography } from "@mui/material";
+import {
+  Alert,
+  Card,
+  CircularProgress,
+  Divider,
+  Link,
+  useTheme,
+} from "@mui/material";
 import { toast } from "react-toastify";
 import EmailIcon from "@mui/icons-material/Email";
 
@@ -11,8 +18,10 @@ import { setUserProfile, setUserProfileInfo } from "@rSlices/userSlice";
 import { paths } from "@routes/Routes";
 import CenteredStack from "@reusable/CenteredStack";
 import { USER_PROFILE_KEY } from "@constants/localStorageKeys";
+import Text from "@reusable/Text";
 
 export default function VerifyEmail() {
+  const theme = useTheme();
   const { user } = useUserStates();
   const dispatch = useAppDispatch();
   const location = useLocation();
@@ -79,7 +88,7 @@ export default function VerifyEmail() {
   };
 
   return (
-    <CenteredStack mmx={0}>
+    <CenteredStack sx={{ maxWidth: 500 }}>
       {error && (
         <Alert severity="error" color="error">
           Email Verification failed. Please try again or request another
@@ -90,12 +99,21 @@ export default function VerifyEmail() {
         {user && !user.emailVerified && (
           <>
             <EmailIcon sx={{ width: 170, height: 170 }} />
-            <Typography variant="h4">
-              We've sent a verification email to: {user?.email}
-            </Typography>
-            <Typography variant="body1" sx={{ mt: 4 }}>
-              Click the button in your email to verify your account. If you
-              can't find the email check your spam folder or{" "}
+            <Text type="title" sx={{ mb: 3 }}>
+              Verification sent
+            </Text>
+            <Text>
+              We've sent a verification email to{" "}
+              <span style={{ color: theme.palette.text.dark, fontWeight: 600 }}>
+                {user?.email}
+              </span>
+            </Text>
+            <Text sx={{ mt: 1 }}>
+              Click the button in your email to verify your account.
+            </Text>
+            <Divider sx={{ my: 3 }} />
+            <Text>
+              If you can't find the email check your spam folder or{" "}
               {resendLoading ? (
                 <CircularProgress size={15} color="inherit" />
               ) : (
@@ -107,7 +125,7 @@ export default function VerifyEmail() {
                   click here to resend
                 </Link>
               )}
-            </Typography>
+            </Text>
           </>
         )}
         {!token && !user && (

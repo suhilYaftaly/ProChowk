@@ -184,3 +184,5 @@ export const getClientIP = (req: any) => {
   // add the 'x-forwarded-for' header, then fall back to the remote address
   return req?.socket?.remoteAddress;
 };
+
+export const isDevEnv = process.env.NODE_ENV === "dev";

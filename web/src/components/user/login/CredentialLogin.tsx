@@ -69,7 +69,6 @@ export default function CredentialLogin({ setRedirectToHome }: Props) {
   return (
     <Stack
       component="form"
-      spacing={1}
       noValidate
       onSubmit={onLogin}
       sx={{ textAlign: "center" }}
@@ -110,20 +109,26 @@ export default function CredentialLogin({ setRedirectToHome }: Props) {
             </InputAdornment>
           ),
         }}
+        sx={{ mt: 2 }}
       />
       <Link
         variant="caption"
         color="text.secondary"
         onClick={() => navigate(paths.resetPassword)}
-        sx={{ cursor: "pointer" }}
+        sx={{ cursor: "pointer", alignSelf: "flex-end" }}
       >
-        Don't remember your password?
+        Forgot Password?
       </Link>
-      <Button type="submit" variant="contained" disabled={disableLoginBtn}>
+      <Button
+        type="submit"
+        variant="contained"
+        disabled={disableLoginBtn}
+        sx={{ borderRadius: 5, mt: 3 }}
+      >
         {loading ? <CircularProgress size={20} color="inherit" /> : "Log In"}
       </Button>
       {error && (
-        <Alert severity="error" color="error">
+        <Alert severity="error" color="error" sx={{ mt: 2 }}>
           {error.message}
         </Alert>
       )}

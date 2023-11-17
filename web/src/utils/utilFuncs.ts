@@ -65,6 +65,29 @@ export function validateEmail(email: string): boolean {
   return emailPattern.test(email);
 }
 
+/**return a string of all unmet conditions */
+export function validatePassword(password: string): string {
+  const errors = [];
+
+  if (password.length < 8) {
+    errors.push("Must be at least 8 characters long");
+  }
+  if (!/[A-Z]/.test(password)) {
+    errors.push("Must contain an uppercase letter (A-Z)");
+  }
+  if (!/[a-z]/.test(password)) {
+    errors.push("Must contain a lowercase letter (a-z)");
+  }
+  if (!/\d/.test(password)) {
+    errors.push("Must contain a digit (0-9)");
+  }
+  if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+    errors.push('Must contain a special character (!@#$%^&*(),.?":{}|<>)');
+  }
+
+  return errors.join(" | ");
+}
+
 interface IPIFOnSuccess {
   imageUrl: string;
   fileSize: number;

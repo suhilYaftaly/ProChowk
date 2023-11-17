@@ -6,7 +6,11 @@ import {
   JOB_COLLECTION,
 } from "../../constants/dbCollectionNames";
 import { logger } from "../logger/logger";
-import { gqlError, sendFailureEmailNotification } from "../../utils/funcs";
+import {
+  gqlError,
+  isDevEnv,
+  sendFailureEmailNotification,
+} from "../../utils/funcs";
 
 let mongoErrorNotified = false;
 
@@ -21,10 +25,11 @@ export const connectToMongoDB = async (): Promise<MongoClient> => {
   try {
     await mongoClient.connect();
   } catch (error) {
-    logger.error("Failed to connect to MongoDB", { metadata: error });
+    !isDevEnv &&
+      logger.error("Failed to connect to MongoDB", { metadata: error });
     console.error("MongoDB error:", error);
 
-    if (!mongoErrorNotified) {
+    if (!mongoErrorNotified && !isDevEnv) {
       try {
         await sendFailureEmailNotification({
           subject: "MongoDB Connection Failure Alert",

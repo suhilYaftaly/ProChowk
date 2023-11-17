@@ -1,12 +1,12 @@
-import { Alert, Button, CircularProgress } from "@mui/material";
+import { Alert, Button, CircularProgress, Stack } from "@mui/material";
 import { useGoogleLogin } from "@react-oauth/google";
-import GoogleIcon from "@mui/icons-material/Google";
 import { useNavigate } from "react-router-dom";
 
 import { useAppDispatch } from "@utils/hooks/hooks";
 import { userProfileError, logIn, userProfileBegin } from "@rSlices/userSlice";
 import { useGLogin } from "@gqlOps/user";
 import { openUserIfNewUser } from "@/utils/utilFuncs";
+import { GoogleIcon } from "@components/JSXIcons";
 
 interface Props {
   setRedirectToHome: (redirect: boolean) => void;
@@ -35,7 +35,7 @@ export default function GoogleLoginButton({ setRedirectToHome }: Props) {
   });
 
   return (
-    <>
+    <Stack sx={{ alignItems: "center" }}>
       <Button
         variant="outlined"
         onClick={() => login()}
@@ -44,11 +44,11 @@ export default function GoogleLoginButton({ setRedirectToHome }: Props) {
           loading ? (
             <CircularProgress size={20} color="inherit" />
           ) : (
-            <GoogleIcon />
+            <GoogleIcon size={20} />
           )
         }
-        fullWidth
         disabled={loading}
+        sx={{ borderRadius: 5 }}
       >
         Log In with Google
       </Button>
@@ -57,6 +57,6 @@ export default function GoogleLoginButton({ setRedirectToHome }: Props) {
           {error.message}
         </Alert>
       )}
-    </>
+    </Stack>
   );
 }

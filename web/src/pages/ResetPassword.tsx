@@ -115,7 +115,7 @@ export default function ResetPassword() {
   };
 
   return (
-    <CenteredStack mmx={0}>
+    <CenteredStack sx={{ maxWidth: 500 }}>
       <Card sx={{ textAlign: "center", p: 3 }}>
         {token ? (
           <Stack
@@ -205,7 +205,7 @@ export default function ResetPassword() {
               size="small"
               required
             />
-            <Button type="submit" variant="contained">
+            <Button type="submit" variant="contained" sx={{ borderRadius: 5 }}>
               {reqLoading ? (
                 <CircularProgress size={20} color="inherit" />
               ) : (

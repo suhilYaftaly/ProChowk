@@ -34,6 +34,7 @@
       "@advs/*": ["src/components/advs/*"],
       "@jobs/*": ["src/components/jobs/*"],
       "@types/*": ["src/types/*"],
+      "@icons/*": ["src/assets/icons/*"],
     },
 
     /* Linting */

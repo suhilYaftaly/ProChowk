@@ -14,6 +14,7 @@ export default {
       context: GraphQLContext
     ): Promise<[IGeocode]> => {
       const { req } = context;
+      //TODO: restrict this API to NexaBind only
       // const user = checkAuth(req);
 
       const mqResults = await fetchMQGeocode({ value, lat, lng, limit });

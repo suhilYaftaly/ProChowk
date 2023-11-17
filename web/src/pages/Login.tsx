@@ -1,58 +1,52 @@
-import { Box, Card, Divider, SxProps, Tab, Tabs, Theme } from "@mui/material";
+import { Box, Card, Divider, Link, useTheme } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import AppLogo from "@reusable/AppLogo";
-import GoogleLoginButton from "@components/user/login/google/GoogleLoginButton";
-import CredentialLogin from "@components/user/login/CredentialLogin";
-import SignUp from "@components/user/signUp/SignUp";
+import GoogleLoginButton from "@user/login/google/GoogleLoginButton";
+import CredentialLogin from "@user/login/CredentialLogin";
 import { useUserStates } from "@redux/reduxStates";
+import labels from "@/constants/labels";
+import Text from "@reusable/Text";
+import { paths } from "@/routes/Routes";
+import CenteredStack from "@reusable/CenteredStack";
 
 export default function Login() {
+  const theme = useTheme();
   const navigate = useNavigate();
   const { user } = useUserStates();
-  const [value, setValue] = useState(0);
   const [redirectToHome, setRedirectToHome] = useState(true);
-
-  const handleTabChange = (value: number) => setValue(value);
 
   useEffect(() => {
     if (user && redirectToHome) navigate("/");
   }, [user]);
 
   return (
-    <Box sx={pageCont}>
-      <Card sx={{ boxShadow: 4, py: 2, width: 300 }}>
-        <Box sx={{ textAlign: "center" }}>
-          <AppLogo size={60} linkStyle={{ display: "inline" }} />
+    <CenteredStack sx={{ maxWidth: 500 }}>
+      <Card sx={{ py: 2 }}>
+        <Box sx={{ textAlign: "center", mb: 3 }}>
+          <Text type="subtitle" sx={{ mb: 0.5 }}>
+            Welcome to {labels.appName}
+            <span style={{ color: theme.palette.primary.main }}>.</span>
+          </Text>
+          <Text type="caption">
+            Enter your credentials to access your account
+          </Text>
         </Box>
-        <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
-          <Tabs
-            value={value}
-            onChange={(_, value) => handleTabChange(value)}
-            aria-label="service category tabs"
-            variant="fullWidth"
-          >
-            <Tab label="Log In" />
-            <Tab label="Sign Up" />
-          </Tabs>
-        </Box>
-        <Box sx={{ px: 2 }}>
-          <GoogleLoginButton setRedirectToHome={setRedirectToHome} />
+        <Box sx={{ px: 2, textAlign: "center" }}>
+          <CredentialLogin setRedirectToHome={setRedirectToHome} />
+          <Text type="caption" sx={{ mt: 2, fontWeight: 550 }}>
+            New at {labels.appName}?{" "}
+            <Link
+              sx={{ cursor: "pointer" }}
+              onClick={() => navigate(paths.signUp)}
+            >
+              Sign Up now
+            </Link>
+          </Text>
           <Divider sx={{ my: 3 }}> or </Divider>
-          {value === 0 && (
-            <CredentialLogin setRedirectToHome={setRedirectToHome} />
-          )}
-          {value === 1 && <SignUp setRedirectToHome={setRedirectToHome} />}
+          <GoogleLoginButton setRedirectToHome={setRedirectToHome} />
         </Box>
       </Card>
-    </Box>
+    </CenteredStack>
   );
 }
-
-const pageCont = {
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  minHeight: "75vh",
-} as SxProps<Theme>;

@@ -1,7 +1,11 @@
 import { Redis } from "ioredis";
 import * as dotenv from "dotenv";
 
-import { gqlError, sendFailureEmailNotification } from "../../utils/funcs";
+import {
+  gqlError,
+  isDevEnv,
+  sendFailureEmailNotification,
+} from "../../utils/funcs";
 import { logger } from "../logger/logger";
 
 dotenv.config();
@@ -30,10 +34,10 @@ export const redisClient = new Redis(getRedisUrl(), {
 let errorNotified = false;
 
 redisClient.on("error", async (err) => {
-  logger.error("Failed to connect to Redis", { metadata: err });
+  !isDevEnv && logger.error("Failed to connect to Redis", { metadata: err });
   console.error("Redis error:", err);
 
-  if (!errorNotified && process.env.NODE_ENV !== "dev") {
+  if (!errorNotified && !isDevEnv) {
     try {
       await sendFailureEmailNotification({
         subject: "Redis Connection Failure Alert",

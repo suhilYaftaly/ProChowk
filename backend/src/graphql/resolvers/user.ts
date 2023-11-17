@@ -603,7 +603,8 @@ const validateUserName = (name: string) => {
 const validateRegisterI = ({ name, password, email }: IRegisterUserInput) => {
   validateUserName(name);
   if (!validateEmail(email)) return showInputError("Invalid email address");
-  if (password === "") return showInputError("Password must not be empty");
+  if (password?.length < 7)
+    return showInputError("Password must be more than 8 chars");
 
   return undefined;
 };
