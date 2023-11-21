@@ -7,7 +7,6 @@ import {
   Alert,
   IconButton,
   InputAdornment,
-  Card,
   Link,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
@@ -94,7 +93,7 @@ export default function SignUp() {
       },
       onSuccess: (d) => {
         dispatch(logIn(d));
-        navigate(paths.verifyEmail);
+        navigate(paths.profileSetup);
       },
       onError: (err) => dispatch(userProfileError({ message: err?.message })),
     });
@@ -105,116 +104,110 @@ export default function SignUp() {
   };
 
   return (
-    <CenteredStack sx={{ maxWidth: 500 }}>
-      <Card sx={{ p: 2 }}>
-        <Stack sx={{ textAlign: "center", mb: 3 }}>
-          <Text type="subtitle" sx={{ mb: 0.5 }}>
-            Sign Up
-          </Text>
-          <Text type="caption">Create a new account</Text>
-        </Stack>
-        <Stack component="form" spacing={2} noValidate onSubmit={onRegister}>
-          <TextField
-            label="Name"
-            placeholder={"your name"}
-            variant="outlined"
-            name={"name"}
-            value={formData.name}
-            onChange={handleFDataChange}
-            error={Boolean(formError.name)}
-            helperText={formError.name}
-            size="small"
-            required
-          />
-          <TextField
-            label="Email"
-            placeholder="yours@example.com"
-            variant="outlined"
-            name={"email"}
-            type="email"
-            value={formData.email}
-            onChange={handleFDataChange}
-            error={Boolean(formError.email)}
-            helperText={formError.email}
-            size="small"
-            required
-          />
-          <TextField
-            label="Password"
-            placeholder={"your password"}
-            variant="outlined"
-            name={"password"}
-            value={formData.password}
-            onChange={handleFDataChange}
-            error={Boolean(formError.password)}
-            helperText={formError.password}
-            size="small"
-            required
-            type={showPassword ? "text" : "password"}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton onClick={togglePasswordVisibility}>
-                    {showPassword ? <Visibility /> : <VisibilityOff />}
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
-          <TextField
-            label="Confirm Password"
-            placeholder={"Confirm Password"}
-            variant="outlined"
-            name={"confirmPassword"}
-            value={formData.confirmPassword}
-            onChange={handleFDataChange}
-            error={Boolean(formError.confirmPassword)}
-            helperText={formError.confirmPassword}
-            size="small"
-            required
-            type={showPassword ? "text" : "password"}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton onClick={togglePasswordVisibility}>
-                    {showPassword ? <Visibility /> : <VisibilityOff />}
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
-          <div style={{ marginTop: 10 }}></div>
-          <Text type="caption" textAlign={"center"}>
-            By signing up, you agree to our terms of service and privacy policy.
-          </Text>
-          <Button
-            type="submit"
-            variant="contained"
-            disabled={disableSignUpBtn}
-            sx={{ borderRadius: 5 }}
+    <CenteredStack sx={{ maxWidth: 500 }} addCard>
+      <Stack sx={{ textAlign: "center", mb: 3 }}>
+        <Text type="subtitle" sx={{ mb: 0.5 }}>
+          Sign Up
+        </Text>
+        <Text type="caption">Create a new account</Text>
+      </Stack>
+      <Stack component="form" spacing={2} noValidate onSubmit={onRegister}>
+        <TextField
+          label="Name"
+          placeholder={"your name"}
+          variant="outlined"
+          name={"name"}
+          value={formData.name}
+          onChange={handleFDataChange}
+          error={Boolean(formError.name)}
+          helperText={formError.name}
+          size="small"
+          required
+        />
+        <TextField
+          label="Email"
+          placeholder="yours@example.com"
+          variant="outlined"
+          name={"email"}
+          type="email"
+          value={formData.email}
+          onChange={handleFDataChange}
+          error={Boolean(formError.email)}
+          helperText={formError.email}
+          size="small"
+          required
+        />
+        <TextField
+          label="Password"
+          placeholder={"your password"}
+          variant="outlined"
+          name={"password"}
+          value={formData.password}
+          onChange={handleFDataChange}
+          error={Boolean(formError.password)}
+          helperText={formError.password}
+          size="small"
+          required
+          type={showPassword ? "text" : "password"}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton onClick={togglePasswordVisibility}>
+                  {showPassword ? <Visibility /> : <VisibilityOff />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        />
+        <TextField
+          label="Confirm Password"
+          placeholder={"Confirm Password"}
+          variant="outlined"
+          name={"confirmPassword"}
+          value={formData.confirmPassword}
+          onChange={handleFDataChange}
+          error={Boolean(formError.confirmPassword)}
+          helperText={formError.confirmPassword}
+          size="small"
+          required
+          type={showPassword ? "text" : "password"}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton onClick={togglePasswordVisibility}>
+                  {showPassword ? <Visibility /> : <VisibilityOff />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        />
+        <div style={{ marginTop: 10 }}></div>
+        <Text type="caption" textAlign={"center"}>
+          By signing up, you agree to our terms of service and privacy policy.
+        </Text>
+        <Button
+          type="submit"
+          variant="contained"
+          disabled={disableSignUpBtn}
+          sx={{ borderRadius: 5 }}
+        >
+          {loading ? <CircularProgress size={20} color="inherit" /> : "Sign Up"}
+        </Button>
+        {error && (
+          <Alert severity="error" color="error">
+            {error.message}
+          </Alert>
+        )}
+        <Text type="caption" sx={{ textAlign: "center", fontWeight: 550 }}>
+          Already have an account?{" "}
+          <Link
+            sx={{ cursor: "pointer" }}
+            onClick={() => navigate(paths.login)}
           >
-            {loading ? (
-              <CircularProgress size={20} color="inherit" />
-            ) : (
-              "Sign Up"
-            )}
-          </Button>
-          {error && (
-            <Alert severity="error" color="error">
-              {error.message}
-            </Alert>
-          )}
-          <Text type="caption" sx={{ textAlign: "center", fontWeight: 550 }}>
-            Already have an account?{" "}
-            <Link
-              sx={{ cursor: "pointer" }}
-              onClick={() => navigate(paths.login)}
-            >
-              Login
-            </Link>
-          </Text>
-        </Stack>
-      </Card>
+            Login
+          </Link>
+        </Text>
+      </Stack>
     </CenteredStack>
   );
 }

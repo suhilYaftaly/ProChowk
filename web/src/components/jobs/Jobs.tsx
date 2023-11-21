@@ -164,22 +164,14 @@ export const JobsCards = ({
   return (
     <Grid container spacing={1} direction={"column"}>
       {loading ? (
-        <>
-          <Grid item>
-            <Skeleton variant="rounded" width={"100%"} height={100} />
-          </Grid>
-          <Grid item>
-            <Skeleton variant="rounded" width={"100%"} height={100} />
-          </Grid>
-          <Grid item>
-            <Skeleton variant="rounded" width={"100%"} height={100} />
-          </Grid>
-        </>
+        <Grid item>
+          <CardSkeleton />
+        </Grid>
       ) : (
         <>
           {updateLoading && (
             <Grid item>
-              <Skeleton variant="rounded" width={"100%"} height={100} />
+              <CardSkeleton />
             </Grid>
           )}
 
@@ -266,6 +258,39 @@ export const JobsCards = ({
     </Grid>
   );
 };
+
+const CardSkeleton = () => (
+  <Card sx={{ p: 1 }}>
+    <Skeleton variant="text" width="60%" />
+    <Skeleton variant="text" width="30%" />
+    <Skeleton variant="text" width="60%" sx={{ mb: 3 }} />
+    <Stack direction={"row"} spacing={1}>
+      <Skeleton
+        variant="circular"
+        width={60}
+        height={20}
+        sx={{ borderRadius: 5 }}
+      />
+      <Skeleton
+        variant="circular"
+        width={60}
+        height={20}
+        sx={{ borderRadius: 5 }}
+      />
+      <Skeleton
+        variant="circular"
+        width={60}
+        height={20}
+        sx={{ borderRadius: 5 }}
+      />
+    </Stack>
+    <Skeleton variant="rectangular" width={"100%"} height={1} sx={{ my: 2 }} />
+    <Stack direction={"row"} spacing={1} alignItems={"center"}>
+      <Skeleton variant="circular" width={30} height={30} />
+      <Skeleton variant="text" width={60} />
+    </Stack>
+  </Card>
+);
 
 interface IMorePopover {
   onEdit: () => void;

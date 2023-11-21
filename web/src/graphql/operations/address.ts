@@ -21,7 +21,6 @@ const geocodeGqlResp = gql`
     countryCode
     lat
     lng
-    source
     geometry {
       ...GeoJsonFields
     }
@@ -90,7 +89,6 @@ interface IGeoAddress {
   countryCode: string;
   lat: number;
   lng: number;
-  source?: any;
   geometry: GeoJson;
 }
 export interface IAddress extends IGeoAddress {

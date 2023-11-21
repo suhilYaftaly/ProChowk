@@ -6,7 +6,8 @@ export const useSettingsStates = () =>
 export const useUserStates = () => {
   const userStates = useAppSelector((state) => state.user);
   const user = userStates?.userProfile?.data;
-  return { ...userStates, user };
+  const firstName = user?.name?.split(" ")?.[0];
+  return { ...userStates, user, firstName };
 };
 
 export const useConfigsStates = () => useAppSelector((state) => state.configs);

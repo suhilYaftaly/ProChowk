@@ -1,4 +1,4 @@
-import { format, startOfDay } from "date-fns";
+import { format } from "date-fns";
 import { NavigateFunction } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -157,24 +157,29 @@ export const formatPhoneNum = (phoneNumber: string): string => {
   return formattedPhoneNumber;
 };
 
-export const openUserIfNewUser = ({
-  user,
-  navigate,
-}: {
+interface INavigateToOnLogin {
   user: IUser | undefined;
   navigate: NavigateFunction;
-}) => {
-  if (!user?.emailVerified) {
+}
+/**Navigate to the right page after login */
+export const navigateToOnLogin = ({ user, navigate }: INavigateToOnLogin) => {
+  if (!user) {
+    navigate(paths.login);
+  } else if (user.userTypes?.length < 1) {
+    navigate(paths.profileSetup);
+  } else if (!user?.emailVerified) {
     navigate(paths.verifyEmail);
-  } else {
-    if (
-      user &&
-      convertUnixToDate(user?.createdAt)?.fullDate.toDateString() ==
-        startOfDay(new Date()).toDateString()
-    ) {
-      const username = `${user.name}-${user.id}`.replace(/\s/g, "");
-      navigate(paths.user(username));
-    } else navigate("/");
+  } else navigate("/");
+};
+
+interface INavigateToUserPage {
+  user: IUser | undefined;
+  navigate: NavigateFunction;
+}
+export const navigateToUserPage = ({ user, navigate }: INavigateToUserPage) => {
+  if (user) {
+    const username = `${user.name}-${user.id}`.replace(/\s/g, "");
+    navigate(paths.user(username));
   }
 };
 

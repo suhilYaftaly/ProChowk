@@ -3,7 +3,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import {
   Alert,
   Button,
-  Card,
   CircularProgress,
   IconButton,
   InputAdornment,
@@ -139,132 +138,130 @@ export default function ResetPassword() {
   };
 
   return (
-    <CenteredStack sx={{ maxWidth: 500 }}>
-      <Card sx={{ textAlign: "center", p: 3 }}>
-        {token ? (
-          <Stack
-            component="form"
-            spacing={2}
-            noValidate
-            onSubmit={handleResetPassword}
-          >
-            <div>
-              <Typography variant="h4">Change your password</Typography>
-              <Typography variant="body1" sx={{ my: 2 }}>
-                Enter a new password below to change your password
-              </Typography>
-            </div>
-            <TextField
-              label="New Password"
-              placeholder={"your new password"}
-              variant="outlined"
-              name={"newPassword"}
-              value={formData.newPassword}
-              onChange={handleFDataChange}
-              error={Boolean(formError.newPassword)}
-              helperText={formError.newPassword}
-              size="small"
-              required
-              type={show.newPassword ? "text" : "password"}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton onClick={() => toggleShow("newPassword")}>
-                      {show.newPassword ? <Visibility /> : <VisibilityOff />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
-            <TextField
-              label="Confirm Password"
-              placeholder={"Confirm your new password"}
-              variant="outlined"
-              name={"confirmNewPass"}
-              value={formData.confirmNewPass}
-              onChange={handleFDataChange}
-              error={Boolean(formError.confirmNewPass)}
-              helperText={formError.confirmNewPass}
-              size="small"
-              required
-              type={show.newPassword ? "text" : "password"}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton onClick={() => toggleShow("newPassword")}>
-                      {show.newPassword ? <Visibility /> : <VisibilityOff />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
-            <Button type="submit" variant="contained" sx={{ borderRadius: 5 }}>
-              {resetLoading ? (
-                <CircularProgress size={20} color="inherit" />
-              ) : (
-                "Change Password"
-              )}
-            </Button>
-            {resetError && (
-              <Alert severity="error" color="error">
-                {resetError.message}
-              </Alert>
+    <CenteredStack sx={{ maxWidth: 500, textAlign: "center" }} addCard>
+      {token ? (
+        <Stack
+          component="form"
+          spacing={2}
+          noValidate
+          onSubmit={handleResetPassword}
+        >
+          <div>
+            <Typography variant="h4">Change your password</Typography>
+            <Typography variant="body1" sx={{ my: 2 }}>
+              Enter a new password below to change your password
+            </Typography>
+          </div>
+          <TextField
+            label="New Password"
+            placeholder={"your new password"}
+            variant="outlined"
+            name={"newPassword"}
+            value={formData.newPassword}
+            onChange={handleFDataChange}
+            error={Boolean(formError.newPassword)}
+            helperText={formError.newPassword}
+            size="small"
+            required
+            type={show.newPassword ? "text" : "password"}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={() => toggleShow("newPassword")}>
+                    {show.newPassword ? <Visibility /> : <VisibilityOff />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+          <TextField
+            label="Confirm Password"
+            placeholder={"Confirm your new password"}
+            variant="outlined"
+            name={"confirmNewPass"}
+            value={formData.confirmNewPass}
+            onChange={handleFDataChange}
+            error={Boolean(formError.confirmNewPass)}
+            helperText={formError.confirmNewPass}
+            size="small"
+            required
+            type={show.newPassword ? "text" : "password"}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={() => toggleShow("newPassword")}>
+                    {show.newPassword ? <Visibility /> : <VisibilityOff />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+          <Button type="submit" variant="contained" sx={{ borderRadius: 5 }}>
+            {resetLoading ? (
+              <CircularProgress size={20} color="inherit" />
+            ) : (
+              "Change Password"
             )}
-          </Stack>
-        ) : (
-          <Stack
-            component="form"
-            spacing={2}
-            noValidate
-            onSubmit={handleRequestPasswordReset}
-          >
-            <div>
-              <LockPerson sx={{ width: 170, height: 170 }} />
-              <Typography variant="h4">Forgot your password</Typography>
-              <Typography variant="body1" sx={{ my: 2 }}>
-                Enter your email below and we will send you a link to reset your
-                password. If you can't find the email check your spam folder.
-              </Typography>
-              <Typography variant="body1" sx={{ my: 2 }}>
-                Please note that if you signed up using Google this form will
-                not work.
-              </Typography>
-            </div>
-            {reqData?.requestPasswordReset && (
-              <Alert severity="success" color="success">
-                Password reset request sent to your email. Please check your
-                email.
-              </Alert>
+          </Button>
+          {resetError && (
+            <Alert severity="error" color="error">
+              {resetError.message}
+            </Alert>
+          )}
+        </Stack>
+      ) : (
+        <Stack
+          component="form"
+          spacing={2}
+          noValidate
+          onSubmit={handleRequestPasswordReset}
+        >
+          <div>
+            <LockPerson sx={{ width: 170, height: 170 }} />
+            <Typography variant="h4">Forgot your password</Typography>
+            <Typography variant="body1" sx={{ my: 2 }}>
+              Enter your email below and we will send you a link to reset your
+              password. If you can't find the email check your spam folder.
+            </Typography>
+            <Typography variant="body1" sx={{ my: 2 }}>
+              Please note that if you signed up using Google this form will not
+              work.
+            </Typography>
+          </div>
+          {reqData?.requestPasswordReset && (
+            <Alert severity="success" color="success">
+              Password reset request sent to your email. Please check your
+              email.
+            </Alert>
+          )}
+          <TextField
+            label="Email"
+            id={"email"}
+            placeholder="yours@example.com"
+            variant="outlined"
+            name={"email"}
+            type="email"
+            value={formData.email}
+            onChange={handleFDataChange}
+            error={Boolean(formError.email)}
+            helperText={formError.email}
+            size="small"
+            required
+          />
+          <Button type="submit" variant="contained" sx={{ borderRadius: 5 }}>
+            {reqLoading ? (
+              <CircularProgress size={20} color="inherit" />
+            ) : (
+              "Send Reset Link"
             )}
-            <TextField
-              label="Email"
-              id={"email"}
-              placeholder="yours@example.com"
-              variant="outlined"
-              name={"email"}
-              type="email"
-              value={formData.email}
-              onChange={handleFDataChange}
-              error={Boolean(formError.email)}
-              helperText={formError.email}
-              size="small"
-              required
-            />
-            <Button type="submit" variant="contained" sx={{ borderRadius: 5 }}>
-              {reqLoading ? (
-                <CircularProgress size={20} color="inherit" />
-              ) : (
-                "Send Reset Link"
-              )}
-            </Button>
-            {reqError && (
-              <Alert severity="error" color="error">
-                {reqError?.message}
-              </Alert>
-            )}
-          </Stack>
-        )}
-      </Card>
+          </Button>
+          {reqError && (
+            <Alert severity="error" color="error">
+              {reqError?.message}
+            </Alert>
+          )}
+        </Stack>
+      )}
     </CenteredStack>
   );
 }

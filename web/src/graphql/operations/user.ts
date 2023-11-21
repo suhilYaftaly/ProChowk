@@ -9,9 +9,10 @@ import { setUserProfile } from "@rSlices/userSlice";
 import { useAppDispatch } from "@/utils/hooks/hooks";
 import { IImage, ImageInput } from "@/types/commonTypes";
 import { AddressInput, IAddress, addressGqlResp } from "./address";
-import { IContractor } from "./contractor";
+import { IContractor, contractorGqlResp } from "./contractor";
 import { store } from "@redux/store";
 import { asyncOps } from "./gqlFuncs";
+import { SkillInput } from "./skill";
 
 const { dispatch } = store;
 
@@ -110,9 +111,13 @@ const userOps = {
     `,
     updateUser: gql`
       ${userGqlResp}
+      ${contractorGqlResp}
       mutation UpdateUser($id: ID!, $edits: UpdateUserInput!) {
         updateUser(id: $id, edits: $edits) {
           ...UserFields
+          contractor {
+            ...ContractorFields
+          }
         }
       }
     `,
@@ -171,7 +176,7 @@ export interface IUser {
   phoneNum?: string;
   bio?: string;
   address?: IAddress;
-  userTypes?: UserType[];
+  userTypes: UserType[];
   contractor?: IContractor;
 }
 //inputs
@@ -182,6 +187,7 @@ interface UpdateUserInput {
   address?: AddressInput;
   bio?: string;
   userTypes?: UserType[];
+  skills?: SkillInput[];
 }
 //custom types
 export type Role = "user" | "dev" | "admin" | "superAdmin";

@@ -2,6 +2,10 @@ import { toast } from "react-toastify";
 
 import { paths } from "@routes/Routes";
 import { navigate } from "@routes/navigationService";
+import { store } from "@/redux/store";
+import { setOpenJobPost } from "@rSlices/globalModalsSlice";
+
+const { dispatch } = store;
 
 interface IAsyncOps {
   onStart?: () => void;
@@ -28,6 +32,7 @@ export const asyncOps = async ({
     if (showGlobalErr) {
       toast.error(error.message);
       if (error.message === "Unverified email. Please verify your email.") {
+        dispatch(setOpenJobPost(false));
         navigate(paths.verifyEmail);
       }
     }

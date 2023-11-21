@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "@utils/hooks/hooks";
 import { userProfileError, logIn, userProfileBegin } from "@rSlices/userSlice";
 import { useGLogin } from "@gqlOps/user";
-import { openUserIfNewUser } from "@/utils/utilFuncs";
+import { navigateToOnLogin } from "@/utils/utilFuncs";
 import { GoogleIcon } from "@components/JSXIcons";
 
 interface Props {
@@ -26,7 +26,7 @@ export default function GoogleLoginButton({ setRedirectToHome }: Props) {
         variables: { accessToken: token.access_token },
         onSuccess: (d) => {
           dispatch(logIn(d));
-          openUserIfNewUser({ user: d, navigate });
+          navigateToOnLogin({ user: d, navigate });
         },
         onError: (err) => dispatch(userProfileError({ message: err?.message })),
       });

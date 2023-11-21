@@ -6,8 +6,6 @@ import UserSkills from "@contractor/UserSkills";
 import UserLicenses from "@contractor/UserLicenses";
 import { IUser } from "@gqlOps/user";
 import { IContractor } from "@gqlOps/contractor";
-import UserCreateContProf from "./edits/UserCreateContProf";
-import ShowIncompleteAlerts from "@contractor/ShowIncompleteAlerts";
 import Jobs from "@jobs/Jobs";
 import { useRespVal } from "@utils/hooks/hooks";
 import CenteredStack from "@reusable/CenteredStack";
@@ -19,7 +17,6 @@ export interface IUserInfo {
   contrData?: IContractor | undefined;
   userId?: string;
   contProfLoading?: boolean;
-  setHideContNFErr?: (hide: boolean) => void;
 }
 
 export default function UserInfo({
@@ -29,7 +26,6 @@ export default function UserInfo({
   contrData,
   userId,
   contProfLoading,
-  setHideContNFErr,
 }: IUserInfo) {
   const paperContStyle = {
     px: ppx,
@@ -48,14 +44,8 @@ export default function UserInfo({
             loading={loading}
           />
         </Paper>
-        {user?.userTypes?.includes("contractor") ? (
+        {user?.userTypes?.includes("contractor") && (
           <>
-            <ShowIncompleteAlerts
-              user={user}
-              isMyProfile={isMyProfile}
-              contrData={contrData}
-              contProfLoading={contProfLoading}
-            />
             <Paper variant="outlined" sx={paperContStyle}>
               <UserSkills
                 user={user}
@@ -73,15 +63,6 @@ export default function UserInfo({
               />
             </Paper>
           </>
-        ) : (
-          isMyProfile &&
-          userId && (
-            <UserCreateContProf
-              user={user}
-              userId={userId}
-              setHideContNFErr={setHideContNFErr}
-            />
-          )
         )}
         <Paper variant="outlined" sx={paperContStyle}>
           <Jobs isMyProfile={isMyProfile} userId={userId} user={user} />

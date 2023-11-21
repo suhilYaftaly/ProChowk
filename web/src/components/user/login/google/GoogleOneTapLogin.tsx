@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "@utils/hooks/hooks";
 import { logIn, userProfileBegin, userProfileError } from "@rSlices/userSlice";
 import { useGOneTapLogin } from "@gqlOps/user";
-import { openUserIfNewUser } from "@/utils/utilFuncs";
+import { navigateToOnLogin } from "@/utils/utilFuncs";
 
 export default function GoogleOneTapLogin() {
   const dispatch = useAppDispatch();
@@ -19,7 +19,7 @@ export default function GoogleOneTapLogin() {
           variables: { credential: token.credential },
           onSuccess: (d) => {
             dispatch(logIn(d));
-            openUserIfNewUser({ user: d, navigate });
+            navigateToOnLogin({ user: d, navigate });
           },
           onError: (err) =>
             dispatch(userProfileError({ message: err?.message })),

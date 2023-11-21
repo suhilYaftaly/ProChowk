@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   Alert,
-  Card,
   CircularProgress,
   Divider,
   Link,
@@ -31,6 +30,7 @@ export default function VerifyEmail() {
   const { verifyEmailAsync, data, error } = useVerifyEmail();
   const { sendVerificationEmailAsync, loading: resendLoading } =
     useSendVerificationEmail();
+  const darkColor = theme.palette.text.dark;
 
   //verify token
   useEffect(() => {
@@ -88,55 +88,50 @@ export default function VerifyEmail() {
   };
 
   return (
-    <CenteredStack sx={{ maxWidth: 500 }}>
+    <CenteredStack sx={{ maxWidth: 500, textAlign: "center" }} addCard>
       {error && (
         <Alert severity="error" color="error">
           Email Verification failed. Please try again or request another
           verification.
         </Alert>
       )}
-      <Card sx={{ textAlign: "center", p: 3 }}>
-        {user && !user.emailVerified && (
-          <>
-            <EmailIcon sx={{ width: 170, height: 170 }} />
-            <Text type="title" sx={{ mb: 3 }}>
-              Verification sent
-            </Text>
-            <Text>
-              We've sent a verification email to{" "}
-              <span style={{ color: theme.palette.text.dark, fontWeight: 600 }}>
-                {user?.email}
-              </span>
-            </Text>
-            <Text sx={{ mt: 1 }}>
-              Click the button in your email to verify your account.
-            </Text>
-            <Divider sx={{ my: 3 }} />
-            <Text>
-              If you can't find the email check your spam folder or{" "}
-              {resendLoading ? (
-                <CircularProgress size={15} color="inherit" />
-              ) : (
-                <Link
-                  color="text.secondary"
-                  sx={{ cursor: "pointer" }}
-                  onClick={resendEmail}
-                >
-                  click here to resend
-                </Link>
-              )}
-            </Text>
-          </>
-        )}
-        {!token && !user && (
-          <Link
-            sx={{ cursor: "pointer" }}
-            onClick={() => navigate(paths.login)}
-          >
-            Please login to continue!
-          </Link>
-        )}
-      </Card>
+      {user && !user.emailVerified && (
+        <>
+          <EmailIcon sx={{ width: 170, height: 170 }} />
+          <Text type="title" sx={{ mb: 3 }}>
+            Verification Sent
+          </Text>
+          <Text>
+            We've sent a verification email to{" "}
+            <span style={{ color: darkColor, fontWeight: 600 }}>
+              {user?.email}
+            </span>
+          </Text>
+          <Text>Click the button in your email to verify your account.</Text>
+          <Divider sx={{ my: 3 }} />
+          <Text>
+            If you can't find the email check your{" "}
+            <span style={{ color: darkColor, fontWeight: 600 }}>spam</span>{" "}
+            folder or{" "}
+            {resendLoading ? (
+              <CircularProgress size={15} color="inherit" />
+            ) : (
+              <Link
+                color="text.secondary"
+                sx={{ cursor: "pointer" }}
+                onClick={resendEmail}
+              >
+                click here to resend
+              </Link>
+            )}
+          </Text>
+        </>
+      )}
+      {!token && !user && (
+        <Link sx={{ cursor: "pointer" }} onClick={() => navigate(paths.login)}>
+          Please login to continue!
+        </Link>
+      )}
     </CenteredStack>
   );
 }

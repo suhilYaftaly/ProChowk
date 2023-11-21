@@ -12,7 +12,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 
-import { openUserIfNewUser, validateEmail } from "@utils/utilFuncs";
+import { navigateToOnLogin, validateEmail } from "@utils/utilFuncs";
 import { useLoginUser } from "@gqlOps/user";
 import { useAppDispatch } from "@utils/hooks/hooks";
 import { logIn, userProfileBegin, userProfileError } from "@rSlices/userSlice";
@@ -56,7 +56,7 @@ export default function CredentialLogin({ setRedirectToHome }: Props) {
       variables: { email: formData.email, password: formData.password },
       onSuccess: (d) => {
         dispatch(logIn(d));
-        openUserIfNewUser({ user: d, navigate });
+        navigateToOnLogin({ user: d, navigate });
       },
       onError: (err) => dispatch(userProfileError({ message: err?.message })),
     });

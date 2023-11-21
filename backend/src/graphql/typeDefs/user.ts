@@ -71,6 +71,7 @@ export default gql`
     address: AddressInput
     bio: String
     userTypes: [UserType!]
+    skills: [SkillInput!]
   }
 
   enum Role {

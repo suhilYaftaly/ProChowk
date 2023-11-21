@@ -1,8 +1,7 @@
 import { Autocomplete, TextField, IconButton, Chip, Grid } from "@mui/material";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect } from "react";
 import AddIcon from "@mui/icons-material/Add";
 
-import ErrSnackbar from "../ErrSnackbar";
 import { ISkill, SkillInput, useSkills } from "@gqlOps/skill";
 
 interface Props {
@@ -11,6 +10,10 @@ interface Props {
   setNewSkills?: Dispatch<SetStateAction<SkillInput[]>>;
   setAllSkills?: (skills: ISkill[]) => void;
   required?: boolean;
+  /** Text Field Label @default Skills */
+  label?: string;
+  error?: boolean;
+  helperText?: string;
 }
 
 export default function SkillsSelection({
@@ -19,13 +22,14 @@ export default function SkillsSelection({
   setNewSkills,
   setAllSkills,
   required = false,
+  label = "Skills",
+  error,
+  helperText,
 }: Props) {
-  const [openErrBar, setOpenErrBar] = useState(false);
   const {
     skillsAsync,
     data: allSkillsType,
     loading: allSkillsLoading,
-    error: allSkillsError,
   } = useSkills();
   const allSkillsData = allSkillsType?.skills;
 
@@ -80,7 +84,7 @@ export default function SkillsSelection({
         renderInput={(params) => (
           <TextField
             {...params}
-            label="Skills"
+            label={label}
             InputProps={{
               ...params.InputProps,
               endAdornment: (
@@ -103,11 +107,13 @@ export default function SkillsSelection({
               ),
             }}
             required={required}
+            error={error}
+            helperText={helperText}
           />
         )}
       />
 
-      <Grid container spacing={1} direction={"row"} sx={{ mt: 0, mb: 1 }}>
+      <Grid container spacing={1} direction={"row"} sx={{ mt: 0 }}>
         {skills?.map((skill) => (
           <Grid item key={skill.label}>
             <Chip
@@ -119,12 +125,6 @@ export default function SkillsSelection({
           </Grid>
         ))}
       </Grid>
-
-      <ErrSnackbar
-        open={openErrBar}
-        handleClose={setOpenErrBar}
-        errMsg={allSkillsError?.message}
-      />
     </div>
   );
 }

@@ -5,7 +5,6 @@ import {
   useMutation,
 } from "@apollo/client";
 
-import { IUser, useUser, userGqlResp } from "./user";
 import { ISkill, skillGqlResp, SkillInput } from "./skill";
 import { asyncOps } from "./gqlFuncs";
 
@@ -21,7 +20,7 @@ const licenseGqlResp = gql`
     updatedAt
   }
 `;
-const contractorGqlResp = gql`
+export const contractorGqlResp = gql`
   ${licenseGqlResp}
   ${skillGqlResp}
   fragment ContractorFields on Contractor {
@@ -49,18 +48,6 @@ const contOps = {
     `,
   },
   Mutations: {
-    createContractor: gql`
-      ${contractorGqlResp}
-      ${userGqlResp}
-      mutation createContractor($userId: ID!) {
-        createContractor(userId: $userId) {
-          ...UserFields
-          contractor {
-            ...ContractorFields
-          }
-        }
-      }
-    `,
     addContractorLicense: gql`
       ${contractorGqlResp}
       mutation AddContractorLicense($contId: ID!, $license: LicenseInput!) {
@@ -176,47 +163,6 @@ export const useContractor = () => {
   };
 
   return { contractorAsync, updateCache, data, error, loading };
-};
-
-//createContractor op
-interface ICCInput {
-  userId: string;
-}
-interface ICCData {
-  createContractor: IUser;
-}
-interface ICCIAsync {
-  variables: ICCInput;
-  onSuccess?: (data: IUser) => void;
-  onError?: (error?: any) => void;
-}
-export const useCreateContractor = () => {
-  const [createContractor, { data, error, loading }] = useMutation<
-    ICCData,
-    ICCInput
-  >(contOps.Mutations.createContractor);
-  const { updateCache: updateUserCache } = useUser();
-  const { updateCache } = useContractor();
-
-  const createContractorAsync = async ({
-    variables,
-    onSuccess,
-    onError,
-  }: ICCIAsync) =>
-    asyncOps({
-      operation: () => createContractor({ variables }),
-      onSuccess: (dt: ICCData) => {
-        const userData = dt?.createContractor;
-        onSuccess && onSuccess(userData);
-        updateUserCache(userData);
-        if (userData.contractor) {
-          updateCache({ variables, contData: userData.contractor });
-        }
-      },
-      onError,
-    });
-
-  return { createContractorAsync, data, error, loading };
 };
 
 //addContractorLicense op

@@ -25,7 +25,6 @@ export default function User() {
   } = useContractor();
 
   const [openContErrBar, setOpenContErrBar] = useState(false);
-  const [hideContNFErr, setHideContNFErr] = useState(false);
 
   useEffect(() => {
     if (userId) {
@@ -54,15 +53,13 @@ export default function User() {
             contrData={userContrData?.contractor}
             userId={userId}
             contProfLoading={contProfLoading}
-            setHideContNFErr={setHideContNFErr}
           />
           {userError && (
             <Alert severity="error" color="error">
               {userError.message}
             </Alert>
           )}
-          {hideContNFErr &&
-          contError?.message === "Contractor profile not found" ? null : (
+          {contError?.message === "Contractor profile not found" ? null : (
             <ErrSnackbar
               open={openContErrBar}
               handleClose={setOpenContErrBar}

@@ -17,6 +17,7 @@ import { useUserStates } from "@redux/reduxStates";
 import { paths } from "@routes/Routes";
 import { isContractor, isDeveloper } from "@/utils/auth";
 import { ReactNode } from "react";
+import { navigateToUserPage } from "@utils/utilFuncs";
 
 interface Props {
   onItemClick?: () => void;
@@ -28,10 +29,7 @@ export default function ProfileList({ onItemClick }: Props) {
   const iconColor = theme.palette.text?.dark;
 
   const openMyProfile = () => {
-    if (user?.name && user?.id) {
-      const username = `${user.name}-${user.id}`.replace(/\s/g, "");
-      navigate(paths.user(username));
-    }
+    navigateToUserPage({ user, navigate });
     onItemClick && onItemClick();
   };
 

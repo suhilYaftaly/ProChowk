@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { User, UserType } from "@prisma/client";
+import { Skill, User, UserType } from "@prisma/client";
 import * as dotenv from "dotenv";
 import qs from "querystring";
 import axios from "axios";
@@ -25,6 +25,7 @@ import checkAuth, {
 import {
   GraphQLContext,
   IAddressInput,
+  ISkillInput,
   IUserImageInput,
 } from "../../types/commonTypes";
 import { logger } from "../../middlewares/logger/logger";
@@ -224,27 +225,15 @@ export default {
     ): Promise<User> => {
       const { prisma, req } = context;
       const authUser = checkAuth(req);
-      canUserUpdate({ id, authUser });
-      const { name, phoneNum, image, address, bio, userTypes } = edits;
+      canUserUpdate({ id, authUser, checkEmail: false });
+      const { image, address, userTypes, skills } = edits;
 
-      //validations
-      const valUDetails = validateUpdateUserI({
-        name,
-        phoneNum,
-        bio,
-        userTypes,
-      });
-      if (valUDetails?.error) throw valUDetails.error;
-
-      const valImg = validateUserImageI(image);
-      if (valImg?.error) throw valImg.error;
-
-      const valAddr = validateUserAddressI(address);
-      if (valAddr?.error) throw valAddr.error;
+      //validate and create update data
+      const constructedData = constructUpdateData(edits);
 
       const eUser = await prisma.user.findUnique({
         where: { id },
-        include: { image: true, address: true },
+        include: { image: true, contractor: true },
       });
       if (!eUser)
         throw gqlError({
@@ -252,33 +241,45 @@ export default {
           code: "BAD_REQUEST",
         });
 
-      //updates
-      const updateData: any = { ...valUDetails.data };
+      //reconstruct to manage for more complex queries
+      const recoData: any = { ...constructedData };
 
-      if (valImg?.image) {
-        updateData.image = eUser.image
-          ? { update: valImg.image }
-          : { create: valImg.image };
+      if (image) {
+        recoData.image = eUser.image ? { update: image } : { create: image };
       }
 
-      if (valAddr?.address) {
-        updateData.address = {
+      if (address) {
+        recoData.address = {
           connectOrCreate: {
-            create: valAddr.address,
+            create: address,
             where: {
-              lat_lng: {
-                lat: valAddr.address.lat,
-                lng: valAddr.address.lng,
-              },
+              lat_lng: { lat: address.lat, lng: address.lng },
             },
           },
         };
       }
 
+      //create contractor profile
+      if (!eUser.contractor && userTypes?.includes("contractor")) {
+        if (skills?.length > 0) {
+          const skillsOps = skills.map((skill) => ({
+            where: { label: skill.label },
+            create: skill,
+          }));
+          recoData.contractor = {
+            create: { skills: { connectOrCreate: skillsOps } },
+          };
+        } else recoData.contractor = { create: {} };
+      }
+
       const updatedUser = await prisma.user.update({
         where: { id },
-        data: updateData,
-        include: { image: true, address: true },
+        data: recoData,
+        include: {
+          image: true,
+          address: true,
+          contractor: { include: { skills: true } },
+        },
       });
 
       return updatedUser;
@@ -583,12 +584,7 @@ interface IUpdateUserInput {
   address?: IAddressInput;
   bio?: string;
   userTypes?: UserType[];
-}
-interface IValidateUUI {
-  name?: string;
-  phoneNum?: string;
-  bio?: string;
-  userTypes?: UserType[];
+  skills?: ISkillInput[];
 }
 
 /**
@@ -616,106 +612,104 @@ const validateLoginInput = ({ email, password }: ILoginUserInput) => {
   return undefined;
 };
 
-const validateUpdateUserI = ({
+/**construct and validate user update data */
+const constructUpdateData = ({
   name,
-  bio,
   phoneNum,
+  address,
+  bio,
   userTypes,
-}: IValidateUUI) => {
-  const data: IValidateUUI = {};
-
+  image,
+}: IUpdateUserInput) => {
+  const dataToCreate: IUpdateUserInput = {};
   if (name) {
     const nameErr = validateUserName(name);
-    if (nameErr) return { error: nameErr };
-    data.name = name;
-  }
-
-  if (bio) {
-    if (bio.trim()?.length < 10)
-      return { error: showInputError("bio must be more than 10 chars") };
-    data.bio = bio;
+    if (nameErr) throw nameErr;
+    dataToCreate.name = name;
   }
 
   if (userTypes) {
     if (userTypes?.length < 1)
-      return { error: showInputError("User type cannot be empty") };
-    data.userTypes = userTypes;
+      throw showInputError("User type cannot be empty");
+
+    //if client is missing from userTypes then auto add it
+    if (!userTypes?.includes("client")) {
+      dataToCreate.userTypes = ["client", ...userTypes];
+    } else dataToCreate.userTypes = userTypes;
   }
 
   if (phoneNum) {
     if (!validatePhoneNum(phoneNum))
-      return { error: showInputError("Incorrect phone number format") };
-    data.phoneNum = phoneNum;
+      throw showInputError("Incorrect phone number format");
+    dataToCreate.phoneNum = phoneNum;
   }
 
-  return { data };
-};
-
-const validateUserImageI = (image: IUserImageInput) => {
-  const validate = () => {
-    if (typeof image !== "object" || image === null) {
-      return showInputError("Invalid image format");
-    }
-    if (!("url" in image)) {
-      return showInputError("Image must have a 'url' field");
-    }
-    if (typeof image.url !== "string" || image.url.trim() === "") {
-      return showInputError("Image url must be a non-empty string");
-    }
-
-    return undefined;
-  };
-  if (image) {
-    const imageErr = validate();
-    if (imageErr) return { error: imageErr };
-    return { image };
-  }
-};
-
-const validateUserAddressI = (address: IAddressInput) => {
-  const validate = () => {
-    const {
-      street,
-      county,
-      state,
-      stateCode,
-      city,
-      postalCode,
-      country,
-      countryCode,
-      displayName,
-      lat,
-      lng,
-    } = address;
-
-    if (street && street?.trim() === "")
-      return showInputError("Street is required");
-    if (county && county?.trim() === "")
-      return showInputError("County is required");
-    if (state && state?.trim() === "")
-      return showInputError("State is required");
-    if (city && city?.trim() === "") return showInputError("City is required");
-    if (stateCode && stateCode?.trim() === "")
-      return showInputError("State Code is required");
-    if (postalCode && postalCode?.trim() === "")
-      return showInputError("Postal code is required");
-    if (country && country?.trim() === "")
-      return showInputError("Country is required");
-    if (countryCode && countryCode?.trim() === "")
-      return showInputError("Country code is required");
-    if (displayName && displayName?.trim() === "")
-      return showInputError("Display name is required");
-    if (lat && isNaN(Number(lat)))
-      return showInputError("Invalid latitude value");
-    if (lng && isNaN(Number(lng)))
-      return showInputError("Invalid longitude value");
-
-    return undefined;
-  };
+  if (bio) dataToCreate.bio = bio;
 
   if (address) {
-    const addressErr = validate();
-    if (addressErr) return { error: addressErr };
-    return { address };
+    const addressErr = addressHasError(address);
+    if (addressErr) throw addressErr;
+    dataToCreate.address = address;
   }
+
+  if (image) {
+    const imageErr = imageHasError(image);
+    if (imageErr) throw imageErr;
+    dataToCreate.image = image;
+  }
+
+  return dataToCreate;
+};
+
+const imageHasError = (image: IUserImageInput) => {
+  if (typeof image !== "object" || image === null) {
+    return showInputError("Invalid image format");
+  }
+  if (!("url" in image)) {
+    return showInputError("Image must have a 'url' field");
+  }
+  if (typeof image.url !== "string" || image.url.trim() === "") {
+    return showInputError("Image url must be a non-empty string");
+  }
+
+  return undefined;
+};
+
+const addressHasError = (address: IAddressInput) => {
+  const {
+    street,
+    county,
+    state,
+    stateCode,
+    city,
+    postalCode,
+    country,
+    countryCode,
+    displayName,
+    lat,
+    lng,
+  } = address;
+
+  if (street && street?.trim() === "")
+    return showInputError("Street is required");
+  if (county && county?.trim() === "")
+    return showInputError("County is required");
+  if (state && state?.trim() === "") return showInputError("State is required");
+  if (city && city?.trim() === "") return showInputError("City is required");
+  if (stateCode && stateCode?.trim() === "")
+    return showInputError("State Code is required");
+  if (postalCode && postalCode?.trim() === "")
+    return showInputError("Postal code is required");
+  if (country && country?.trim() === "")
+    return showInputError("Country is required");
+  if (countryCode && countryCode?.trim() === "")
+    return showInputError("Country code is required");
+  if (displayName && displayName?.trim() === "")
+    return showInputError("Display name is required");
+  if (lat && isNaN(Number(lat)))
+    return showInputError("Invalid latitude value");
+  if (lng && isNaN(Number(lng)))
+    return showInputError("Invalid longitude value");
+
+  return undefined;
 };

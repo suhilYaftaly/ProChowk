@@ -1,9 +1,13 @@
 import { Stack, Skeleton, Avatar, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
-import { convertUnixToDate, getBasicAdd, openPhone } from "@utils/utilFuncs";
+import {
+  convertUnixToDate,
+  getBasicAdd,
+  navigateToUserPage,
+  openPhone,
+} from "@utils/utilFuncs";
 import { IUser } from "@gqlOps/user";
-import { paths } from "@/routes/Routes";
 
 interface Props {
   loading: boolean;
@@ -12,12 +16,8 @@ interface Props {
 
 export default function UserSection({ user, loading }: Props) {
   const navigate = useNavigate();
-  const navigateToUser = () => {
-    if (user) {
-      const username = `${user.name}-${user.id}`.replace(/\s/g, "");
-      navigate(paths.user(username));
-    }
-  };
+  const navigateToUser = () => navigateToUserPage({ user, navigate });
+
   return (
     <Stack>
       <Stack spacing={2} direction={"row"} sx={{ alignItems: "center" }}>

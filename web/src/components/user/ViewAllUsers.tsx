@@ -10,7 +10,7 @@ import {
 import { useNavigate } from "react-router-dom";
 
 import userOps, { IUsersData } from "@gqlOps/user.ts";
-import { paths } from "@/routes/Routes";
+import { navigateToUserPage } from "@utils/utilFuncs";
 
 export default function ViewAllUsers() {
   const navigate = useNavigate();
@@ -22,10 +22,7 @@ export default function ViewAllUsers() {
         <Grid item key={user.id}>
           <Card sx={{ width: 180 }}>
             <CardActionArea
-              onClick={() => {
-                const username = `${user.name}-${user.id}`.replace(/\s/g, "");
-                navigate(paths.user(username));
-              }}
+              onClick={() => navigateToUserPage({ user, navigate })}
             >
               <CardMedia
                 component="img"

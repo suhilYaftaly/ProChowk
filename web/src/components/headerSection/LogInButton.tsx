@@ -27,7 +27,7 @@ export default function LogInButton() {
           <CircularProgress size={20} color="primary" />
         ) : (
           <Button
-            variant="outlined"
+            variant="contained"
             size="small"
             sx={{ borderRadius: 50 }}
             onClick={() => navigate(paths.login)}

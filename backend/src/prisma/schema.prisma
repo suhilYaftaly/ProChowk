@@ -19,7 +19,7 @@ model User {
     updatedAt     DateTime       @updatedAt
     provider      Provider       @default(Credentials)
     roles         Role[]         @default([user])
-    userTypes     UserType[]     @default([client])
+    userTypes     UserType[]
     image         UserImage?
     address       Address?       @relation(fields: [addressId], references: [id])
     addressId     String?        @db.ObjectId
