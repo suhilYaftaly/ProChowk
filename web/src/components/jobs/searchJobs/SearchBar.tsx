@@ -4,7 +4,6 @@ import {
   IconButton,
   InputAdornment,
   TextField,
-  useTheme,
 } from "@mui/material";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import SearchIcon from "@mui/icons-material/Search";
@@ -23,8 +22,6 @@ export default function SearchBar({
   onFilterClick,
   setSearchText,
 }: Props) {
-  const theme = useTheme();
-
   const onTextChange = (_: any, value: string | null) => {
     if (value) setSearchText(value);
   };
@@ -36,23 +33,21 @@ export default function SearchBar({
     <Autocomplete
       onOpen={acOnOpen}
       loading={acLoading}
-      disablePortal
       options={acOptions}
       freeSolo
       onChange={onTextChange}
       onInputChange={onInputChange}
       size="small"
-      sx={{
-        backgroundColor: theme.palette.background.paper,
-        borderRadius: 1,
-      }}
+      disableClearable
       renderInput={(params) => (
         <TextField
           {...params}
           label="Search nearby jobs"
           InputProps={{
+            ...params.InputProps,
             endAdornment: (
               <InputAdornment position="end">
+                {params.InputProps.endAdornment}
                 <IconButton onClick={onFilterClick}>
                   <FilterAltIcon color="primary" />
                 </IconButton>

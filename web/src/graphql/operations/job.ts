@@ -72,6 +72,7 @@ const jobGqlRespShort = gql`
     desc
     jobSize
     userId
+    updatedAt
     skills {
       label
     }

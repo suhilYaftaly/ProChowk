@@ -1,8 +1,7 @@
-import { Stack } from "@mui/material";
+import { Card, Stack } from "@mui/material";
 import { useState, FormEvent, useEffect } from "react";
 import { toast } from "react-toastify";
 
-import ErrSnackbar from "@reusable/ErrSnackbar";
 import { useSkills } from "@gqlOps/skill";
 import { BudgetType, useJobsByLocation, useJobsByText } from "@gqlOps/job";
 import { useUserStates } from "@redux/reduxStates";
@@ -14,12 +13,10 @@ import SearchFilters, {
 } from "./SearchFilters";
 import SearchBar from "./SearchBar";
 import { searchFilterConfigs as FCC } from "@config/configConst";
+import NoSearchResultsWidget from "@reusable/widgets/NoSearchResultsWidget";
 
-interface Props {}
-
-export default function SearchJobsByText({}: Props) {
+export default function SearchJobsByText() {
   const [searchText, setSearchText] = useState("");
-  const [openErrBar, setOpenErrBar] = useState(false);
   const initialTypes: BudgetType[] = ["Hourly", "Project"];
   const [filters, setFilters] = useState<ISearchFilters>({
     radius: FCC.defaultRadius,
@@ -41,7 +38,6 @@ export default function SearchJobsByText({}: Props) {
     skillsAsync,
     data: allSkillsType,
     loading: allSkillsLoading,
-    error: allSkillsError,
   } = useSkills();
   const allSkillsData = allSkillsType?.skills;
   const {
@@ -102,8 +98,13 @@ export default function SearchJobsByText({}: Props) {
 
   return (
     <>
-      <Stack spacing={1}>
-        <Stack component="form" autoComplete="off" onSubmit={onSearch}>
+      <Card sx={{ p: 2 }}>
+        <Stack
+          component="form"
+          autoComplete="off"
+          onSubmit={onSearch}
+          sx={{ mb: 2 }}
+        >
           <SearchBar
             acOnOpen={() => skillsAsync({})}
             acLoading={allSkillsLoading}
@@ -112,19 +113,16 @@ export default function SearchJobsByText({}: Props) {
             setSearchText={setSearchText}
           />
         </Stack>
-        <div>
+        {jobData?.length === 0 ? (
+          <NoSearchResultsWidget title="No jobs found!" />
+        ) : (
           <JobsCards
             jobs={jobData}
             loading={jobLoading}
             updateLoading={jobLoading}
           />
-        </div>
-        <ErrSnackbar
-          open={openErrBar}
-          handleClose={setOpenErrBar}
-          errMsg={allSkillsError?.message}
-        />
-      </Stack>
+        )}
+      </Card>
       <SearchFilters
         open={openDrawer}
         setOpen={setOpenDrawer}
@@ -143,12 +141,12 @@ const FilterBannerErrorsJsx = (errors: string[]) => (
   <>
     {errors.map((err, i) =>
       errors.length != i + 1 ? (
-        <div style={{ marginBottom: 5 }}>
+        <div key={i} style={{ marginBottom: 5 }}>
           {err}
           <br />
         </div>
       ) : (
-        <>{err}</>
+        <div key={i}>{err}</div>
       )
     )}
   </>

@@ -55,6 +55,8 @@ export default function SearchFilters({
 }: Props) {
   /**horizontal padding */
   const px = 2;
+  /**divider margin vertical */
+  const dMy = 2;
   const { userLocation } = useUserStates();
 
   const toggleDrawer = () => setOpen(!open);
@@ -143,7 +145,7 @@ export default function SearchFilters({
         <FilterAltIcon sx={{ mr: 2 }} />
         <Text type="subtitle">Filters</Text>
       </Stack>
-      <Divider sx={{ my: px }} />
+      <Divider sx={{ my: dMy }} />
       <Stack sx={{ px }}>
         <Text type="title" sx={{ fontSize: 16, mb: 1 }}>
           Location
@@ -157,7 +159,7 @@ export default function SearchFilters({
           enableMyLocationBtn
         />
       </Stack>
-      <Divider sx={{ my: px }} />
+      <Divider sx={{ my: dMy }} />
       <Stack sx={{ mx: px }}>
         <Text type="title" sx={{ fontSize: 16, mb: 1 }}>
           Radius (KM)*
@@ -183,7 +185,7 @@ export default function SearchFilters({
           onTouchStart={(e) => e.stopPropagation()}
         />
       </Stack>
-      <Divider sx={{ my: px }} />
+      <Divider sx={{ my: dMy }} />
       <FormGroup sx={{ px }}>
         <Text type="title" sx={{ fontSize: 16, mb: 1 }}>
           Project Type*
@@ -198,7 +200,7 @@ export default function SearchFilters({
           />
         ))}
       </FormGroup>
-      <Divider sx={{ my: px }} />
+      <Divider sx={{ my: dMy }} />
       <Stack sx={{ mx: px }}>
         <Text type="title" sx={{ fontSize: 16, mb: 1 }}>
           Price Range*
@@ -273,11 +275,11 @@ export default function SearchFilters({
           </Stack>
         </>
       )}
-      <Divider sx={{ my: px }} />
+      <Divider sx={{ my: dMy }} />
       <Button
         variant="contained"
         onClick={onSearch}
-        sx={{ mx: px }}
+        sx={{ mx: px, mb: 2 }}
         endIcon={<SearchIcon />}
       >
         Search

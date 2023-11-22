@@ -30,8 +30,8 @@ export default gql`
     title: String!
     desc: String!
     jobSize: JobSize!
-    createdAt: String
-    updatedAt: String
+    createdAt: Date
+    updatedAt: Date
     budget: Budget
     skills: [Skill!]
     images: [JobImage]

@@ -1,4 +1,11 @@
-import { format } from "date-fns";
+import {
+  differenceInDays,
+  differenceInHours,
+  differenceInMinutes,
+  differenceInSeconds,
+  format,
+  parseISO,
+} from "date-fns";
 import { NavigateFunction } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -301,3 +308,21 @@ export const isMobileDevice = () => {
     );
   return hasTouchScreen && isMobileUA;
 };
+
+/**returns given (ISO 8601) date timestamp as "1s", "1m", "1hr", "5hrs", "1day", "5days", etc.  */
+export function formatRelativeTime(timestamp: string): string {
+  const now = new Date();
+  const date = parseISO(timestamp);
+
+  const seconds = differenceInSeconds(now, date);
+  if (seconds < 60) return `${seconds}s`;
+
+  const minutes = differenceInMinutes(now, date);
+  if (minutes < 60) return `${minutes}m`;
+
+  const hours = differenceInHours(now, date);
+  if (hours < 24) return `${hours}hr${hours !== 1 ? "s" : ""}`;
+
+  const days = differenceInDays(now, date);
+  return `${days} day${days !== 1 ? "s" : ""}`;
+}

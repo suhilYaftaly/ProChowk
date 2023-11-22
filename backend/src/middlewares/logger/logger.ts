@@ -50,11 +50,26 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 // Overload the logging functions
+interface LoggerUser {
+  name?: string;
+  email?: string;
+}
+interface LoggerMeta {
+  name?: string;
+  stack?: string;
+  path?: string;
+  locations?: string;
+  user?: LoggerUser;
+  userAgent?: string;
+  ip?: string;
+  extensions?: { code?: string; type?: string };
+  [key: string]: any;
+}
 export interface Logger {
-  info: (message: string, meta?: any) => void;
-  warn: (message: string, meta?: any) => void;
-  error: (message: string, meta?: any) => void;
-  log: (message: string, meta?: any) => void;
+  info: (message: string, meta?: LoggerMeta) => void;
+  warn: (message: string, meta?: LoggerMeta) => void;
+  error: (message: string, meta?: LoggerMeta) => void;
+  log: (message: string, meta?: LoggerMeta) => void;
   // Add more levels if needed
 }
 

@@ -8,13 +8,14 @@ import {
   Skill,
   UserImage,
 } from "@prisma/client";
+import { Request } from "express";
 import { PubSub } from "graphql-subscriptions";
 import { Context } from "graphql-ws/lib/server";
 import { MongoClient } from "mongodb";
 
 //server configs
 export interface GraphQLContext {
-  req: any;
+  req: Request<any, any, any, any, Record<string, any>>;
   prisma: PrismaClient;
   pubsub: PubSub;
   mongoClient: MongoClient;
@@ -22,7 +23,7 @@ export interface GraphQLContext {
 }
 export interface SubsciptionContext extends Context {
   connectionParams: {
-    session?: any; //TODO: fix later
+    session?: Request<any, any, any, any, Record<string, any>>;
   };
 }
 

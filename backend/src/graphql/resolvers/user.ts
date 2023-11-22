@@ -136,6 +136,10 @@ export default {
         foundUser,
         userAgent
       );
+
+      logger.info("logged in", {
+        user: { name: foundUser.name, email: foundUser.email },
+      });
       return getUserProps(foundUser, accessToken, refreshToken);
     },
     googleLogin: async (
@@ -381,6 +385,9 @@ export default {
           updatedUser,
           userAgent
         );
+        logger.info("resetted password and logged in", {
+          user: { name: updatedUser.name, email: updatedUser.email },
+        });
         return getUserProps(updatedUser, token, refreshToken);
       } else throw gqlError({ msg: "User update failed. Please try again." });
     },
@@ -557,9 +564,15 @@ const createOrLoginWithGoogle = async ({
     if (!emailVerified) await sendVerificationEmail(newUser);
     const token = generateUserToken(newUser);
     const refreshToken = await createRefreshToken(prisma, newUser, userAgent);
+    logger.info("registered with google", {
+      user: { name: newUser.name, email: newUser.email },
+    });
     return getUserProps(newUser, token, refreshToken);
   }
 
+  logger.info("logged in with google", {
+    user: { name: foundUser.name, email: foundUser.email },
+  });
   const token = generateUserToken(foundUser);
   const refreshToken = await updateRefreshToken(prisma, foundUser, userAgent);
   return getUserProps(foundUser, token, refreshToken);

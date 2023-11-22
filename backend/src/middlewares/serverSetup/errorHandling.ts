@@ -22,8 +22,13 @@ export const withCatch = (resolverFunction: Function) => {
     } catch (error: any) {
       if ((error?.extensions?.type as IGQLError["type"]) !== "skipLogging") {
         const [, , context] = args;
-        const userAgent = context?.req?.headers?.["user-agent"];
+        const req = context?.req;
+        const userAgent = req?.headers?.["user-agent"];
         const user = getUserFromContext(context);
+        const ip =
+          req?.ip ||
+          req?.headers["x-forwarded-for"] ||
+          req?.connection?.remoteAddress;
 
         const meta = {
           name: error.name,
@@ -32,6 +37,7 @@ export const withCatch = (resolverFunction: Function) => {
           locations: error.locations,
           user,
           userAgent,
+          ip,
           extensions: { ...error.extensions },
         };
         logger.error(error?.message, meta);

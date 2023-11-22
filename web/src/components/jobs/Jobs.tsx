@@ -14,9 +14,11 @@ import {
   MenuList,
   useTheme,
   Divider,
+  alpha,
 } from "@mui/material";
 import { Add, Edit, Delete, MoreVert, LocationOn } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
 
 import { IUserInfo } from "@user/userProfile/UserInfo";
 import CustomModal from "@reusable/CustomModal";
@@ -31,7 +33,11 @@ import {
   useUpdateJob,
 } from "@gqlOps/job";
 import ErrSnackbar from "@reusable/ErrSnackbar";
-import { removeServerMetadata, trimText } from "@utils/utilFuncs";
+import {
+  formatRelativeTime,
+  removeServerMetadata,
+  trimText,
+} from "@utils/utilFuncs";
 import { paths } from "@/routes/Routes";
 import { ISkill, useSkills } from "@gqlOps/skill";
 import { getNewSkills } from "@appComps/SkillsSelection";
@@ -160,35 +166,34 @@ export const JobsCards = ({
 }: JobsCardsProps) => {
   const navigate = useNavigate();
   const theme = useTheme();
+  const primaryC = theme.palette.primary.main;
+  const primary10 = alpha(primaryC, 0.1);
 
   return (
     <Grid container spacing={1} direction={"column"}>
-      {loading ? (
+      {loading || updateLoading ? (
         <Grid item>
           <CardSkeleton />
         </Grid>
       ) : (
         <>
-          {updateLoading && (
-            <Grid item>
-              <CardSkeleton />
-            </Grid>
-          )}
-
+          <Grid item sx={{ my: 1 }}>
+            <Text type="subtitle">
+              Jobs Found{" "}
+              <span style={{ color: primaryC }}>({jobs?.length})</span>
+            </Text>
+          </Grid>
           {jobs?.map((job) => (
             <Grid item key={job.id}>
               <Card
+                variant={"outlined"}
                 sx={{
                   p: 1,
                   cursor: "pointer",
                   transition: "0.3s",
                   "&:hover": {
-                    backgroundColor:
-                      theme.palette.mode === "light"
-                        ? theme.palette.grey[100]
-                        : "undefined",
-                    backgroundImage:
-                      "linear-gradient(rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.12))",
+                    backgroundColor: primary10,
+                    borderColor: primaryC,
                   },
                 }}
                 onClick={() =>
@@ -204,23 +209,31 @@ export const JobsCards = ({
                   }}
                 >
                   <Text type="subtitle">{job.title}</Text>
-                  {isMyProfile && onDeleteClick && onEditClick && (
-                    <MorePopover
-                      onDelete={() => onDeleteClick(job)}
-                      onEdit={() => onEditClick(job)}
+                  <Stack direction={"row"} alignItems={"center"}>
+                    <Chip
+                      variant="outlined"
+                      size="small"
+                      label={formatRelativeTime(job.updatedAt)}
+                      icon={<AccessTimeIcon color="inherit" />}
                     />
-                  )}
+                    {isMyProfile && onDeleteClick && onEditClick && (
+                      <MorePopover
+                        onDelete={() => onDeleteClick(job)}
+                        onEdit={() => onEditClick(job)}
+                      />
+                    )}
+                  </Stack>
                 </Stack>
-                <Typography variant="body2" sx={{ mb: 1, fontWeight: "500" }}>
+                <Typography variant="body2" sx={{ mb: 1, fontWeight: "600" }}>
                   {job?.budget?.type}:{" "}
-                  <span style={{ fontWeight: "400" }}>
+                  <span style={{ opacity: 0.8 }}>
                     ${job?.budget?.from}-${job?.budget?.to}
                   </span>
                   {job?.budget?.type === "Hourly" && (
                     <>
                       {" "}
                       | Max Hours:{" "}
-                      <span style={{ fontWeight: "400" }}>
+                      <span style={{ opacity: 0.8 }}>
                         {job?.budget?.maxHours}Hrs
                       </span>
                     </>
@@ -232,7 +245,11 @@ export const JobsCards = ({
                 <Grid container spacing={1} sx={{ mt: 2 }}>
                   {job?.skills?.map((skill) => (
                     <Grid item key={skill.label}>
-                      <Chip label={skill.label} variant="filled" size="small" />
+                      <Chip
+                        label={skill.label}
+                        variant="outlined"
+                        size="small"
+                      />
                     </Grid>
                   ))}
                 </Grid>
@@ -259,30 +276,29 @@ export const JobsCards = ({
   );
 };
 
+const ChipSkeleton = () => (
+  <Skeleton
+    variant="circular"
+    width={60}
+    height={20}
+    sx={{ borderRadius: 5 }}
+  />
+);
 const CardSkeleton = () => (
-  <Card sx={{ p: 1 }}>
-    <Skeleton variant="text" width="60%" />
+  <Card sx={{ p: 1 }} variant="outlined">
+    <Stack
+      direction={"row"}
+      sx={{ alignItems: "center", justifyContent: "space-between" }}
+    >
+      <Skeleton variant="text" width="60%" />
+      <ChipSkeleton />
+    </Stack>
     <Skeleton variant="text" width="30%" />
     <Skeleton variant="text" width="60%" sx={{ mb: 3 }} />
     <Stack direction={"row"} spacing={1}>
-      <Skeleton
-        variant="circular"
-        width={60}
-        height={20}
-        sx={{ borderRadius: 5 }}
-      />
-      <Skeleton
-        variant="circular"
-        width={60}
-        height={20}
-        sx={{ borderRadius: 5 }}
-      />
-      <Skeleton
-        variant="circular"
-        width={60}
-        height={20}
-        sx={{ borderRadius: 5 }}
-      />
+      <ChipSkeleton />
+      <ChipSkeleton />
+      <ChipSkeleton />
     </Stack>
     <Skeleton variant="rectangular" width={"100%"} height={1} sx={{ my: 2 }} />
     <Stack direction={"row"} spacing={1} alignItems={"center"}>

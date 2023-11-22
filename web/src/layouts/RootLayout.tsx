@@ -8,6 +8,7 @@ import AppHeader from "@components/headerSection/AppHeader";
 import UserLocationPermission from "@user/UseUserLocation";
 import { setNavigator } from "@routes/navigationService";
 import GlobalModals from "@pages/GlobalModals";
+import { useRespVal } from "@/utils/hooks/hooks";
 
 export default function RootLayout() {
   const theme = useTheme();
@@ -33,7 +34,7 @@ export default function RootLayout() {
         draggable
         pauseOnHover
         theme={theme.palette.mode}
-        style={{ width: "auto" }}
+        style={{ width: useRespVal(undefined, "auto") }}
       />
     </>
   );
