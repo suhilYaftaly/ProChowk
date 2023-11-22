@@ -321,8 +321,8 @@ export function formatRelativeTime(timestamp: string): string {
   if (minutes < 60) return `${minutes}m`;
 
   const hours = differenceInHours(now, date);
-  if (hours < 24) return `${hours}hr${hours !== 1 ? "s" : ""}`;
+  if (hours < 24) return `${hours}hr`;
 
   const days = differenceInDays(now, date);
-  return `${days} day${days !== 1 ? "s" : ""}`;
+  return `${days}d`;
 }
