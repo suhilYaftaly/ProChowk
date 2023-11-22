@@ -64,6 +64,16 @@ export default function SearchJobsByText() {
     }
   }, [userLocation?.data]);
 
+  //hide keyboard on drawer close
+  useEffect(() => {
+    if (!openDrawer) {
+      // Blur the currently focused element
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+    }
+  }, [openDrawer]);
+
   const onSearch = (e?: FormEvent<HTMLFormElement>) => {
     e?.preventDefault();
     // Blur the currently focused element
