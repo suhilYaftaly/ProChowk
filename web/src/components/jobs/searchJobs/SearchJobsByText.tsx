@@ -66,6 +66,11 @@ export default function SearchJobsByText() {
 
   const onSearch = (e?: FormEvent<HTMLFormElement>) => {
     e?.preventDefault();
+    // Blur the currently focused element
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+
     setOpenDrawer(false);
     const errors = checkFilterOptionsError({
       filters: filters,
