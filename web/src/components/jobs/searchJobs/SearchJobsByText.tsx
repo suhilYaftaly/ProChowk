@@ -1,4 +1,4 @@
-import { Card, Stack } from "@mui/material";
+import { Card, Stack, useTheme } from "@mui/material";
 import { useState, FormEvent, useEffect } from "react";
 import { toast } from "react-toastify";
 
@@ -14,8 +14,11 @@ import SearchFilters, {
 import SearchBar from "./SearchBar";
 import { searchFilterConfigs as FCC } from "@config/configConst";
 import NoSearchResultsWidget from "@reusable/widgets/NoSearchResultsWidget";
+import Text from "@/components/reusable/Text";
 
 export default function SearchJobsByText() {
+  const theme = useTheme();
+  const primaryC = theme.palette.primary.main;
   const [searchText, setSearchText] = useState("");
   const initialTypes: BudgetType[] = ["Hourly", "Project"];
   const [filters, setFilters] = useState<ISearchFilters>({
@@ -113,7 +116,7 @@ export default function SearchJobsByText() {
 
   return (
     <>
-      <Card sx={{ p: 2 }}>
+      <Card sx={{ p: 1 }}>
         <Stack
           component="form"
           autoComplete="off"
@@ -131,11 +134,19 @@ export default function SearchJobsByText() {
         {jobData?.length === 0 ? (
           <NoSearchResultsWidget title="No jobs found!" />
         ) : (
-          <JobsCards
-            jobs={jobData}
-            loading={jobLoading}
-            updateLoading={jobLoading}
-          />
+          <>
+            {jobData && jobData?.length > 0 && (
+              <Text type="subtitle" sx={{ mb: 2, mt: 3 }}>
+                Jobs Found{" "}
+                <span style={{ color: primaryC }}>({jobData?.length})</span>
+              </Text>
+            )}
+            <JobsCards
+              jobs={jobData}
+              loading={jobLoading}
+              updateLoading={jobLoading}
+            />
+          </>
         )}
       </Card>
       <SearchFilters

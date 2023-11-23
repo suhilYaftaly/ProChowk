@@ -4,6 +4,7 @@ import {
   differenceInMinutes,
   differenceInSeconds,
   format,
+  isValid,
   parseISO,
 } from "date-fns";
 import { NavigateFunction } from "react-router-dom";
@@ -326,3 +327,27 @@ export function formatRelativeTime(timestamp: string): string {
   const days = differenceInDays(now, date);
   return `${days}d`;
 }
+
+interface IConvertISODate {
+  /**
+   * format string e.g yyyy-MM-dd hh:mm:ss a
+   * @default 'MMM dd, yyyy hh:mm a'
+   */
+  fs?: string;
+}
+/**
+ * Formats an ISO date string to a more human-readable format
+ * @param date - The date string in ISO format ("YYYY-MM-DDTHH:mm:ss")
+ * @returns A string formatted as requested format e.g 'yyyy-MM-dd hh:mm:ss a'
+ */
+export const readISODate = (
+  date: string | undefined,
+  { fs = "MMM dd, yyyy hh:mm a" }: IConvertISODate = {}
+): string => {
+  if (!date) return "Invalid date";
+
+  const parsedDate = parseISO(date);
+  if (!isValid(parsedDate)) return "Invalid date";
+
+  return format(parsedDate, fs);
+};

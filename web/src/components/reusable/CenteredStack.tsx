@@ -40,7 +40,13 @@ export default function CenteredStack({
       }}
     >
       <Stack sx={{ maxWidth: maxWidthPG, width: "100%", ...sx }}>
-        {addCard ? <Card sx={{ p: 2, ...cardSX }}>{children}</Card> : children}
+        {addCard ? (
+          <Card sx={{ p: 2, ...cardSX, borderRadius: mmx === 0 ? 0 : 1 }}>
+            {children}
+          </Card>
+        ) : (
+          children
+        )}
       </Stack>
     </Stack>
   );

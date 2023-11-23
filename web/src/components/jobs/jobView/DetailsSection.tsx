@@ -12,7 +12,7 @@ import {
 import { useState } from "react";
 
 import { IJob } from "@gqlOps/job";
-import { convertUnixToDate } from "@utils/utilFuncs";
+import { readISODate } from "@utils/utilFuncs";
 import { useRespVal } from "@utils/hooks/hooks";
 import FullScreenModal from "@reusable/FullScreenModal";
 import QRCodeModal from "@/components/reusable/QRCodeModal";
@@ -39,7 +39,7 @@ export default function DetailsSection({ job, loading, userId }: Props) {
   const rightTxts = [
     {
       label: "Posted On",
-      txt: convertUnixToDate(job?.createdAt)?.monthDayYear,
+      txt: readISODate(job?.createdAt),
     },
     {
       label: "Pay Rate",

@@ -1,21 +1,21 @@
 import { Card, Divider, Stack } from "@mui/material";
 
 import CenteredStack from "@reusable/CenteredStack";
-import SearchJobsByText from "@/components/jobs/searchJobs/SearchJobsByText";
-import { isDeveloper } from "@/utils/auth";
-import { useUserStates } from "@/redux/reduxStates";
+import SearchJobsByText from "@jobs/searchJobs/SearchJobsByText";
+import { isDeveloper } from "@utils/auth";
+import { useUserStates } from "@redux/reduxStates";
 import Text from "@reusable/Text";
 import ViewAllUsers from "@user/ViewAllUsers";
-import ProfileList from "@/components/headerSection/myProfile/ProfileList";
-import { useIsMobile } from "@/utils/hooks/hooks";
-import PostJobBtn from "@/components/headerSection/PostJobBtn";
+import ProfileList from "@components/headerSection/myProfile/ProfileList";
+import { useIsMobile } from "@utils/hooks/hooks";
+import PostJobBtn from "@components/headerSection/PostJobBtn";
 
 export default function Home() {
   const { user } = useUserStates();
   const isMobile = useIsMobile();
 
   return (
-    <CenteredStack>
+    <CenteredStack mmx={1}>
       <Stack direction={"row"}>
         <div style={{ width: "100%" }}>
           <SearchJobsByText />

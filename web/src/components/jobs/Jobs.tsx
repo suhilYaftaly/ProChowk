@@ -111,7 +111,7 @@ export default function Jobs({ isMyProfile, userId }: IUserInfo) {
     <>
       <Stack
         direction={"row"}
-        sx={{ alignItems: "center", justifyContent: "space-between" }}
+        sx={{ alignItems: "center", justifyContent: "space-between", mb: 2 }}
       >
         <Typography variant="h5">Jobs</Typography>
         {isMyProfile && (
@@ -171,18 +171,17 @@ export const JobsCards = ({
 
   return (
     <Grid container spacing={1} direction={"column"}>
-      {loading || updateLoading ? (
+      {loading ? (
         <Grid item>
           <CardSkeleton />
         </Grid>
       ) : (
         <>
-          <Grid item sx={{ my: 1 }}>
-            <Text type="subtitle">
-              Jobs Found{" "}
-              <span style={{ color: primaryC }}>({jobs?.length})</span>
-            </Text>
-          </Grid>
+          {updateLoading && (
+            <Grid item>
+              <CardSkeleton />
+            </Grid>
+          )}
           {jobs?.map((job) => (
             <Grid item key={job.id}>
               <Card
@@ -213,7 +212,7 @@ export const JobsCards = ({
                     <Chip
                       variant="outlined"
                       size="small"
-                      label={formatRelativeTime(job.updatedAt)}
+                      label={formatRelativeTime(job.createdAt)}
                       icon={<AccessTimeIcon color="inherit" />}
                     />
                     {isMyProfile && onDeleteClick && onEditClick && (

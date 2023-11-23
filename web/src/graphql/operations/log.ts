@@ -33,7 +33,7 @@ const logOps = {
 //interfaces
 export interface ILog {
   id: string;
-  timestamp: Date;
+  timestamp: string;
   level: LogsLevel;
   message: string;
   meta: any;

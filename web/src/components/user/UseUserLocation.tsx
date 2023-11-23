@@ -12,6 +12,7 @@ export default function UserLocationPermission() {
   const dispatch = useAppDispatch();
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [isPermissionDenied, setIsPermissionDenied] = useState(false);
+  const [showMore, setShowMore] = useState(false);
 
   const getLocation = () =>
     getUserLocation({
@@ -80,27 +81,35 @@ export default function UserLocationPermission() {
             <Text type="title" sx={{ mb: 1 }}>
               Location Permission Required
             </Text>
-            <Text sx={{ mb: 3 }}>
+            <Text>
               To enhance your experience and provide personalized services, we'd
               like to access your location data.
             </Text>
-            <Text type="subtitle" sx={{ my: 1 }}>
-              Why we collect your location
-            </Text>
-            <Text>
-              - Tailor content, services, and offers specific to your region.
-              <br />- Provide location-based assistance or recommendations.
-              <br />- Improve our website's functionality and your user
-              experience.
-            </Text>
-            <Text sx={{ my: 1, mt: 3 }} type="subtitle">
-              Your privacy matters
-            </Text>
-            <Text>
-              Your location data is collected and stored securely. We do not
-              share this information with third parties without your consent,
-              and you can withdraw your permission at any time in the settings.
-            </Text>
+            {!showMore ? (
+              <Button onClick={() => setShowMore(true)}>Read More</Button>
+            ) : (
+              <>
+                <Text type="subtitle" sx={{ mb: 1, mt: 3 }}>
+                  Why we collect your location
+                </Text>
+                <Text>
+                  - Tailor content, services, and offers specific to your
+                  region.
+                  <br />- Provide location-based assistance or recommendations.
+                  <br />- Improve our website's functionality and your user
+                  experience.
+                </Text>
+                <Text sx={{ my: 1, mt: 3 }} type="subtitle">
+                  Your privacy matters
+                </Text>
+                <Text>
+                  Your location data is collected and stored securely. We do not
+                  share this information with third parties without your
+                  consent, and you can withdraw your permission at any time in
+                  the settings.
+                </Text>
+              </>
+            )}
           </>
         )}
       </DialogContent>

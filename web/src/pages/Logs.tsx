@@ -21,6 +21,7 @@ import { ILog, useLogs } from "@gqlOps/log";
 import CenteredStack from "@reusable/CenteredStack";
 import { useUserStates } from "@redux/reduxStates";
 import { isDeveloper } from "@utils/auth";
+import { readISODate } from "@/utils/utilFuncs";
 
 type OrderBy = { [key in FieldNames]?: "asc" | "desc" };
 
@@ -162,7 +163,9 @@ export default function Logs() {
                 {localSortedData?.map((log) => (
                   <TableRow key={log.id}>
                     <TableCell>
-                      {new Date(log.timestamp).toLocaleString()}
+                      {readISODate(log.timestamp, {
+                        fs: "MMM dd, yyyy hh:mm:ss a",
+                      })}
                     </TableCell>
                     <TableCell>
                       <Chip
