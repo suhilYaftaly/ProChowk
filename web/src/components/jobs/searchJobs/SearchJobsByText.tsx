@@ -14,7 +14,8 @@ import SearchFilters, {
 import SearchBar from "./SearchBar";
 import { searchFilterConfigs as FCC } from "@config/configConst";
 import NoSearchResultsWidget from "@reusable/widgets/NoSearchResultsWidget";
-import Text from "@/components/reusable/Text";
+import Text from "@reusable/Text";
+import ToastErrorsList from "@reusable/ToastErrorsList";
 
 export default function SearchJobsByText() {
   const theme = useTheme();
@@ -61,7 +62,7 @@ export default function SearchJobsByText() {
 
   useEffect(() => {
     const latLng = userLocation?.data;
-    if (latLng) {
+    if (latLng && !jByLData) {
       jobsByLocationAsync({ variables: { latLng } });
       setFilters((prev) => ({ ...prev, latLng }));
     }
@@ -91,7 +92,7 @@ export default function SearchJobsByText() {
     });
 
     if (errors.length > 0) {
-      toast.error(FilterBannerErrorsJsx(errors));
+      toast.error(ToastErrorsList({ errors }));
       setOpenDrawer(true);
     }
     if (!searchText) toast.warning("Search text is empty.");
@@ -162,18 +163,3 @@ export default function SearchJobsByText() {
     </>
   );
 }
-
-const FilterBannerErrorsJsx = (errors: string[]) => (
-  <>
-    {errors.map((err, i) =>
-      errors.length != i + 1 ? (
-        <div key={i} style={{ marginBottom: 5 }}>
-          {err}
-          <br />
-        </div>
-      ) : (
-        <div key={i}>{err}</div>
-      )
-    )}
-  </>
-);

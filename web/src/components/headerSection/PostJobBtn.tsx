@@ -1,17 +1,17 @@
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { Button, SxProps, Theme } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
-import { setOpenJobPost } from "@rSlices/globalModalsSlice";
-import { useAppDispatch } from "@/utils/hooks/hooks";
+import { paths } from "@/routes/Routes";
 
 interface Props {
   onSubmit?: () => void;
   sx?: SxProps<Theme>;
 }
 export default function PostJobBtn({ onSubmit, sx }: Props) {
-  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const onPostJob = () => {
-    dispatch(setOpenJobPost(true));
+    navigate(paths.jobPost);
     onSubmit && onSubmit();
   };
 

@@ -16,83 +16,38 @@ import {
   Divider,
   alpha,
 } from "@mui/material";
-import { Add, Edit, Delete, MoreVert, LocationOn } from "@mui/icons-material";
+import { Add, Delete, MoreVert, LocationOn } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 
 import { IUserInfo } from "@user/userProfile/UserInfo";
-import CustomModal from "@reusable/CustomModal";
-import JobForm from "./edits/JobForm";
 import {
   IJob,
-  ImagesToDelete,
-  JobInput,
   useCreateJob,
   useDeleteJob,
   useUserJobs,
   useUpdateJob,
 } from "@gqlOps/job";
 import ErrSnackbar from "@reusable/ErrSnackbar";
-import {
-  formatRelativeTime,
-  removeServerMetadata,
-  trimText,
-} from "@utils/utilFuncs";
+import { formatRelativeTime, trimText } from "@utils/utilFuncs";
 import { paths } from "@/routes/Routes";
-import { ISkill, useSkills } from "@gqlOps/skill";
-import { getNewSkills } from "@appComps/SkillsSelection";
 import { useUserStates } from "@redux/reduxStates";
 import Text from "../reusable/Text";
-import { setOpenJobPost } from "@rSlices/globalModalsSlice";
-import { useAppDispatch } from "@hooks/hooks";
+import JobBudgetCost from "./comps/JobBudgetCost";
+import ChipSkeleton from "@reusable/skeleton/ChipSkeleton";
 
 export default function Jobs({ isMyProfile, userId }: IUserInfo) {
-  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { userJobsAsync, data, loading, error } = useUserJobs();
   const { loading: createLoading } = useCreateJob();
-  const { updateJobAsync, loading: updateLoading } = useUpdateJob();
+  const { loading: updateLoading } = useUpdateJob();
   const { deleteJobAsync, loading: deleteLoading } = useDeleteJob();
-  const { updateCache } = useSkills();
-  const [editJob, setEditJob] = useState<JobInput | IJob>();
-  const [openEdit, setOpenEdit] = useState(false);
   const [openErrBar, setContErrBar] = useState(false);
-  const [allSkills, setAllSkills] = useState<ISkill[]>([]);
   const { userLocation } = useUserStates();
 
   useEffect(() => {
     if (userId) userJobsAsync({ variables: { userId } });
   }, []);
-
-  const onEditJob = (j: IJob | any, imagesToDelete: ImagesToDelete) => {
-    if (userId && j.id) {
-      const cleanedJob = removeServerMetadata({ obj: j });
-      updateJobAsync({
-        userId,
-        variables: {
-          id: j.id,
-          imagesToDelete,
-          jobInput: {
-            title: cleanedJob.title,
-            desc: cleanedJob.desc,
-            jobSize: cleanedJob.jobSize,
-            budget: cleanedJob.budget,
-            skills: cleanedJob.skills,
-            images: cleanedJob.images,
-            address: cleanedJob.address,
-          },
-        },
-        onSuccess: (dt) => {
-          const newSkills = getNewSkills({
-            newList: dt.skills,
-            oldList: allSkills,
-          });
-          if (newSkills && newSkills?.length > 0)
-            updateCache("create", newSkills);
-        },
-      });
-      setOpenEdit(false);
-    }
-  };
 
   const onDeleteClick = (j: IJob | any) => {
     if (userId && j.id && userLocation.data)
@@ -101,10 +56,6 @@ export default function Jobs({ isMyProfile, userId }: IUserInfo) {
         variables: { id: j.id },
         latLng: userLocation.data,
       });
-  };
-  const onEditClick = (job: IJob) => {
-    setEditJob(job);
-    setOpenEdit(true);
   };
 
   return (
@@ -115,7 +66,7 @@ export default function Jobs({ isMyProfile, userId }: IUserInfo) {
       >
         <Typography variant="h5">Jobs</Typography>
         {isMyProfile && (
-          <IconButton onClick={() => dispatch(setOpenJobPost(true))}>
+          <IconButton onClick={() => navigate(paths.jobPost)}>
             <Add />
           </IconButton>
         )}
@@ -125,20 +76,8 @@ export default function Jobs({ isMyProfile, userId }: IUserInfo) {
         loading={loading}
         isMyProfile={isMyProfile}
         onDeleteClick={onDeleteClick}
-        onEditClick={onEditClick}
         updateLoading={updateLoading || createLoading || deleteLoading}
       />
-      {editJob && (
-        <CustomModal title="Edit Job" open={openEdit} onClose={setOpenEdit}>
-          <JobForm
-            onAddJob={onEditJob}
-            job={editJob}
-            setJob={setEditJob}
-            setAllSkills={setAllSkills}
-            loading={updateLoading}
-          />
-        </CustomModal>
-      )}
       <ErrSnackbar
         open={openErrBar}
         handleClose={setContErrBar}
@@ -154,7 +93,6 @@ interface JobsCardsProps {
   updateLoading?: boolean;
   isMyProfile?: boolean;
   onDeleteClick?: (job: IJob) => void;
-  onEditClick?: (job: IJob) => void;
 }
 export const JobsCards = ({
   jobs,
@@ -162,7 +100,6 @@ export const JobsCards = ({
   updateLoading = false,
   isMyProfile = false,
   onDeleteClick,
-  onEditClick,
 }: JobsCardsProps) => {
   const navigate = useNavigate();
   const theme = useTheme();
@@ -215,29 +152,12 @@ export const JobsCards = ({
                       label={formatRelativeTime(job.createdAt)}
                       icon={<AccessTimeIcon color="inherit" />}
                     />
-                    {isMyProfile && onDeleteClick && onEditClick && (
-                      <MorePopover
-                        onDelete={() => onDeleteClick(job)}
-                        onEdit={() => onEditClick(job)}
-                      />
+                    {isMyProfile && onDeleteClick && (
+                      <MorePopover onDelete={() => onDeleteClick(job)} />
                     )}
                   </Stack>
                 </Stack>
-                <Typography variant="body2" sx={{ mb: 1, fontWeight: "600" }}>
-                  {job?.budget?.type}:{" "}
-                  <span style={{ opacity: 0.8 }}>
-                    ${job?.budget?.from}-${job?.budget?.to}
-                  </span>
-                  {job?.budget?.type === "Hourly" && (
-                    <>
-                      {" "}
-                      | Max Hours:{" "}
-                      <span style={{ opacity: 0.8 }}>
-                        {job?.budget?.maxHours}Hrs
-                      </span>
-                    </>
-                  )}
-                </Typography>
+                <JobBudgetCost budget={job?.budget} />
                 <Typography variant="body2">
                   {trimText({ text: job.desc })}
                 </Typography>
@@ -275,14 +195,6 @@ export const JobsCards = ({
   );
 };
 
-const ChipSkeleton = () => (
-  <Skeleton
-    variant="circular"
-    width={60}
-    height={20}
-    sx={{ borderRadius: 5 }}
-  />
-);
 const CardSkeleton = () => (
   <Card sx={{ p: 1 }} variant="outlined">
     <Stack
@@ -308,10 +220,9 @@ const CardSkeleton = () => (
 );
 
 interface IMorePopover {
-  onEdit: () => void;
   onDelete: () => void;
 }
-const MorePopover = ({ onEdit, onDelete }: IMorePopover) => {
+const MorePopover = ({ onDelete }: IMorePopover) => {
   const theme = useTheme();
   const [moreAnchor, setMoreAnchor] = useState<HTMLButtonElement | null>(null);
   const errColor = theme.palette.error.main;
@@ -324,11 +235,6 @@ const MorePopover = ({ onEdit, onDelete }: IMorePopover) => {
   const moreIsOpen = Boolean(moreAnchor);
   const moreId = moreIsOpen ? "job-more-popover" : undefined;
 
-  const onEditClick = (event: React.MouseEvent) => {
-    event.stopPropagation();
-    onEdit();
-    closeMore();
-  };
   const onDeleteClick = (event: React.MouseEvent) => {
     event.stopPropagation();
     onDelete();
@@ -356,12 +262,6 @@ const MorePopover = ({ onEdit, onDelete }: IMorePopover) => {
         }}
       >
         <MenuList onMouseLeave={closeMore}>
-          <MenuItem onClick={onEditClick}>
-            <ListItemIcon>
-              <Edit />
-            </ListItemIcon>
-            <ListItemText>Edit</ListItemText>
-          </MenuItem>
           <MenuItem onClick={onDeleteClick} sx={{ color: errColor }}>
             <ListItemIcon sx={{ color: errColor }}>
               <Delete />

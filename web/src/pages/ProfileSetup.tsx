@@ -96,7 +96,11 @@ export default function ProfileSetup() {
       updateUserAsync({
         variables: {
           id: user.id,
-          edits: { ...newForm, userTypes: [userType] },
+          edits: {
+            ...newForm,
+            userTypes: [userType],
+            skills: userType === "contractor" ? form.skills : [],
+          },
         },
       });
     }
@@ -165,7 +169,7 @@ export default function ProfileSetup() {
             setSkills={(skills) => setForm((prev) => ({ ...prev, skills }))}
             required
             error={Boolean(errors.skills)}
-            helperText={errors.userType}
+            helperText={errors.skills}
           />
         )}
         <AddressSearch

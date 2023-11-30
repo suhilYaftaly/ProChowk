@@ -47,6 +47,7 @@ const jobGqlResp = gql`
     createdAt
     updatedAt
     userId
+    materials
     user {
       ...UserFields
     }
@@ -193,7 +194,7 @@ export interface IJob extends JobInput {
   skills: ISkill[];
   budget: IJobBudget;
   address: IAddress;
-  images?: IImage[];
+  images: IImage[];
   userId?: string;
   user?: IUser;
   __typename?: string;
@@ -223,7 +224,8 @@ export interface JobInput {
   skills: SkillInput[];
   budget: JobBudgetInput;
   address: AddressInput;
-  images?: ImageInput[];
+  images: ImageInput[];
+  materials: string[];
 }
 
 export interface JobsByTxtBudgetInput {

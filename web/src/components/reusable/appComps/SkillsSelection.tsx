@@ -1,5 +1,5 @@
 import { Autocomplete, TextField, IconButton, Chip, Grid } from "@mui/material";
-import { Dispatch, SetStateAction, useEffect } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
 
 import { ISkill, SkillInput, useSkills } from "@gqlOps/skill";
@@ -14,6 +14,15 @@ interface Props {
   label?: string;
   error?: boolean;
   helperText?: string;
+  /**@default 'primary' */
+  chipColor?:
+    | "default"
+    | "error"
+    | "primary"
+    | "secondary"
+    | "info"
+    | "success"
+    | "warning";
 }
 
 export default function SkillsSelection({
@@ -25,6 +34,7 @@ export default function SkillsSelection({
   label = "Skills",
   error,
   helperText,
+  chipColor = "primary",
 }: Props) {
   const {
     skillsAsync,
@@ -32,6 +42,8 @@ export default function SkillsSelection({
     loading: allSkillsLoading,
   } = useSkills();
   const allSkillsData = allSkillsType?.skills;
+  const [inputValue, setInputValue] = useState("");
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     if (setAllSkills && allSkillsData) setAllSkills(allSkillsData);
@@ -49,6 +61,7 @@ export default function SkillsSelection({
 
       setSkills(skills ? [...skills, newSkill] : [newSkill]);
     }
+    setInputValue("");
   };
   const handleDelete = (skillToDelete: SkillInput) => () => {
     if (skills) {
@@ -71,13 +84,26 @@ export default function SkillsSelection({
     }
   };
 
+  const onInputChange = (_: any, val: string) => setInputValue(val);
+  const getAllSkills = () => {
+    skillsAsync({});
+    setOpen(true);
+  };
+
+  const handleClose = () => setOpen(false);
+
   return (
     <div>
       <Autocomplete
-        onOpen={() => skillsAsync({})}
+        open={open}
+        onFocus={getAllSkills}
+        onOpen={getAllSkills}
+        onClose={handleClose}
         loading={allSkillsLoading}
         freeSolo
         disablePortal
+        inputValue={inputValue}
+        onInputChange={onInputChange}
         options={allSkillsData || []}
         onChange={onSkillSelection}
         size="small"
@@ -119,7 +145,7 @@ export default function SkillsSelection({
             <Chip
               label={skill.label}
               onDelete={handleDelete(skill)}
-              color="primary"
+              color={chipColor}
               variant="outlined"
             />
           </Grid>

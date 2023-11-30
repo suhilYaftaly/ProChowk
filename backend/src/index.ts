@@ -17,7 +17,7 @@ async function main() {
       origin: [process.env.CLIENT_ORIGIN],
       credentials: true,
     }),
-    express.json({ limit: "15mb" }),
+    express.json({ limit: "20mb" }),
     expressMiddleware(server, {
       context: async ({ req, res }): Promise<GraphQLContext> => ({
         req,

@@ -2,7 +2,7 @@ import { Card, Stack, SxProps, Theme } from "@mui/material";
 import { ReactNode } from "react";
 
 import { maxWidthPG, pp } from "@config/configConst";
-import { useRespVal } from "@/utils/hooks/hooks";
+import { useIsMobile, useRespVal } from "@/utils/hooks/hooks";
 
 interface Props {
   children: ReactNode;
@@ -26,7 +26,9 @@ export default function CenteredStack({
   addCard,
   cardSX,
 }: Props) {
+  const isMobile = useIsMobile();
   const mx = mmx !== undefined ? useRespVal(mmx, pp) : pp;
+  const cardBR = mmx === 0 && isMobile ? 0 : 1;
 
   return (
     <Stack
@@ -41,9 +43,7 @@ export default function CenteredStack({
     >
       <Stack sx={{ maxWidth: maxWidthPG, width: "100%", ...sx }}>
         {addCard ? (
-          <Card sx={{ p: 2, ...cardSX, borderRadius: mmx === 0 ? 0 : 1 }}>
-            {children}
-          </Card>
+          <Card sx={{ p: 2, ...cardSX, borderRadius: cardBR }}>{children}</Card>
         ) : (
           children
         )}

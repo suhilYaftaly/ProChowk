@@ -15,6 +15,7 @@ import ResetPassword from "@pages/ResetPassword";
 import Logs from "@pages/Logs";
 import SignUp from "@pages/SignUp";
 import ProfileSetup from "@pages/ProfileSetup";
+import JobPost from "@/pages/JobPost";
 
 export const paths = {
   login: "/login",
@@ -25,6 +26,7 @@ export const paths = {
   verifyEmail: `/verify-email`,
   resetPassword: `/reset-password`,
   logs: `/logs`,
+  jobPost: `/job-post`,
 };
 
 const router = createBrowserRouter(
@@ -39,6 +41,7 @@ const router = createBrowserRouter(
       <Route path={paths.verifyEmail} element={<VerifyEmail />} />
       <Route path={paths.resetPassword} element={<ResetPassword />} />
       <Route path={paths.logs} element={<Logs />} />
+      <Route path={paths.jobPost} element={<JobPost />} />
     </Route>
   )
 );

@@ -63,6 +63,7 @@ export default function AddressSearch({
   };
 
   const onMyLocationClick = () => {
+    //TODO: handle reverse geocode on my location
     getUserLocation({
       onSuccess: ({ lat, lng }) => dispatch(userLocationSuccess({ lat, lng })),
     });

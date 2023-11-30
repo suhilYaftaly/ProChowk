@@ -38,6 +38,7 @@ export default gql`
     address: Address
     userId: ID
     user: User
+    materials: [String]
   }
   type Budget {
     id: ID
@@ -66,6 +67,7 @@ export default gql`
     budget: JobBudgetInput!
     address: AddressInput!
     images: [JobImageInput!]
+    materials: [String]
   }
 
   input JobBudgetInput {

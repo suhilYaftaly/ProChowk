@@ -4,6 +4,7 @@ import {
   Divider,
   FormControlLabel,
   FormGroup,
+  InputAdornment,
   Slider,
   Stack,
   SwipeableDrawer,
@@ -131,6 +132,7 @@ export default function SearchFilters({
     }
   };
 
+  //TODO: two step filter on proximity and newest
   return (
     <SwipeableDrawer
       anchor="right"
@@ -162,7 +164,7 @@ export default function SearchFilters({
       <Divider sx={{ my: dMy }} />
       <Stack sx={{ mx: px }}>
         <Text type="title" sx={{ fontSize: 16, mb: 1 }}>
-          Radius (KM)*
+          Radius*
         </Text>
         <TextField
           variant="outlined"
@@ -175,6 +177,9 @@ export default function SearchFilters({
           helperText={filterErrors.radius}
           required
           inputProps={{ min: CC.minRadius, max: CC.maxRadius }}
+          InputProps={{
+            endAdornment: <InputAdornment position="end"> KM</InputAdornment>,
+          }}
         />
         <Slider
           value={Number(filters.radius)}
@@ -216,8 +221,13 @@ export default function SearchFilters({
             error={Boolean(filterErrors.budget.from)}
             helperText={filterErrors.budget.from}
             required
-            inputProps={{ min: CC.budget.fromMin, max: CC.budget.fromMax }}
             sx={{ width: 127 }}
+            inputProps={{ min: CC.budget.fromMin, max: CC.budget.fromMax }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">$</InputAdornment>
+              ),
+            }}
           />
           <TextField
             variant="outlined"
@@ -229,8 +239,13 @@ export default function SearchFilters({
             error={Boolean(filterErrors.budget.to)}
             helperText={filterErrors.budget.to}
             required
-            inputProps={{ min: CC.budget.toMin, max: CC.budget.toMax }}
             sx={{ width: 127 }}
+            inputProps={{ min: CC.budget.toMin, max: CC.budget.toMax }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">$</InputAdornment>
+              ),
+            }}
           />
         </Stack>
         <Slider

@@ -1,3 +1,5 @@
+import { JobInput } from "@gqlOps/job";
+
 /**whole page padding */
 export const pp = 2;
 /**page padding horizontal */
@@ -6,6 +8,8 @@ export const ppx = 2;
 export const ppy = 2;
 /**page content max width, can be used as a wrapper for multiple sections */
 export const maxWidthPG = 1128;
+
+const minimumWage = 14;
 
 /**Dashboard search filter configs */
 export const searchFilterConfigs = {
@@ -16,11 +20,48 @@ export const searchFilterConfigs = {
     minMaxHours: 1,
     maxMaxHours: 2000,
     defaultMaxHours: 150,
-    from: 1,
+    from: 10,
     to: 50000,
-    fromMin: 1,
-    fromMax: 100000,
-    toMin: 1,
-    toMax: 100000,
+    fromMin: 10,
+    fromMax: 500000,
+    toMin: 10,
+    toMax: 500000,
+  },
+};
+
+/**Job post configs */
+export const jobConfigs = {
+  defaults: {
+    /**job initial values */
+    jobForm: {
+      title: "",
+      desc: "",
+      jobSize: "Large",
+      skills: [],
+      budget: {
+        type: "Project",
+        from: 500,
+        to: 600,
+        maxHours: 150,
+      },
+      images: [],
+      address: undefined as any,
+      materials: [],
+    } as JobInput,
+    /**Reset values for when switching between budget types */
+    budgetResets: {
+      project: { from: 500, to: 600 },
+      hourly: { from: 20, to: 30 },
+    },
+  },
+  validations: {
+    minTitle: 5,
+    minSkills: 1,
+    minWage: minimumWage,
+    budget: { minMaxHours: 1 },
+    minDesc: 10,
+    maxImages: 10,
+    maxDesc: 2000,
+    maxImgsSize: 15, //in MBs
   },
 };

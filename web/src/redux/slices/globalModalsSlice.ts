@@ -1,22 +1,14 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 
-interface IState {
-  openJobPost: boolean;
-}
+interface IState {}
 
-const initialState: IState = {
-  openJobPost: false,
-};
+const initialState: IState = {};
 
 const slice = createSlice({
   name: "globalModals",
   initialState,
-  reducers: {
-    setOpenJobPost(state, action: PayloadAction<IState["openJobPost"]>) {
-      state.openJobPost = action.payload;
-    },
-  },
+  reducers: {},
 });
 
-export const { setOpenJobPost } = slice.actions;
+export const {} = slice.actions;
 export default slice.reducer;
