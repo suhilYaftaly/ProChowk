@@ -6,6 +6,7 @@ import {
   Observable,
 } from "@apollo/client";
 import { onError } from "@apollo/client/link/error";
+import { isPast } from "date-fns";
 
 import { store } from "@redux/store";
 import { logOut, setUserProfile } from "@rSlices/userSlice";
@@ -21,40 +22,59 @@ const httpLink = new HttpLink({
   credentials: "include",
 });
 
+let isRefreshingToken = false;
+let tokenRefreshPromise: Promise<string> | undefined = undefined;
+
 const authLink = new ApolloLink((operation, forward) => {
   return new Observable((observer) => {
-    let token = store.getState().user.userProfile.data?.token;
-
-    const setTokenAndForward = async () => {
-      if (token) {
-        const decodedToken = decodeJwtToken(token);
-        const currentTime = Date.now().valueOf() / 1000;
-
-        if (decodedToken.exp < currentTime) {
+    const attemptTokenRefresh = async () => {
+      if (!isRefreshingToken) {
+        isRefreshingToken = true;
+        tokenRefreshPromise = new Promise<string>(async (resolve, reject) => {
           try {
-            // Attempt to refresh the token
             const userData = store.getState().user.userProfile.data;
             const refreshToken = userData?.refreshToken;
-
-            if (refreshToken && userData) {
-              const newAccessToken = await fetchNewToken(refreshToken);
-
-              if (newAccessToken) {
-                const { accessToken, refreshToken } = newAccessToken;
+            if (refreshToken) {
+              const newToken = await fetchNewToken(refreshToken);
+              if (newToken) {
+                const { accessToken, refreshToken } = newToken;
                 // Update Redux store with new token
                 dispatch(
                   setUserProfile({ ...userData, refreshToken }, accessToken)
                 );
-                token = accessToken;
+                resolve(accessToken); // Resolve with new access token
+              } else {
+                reject(new Error("Token refresh failed"));
               }
+            } else {
+              reject(new Error("No refresh token available"));
             }
+          } catch (error) {
+            reject(error);
+          } finally {
+            isRefreshingToken = false;
+          }
+        });
+      }
+
+      return tokenRefreshPromise;
+    };
+
+    const setTokenAndForward = async () => {
+      let token = store.getState().user.userProfile.data?.token;
+      if (token) {
+        const decodedToken = decodeJwtToken(token);
+
+        if (isPast(new Date(decodedToken.exp * 1000))) {
+          try {
+            token = await attemptTokenRefresh();
           } catch (error) {
             console.error("Token refresh failed:", error);
           }
         }
       }
 
-      // Add the token to the operation's context so it can be included in the HTTP headers
+      // Set headers and forward operation
       operation.setContext(({ headers = {} }) => ({
         headers: {
           ...headers,
@@ -62,7 +82,6 @@ const authLink = new ApolloLink((operation, forward) => {
         },
       }));
 
-      // Forward the operation down the chain
       forward(operation).subscribe({
         next: observer.next.bind(observer),
         error: observer.error.bind(observer),
@@ -96,9 +115,7 @@ export const client = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
-/**
- * REFRESH TOKEN HELPERS
- */
+//REFRESH TOKEN HELPERS
 const tokenLink = ApolloLink.from([errorLink, httpLink]);
 const tokenClient = new ApolloClient({
   link: tokenLink,

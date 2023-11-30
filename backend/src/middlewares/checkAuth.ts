@@ -128,6 +128,7 @@ export const verifyToken = ({ token, type = "session" }: IVerifyToken) => {
     }
     if (type && type !== results.type)
       throw gqlError({ msg: "incorrect token type." });
+
     return results;
   } catch (error) {
     if (error.name === "TokenExpiredError")
@@ -135,26 +136,26 @@ export const verifyToken = ({ token, type = "session" }: IVerifyToken) => {
         case "session":
           throw gqlError({
             msg: "Your Session has Expired, Please Login again!",
-            code: error.code,
+            code: "UNAUTHENTICATED",
           });
         case "password":
           throw gqlError({
             msg: "Link expired. Please resent a new link to reset password.",
-            code: error.code,
+            code: "UNAUTHENTICATED",
           });
         case "email":
           throw gqlError({
             msg: "Link expired. Please resent a new link to verify your email.",
-            code: error.code,
+            code: "UNAUTHENTICATED",
           });
         case "":
-          throw gqlError({ msg: "Token expired", code: error.code });
+          throw gqlError({ msg: "Token expired", code: "UNAUTHENTICATED" });
         default:
-          throw gqlError({ msg: error.message, code: error.code });
+          throw gqlError({ msg: error.message, code: "UNAUTHENTICATED" });
       }
     else {
       // other errors
-      throw gqlError({ msg: error.message, code: error.code });
+      throw gqlError({ msg: error.message, code: "UNAUTHENTICATED" });
     }
   }
 };
