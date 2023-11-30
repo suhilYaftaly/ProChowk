@@ -28,7 +28,7 @@ export default function QRCodeModal({
   fileName = "NexaBind-QRCode-" + fileName;
 
   const imageSettings = {
-    src: logoWhiteOutline,
+    src: logoWhiteOutline as any,
     height: 70,
     width: 70,
     excavate: false,

@@ -1,7 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { CSSProperties } from "react";
 
-import logo from "../../assets/logo.svg";
+import Logo from "../../assets/logo.svg?react";
 import Text from "./Text";
 
 interface Props {
@@ -22,7 +22,7 @@ export default function AppLogo({
       style={{ display: "flex", textDecoration: "none", ...linkStyle }}
       to={"/"}
     >
-      {type === "icon" && <img src={logo} alt={"logo"} width={size} />}
+      {type === "icon" && <Logo style={{ width: size, height: size }} />}
       {type === "text" && (
         <Text cColor="primary" type="subtitle" sx={{ fontWeight: "600" }}>
           Nexa
