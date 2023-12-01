@@ -1,4 +1,5 @@
-import { JobInput } from "@gqlOps/job";
+import { ISearchFilters } from "@jobs/searchJobs/SearchFilters";
+import { BudgetType, JobInput } from "@gqlOps/job";
 
 /**whole page padding */
 export const pp = 2;
@@ -15,7 +16,6 @@ const minimumWage = 14;
 export const searchFilterConfigs = {
   minRadius: 5,
   maxRadius: 200,
-  defaultRadius: 50,
   budget: {
     from: 10,
     to: 50000,
@@ -24,6 +24,19 @@ export const searchFilterConfigs = {
     toMin: 10,
     toMax: 100000,
   },
+  dayPostedIndex: 3,
+  defaults: {
+    radius: 50,
+    address: undefined,
+    latLng: undefined,
+    startDate: undefined,
+    endDate: undefined,
+    budget: {
+      types: ["Hourly", "Project"] as BudgetType[],
+      from: 10,
+      to: 50000,
+    },
+  } as ISearchFilters,
 };
 
 /**Job post configs */

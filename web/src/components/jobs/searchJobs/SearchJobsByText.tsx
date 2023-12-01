@@ -3,7 +3,7 @@ import { useState, FormEvent, useEffect } from "react";
 import { toast } from "react-toastify";
 
 import { useSkills } from "@gqlOps/skill";
-import { BudgetType, useJobsByLocation, useJobsByText } from "@gqlOps/job";
+import { useJobsByLocation, useJobsByText } from "@gqlOps/job";
 import { useUserStates } from "@redux/reduxStates";
 import { JobsCards } from "../Jobs";
 import SearchFilters, {
@@ -21,19 +21,7 @@ export default function SearchJobsByText() {
   const theme = useTheme();
   const primaryC = theme.palette.primary.main;
   const [searchText, setSearchText] = useState("");
-  const initialTypes: BudgetType[] = ["Hourly", "Project"];
-  const [filters, setFilters] = useState<ISearchFilters>({
-    radius: FCC.defaultRadius,
-    address: undefined,
-    latLng: undefined,
-    startDate: undefined,
-    endDate: undefined,
-    budget: {
-      types: initialTypes,
-      from: FCC.budget.from,
-      to: FCC.budget.to,
-    },
-  });
+  const [filters, setFilters] = useState<ISearchFilters>(FCC.defaults);
   const [filterErrors, setFilterErrors] = useState<ISearchFilterErrors>({
     radius: "",
     address: "",
@@ -156,7 +144,7 @@ export default function SearchJobsByText() {
       <SearchFilters
         open={openDrawer}
         setOpen={setOpenDrawer}
-        initialTypes={initialTypes}
+        initialTypes={FCC.defaults.budget.types}
         filters={filters}
         setFilters={setFilters}
         filterErrors={filterErrors}

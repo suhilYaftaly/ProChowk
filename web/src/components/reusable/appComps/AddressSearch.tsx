@@ -25,6 +25,7 @@ interface Props {
   helperText?: string;
   /**The value of the autocomplete. */
   value?: string;
+  setValue?: (value: string) => void;
   enableMyLocationBtn?: boolean;
 }
 
@@ -35,6 +36,7 @@ export default function AddressSearch({
   label = "Address Search",
   helperText,
   value,
+  setValue,
   enableMyLocationBtn,
 }: Props) {
   const dispatch = useAppDispatch();
@@ -43,23 +45,23 @@ export default function AddressSearch({
   const lng = userLocation?.data?.lng;
   const { geocodeAsync, data, loading } = useGeocode();
   const [adr, setAdr] = useState<IAddress | undefined>(address);
-  const [displayValue, setDisplayValue] = useState(value || "");
 
   useEffect(() => {
     if (address) {
       const formattedAdr = getAddressFormat(address);
       setAdr(formattedAdr);
-      setDisplayValue(formattedAdr.displayName);
-    }
+      setValue && setValue(formattedAdr.displayName);
+    } else if (setValue) setValue(value || "");
   }, [address]);
 
-  useEffect(() => {
-    if (value) setDisplayValue(value);
-  }, [value]);
-
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>): void => {
-    const { value } = e.target;
-    if (value.trim().length > 2) geocodeAsync({ vars: { value, lat, lng } });
+    if (value && setValue) {
+      setValue("");
+      return;
+    }
+    const { value: targValue } = e.target;
+    if (targValue.trim().length > 2)
+      geocodeAsync({ vars: { value: targValue, lat, lng } });
   };
 
   const onMyLocationClick = () => {
@@ -67,13 +69,14 @@ export default function AddressSearch({
     getUserLocation({
       onSuccess: ({ lat, lng }) => dispatch(userLocationSuccess({ lat, lng })),
     });
+    setValue && setValue(value || "");
   };
 
   return (
     <>
       <Autocomplete
         freeSolo
-        value={displayValue}
+        value={value}
         loading={loading}
         getOptionLabel={(option) =>
           typeof option === "string" ? option : option.displayName

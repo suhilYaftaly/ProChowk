@@ -21,16 +21,23 @@ export interface IDateRange {
 }
 interface Props {
   onDateChange: ({ startDate, endDate }: IDateRange) => void;
+  selectedIndes: number;
 }
-export default function DayPosted({ onDateChange }: Props) {
+export default function DayPosted({ onDateChange, selectedIndes }: Props) {
   const theme = useTheme();
   const darkTxColor = theme.palette.text.dark;
-  const [selectedOption, setSelectedOption] = useState(DayPostedOptions[3]);
+  const [selectedOption, setSelectedOption] = useState(
+    DayPostedOptions[selectedIndes]
+  );
 
   useEffect(() => {
     const { startDate, endDate } = getDateRange();
     onDateChange({ startDate, endDate });
   }, [selectedOption]);
+
+  useEffect(() => {
+    setSelectedOption(DayPostedOptions[selectedIndes]);
+  }, [selectedIndes]);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSelectedOption(event.target.value);

@@ -4,16 +4,19 @@ import {
   Divider,
   FormControlLabel,
   FormGroup,
+  IconButton,
   InputAdornment,
   Slider,
   Stack,
   SwipeableDrawer,
   TextField,
+  Tooltip,
   useTheme,
 } from "@mui/material";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
-import { SetStateAction, Dispatch } from "react";
+import { SetStateAction, Dispatch, useState, useEffect } from "react";
 import SearchIcon from "@mui/icons-material/Search";
+import RefreshIcon from "@mui/icons-material/Refresh";
 
 import Text from "@reusable/Text";
 import AddressSearch from "@appComps/AddressSearch";
@@ -62,6 +65,20 @@ export default function SearchFilters({
   /**divider margin vertical */
   const dMy = 2;
   const { userLocation } = useUserStates();
+  const latLng = userLocation?.data;
+  const [resets, setResets] = useState({
+    dayPostedIndex: CC.dayPostedIndex,
+    addressDisplay: latLng ? "My Location" : "",
+  });
+
+  useEffect(() => {
+    if (latLng) {
+      setResets((prev) => ({
+        ...prev,
+        addressDisplay: latLng ? "My Location" : "",
+      }));
+    }
+  }, [latLng]);
 
   const toggleDrawer = () => setOpen(!open);
 
@@ -127,7 +144,14 @@ export default function SearchFilters({
     setFilters((prev) => ({ ...prev, startDate, endDate }));
   };
 
-  //TODO: two step filter on proximity and newest
+  const resetFilters = () => {
+    setFilters({ ...CC.defaults, latLng });
+    setResets({
+      dayPostedIndex: CC.dayPostedIndex,
+      addressDisplay: latLng ? "My Location" : "",
+    });
+  };
+
   return (
     <SwipeableDrawer
       anchor="right"
@@ -137,10 +161,23 @@ export default function SearchFilters({
     >
       <Stack
         direction="row"
-        sx={{ alignItems: "center", px, pt: px, minWidth: 300 }}
+        sx={{
+          alignItems: "center",
+          px,
+          pt: px,
+          minWidth: 300,
+          justifyContent: "space-between",
+        }}
       >
-        <FilterAltIcon sx={{ mr: 2 }} />
-        <Text type="subtitle">Filters</Text>
+        <Stack direction={"row"} alignItems={"center"}>
+          <FilterAltIcon sx={{ mr: 2 }} />
+          <Text type="subtitle">Filters</Text>
+        </Stack>
+        <Tooltip title="Reset Filters">
+          <IconButton onClick={resetFilters} color="inherit">
+            <RefreshIcon />
+          </IconButton>
+        </Tooltip>
       </Stack>
       <Divider sx={{ my: dMy }} />
       <Stack sx={{ px }}>
@@ -149,7 +186,10 @@ export default function SearchFilters({
         </Text>
         <AddressSearch
           label=""
-          value={userLocation.data ? "My Location" : ""}
+          value={resets.addressDisplay}
+          setValue={(val) =>
+            setResets((prev) => ({ ...prev, addressDisplay: val }))
+          }
           address={filters?.address}
           onSelect={onAddressSelect}
           helperText={filterErrors.address}
@@ -200,13 +240,16 @@ export default function SearchFilters({
           />
         ))}
       </FormGroup>
-      <Divider sx={{ my: dMy }} />
 
+      <Divider sx={{ my: dMy }} />
       <Stack sx={{ px }}>
         <Text type="title" sx={{ fontSize: 16, mb: 1 }}>
           Day Posted
         </Text>
-        <DayPosted onDateChange={onDateChange} />
+        <DayPosted
+          onDateChange={onDateChange}
+          selectedIndes={resets.dayPostedIndex}
+        />
       </Stack>
 
       <Divider sx={{ my: dMy }} />
