@@ -15,9 +15,9 @@ export default function Home() {
   const isMobile = useIsMobile();
 
   return (
-    <CenteredStack mmx={1}>
+    <CenteredStack contSX={{ my: 0 }} mmx={0}>
       <Stack direction={"row"}>
-        <div style={{ width: "100%" }}>
+        <CenteredStack mmx={0} contSX={{ mx: 0, width: "100%" }} addCard>
           <SearchJobsByText />
           {isDeveloper(user?.roles) && (
             <>
@@ -29,9 +29,9 @@ export default function Home() {
               <ViewAllUsers />
             </>
           )}
-        </div>
+        </CenteredStack>
         {user && !isMobile && (
-          <Stack sx={{ minWidth: 300, ml: 2 }}>
+          <Stack sx={{ minWidth: 300, ml: 2, mt: 2 }}>
             <Card>
               <ProfileList />
             </Card>

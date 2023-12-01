@@ -81,6 +81,7 @@ export default function JobBudget({ jobForm, setJobForm, errors }: IJobSteps) {
         placeholder={"From"}
         InputProps={{
           startAdornment: <InputAdornment position="start">$</InputAdornment>,
+          endAdornment: <InputAdornment position="end">/hour</InputAdornment>,
         }}
         error={Boolean(errors.budget.from)}
         helperText={errors.budget.from}
@@ -99,6 +100,7 @@ export default function JobBudget({ jobForm, setJobForm, errors }: IJobSteps) {
         placeholder={"To"}
         InputProps={{
           startAdornment: <InputAdornment position="start">$</InputAdornment>,
+          endAdornment: <InputAdornment position="end">/hour</InputAdornment>,
         }}
         error={Boolean(errors.budget.to)}
         helperText={errors.budget.to}

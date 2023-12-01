@@ -17,9 +17,6 @@ export const searchFilterConfigs = {
   maxRadius: 200,
   defaultRadius: 50,
   budget: {
-    minMaxHours: 1,
-    maxMaxHours: 2000,
-    defaultMaxHours: 150,
     from: 10,
     to: 50000,
     fromMin: 10,

@@ -26,12 +26,12 @@ export interface ISearchFilters {
   radius: number;
   address?: IAddress;
   latLng?: LatLngInput;
-  budget: { types: BudgetType[]; maxHours: number; from: number; to: number };
+  budget: { types: BudgetType[]; from: number; to: number };
 }
 export interface ISearchFilterErrors {
   radius: string;
   address?: string;
-  budget: { types: string; maxHours: string; from: string; to: string };
+  budget: { types: string; from: string; to: string };
 }
 
 interface Props {
@@ -65,18 +65,6 @@ export default function SearchFilters({
   const onRadiusChange = (value: number | string) => {
     setFilters((prev) => {
       const newOptions = { ...prev, radius: value as number };
-      checkFilterOptionsError({
-        filters: newOptions,
-        setErrors: setFilterErrors,
-      });
-      return newOptions;
-    });
-  };
-
-  const onBudgetMaxHoursChange = (value: number | string) => {
-    const maxHours = value as number;
-    setFilters((prev) => {
-      const newOptions = { ...prev, budget: { ...prev.budget, maxHours } };
       checkFilterOptionsError({
         filters: newOptions,
         setErrors: setFilterErrors,
@@ -257,39 +245,6 @@ export default function SearchFilters({
           onTouchStart={(e) => e.stopPropagation()}
         />
       </Stack>
-      {filters.budget.types.includes("Hourly") && (
-        <>
-          <Divider sx={{ my: px }} />
-          <Stack sx={{ mx: px }}>
-            <Text type="title" sx={{ fontSize: 16, mb: 1 }}>
-              Max Hours*
-            </Text>
-            <TextField
-              variant="outlined"
-              size="small"
-              name={"maxHours"}
-              value={filters.budget.maxHours}
-              type="number"
-              onChange={(e) => onBudgetMaxHoursChange(e.target.value)}
-              error={Boolean(filterErrors.budget.maxHours)}
-              helperText={filterErrors.budget.maxHours}
-              required
-              inputProps={{
-                min: CC.budget.minMaxHours,
-                max: CC.budget.maxMaxHours,
-              }}
-            />
-            <Slider
-              value={Number(filters.budget.maxHours)}
-              onChange={(_, value) => onBudgetMaxHoursChange(Number(value))}
-              min={CC.budget.minMaxHours}
-              max={CC.budget.maxMaxHours}
-              onMouseDown={(e) => e.stopPropagation()}
-              onTouchStart={(e) => e.stopPropagation()}
-            />
-          </Stack>
-        </>
-      )}
       <Divider sx={{ my: dMy }} />
       <Button
         variant="contained"
@@ -315,7 +270,7 @@ export const checkFilterOptionsError = ({
   const {
     radius,
     latLng,
-    budget: { maxHours, types, from, to },
+    budget: { types, from, to },
   } = filters;
 
   //location check
@@ -342,24 +297,6 @@ export const checkFilterOptionsError = ({
     errors.push(errMsg);
   } else
     setErrors((prev) => ({ ...prev, budget: { ...prev.budget, type: "" } }));
-
-  //budget maxHours check
-  if (
-    types.includes("Hourly") &&
-    (maxHours < CC.budget.minMaxHours || maxHours > CC.budget.maxMaxHours)
-  ) {
-    const errMsg = `Max Hours must be between ${CC.budget.minMaxHours} and ${CC.budget.maxMaxHours}.`;
-    setErrors((prev) => ({
-      ...prev,
-      budget: { ...prev.budget, maxHours: errMsg },
-    }));
-    errors.push(errMsg);
-  } else {
-    setErrors((prev) => ({
-      ...prev,
-      budget: { ...prev.budget, maxHours: "" },
-    }));
-  }
 
   //budget price from check
   if (from < CC.budget.fromMin || from > CC.budget.fromMax) {

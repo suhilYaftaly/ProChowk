@@ -84,7 +84,6 @@ export default gql`
   }
   input JobsByTxtBudgetInput {
     types: [BudgetType!]!
-    maxHours: Float
     from: Float
     to: Float
   }

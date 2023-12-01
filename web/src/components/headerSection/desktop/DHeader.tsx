@@ -1,4 +1,4 @@
-import { Stack } from "@mui/material";
+import { Divider, Stack } from "@mui/material";
 
 import ColorThemeToggle from "../ColorThemeToggle";
 import DMyProfilePopover from "./MMyProfilePopover";
@@ -13,8 +13,18 @@ export default function DHeader() {
     >
       <AppLogo type="text" />
       <Stack direction="row" alignItems={"center"}>
-        <LogInButton />
+        <LogInButton sx={{ mr: 1 }} />
         <DMyProfilePopover />
+        <Divider
+          sx={{
+            height: 20,
+            m: 0.5,
+            borderColor: "gray",
+            borderWidth: 1,
+            mx: 1,
+          }}
+          orientation="vertical"
+        />
         <ColorThemeToggle />
       </Stack>
     </Stack>

@@ -1,4 +1,4 @@
-import { Button, CircularProgress } from "@mui/material";
+import { Button, CircularProgress, Stack, SxProps, Theme } from "@mui/material";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -10,7 +10,10 @@ import { USER_PROFILE_KEY } from "@constants/localStorageKeys";
 import GoogleOneTapLogin from "../user/login/google/GoogleOneTapLogin";
 import { paths } from "@/routes/Routes";
 
-export default function LogInButton() {
+interface Props {
+  sx?: SxProps<Theme>;
+}
+export default function LogInButton({ sx }: Props) {
   const savedUserProfile = getLocalData(USER_PROFILE_KEY);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -21,7 +24,7 @@ export default function LogInButton() {
   }, []);
 
   return (
-    <>
+    <Stack sx={sx}>
       {!userProfile?.data &&
         (userProfile.isLoading ? (
           <CircularProgress size={20} color="primary" />
@@ -36,6 +39,6 @@ export default function LogInButton() {
           </Button>
         ))}
       {!savedUserProfile && !isLoggedOut && <GoogleOneTapLogin />}
-    </>
+    </Stack>
   );
 }

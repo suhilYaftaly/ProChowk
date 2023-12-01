@@ -135,21 +135,6 @@ export default {
         });
       }
 
-      // Additional match condition for maxHours, but only for 'Hourly' type
-      if (budget?.maxHours !== undefined) {
-        budgetConditions.push({
-          $or: [
-            { "associatedJobs.budget.type": { $ne: "Hourly" } },
-            {
-              $and: [
-                { "associatedJobs.budget.type": "Hourly" },
-                { "associatedJobs.budget.maxHours": { $lte: budget.maxHours } },
-              ],
-            },
-          ],
-        });
-      }
-
       // Additional match condition for price range (from and to)
       if (budget.from !== undefined) {
         budgetConditions.push({
@@ -389,7 +374,6 @@ interface IJobsByTextInput {
   pageSize?: number;
   budget?: {
     types: BudgetType[];
-    maxHours?: number;
     from?: number;
     to?: number;
   };

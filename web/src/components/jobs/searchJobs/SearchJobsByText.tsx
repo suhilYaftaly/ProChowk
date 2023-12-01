@@ -1,4 +1,4 @@
-import { Card, Stack, useTheme } from "@mui/material";
+import { Stack, useTheme } from "@mui/material";
 import { useState, FormEvent, useEffect } from "react";
 import { toast } from "react-toastify";
 
@@ -28,7 +28,6 @@ export default function SearchJobsByText() {
     latLng: undefined,
     budget: {
       types: initialTypes,
-      maxHours: FCC.budget.defaultMaxHours,
       from: FCC.budget.from,
       to: FCC.budget.to,
     },
@@ -36,7 +35,7 @@ export default function SearchJobsByText() {
   const [filterErrors, setFilterErrors] = useState<ISearchFilterErrors>({
     radius: "",
     address: "",
-    budget: { types: "", maxHours: "", from: "", to: "" },
+    budget: { types: "", from: "", to: "" },
   });
   const {
     skillsAsync,
@@ -94,8 +93,12 @@ export default function SearchJobsByText() {
     if (errors.length > 0) {
       toast.error(ToastErrorsList({ errors }));
       setOpenDrawer(true);
+      return;
     }
-    if (!searchText) toast.warning("Search text is empty.");
+    if (!searchText) {
+      toast.warning("Search text is empty.");
+      return;
+    }
 
     if (filters.latLng && searchText) {
       const fBudget = filters.budget;
@@ -105,7 +108,6 @@ export default function SearchJobsByText() {
           latLng: filters.latLng,
           budget: {
             ...fBudget,
-            maxHours: Number(fBudget.maxHours),
             from: Number(fBudget.from),
             to: Number(fBudget.to),
           },
@@ -117,39 +119,37 @@ export default function SearchJobsByText() {
 
   return (
     <>
-      <Card sx={{ p: 1 }}>
-        <Stack
-          component="form"
-          autoComplete="off"
-          onSubmit={onSearch}
-          sx={{ mb: 2 }}
-        >
-          <SearchBar
-            acOnOpen={() => skillsAsync({})}
-            acLoading={allSkillsLoading}
-            acOptions={allSkillsData?.map((skill) => skill.label) || []}
-            onFilterClick={() => setOpenDrawer(!openDrawer)}
-            setSearchText={setSearchText}
+      <Stack
+        component="form"
+        autoComplete="off"
+        onSubmit={onSearch}
+        sx={{ mb: 2 }}
+      >
+        <SearchBar
+          acOnOpen={() => skillsAsync({})}
+          acLoading={allSkillsLoading}
+          acOptions={allSkillsData?.map((skill) => skill.label) || []}
+          onFilterClick={() => setOpenDrawer(!openDrawer)}
+          setSearchText={setSearchText}
+        />
+      </Stack>
+      {jobData?.length === 0 ? (
+        <NoSearchResultsWidget title="No jobs found!" />
+      ) : (
+        <>
+          {jobData && jobData?.length > 0 && (
+            <Text type="subtitle" sx={{ mb: 2, mt: 3 }}>
+              Jobs Found{" "}
+              <span style={{ color: primaryC }}>({jobData?.length})</span>
+            </Text>
+          )}
+          <JobsCards
+            jobs={jobData}
+            loading={jobLoading}
+            updateLoading={jobLoading}
           />
-        </Stack>
-        {jobData?.length === 0 ? (
-          <NoSearchResultsWidget title="No jobs found!" />
-        ) : (
-          <>
-            {jobData && jobData?.length > 0 && (
-              <Text type="subtitle" sx={{ mb: 2, mt: 3 }}>
-                Jobs Found{" "}
-                <span style={{ color: primaryC }}>({jobData?.length})</span>
-              </Text>
-            )}
-            <JobsCards
-              jobs={jobData}
-              loading={jobLoading}
-              updateLoading={jobLoading}
-            />
-          </>
-        )}
-      </Card>
+        </>
+      )}
       <SearchFilters
         open={openDrawer}
         setOpen={setOpenDrawer}
