@@ -13,7 +13,11 @@ import { SubsciptionContext, GraphQLContext } from "../../types/commonTypes";
 import { connectToMongoDB } from "../db/mongodb";
 import resolvers from "../../graphql/resolvers";
 import typeDefs from "../../graphql/typeDefs";
-import { withCatch, wrapResolvers } from "./errorHandling";
+import {
+  apolloServerFormatError,
+  withCatch,
+  wrapResolvers,
+} from "./errorHandling";
 import {
   rateLimitDirectiveTransformer,
   rateLimitDirectiveTypeDefs,
@@ -65,6 +69,7 @@ export const apolloServerSetup = async () => {
     schema,
     validationRules: [depthLimit(4)],
     csrfPrevention: true,
+    formatError: apolloServerFormatError,
     plugins: [
       // Proper shutdown for the HTTP server.
       ApolloServerPluginDrainHttpServer({ httpServer }),

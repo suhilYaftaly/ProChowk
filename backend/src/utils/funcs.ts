@@ -2,6 +2,7 @@ import axios from "axios";
 import { GraphQLError } from "graphql";
 import * as dotenv from "dotenv";
 import jwt from "jsonwebtoken";
+
 import { ISignedProps } from "../middlewares/checkAuth";
 import { appName, appNamePascalCase } from "../constants/constants";
 import { logger } from "../middlewares/logger/logger";
@@ -187,3 +188,48 @@ export const getClientIP = (req: GraphQLContext["req"]) => {
 };
 
 export const isDevEnv = process.env.NODE_ENV === "dev";
+
+/**
+ * Converts a duration in seconds into a human-readable format.
+ * The function breaks down the total duration into days, hours, minutes, and seconds,
+ * and creates a string that combines these units in a reader-friendly manner.
+ *
+ * - For durations longer than a day, it shows days followed by hours.
+ * - For durations of several hours (less than a day), it shows hours followed by minutes.
+ * - For durations of less than an hour, it shows minutes and seconds.
+ * - For durations of less than a minute, it shows just seconds.
+ *
+ * Each unit of time is pluralized correctly based on its value.
+ *
+ * @param {number} durationInSeconds - The total duration in seconds to be converted.
+ * @return {string} A string representing the duration in a human-readable format.
+ */
+export function formatDuration(durationInSeconds: number) {
+  let output = "";
+
+  const days = Math.floor(durationInSeconds / 86400);
+  const hours = Math.floor((durationInSeconds % 86400) / 3600);
+  const minutes = Math.floor((durationInSeconds % 3600) / 60);
+  const seconds = durationInSeconds % 60;
+
+  if (days > 0) {
+    output += `${days} day${days > 1 ? "s" : ""}`;
+    if (hours > 0) {
+      output += ` and ${hours} hour${hours > 1 ? "s" : ""}`;
+    }
+  } else if (hours > 0) {
+    output += `${hours} hour${hours > 1 ? "s" : ""}`;
+    if (minutes > 0) {
+      output += ` and ${minutes} minute${minutes > 1 ? "s" : ""}`;
+    }
+  } else if (minutes > 0) {
+    output += `${minutes} minute${minutes > 1 ? "s" : ""}`;
+    if (seconds > 0) {
+      output += ` and ${seconds} second${seconds > 1 ? "s" : ""}`;
+    }
+  } else {
+    output = `${seconds} second${seconds > 1 ? "s" : ""}`;
+  }
+
+  return output;
+}

@@ -1,9 +1,11 @@
-import { GraphQLError } from "graphql";
+import { GraphQLError, GraphQLFormattedError } from "graphql";
 
 import {
   IGQLError,
+  formatDuration,
   getClientIP,
   getUserFromReq,
+  gqlError,
   isDevEnv,
 } from "../../utils/funcs";
 import { logger } from "../logger/logger";
@@ -50,4 +52,24 @@ export const withCatch = (resolverFunction: Function) => {
       throw new GraphQLError(error?.message, error);
     }
   };
+};
+
+export const apolloServerFormatError = (error: GraphQLFormattedError) => {
+  // Check if this is a rate limit error
+  if (
+    error.extensions?.code === "INTERNAL_SERVER_ERROR" &&
+    error.message.startsWith("Too many requests")
+  ) {
+    const match = error.message.match(/(\d+) seconds/);
+    if (match) {
+      const durationInSeconds = parseInt(match[1], 10);
+      const readableDuration = formatDuration(durationInSeconds);
+      return gqlError({
+        msg: `Too many requests. Please try again in ${readableDuration}.`,
+        code: error.extensions?.code,
+      });
+    }
+  }
+
+  return error;
 };
