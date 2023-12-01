@@ -133,6 +133,8 @@ const jobOps = {
         $radius: Float
         $page: Int
         $pageSize: Int
+        $startDate: Date
+        $endDate: Date
         $budget: JobsByTxtBudgetInput
       ) {
         jobsByText(
@@ -141,6 +143,8 @@ const jobOps = {
           radius: $radius
           page: $page
           pageSize: $pageSize
+          startDate: $startDate
+          endDate: $endDate
           budget: $budget
         ) {
           ...JobFieldsShort
@@ -441,6 +445,8 @@ interface IJobsByTextInput {
   radius?: number;
   page?: number;
   pageSize?: number;
+  startDate?: string;
+  endDate?: string;
   budget?: JobsByTxtBudgetInput;
 }
 interface IJobsByTextIAsync {

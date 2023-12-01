@@ -20,9 +20,9 @@ export const searchFilterConfigs = {
     from: 10,
     to: 50000,
     fromMin: 10,
-    fromMax: 500000,
+    fromMax: 100000,
     toMin: 10,
-    toMax: 500000,
+    toMax: 100000,
   },
 };
 

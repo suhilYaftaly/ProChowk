@@ -26,6 +26,8 @@ export default function SearchJobsByText() {
     radius: FCC.defaultRadius,
     address: undefined,
     latLng: undefined,
+    startDate: undefined,
+    endDate: undefined,
     budget: {
       types: initialTypes,
       from: FCC.budget.from,
@@ -112,6 +114,7 @@ export default function SearchJobsByText() {
             to: Number(fBudget.to),
           },
           radius: Number(filters.radius),
+          startDate: filters.startDate,
         },
       });
     }

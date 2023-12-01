@@ -4,6 +4,7 @@ import {
   SKILL_COLLECTION,
   REFRESH_TOKEN_COLLECTION,
   JOB_COLLECTION,
+  BUDGET_COLLECTION,
 } from "../../constants/dbCollectionNames";
 import { logger } from "../logger/logger";
 import {
@@ -64,6 +65,11 @@ export const setupMongoIndexes = async (db: Db): Promise<void> => {
   await db
     .collection(JOB_COLLECTION)
     .createIndex({ title: "text", desc: "text" });
+
+  await db.collection(JOB_COLLECTION).createIndex({ createdAt: -1 });
+
+  await db.collection(BUDGET_COLLECTION).createIndex({ type: 1 });
+  await db.collection(BUDGET_COLLECTION).createIndex({ from: 1, to: 1 });
 
   //TTL(Time-to-Live) to remove old and expired token
   await db

@@ -21,11 +21,14 @@ import { IAddress, LatLngInput } from "@gqlOps/address";
 import { BudgetType } from "@gqlOps/job";
 import { searchFilterConfigs as CC } from "@config/configConst";
 import { useUserStates } from "@/redux/reduxStates";
+import DayPosted, { IDateRange } from "./filters/DayPosted";
 
 export interface ISearchFilters {
   radius: number;
   address?: IAddress;
   latLng?: LatLngInput;
+  startDate?: string;
+  endDate?: string;
   budget: { types: BudgetType[]; from: number; to: number };
 }
 export interface ISearchFilterErrors {
@@ -120,6 +123,10 @@ export default function SearchFilters({
     }
   };
 
+  const onDateChange = ({ startDate, endDate }: IDateRange) => {
+    setFilters((prev) => ({ ...prev, startDate, endDate }));
+  };
+
   //TODO: two step filter on proximity and newest
   return (
     <SwipeableDrawer
@@ -194,6 +201,15 @@ export default function SearchFilters({
         ))}
       </FormGroup>
       <Divider sx={{ my: dMy }} />
+
+      <Stack sx={{ px }}>
+        <Text type="title" sx={{ fontSize: 16, mb: 1 }}>
+          Day Posted
+        </Text>
+        <DayPosted onDateChange={onDateChange} />
+      </Stack>
+
+      <Divider sx={{ my: dMy }} />
       <Stack sx={{ mx: px }}>
         <Text type="title" sx={{ fontSize: 16, mb: 1 }}>
           Price Range*
@@ -210,7 +226,7 @@ export default function SearchFilters({
             helperText={filterErrors.budget.from}
             required
             sx={{ width: 127 }}
-            inputProps={{ min: CC.budget.fromMin, max: CC.budget.fromMax }}
+            inputProps={{ min: CC.budget.fromMin }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">$</InputAdornment>
@@ -228,7 +244,7 @@ export default function SearchFilters({
             helperText={filterErrors.budget.to}
             required
             sx={{ width: 127 }}
-            inputProps={{ min: CC.budget.toMin, max: CC.budget.toMax }}
+            inputProps={{ min: CC.budget.toMin }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">$</InputAdornment>
@@ -299,8 +315,8 @@ export const checkFilterOptionsError = ({
     setErrors((prev) => ({ ...prev, budget: { ...prev.budget, type: "" } }));
 
   //budget price from check
-  if (from < CC.budget.fromMin || from > CC.budget.fromMax) {
-    const errMsg = `From range must be between ${CC.budget.fromMin} and ${CC.budget.fromMax}.`;
+  if (from < CC.budget.fromMin) {
+    const errMsg = `From range must be more than ${CC.budget.fromMin}.`;
     setErrors((prev) => ({
       ...prev,
       budget: { ...prev.budget, from: errMsg },
@@ -318,8 +334,8 @@ export const checkFilterOptionsError = ({
   }
 
   //budget price tp check
-  if (to < CC.budget.toMin || to > CC.budget.toMax) {
-    const errMsg = `To range must be between ${CC.budget.toMin} and ${CC.budget.toMax}.`;
+  if (to < CC.budget.toMin) {
+    const errMsg = `To range must be more than ${CC.budget.toMin}.`;
     setErrors((prev) => ({ ...prev, budget: { ...prev.budget, to: errMsg } }));
     errors.push(errMsg);
   } else {

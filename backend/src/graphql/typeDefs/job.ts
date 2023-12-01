@@ -16,6 +16,8 @@ export default gql`
       radius: Float
       page: Int
       pageSize: Int
+      startDate: Date
+      endDate: Date
       budget: JobsByTxtBudgetInput
     ): [Job!]!
   }

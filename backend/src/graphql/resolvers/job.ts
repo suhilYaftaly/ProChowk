@@ -101,8 +101,11 @@ export default {
         latLng,
         radius = 60,
         page = 1,
-        pageSize = 20,
+        pageSize = 100,
         budget,
+
+        startDate,
+        endDate,
       }: IJobsByTextInput,
       context: GraphQLContext
     ): Promise<Job[]> => {
@@ -149,6 +152,19 @@ export default {
 
       // Combine the match conditions with the base condition
       let matchCondition = { $and: [baseMatchCondition, ...budgetConditions] };
+
+      //DATE RANGE FILTERS
+      if (startDate) {
+        // Use current date in ISO string format if endDate is not provided
+        if (!endDate) endDate = new Date().toISOString();
+        let dateRangeCondition: {
+          "associatedJobs.createdAt": { $gte?: Date; $lte: Date };
+        } = { "associatedJobs.createdAt": { $lte: new Date(endDate) } };
+        dateRangeCondition["associatedJobs.createdAt"].$gte = new Date(
+          startDate
+        );
+        matchCondition.$and.push(dateRangeCondition);
+      }
 
       const skip = (page - 1) * pageSize;
 
@@ -372,6 +388,8 @@ interface IJobsByTextInput {
   radius?: number;
   page?: number;
   pageSize?: number;
+  startDate?: string;
+  endDate?: string;
   budget?: {
     types: BudgetType[];
     from?: number;
