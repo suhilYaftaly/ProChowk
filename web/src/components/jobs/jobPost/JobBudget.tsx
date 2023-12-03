@@ -49,6 +49,8 @@ export default function JobBudget({ jobForm, setJobForm, errors }: IJobSteps) {
     }));
   };
 
+  const isHourly = jobForm.budget.type === "Hourly";
+
   return (
     <>
       <Text type="subtitle" sx={{ mb }}>
@@ -81,7 +83,9 @@ export default function JobBudget({ jobForm, setJobForm, errors }: IJobSteps) {
         placeholder={"From"}
         InputProps={{
           startAdornment: <InputAdornment position="start">$</InputAdornment>,
-          endAdornment: <InputAdornment position="end">/hour</InputAdornment>,
+          endAdornment: isHourly && (
+            <InputAdornment position="end">/hour</InputAdornment>
+          ),
         }}
         error={Boolean(errors.budget.from)}
         helperText={errors.budget.from}
@@ -100,13 +104,15 @@ export default function JobBudget({ jobForm, setJobForm, errors }: IJobSteps) {
         placeholder={"To"}
         InputProps={{
           startAdornment: <InputAdornment position="start">$</InputAdornment>,
-          endAdornment: <InputAdornment position="end">/hour</InputAdornment>,
+          endAdornment: isHourly && (
+            <InputAdornment position="end">/hour</InputAdornment>
+          ),
         }}
         error={Boolean(errors.budget.to)}
         helperText={errors.budget.to}
         required
       />
-      {jobForm?.budget?.type === "Hourly" && (
+      {isHourly && (
         <>
           <Text type="subtitle" sx={{ mb, mt }}>
             Max Hours

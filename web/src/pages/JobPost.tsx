@@ -19,7 +19,7 @@ import JobBudget from "@jobs/jobPost/JobBudget";
 import { jobConfigs } from "@/config/configConst";
 import JobDescription from "@jobs/jobPost/JobDescription";
 import JobPreview from "@/components/jobs/jobPost/JobPreview";
-import { useIsMobile } from "@/utils/hooks/hooks";
+import { useIsMobile, useRespVal } from "@/utils/hooks/hooks";
 import ToastErrorsList from "@reusable/ToastErrorsList";
 import { useSettingsStates, useUserStates } from "@/redux/reduxStates";
 import { navigateToUserPage } from "@/utils/utilFuncs";
@@ -131,7 +131,12 @@ export default function JobPost() {
           </Button>
         </JobNav>
       )}
-      <CenteredStack mmx={0} addCard cardSX={{ p: 0 }}>
+      <CenteredStack
+        mmx={0}
+        addCard
+        cardSX={{ p: 0 }}
+        contSX={{ my: useRespVal(0, 2) }}
+      >
         <JobContainer
           steps={steps}
           stepIndex={stepIndex}

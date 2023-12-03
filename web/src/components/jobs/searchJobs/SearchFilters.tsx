@@ -171,7 +171,9 @@ export default function SearchFilters({
       >
         <Stack direction={"row"} alignItems={"center"}>
           <FilterAltIcon sx={{ mr: 2 }} />
-          <Text type="subtitle">Filters</Text>
+          <Text type="subtitle" sx={{ fontWeight: 650 }}>
+            Filters
+          </Text>
         </Stack>
         <Tooltip title="Reset Filters">
           <IconButton onClick={resetFilters} color="inherit">
@@ -213,7 +215,7 @@ export default function SearchFilters({
           required
           inputProps={{ min: CC.minRadius, max: CC.maxRadius }}
           InputProps={{
-            endAdornment: <InputAdornment position="end"> KM</InputAdornment>,
+            endAdornment: <InputAdornment position="end"> km</InputAdornment>,
           }}
         />
         <Slider

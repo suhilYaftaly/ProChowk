@@ -7,7 +7,7 @@ import { useUserStates } from "@redux/reduxStates";
 import Text from "@reusable/Text";
 import ViewAllUsers from "@user/ViewAllUsers";
 import ProfileList from "@components/headerSection/myProfile/ProfileList";
-import { useIsMobile } from "@utils/hooks/hooks";
+import { useIsMobile, useRespVal } from "@utils/hooks/hooks";
 import PostJobBtn from "@components/headerSection/PostJobBtn";
 
 export default function Home() {
@@ -17,7 +17,11 @@ export default function Home() {
   return (
     <CenteredStack contSX={{ my: 0 }} mmx={0}>
       <Stack direction={"row"}>
-        <CenteredStack mmx={0} contSX={{ mx: 0, width: "100%" }} addCard>
+        <CenteredStack
+          mmx={0}
+          contSX={{ mx: 0, width: "100%", my: useRespVal(0, 2) }}
+          addCard
+        >
           <SearchJobsByText />
           {isDeveloper(user?.roles) && (
             <>
