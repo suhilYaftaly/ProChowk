@@ -103,7 +103,6 @@ interface IPIFOnSuccess {
 interface IPIF {
   file: File | undefined;
   maxSize?: number;
-  onSuccess: ({ imageUrl, fileSize }: IPIFOnSuccess) => void;
   /**
    * Optional file type for the output image.
    * For example, 'image/jpeg' or 'image/png'.
@@ -115,54 +114,53 @@ interface IPIF {
 }
 export const processImageFile = ({
   file,
-  onSuccess,
   maxSize = 1024,
   fileType,
   quality = 1,
-}: IPIF) => {
-  if (!file) return;
+}: IPIF): Promise<IPIFOnSuccess> => {
+  return new Promise((resolve, reject) => {
+    if (!file) {
+      reject("No file provided");
+      return;
+    }
 
-  const imageUrl = URL.createObjectURL(file);
-  const image = new Image();
-  image.onload = () => {
-    // Release object URL after use
-    URL.revokeObjectURL(imageUrl);
+    const imageUrl = URL.createObjectURL(file);
+    const image = new Image();
 
-    const canvas = document.createElement("canvas");
-    const aspectRatio = image.width / image.height;
-    let width = image.width;
-    let height = image.height;
+    image.onload = () => {
+      URL.revokeObjectURL(imageUrl);
 
-    // Calculate new dimensions if the image exceeds the maxSize
-    if (width > maxSize || height > maxSize) {
-      if (aspectRatio > 1) {
-        width = maxSize;
-        height = width / aspectRatio;
-      } else {
-        height = maxSize;
-        width = height * aspectRatio;
+      const canvas = document.createElement("canvas");
+      const aspectRatio = image.width / image.height;
+      let width = image.width;
+      let height = image.height;
+
+      if (width > maxSize || height > maxSize) {
+        if (aspectRatio > 1) {
+          width = maxSize;
+          height = width / aspectRatio;
+        } else {
+          height = maxSize;
+          width = height * aspectRatio;
+        }
       }
-    }
 
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext("2d");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas?.getContext("2d");
 
-    // Draw the image on the canvas with the new dimensions
-    if (ctx) {
-      ctx.drawImage(image, 0, 0, width, height);
-      const outputMimeType = fileType || file.type;
-      const resizedImageUrl = canvas.toDataURL(outputMimeType, quality);
-      const fileSize = (3 * resizedImageUrl.length) / 4; // Approximate file size in bytes
-      onSuccess({ imageUrl: resizedImageUrl, fileSize });
-    }
-  };
+      if (ctx) {
+        ctx.drawImage(image, 0, 0, width, height);
+        const outputMimeType = fileType || file.type;
+        const resizedImageUrl = canvas.toDataURL(outputMimeType, quality);
+        const fileSize = (3 * resizedImageUrl.length) / 4;
+        resolve({ imageUrl: resizedImageUrl, fileSize });
+      } else reject("Failed to get canvas context");
+    };
 
-  image.onerror = () => {
-    console.error("Error loading image");
-  };
-
-  image.src = imageUrl;
+    image.onerror = () => reject("Error loading image");
+    image.src = imageUrl;
+  });
 };
 
 export function validatePhoneNum(phoneNumber: string | undefined): boolean {

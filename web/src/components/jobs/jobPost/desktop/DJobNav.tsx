@@ -10,7 +10,7 @@ interface Props {
   stepIndex: number;
   onChange: (index: number) => void;
 }
-export default function JobNav({
+export default function DJobNav({
   children,
   steps,
   stepIndex,

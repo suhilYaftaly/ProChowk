@@ -8,6 +8,8 @@ import {
   CircularProgress,
 } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import { toast } from "react-toastify";
+
 import { processImageFile } from "@/utils/utilFuncs";
 
 export interface IFile {
@@ -76,23 +78,23 @@ export default function FileUpload({ onFileUpload, loading = false }: Props) {
     }
   };
 
-  const processFile = (file: File | undefined) => {
+  const processFile = async (file: File | undefined) => {
     if (file) {
       const isImage = file.type.startsWith("image/");
       if (isImage) {
-        processImageFile({
-          file,
-          onSuccess: ({ imageUrl, fileSize }) => {
-            setFileData({
-              name: file.name,
-              size: fileSize,
-              type: file.type,
-              desc: fileDesc,
-              url: imageUrl,
-            });
-            resetFileInput();
-          },
-        });
+        try {
+          const { imageUrl, fileSize } = await processImageFile({ file });
+          setFileData({
+            name: file.name,
+            size: fileSize,
+            type: file.type,
+            desc: fileDesc,
+            url: imageUrl,
+          });
+          resetFileInput();
+        } catch (error) {
+          toast.error("Error Uploading files, Please try again.");
+        }
       }
     }
   };

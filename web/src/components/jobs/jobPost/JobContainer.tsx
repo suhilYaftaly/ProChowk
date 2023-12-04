@@ -35,7 +35,6 @@ export default function JobContainer({
   const isMobile = useIsMobile();
   const theme = useTheme();
   const palette = theme.palette;
-  const prevStep = stepIndex > 0 && steps[stepIndex - 1];
   const nextStep = steps[stepIndex + 1];
 
   return (
@@ -75,17 +74,13 @@ export default function JobContainer({
         <Stack>
           <Divider sx={{ my: 2 }} />
           <Stack direction={"row"} sx={{ justifyContent: "space-between" }}>
-            {prevStep ? (
-              <Button
-                variant="outlined"
-                sx={{ borderRadius: 5 }}
-                onClick={onBack}
-              >
-                {prevStep?.label}
-              </Button>
-            ) : (
-              <div></div>
-            )}
+            <Button
+              variant="outlined"
+              sx={{ borderRadius: 5 }}
+              onClick={onBack}
+            >
+              Cancel
+            </Button>
             <Button
               variant="contained"
               sx={{ borderRadius: 5 }}

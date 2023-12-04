@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 import CenteredStack from "@reusable/CenteredStack";
-import JobNav from "@jobs/jobPost/JobNav";
+import DJobNav from "@jobs/jobPost/desktop/DJobNav";
 import JobContainer from "@jobs/jobPost/JobContainer";
 import { JobInput, useCreateJob } from "@gqlOps/job";
 import JobSize from "@jobs/jobPost/JobSize";
@@ -18,12 +18,13 @@ import JobTitleAndSkills from "@jobs/jobPost/JobTitleAndSkills";
 import JobBudget from "@jobs/jobPost/JobBudget";
 import { jobConfigs } from "@/config/configConst";
 import JobDescription from "@jobs/jobPost/JobDescription";
-import JobPreview from "@/components/jobs/jobPost/JobPreview";
+import JobPreview from "@jobs/jobPost/JobPreview";
 import { useIsMobile, useRespVal } from "@/utils/hooks/hooks";
 import ToastErrorsList from "@reusable/ToastErrorsList";
 import { useSettingsStates, useUserStates } from "@/redux/reduxStates";
 import { navigateToUserPage } from "@/utils/utilFuncs";
 import { paths } from "@/routes/Routes";
+import MJobNav from "@jobs/jobPost/mobile/MJobNav";
 
 export default function JobPost() {
   const isMobile = useIsMobile();
@@ -69,9 +70,11 @@ export default function JobPost() {
     { label: "Preview", rightCont: { content: <JobPreview job={jobForm} /> } },
   ];
 
-  const currentStep = steps[stepIndex];
-  const valProps = { jobForm, stepName: currentStep.label, setErrors };
   const isLastStep = steps.length === stepIndex + 1;
+  const currentStep = steps[stepIndex];
+  const prevStep = stepIndex > 0 && steps?.[stepIndex - 1];
+  const nextStep = steps?.[stepIndex + 1];
+  const valProps = { jobForm, stepName: currentStep.label, setErrors };
 
   const onNavChange = (newIndex: number) => {
     const errors = validateFields(valProps);
@@ -84,14 +87,14 @@ export default function JobPost() {
       if (errors.length < 1) setStepIndex((prev) => prev + 1);
     }
   };
-  const onBack = () => {
-    const errors = validateFields(valProps);
-    if (errors.length < 1) setStepIndex((prev) => prev - 1);
-  };
 
-  const onSaveDraft = () => {
-    if (isLastStep) onPostJob();
-    else navigate("/");
+  const onCancel = () => navigate("/");
+
+  const onMobileHeaderClick = () => {
+    if (prevStep) {
+      const errors = validateFields(valProps);
+      if (errors.length < 1) setStepIndex((prev) => prev - 1);
+    } else navigate("/");
   };
 
   const onPostJob = () => {
@@ -113,23 +116,31 @@ export default function JobPost() {
 
   return (
     <Stack>
-      {!isMobile && (
-        <JobNav steps={steps} stepIndex={stepIndex} onChange={onNavChange}>
-          <Button
-            variant={isLastStep ? "contained" : "outlined"}
-            onClick={onSaveDraft}
-            sx={{ borderRadius: 5 }}
-            disabled={loading}
-          >
-            {loading ? (
-              <CircularProgress size={25} color="primary" />
-            ) : isLastStep ? (
-              "Post Job"
-            ) : (
-              "Cancel"
-            )}
-          </Button>
-        </JobNav>
+      {isMobile ? (
+        <MJobNav
+          title={currentStep?.label}
+          subtitle={nextStep?.label}
+          currentStepNum={stepIndex + 1}
+          totalSteps={steps?.length}
+          onClick={onMobileHeaderClick}
+        />
+      ) : (
+        <DJobNav steps={steps} stepIndex={stepIndex} onChange={onNavChange}>
+          {isLastStep && (
+            <Button
+              variant="contained"
+              onClick={onPostJob}
+              sx={{ borderRadius: 5 }}
+              disabled={loading}
+            >
+              {loading ? (
+                <CircularProgress size={25} color="primary" />
+              ) : (
+                "Post Job"
+              )}
+            </Button>
+          )}
+        </DJobNav>
       )}
       <CenteredStack
         mmx={0}
@@ -141,7 +152,7 @@ export default function JobPost() {
           steps={steps}
           stepIndex={stepIndex}
           onNext={onNext}
-          onBack={onBack}
+          onBack={onCancel}
           showLeftCont={!isLastStep}
           nextBtnTitle={isLastStep ? "Post Job" : undefined}
           loading={loading}

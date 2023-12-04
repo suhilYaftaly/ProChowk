@@ -16,6 +16,7 @@ import Text from "@reusable/Text";
 import { IJobSteps } from "@/pages/JobPost";
 import { JobInput } from "@/graphql/operations/job";
 import { jobConfigs } from "@/config/configConst";
+import { useRespVal } from "@/utils/hooks/hooks";
 
 export default function JobBudget({ jobForm, setJobForm, errors }: IJobSteps) {
   const resets = jobConfigs.defaults.budgetResets;
@@ -70,48 +71,58 @@ export default function JobBudget({ jobForm, setJobForm, errors }: IJobSteps) {
           onTypeSelect={onTypeSelect}
         />
       </Stack>
-      <Text type="subtitle" sx={{ mb, mt }}>
-        From
-      </Text>
-      <TextField
-        variant="outlined"
-        size="small"
-        name={"from"}
-        value={jobForm?.budget?.from}
-        type="number"
-        onChange={onValueChange}
-        placeholder={"From"}
-        InputProps={{
-          startAdornment: <InputAdornment position="start">$</InputAdornment>,
-          endAdornment: isHourly && (
-            <InputAdornment position="end">/hour</InputAdornment>
-          ),
-        }}
-        error={Boolean(errors.budget.from)}
-        helperText={errors.budget.from}
-        required
-      />
-      <Text type="subtitle" sx={{ mb, mt }}>
-        To
-      </Text>
-      <TextField
-        variant="outlined"
-        size="small"
-        name={"to"}
-        value={jobForm?.budget?.to}
-        type="number"
-        onChange={onValueChange}
-        placeholder={"To"}
-        InputProps={{
-          startAdornment: <InputAdornment position="start">$</InputAdornment>,
-          endAdornment: isHourly && (
-            <InputAdornment position="end">/hour</InputAdornment>
-          ),
-        }}
-        error={Boolean(errors.budget.to)}
-        helperText={errors.budget.to}
-        required
-      />
+      <Stack direction={useRespVal("column", "row")}>
+        <Stack sx={{ mr: 2, width: "100%" }}>
+          <Text type="subtitle" sx={{ mb, mt }}>
+            From
+          </Text>
+          <TextField
+            variant="outlined"
+            size="small"
+            name={"from"}
+            value={jobForm?.budget?.from}
+            type="number"
+            onChange={onValueChange}
+            placeholder={"From"}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">$</InputAdornment>
+              ),
+              endAdornment: isHourly && (
+                <InputAdornment position="end">/hour</InputAdornment>
+              ),
+            }}
+            error={Boolean(errors.budget.from)}
+            helperText={errors.budget.from}
+            required
+          />
+        </Stack>
+        <Stack sx={{ width: "100%" }}>
+          <Text type="subtitle" sx={{ mb, mt }}>
+            To
+          </Text>
+          <TextField
+            variant="outlined"
+            size="small"
+            name={"to"}
+            value={jobForm?.budget?.to}
+            type="number"
+            onChange={onValueChange}
+            placeholder={"To"}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">$</InputAdornment>
+              ),
+              endAdornment: isHourly && (
+                <InputAdornment position="end">/hour</InputAdornment>
+              ),
+            }}
+            error={Boolean(errors.budget.to)}
+            helperText={errors.budget.to}
+            required
+          />
+        </Stack>
+      </Stack>
       {isHourly && (
         <>
           <Text type="subtitle" sx={{ mb, mt }}>

@@ -1,11 +1,19 @@
 import { useState, useRef, ChangeEvent, DragEvent } from "react";
 import { SxProps, Theme, styled } from "@mui/material/styles";
-import { Stack, Grid, Badge, IconButton } from "@mui/material";
+import {
+  Stack,
+  Grid,
+  Badge,
+  IconButton,
+  CircularProgress,
+} from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
+import { toast } from "react-toastify";
 
 import { formatBytes, processImageFile } from "@/utils/utilFuncs";
 import Text from "./Text";
+import { useRespVal } from "@/utils/hooks/hooks";
 
 interface IImgUpload {
   onImageUpload: (imgData: IImage[]) => void;
@@ -47,6 +55,8 @@ export default function ImageUpload({
 }: IImgUpload) {
   const [isDragging, setIsDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  /**image process is loading */
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleImgUpload = (event: ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -69,26 +79,35 @@ export default function ImageUpload({
     inputRef.current && (inputRef.current.value = "");
 
   const processFiles = (files: FileList) => {
-    const processedImages: IImage[] = [];
-    Array.from(files).forEach((file) => {
-      processImageFile({
-        file,
-        onSuccess: ({ imageUrl, fileSize }) => {
-          const img = {
-            name: file.name,
-            size: fileSize,
-            type: file.type,
-            url: imageUrl,
-          };
-          processedImages.push(img);
-          if (processedImages.length === files.length) {
-            onImageUpload(processedImages);
-            resetFileInput();
-          }
-        },
+    setIsLoading(true);
+    const fileProcessingPromises = Array.from(files).map((file) =>
+      processImageFile({ file }).then(({ imageUrl, fileSize }) => ({
+        name: file.name,
+        size: fileSize,
+        type: file.type,
+        url: imageUrl,
+      }))
+    );
+
+    Promise.all(fileProcessingPromises)
+      .then((processedImages) => {
+        onImageUpload(processedImages);
+        resetFileInput();
+      })
+      .catch((error) => {
+        console.error("Error processing files:", error);
+        toast.error("Error Uploading files, Please try again.");
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
-    });
   };
+
+  const uploadTxt = useRespVal(
+    "Press to select images",
+    "Drag and drop images or click to select"
+  );
+  const uploadTxtWithDrag = isDragging ? "Drop the images here" : uploadTxt;
 
   return (
     <Stack component="form">
@@ -109,12 +128,12 @@ export default function ImageUpload({
             id="image-upload-input"
             multiple
           />
-          <CloudUploadIcon sx={{ width: 80, height: 80 }} />
-          <Text sx={{ fontWeight: 550 }}>
-            {isDragging
-              ? "Drop the images here"
-              : "Drag and drop images or click to select"}
-          </Text>
+          {isLoading ? (
+            <CircularProgress size={35} color="primary" />
+          ) : (
+            <CloudUploadIcon sx={{ width: 80, height: 80 }} />
+          )}
+          <Text sx={{ fontWeight: 550 }}>{uploadTxtWithDrag}</Text>
           {caption && (
             <Text sx={{ mt: 1, mb: 2 }} type="caption">
               {caption}

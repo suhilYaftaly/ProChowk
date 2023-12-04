@@ -8,6 +8,7 @@ import {
 } from "@mui/material";
 import { ChangeEvent, useEffect, useState } from "react";
 import EditIcon from "@mui/icons-material/Edit";
+import { toast } from "react-toastify";
 
 import {
   processImageFile,
@@ -40,24 +41,29 @@ export default function UserBasicInfo({
 
   useEffect(() => setImage(user?.image), [user]);
 
-  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
 
     if (file && user) {
-      processImageFile({
-        file,
-        maxSize: 400,
-        onSuccess: ({ imageUrl, fileSize }) => {
-          const formImage = {
-            url: imageUrl,
-            name: file.name,
-            size: fileSize,
-            type: file.type,
-          };
-          const variables = { id: user.id, edits: { image: formImage } };
-          updateUserAsync({ variables, onSuccess: () => setImage(formImage) });
-        },
-      });
+      try {
+        const { imageUrl, fileSize } = await processImageFile({
+          file,
+          maxSize: 400,
+        });
+        const formImage = {
+          url: imageUrl,
+          name: file.name,
+          size: fileSize,
+          type: file.type,
+        };
+        const variables = { id: user.id, edits: { image: formImage } };
+
+        // Assuming updateUserAsync is a Promise-based function
+        await updateUserAsync({ variables });
+        setImage(formImage);
+      } catch (error) {
+        toast.error("Error Uploading files, Please try again.");
+      }
     }
   };
 
