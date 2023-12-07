@@ -75,6 +75,7 @@ export default {
             },
           },
           { $unwind: "$associatedJobs" },
+          { $match: { "associatedJobs.isDraft": { $ne: true } } },
           { $skip: skip },
           { $limit: pageSize },
         ])
@@ -87,7 +88,7 @@ export default {
 
       // Fetch detailed job data from Prisma
       const jobs = await prisma.job.findMany({
-        where: { id: { in: jobIds } },
+        where: { id: { in: jobIds }, isDraft: false },
         include: { address: true, skills: true, budget: true },
       });
 
@@ -150,8 +151,11 @@ export default {
         });
       }
 
+      const isNotDraft = { "associatedJobs.isDraft": { $ne: true } };
       // Combine the match conditions with the base condition
-      let matchCondition = { $and: [baseMatchCondition, ...budgetConditions] };
+      let matchCondition = {
+        $and: [baseMatchCondition, ...budgetConditions, isNotDraft],
+      };
 
       //DATE RANGE FILTERS
       if (startDate) {
@@ -214,7 +218,7 @@ export default {
 
       // Fetch detailed job data from Prisma
       const jobs = await prisma.job.findMany({
-        where: { id: { in: jobIds } },
+        where: { id: { in: jobIds }, isDraft: false },
         include: { address: true, skills: true, budget: true },
       });
 
@@ -238,6 +242,9 @@ export default {
           desc: jobInput.desc,
           jobSize: jobInput.jobSize,
           materials: jobInput.materials,
+          startDate: jobInput.startDate,
+          endDate: jobInput.endDate,
+          isDraft: jobInput.isDraft,
           user: { connect: { id: userId } },
           ...buildJobInputs(jobInput),
           budget: { create: jobInput.budget },
@@ -249,7 +256,7 @@ export default {
     },
     updateJob: async (
       _: any,
-      { id, imagesToDelete, jobInput }: IUpdateJobInput,
+      { id, jobInput }: IUpdateJobInput,
       context: GraphQLContext
     ): Promise<Job> => {
       const { prisma, req } = context;
@@ -277,11 +284,21 @@ export default {
         .filter((s) => !jobInput.skills.some((IS) => IS.label === s.label))
         .map((skill) => ({ label: skill.label }));
 
-      if (imagesToDelete?.length > 0) {
-        await prisma.jobImage.deleteMany({
-          where: { id: { in: imagesToDelete } },
-        });
-      }
+      //DELETE IMAGES
+      const deleteImages = async () => {
+        const updatedImageUrls = new Set(jobInput.images.map((img) => img.url));
+
+        const imagesToDelete = job.images
+          .filter((img) => !updatedImageUrls.has(img.url))
+          .map((img) => img.id);
+
+        if (imagesToDelete.length > 0) {
+          await prisma.jobImage.deleteMany({
+            where: { id: { in: imagesToDelete } },
+          });
+        }
+      };
+      await deleteImages();
 
       const skillsInput = {
         disconnect: disconnectSkills,
@@ -295,6 +312,9 @@ export default {
           desc: jobInput.desc,
           jobSize: jobInput.jobSize,
           materials: jobInput.materials,
+          startDate: jobInput.startDate,
+          endDate: jobInput.endDate,
+          isDraft: jobInput.isDraft,
           address: buildJobInputs(jobInput).address,
           skills: skillsInput,
           images: imageData,

@@ -9,8 +9,9 @@ import { ChangeEvent } from "react";
 
 import { JobInput } from "@gqlOps/job";
 import Text from "@reusable/Text";
-import AddressSearch from "@reusable/appComps/AddressSearch";
-import { IJobSteps } from "@pages/JobPost";
+import AddressSearch from "@appComps/AddressSearch";
+import { IJobSteps } from "./JobForm";
+import JobDateRangePicker from "@jobs/comps/JobDateRangePicker";
 
 export default function JobSize({ jobForm, setJobForm, errors }: IJobSteps) {
   const theme = useTheme();
@@ -62,6 +63,19 @@ export default function JobSize({ jobForm, setJobForm, errors }: IJobSteps) {
         label=""
         required
         helperText={errors.address}
+      />
+      <Text type="subtitle" sx={{ mt: 4, mb: 1 }}>
+        Project Timeline
+      </Text>
+      <JobDateRangePicker
+        startDate={jobForm.startDate}
+        endDate={jobForm.endDate}
+        setStartDate={(startDate) =>
+          setJobForm((prev) => ({ ...prev, startDate }))
+        }
+        setEndDate={(endDate) => setJobForm((prev) => ({ ...prev, endDate }))}
+        startDateErrTxt={errors.startDate}
+        endDateErrTxt={errors.endDate}
       />
     </>
   );

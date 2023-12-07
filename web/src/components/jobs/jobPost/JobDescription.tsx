@@ -10,10 +10,10 @@ import AddIcon from "@mui/icons-material/Add";
 import { toast } from "react-toastify";
 
 import Text from "@reusable/Text";
-import { IJobSteps } from "@/pages/JobPost";
 import ImageUpload, { IImage, ShowImages } from "@reusable/ImageUpload";
 import { estimateBase64Size, formatBytes } from "@/utils/utilFuncs";
 import { jobConfigs } from "@/config/configConst";
+import { IJobSteps } from "./JobForm";
 
 const {
   validations: { maxDesc, maxImgsSize },

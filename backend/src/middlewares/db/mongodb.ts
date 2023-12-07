@@ -67,6 +67,7 @@ export const setupMongoIndexes = async (db: Db): Promise<void> => {
     .createIndex({ title: "text", desc: "text" });
 
   await db.collection(JOB_COLLECTION).createIndex({ createdAt: -1 });
+  await db.collection(JOB_COLLECTION).createIndex({ isDraft: 1 });
 
   await db.collection(BUDGET_COLLECTION).createIndex({ type: 1 });
   await db.collection(BUDGET_COLLECTION).createIndex({ from: 1, to: 1 });

@@ -346,7 +346,7 @@ export function formatRelativeTime(timestamp: string): string {
 
 interface IConvertISODate {
   /**
-   * format string e.g yyyy-MM-dd hh:mm:ss a
+   * format string e.g yyyy-MM-dd
    * @default 'MMM dd, yyyy hh:mm a'
    */
   fs?: string;
@@ -358,7 +358,7 @@ interface IConvertISODate {
  */
 export const readISODate = (
   date: string | undefined,
-  { fs = "MMM dd, yyyy hh:mm a" }: IConvertISODate = {}
+  { fs = "MMM dd, yyyy" }: IConvertISODate = {}
 ): string => {
   if (!date) return "Invalid date";
 

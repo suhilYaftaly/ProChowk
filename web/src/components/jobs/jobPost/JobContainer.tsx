@@ -9,8 +9,8 @@ import { ReactNode } from "react";
 
 import JobPostPerson from "@icons/jobPostPerson.svg?react";
 import Text from "@reusable/Text";
-import { IJobPost } from "@/pages/JobPost";
 import { useIsMobile } from "@/utils/hooks/hooks";
+import { IJobPost } from "./JobForm";
 
 interface Props {
   children: ReactNode;

@@ -2,7 +2,7 @@ import { Tabs, Tab, Stack, useTheme } from "@mui/material";
 import { ReactNode } from "react";
 
 import { maxWidthPG } from "@/config/configConst";
-import { IJobPost } from "@/pages/JobPost";
+import { IJobPost } from "../JobForm";
 
 interface Props {
   children?: ReactNode;

@@ -23,7 +23,7 @@ export default gql`
   }
   type Mutation {
     createJob(userId: ID!, jobInput: JobInput!): Job!
-    updateJob(id: ID!, imagesToDelete: [ID!], jobInput: JobInput!): Job!
+    updateJob(id: ID!, jobInput: JobInput!): Job!
     deleteJob(id: ID!): Job!
   }
 
@@ -41,6 +41,9 @@ export default gql`
     userId: ID
     user: User
     materials: [String]
+    startDate: Date
+    endDate: Date
+    isDraft: Boolean
   }
   type Budget {
     id: ID
@@ -70,6 +73,9 @@ export default gql`
     address: AddressInput!
     images: [JobImageInput!]
     materials: [String]
+    startDate: Date
+    endDate: Date
+    isDraft: Boolean!
   }
 
   input JobBudgetInput {

@@ -13,10 +13,10 @@ import CheckIcon from "@mui/icons-material/CheckCircle";
 import UncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 
 import Text from "@reusable/Text";
-import { IJobSteps } from "@/pages/JobPost";
 import { JobInput } from "@/graphql/operations/job";
 import { jobConfigs } from "@/config/configConst";
 import { useRespVal } from "@/utils/hooks/hooks";
+import { IJobSteps } from "./JobForm";
 
 export default function JobBudget({ jobForm, setJobForm, errors }: IJobSteps) {
   const resets = jobConfigs.defaults.budgetResets;

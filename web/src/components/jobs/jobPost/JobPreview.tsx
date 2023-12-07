@@ -1,4 +1,4 @@
-import { JobInput } from "@gqlOps/job";
+import { IJob, JobInput } from "@gqlOps/job";
 import { Chip, Divider, Grid, Stack } from "@mui/material";
 import { useState } from "react";
 
@@ -9,10 +9,20 @@ import { useRespVal } from "@/utils/hooks/hooks";
 import { readISODate } from "@/utils/utilFuncs";
 
 interface Props {
-  job: JobInput;
+  job: IJob | JobInput;
 }
 export default function JobPreview({ job }: Props) {
-  const { title, desc, address, budget, skills, materials, images } = job;
+  const {
+    title,
+    desc,
+    address,
+    budget,
+    skills,
+    materials,
+    images,
+    startDate,
+    endDate,
+  } = job;
   const combinedMaterials = materials?.join(", ");
   const [openImg, setOpenImg] = useState(false);
   const [openImgIndex, setOpenImgIndex] = useState(0);
@@ -86,8 +96,28 @@ export default function JobPreview({ job }: Props) {
         </FullScreenModal>
       )}
       <Divider sx={{ my: 2 }} />
-      <Text type="subtitle">Posted Date</Text>
-      <Text>{readISODate(new Date().toISOString())}</Text>
+      <Stack direction={"row"} spacing={5}>
+        <Stack>
+          <Text type="subtitle">Posted Date</Text>
+          <Text>
+            {readISODate(
+              "createdAt" in job ? job?.createdAt : new Date().toISOString()
+            )}
+          </Text>
+        </Stack>
+        {startDate && (
+          <Stack>
+            <Text type="subtitle">Start Date</Text>
+            <Text>{readISODate(startDate)}</Text>
+          </Stack>
+        )}
+        {endDate && (
+          <Stack>
+            <Text type="subtitle">End Date</Text>
+            <Text>{readISODate(endDate)}</Text>
+          </Stack>
+        )}
+      </Stack>
       <Divider sx={{ my: 2 }} />
       <Text type="subtitle" sx={{ mb: 1 }}>
         Skills Required

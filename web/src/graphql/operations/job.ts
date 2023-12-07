@@ -48,6 +48,8 @@ const jobGqlResp = gql`
     updatedAt
     userId
     materials
+    startDate
+    endDate
     user {
       ...UserFields
     }
@@ -163,16 +165,8 @@ const jobOps = {
     `,
     updateJob: gql`
       ${jobGqlResp}
-      mutation UpdateJob(
-        $id: ID!
-        $imagesToDelete: [ID!]
-        $jobInput: JobInput!
-      ) {
-        updateJob(
-          id: $id
-          imagesToDelete: $imagesToDelete
-          jobInput: $jobInput
-        ) {
+      mutation UpdateJob($id: ID!, $jobInput: JobInput!) {
+        updateJob(id: $id, jobInput: $jobInput) {
           ...JobFields
         }
       }
@@ -230,6 +224,9 @@ export interface JobInput {
   address: AddressInput;
   images: ImageInput[];
   materials: string[];
+  startDate?: string;
+  endDate?: string;
+  isDraft: boolean;
 }
 
 export interface JobsByTxtBudgetInput {
@@ -555,14 +552,12 @@ export const useCreateJob = () => {
 };
 
 //updateJob op
-export type ImagesToDelete = string[];
 interface IUpdateJobData {
   updateJob: IJob;
 }
 interface IUpdateJobInput {
   id: string;
   jobInput: JobInput;
-  imagesToDelete?: ImagesToDelete;
 }
 interface IUpdateJobIAsync {
   variables: IUpdateJobInput;

@@ -4,6 +4,8 @@ import { Provider } from "react-redux";
 import { ThemeProvider } from "@emotion/react";
 import { CssBaseline } from "@mui/material";
 import { ReactNode } from "react";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 
 import { client } from "../graphql/apollo-client";
 import { store } from "@redux/store";
@@ -19,7 +21,9 @@ export default function Providers() {
       <Provider store={store}>
         <GoogleOAuthProvider clientId={clientId}>
           <MUIProvider>
+          <LocalizationProvider dateAdapter={AdapterDateFns}>
             <Routes />
+            </LocalizationProvider>
           </MUIProvider>
         </GoogleOAuthProvider>
       </Provider>

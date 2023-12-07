@@ -1,7 +1,7 @@
 import { ChangeEvent } from "react";
 import { TextField } from "@mui/material";
 
-import { IJobSteps } from "@/pages/JobPost";
+import { IJobSteps } from "./JobForm";
 import SkillsSelection from "@reusable/appComps/SkillsSelection";
 import Text from "@reusable/Text";
 

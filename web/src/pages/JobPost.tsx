@@ -1,293 +1,81 @@
-import {
-  Dispatch,
-  ReactNode,
-  SetStateAction,
-  useEffect,
-  useState,
-} from "react";
-import { Button, CircularProgress, Stack } from "@mui/material";
+import { SetStateAction, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
-import CenteredStack from "@reusable/CenteredStack";
-import DJobNav from "@jobs/jobPost/desktop/DJobNav";
-import JobContainer from "@jobs/jobPost/JobContainer";
-import { JobInput, useCreateJob } from "@gqlOps/job";
-import JobSize from "@jobs/jobPost/JobSize";
-import JobTitleAndSkills from "@jobs/jobPost/JobTitleAndSkills";
-import JobBudget from "@jobs/jobPost/JobBudget";
 import { jobConfigs } from "@/config/configConst";
-import JobDescription from "@jobs/jobPost/JobDescription";
-import JobPreview from "@jobs/jobPost/JobPreview";
-import { useIsMobile, useRespVal } from "@/utils/hooks/hooks";
-import ToastErrorsList from "@reusable/ToastErrorsList";
-import { useSettingsStates, useUserStates } from "@/redux/reduxStates";
+import { useUserStates } from "@/redux/reduxStates";
 import { navigateToUserPage } from "@/utils/utilFuncs";
-import { paths } from "@/routes/Routes";
-import MJobNav from "@jobs/jobPost/mobile/MJobNav";
+import { JobInput, useCreateJob, useUpdateJob } from "@gqlOps/job";
+import JobForm from "@jobs/jobPost/JobForm";
 
 export default function JobPost() {
-  const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { user } = useUserStates();
-  const { isAppLoaded } = useSettingsStates();
-  const { createJobAsync, loading } = useCreateJob();
-  const [stepIndex, setStepIndex] = useState(0);
+  const { createJobAsync, loading, data: createData } = useCreateJob();
+  const { updateJobAsync, loading: uLoading } = useUpdateJob();
   const [jobForm, setJobForm] = useState<JobInput>(jobConfigs.defaults.jobForm);
-  const [errors, setErrors] = useState<IJobErrors>({
-    title: "",
-    desc: "",
-    skills: "",
-    budget: { from: "", to: "", maxHours: "" },
-    images: "",
-    address: "",
-    materials: "",
-  });
+  const [isExistingJob, setIsExistingJob] = useState(false);
+  const [jobHasNewChanges, setJobHasNewChanges] = useState(false);
+  const jobId = createData?.createJob?.id;
 
-  //redirect if not logged in
-  useEffect(() => {
-    if (isAppLoaded && !user) navigate(paths.login);
-  }, [user, isAppLoaded]);
-
-  const contentProps = { jobForm, setJobForm, errors };
-  const steps: IJobStep[] = [
-    {
-      label: "Size & Location",
-      rightCont: { content: <JobSize {...contentProps} /> },
-    },
-    {
-      label: "Title & Skills",
-      rightCont: { content: <JobTitleAndSkills {...contentProps} /> },
-    },
-    {
-      label: "Budget",
-      rightCont: { content: <JobBudget {...contentProps} /> },
-    },
-    {
-      label: "Description",
-      rightCont: { content: <JobDescription {...contentProps} /> },
-    },
-    { label: "Preview", rightCont: { content: <JobPreview job={jobForm} /> } },
-  ];
-
-  const isLastStep = steps.length === stepIndex + 1;
-  const currentStep = steps[stepIndex];
-  const prevStep = stepIndex > 0 && steps?.[stepIndex - 1];
-  const nextStep = steps?.[stepIndex + 1];
-  const valProps = { jobForm, stepName: currentStep.label, setErrors };
-
-  const onNavChange = (newIndex: number) => {
-    const errors = validateFields(valProps);
-    if (errors.length < 1) setStepIndex(newIndex);
-  };
-  const onNext = () => {
-    if (isLastStep) onPostJob();
-    else {
-      const errors = validateFields(valProps);
-      if (errors.length < 1) setStepIndex((prev) => prev + 1);
-    }
-  };
-
-  const onCancel = () => navigate("/");
-
-  const onMobileHeaderClick = () => {
-    if (prevStep) {
-      const errors = validateFields(valProps);
-      if (errors.length < 1) setStepIndex((prev) => prev - 1);
-    } else navigate("/");
-  };
-
-  const onPostJob = () => {
-    const errors = validateFields({ ...valProps, checkAllSteps: true });
-    if (errors.length > 0) {
-      toast.error(ToastErrorsList({ errors }));
-      return;
-    }
-    if (user?.id) {
+  const onCreateJob = () => {
+    if (jobHasNewChanges && !isExistingJob && user?.id) {
       createJobAsync({
-        variables: { userId: user?.id, jobInput: jobForm },
+        variables: {
+          userId: user?.id,
+          jobInput: { ...jobForm, isDraft: true },
+        },
         onSuccess: () => {
-          toast.success("Job posted successfully."),
-            navigateToUserPage({ user, navigate });
+          setIsExistingJob(true);
+          setJobHasNewChanges(false);
+          toast.info("We saved a draft.", { position: "bottom-right" });
         },
       });
     }
   };
 
+  const onUpdateJob = (isDraft: boolean) => {
+    const isLastStep = !isDraft;
+
+    if (
+      (jobHasNewChanges || isLastStep) &&
+      isExistingJob &&
+      user?.id &&
+      jobId
+    ) {
+      updateJobAsync({
+        userId: user?.id,
+        variables: {
+          id: jobId,
+          jobInput: { ...jobForm, isDraft },
+        },
+        onSuccess: () => {
+          if (!isDraft) {
+            toast.success("Job posted successfully.");
+            navigateToUserPage({ user, navigate });
+          } else {
+            setIsExistingJob(true);
+            setJobHasNewChanges(false);
+            toast.info("We saved a draft.", { position: "bottom-right" });
+          }
+        },
+      });
+    }
+  };
+
+  const handleJobFormChange = (job: SetStateAction<JobInput>) => {
+    setJobForm(job);
+    setJobHasNewChanges(true);
+  };
+
   return (
-    <Stack>
-      {isMobile ? (
-        <MJobNav
-          title={currentStep?.label}
-          subtitle={nextStep?.label}
-          currentStepNum={stepIndex + 1}
-          totalSteps={steps?.length}
-          onClick={onMobileHeaderClick}
-        />
-      ) : (
-        <DJobNav steps={steps} stepIndex={stepIndex} onChange={onNavChange}>
-          {isLastStep && (
-            <Button
-              variant="contained"
-              onClick={onPostJob}
-              sx={{ borderRadius: 5 }}
-              disabled={loading}
-            >
-              {loading ? (
-                <CircularProgress size={25} color="primary" />
-              ) : (
-                "Post Job"
-              )}
-            </Button>
-          )}
-        </DJobNav>
-      )}
-      <CenteredStack
-        mmx={0}
-        addCard
-        cardSX={{ p: 0 }}
-        contSX={{ my: useRespVal(0, 2) }}
-      >
-        <JobContainer
-          steps={steps}
-          stepIndex={stepIndex}
-          onNext={onNext}
-          onBack={onCancel}
-          showLeftCont={!isLastStep}
-          nextBtnTitle={isLastStep ? "Post Job" : undefined}
-          loading={loading}
-        >
-          {currentStep?.rightCont?.content}
-        </JobContainer>
-      </CenteredStack>
-    </Stack>
+    <JobForm
+      jobForm={jobForm}
+      setJobForm={handleJobFormChange}
+      onCreateJob={onCreateJob}
+      onUpdateJob={onUpdateJob}
+      loading={loading}
+      uLoading={uLoading}
+    />
   );
 }
-
-//INTERFACES
-interface IRightCont {
-  content: ReactNode;
-}
-interface IJobStep {
-  label: TStepLabel;
-  rightCont: IRightCont;
-}
-interface IJobErrors {
-  title: string;
-  desc: string;
-  skills: string;
-  budget: { from: string; to: string; maxHours: string };
-  images: string;
-  address: string;
-  materials: string;
-}
-export interface IJobSteps {
-  jobForm: JobInput;
-  setJobForm: Dispatch<SetStateAction<JobInput>>;
-  errors: IJobPost["errors"];
-}
-type TStepLabel =
-  | "Size & Location"
-  | "Title & Skills"
-  | "Budget"
-  | "Description"
-  | "Preview";
-
-export interface IJobPost {
-  rightCont: IRightCont;
-  step: IJobStep;
-  errors: IJobErrors;
-}
-
-interface IValidateFields {
-  stepName: IJobStep["label"];
-  jobForm: JobInput;
-  setErrors: Dispatch<SetStateAction<IJobErrors>>;
-  checkAllSteps?: boolean;
-}
-const validateFields = ({
-  stepName,
-  jobForm,
-  setErrors,
-  checkAllSteps,
-}: IValidateFields) => {
-  const errors: string[] = [];
-  const {
-    minTitle,
-    minSkills,
-    minWage,
-    budget: budgetConf,
-    minDesc,
-    maxImages,
-  } = jobConfigs.validations;
-
-  const { title, skills, budget, desc, address, images } = jobForm;
-
-  let fieldErrors: IJobErrors = {
-    address: "",
-    title: "",
-    skills: "",
-    desc: "",
-    images: "",
-    materials: "",
-    budget: {
-      from: "",
-      to: "",
-      maxHours: "",
-    },
-  };
-
-  const setErr = (msg: string) => {
-    errors.push(msg);
-    return msg;
-  };
-
-  if (checkAllSteps || stepName === "Size & Location") {
-    if (!address) fieldErrors.address = setErr("An address must be selected.");
-  }
-
-  if (checkAllSteps || stepName === "Title & Skills") {
-    if (title.length < minTitle) {
-      fieldErrors.title = setErr(
-        `Job title must be more than ${minTitle} characters.`
-      );
-    }
-    if (skills.length < minSkills) {
-      fieldErrors.skills = setErr(
-        `At least ${minSkills} skill must be selected`
-      );
-    }
-  }
-
-  if (checkAllSteps || stepName === "Budget") {
-    if (budget.from < minWage) {
-      fieldErrors.budget.from = setErr(
-        `From budget must be more than ${minWage}`
-      );
-    }
-    if (budget.to < minWage) {
-      fieldErrors.budget.to = setErr(`To budget must be more than ${minWage}`);
-    } else if (budget.from > budget.to) {
-      fieldErrors.budget.to = setErr(`To budget cannot be less than From`);
-    }
-    if (budget.type === "Hourly" && budget.maxHours < budgetConf.minMaxHours) {
-      fieldErrors.budget.maxHours = setErr(
-        `Max Hours cannot be less than ${budgetConf.minMaxHours}`
-      );
-    }
-  }
-
-  if (checkAllSteps || stepName === "Description") {
-    if (desc.length < minDesc) {
-      fieldErrors.desc = setErr(
-        `Description must be more than ${minDesc} characters`
-      );
-    }
-    if (images.length > maxImages) {
-      fieldErrors.images = setErr(`Maximum of ${maxImages} images allowed`);
-    }
-  }
-
-  setErrors(fieldErrors);
-  return errors;
-};

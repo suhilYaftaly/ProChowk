@@ -57,6 +57,8 @@ export const jobConfigs = {
       images: [],
       address: undefined as any,
       materials: [],
+      startDate: undefined,
+      endDate: undefined,
     } as JobInput,
     /**Reset values for when switching between budget types */
     budgetResets: {
