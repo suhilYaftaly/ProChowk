@@ -59,6 +59,7 @@ export const jobConfigs = {
       materials: [],
       startDate: undefined,
       endDate: undefined,
+      isDraft: true,
     } as JobInput,
     /**Reset values for when switching between budget types */
     budgetResets: {
