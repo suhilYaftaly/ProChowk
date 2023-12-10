@@ -9,7 +9,6 @@ import { ChangeEvent } from "react";
 
 import { JobInput } from "@gqlOps/job";
 import Text from "@reusable/Text";
-import AddressSearch from "@appComps/AddressSearch";
 import { IJobSteps } from "./JobForm";
 import JobDateRangePicker from "@jobs/comps/JobDateRangePicker";
 
@@ -51,19 +50,6 @@ export default function JobSize({ jobForm, setJobForm, errors }: IJobSteps) {
           })}
         </RadioGroup>
       </FormControl>
-      <Text type="subtitle" sx={{ mt: 4 }}>
-        Location
-      </Text>
-      <Text sx={{ mb: 2 }}>
-        We will match you with the right candidate from this area.
-      </Text>
-      <AddressSearch
-        onSelect={(adr) => setJobForm((prev) => ({ ...prev, address: adr }))}
-        address={jobForm.address}
-        label=""
-        required
-        helperText={errors.address}
-      />
       <Text type="subtitle" sx={{ mt: 4, mb: 1 }}>
         Project Timeline
       </Text>

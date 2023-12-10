@@ -7,6 +7,7 @@ import ImageUpload, { IImage, ShowImages } from "@reusable/ImageUpload";
 import { estimateBase64Size, formatBytes } from "@/utils/utilFuncs";
 import { jobConfigs } from "@/config/configConst";
 import { IJobSteps } from "./JobForm";
+import AddressSearch from "@appComps/AddressSearch";
 
 const {
   validations: { maxDesc, maxImgsSize },
@@ -54,7 +55,18 @@ export default function JobDescription({
 
   return (
     <>
-      <Text type="subtitle" sx={{ mb }}>
+      <Text type="subtitle">Location</Text>
+      <Text sx={{ mb: 2 }}>
+        We will match you with the right candidate from this area.
+      </Text>
+      <AddressSearch
+        onSelect={(adr) => setJobForm((prev) => ({ ...prev, address: adr }))}
+        address={jobForm.address}
+        label=""
+        required
+        helperText={errors.address}
+      />
+      <Text type="subtitle" sx={{ mb, mt }}>
         Project Description ({maxDesc - jobForm.desc.length}/{maxDesc})
       </Text>
       <TextField
@@ -68,7 +80,7 @@ export default function JobDescription({
         helperText={errors.desc}
         required
         multiline
-        rows={5}
+        rows={4}
         inputProps={{ maxLength: maxDesc }}
         sx={{ mb: mt }}
       />

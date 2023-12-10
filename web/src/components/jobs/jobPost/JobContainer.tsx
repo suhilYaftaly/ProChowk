@@ -42,7 +42,7 @@ export default function JobContainer({
       sx={{
         display: "flex",
         flexDirection: "row",
-        minHeight: 550,
+        minHeight: 580,
         alignSelf: "center",
         width: "100%",
       }}

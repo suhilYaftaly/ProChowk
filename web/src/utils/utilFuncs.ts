@@ -375,3 +375,13 @@ export const estimateBase64Size = (base64String: string) => {
     (base64String.endsWith("==") ? 2 : base64String.endsWith("=") ? 1 : 0)
   );
 };
+
+interface Props {
+  lat: number;
+  lng: number;
+}
+/**Google Maps directions URL format with driving mode selected */
+export const openGoogleMapsDirections = ({ lat, lng }: Props) => {
+  const url = `https://www.google.com/maps/dir/?api=1&origin=current+location&destination=${lat},${lng}&travelmode=driving`;
+  window.open(url, "_blank");
+};

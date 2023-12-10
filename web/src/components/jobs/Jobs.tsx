@@ -29,7 +29,11 @@ import {
   useUpdateJob,
 } from "@gqlOps/job";
 import ErrSnackbar from "@reusable/ErrSnackbar";
-import { formatRelativeTime, trimText } from "@utils/utilFuncs";
+import {
+  formatRelativeTime,
+  openGoogleMapsDirections,
+  trimText,
+} from "@utils/utilFuncs";
 import { paths } from "@/routes/Routes";
 import { useUserStates } from "@redux/reduxStates";
 import Text from "../reusable/Text";
@@ -161,7 +165,7 @@ export const JobsCards = ({
                 <Typography variant="body2">
                   {trimText({ text: job.desc })}
                 </Typography>
-                <Grid container spacing={1} sx={{ mt: 2 }}>
+                <Grid container spacing={1} sx={{ mt: 2, mb: 2 }}>
                   {job?.skills?.map((skill) => (
                     <Grid item key={skill.label}>
                       <Chip
@@ -172,19 +176,27 @@ export const JobsCards = ({
                     </Grid>
                   ))}
                 </Grid>
-                <Divider sx={{ my: 2 }} />
+                <Divider sx={{ my: 1 }} />
                 <Stack direction={"row"} sx={{ alignItems: "center" }}>
-                  <LocationOn
-                    sx={{
-                      border: "2px solid",
-                      padding: 0.4,
-                      borderRadius: 5,
-                      color: theme.palette.text.light,
+                  <IconButton
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openGoogleMapsDirections({
+                        lat: job?.address?.lat,
+                        lng: job?.address?.lng,
+                      });
                     }}
-                  />
-                  <Text sx={{ ml: 1 }} type="subtitle">
-                    {job?.address?.city}
-                  </Text>
+                  >
+                    <LocationOn
+                      sx={{
+                        border: "2px solid",
+                        padding: 0.4,
+                        borderRadius: 5,
+                        color: theme.palette.text.light,
+                      }}
+                    />
+                  </IconButton>
+                  <Text type="subtitle">{job?.address?.city}</Text>
                 </Stack>
               </Card>
             </Grid>

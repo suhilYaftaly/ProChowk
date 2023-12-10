@@ -66,7 +66,7 @@ export default function JobForm({
   const contentProps = { jobForm, setJobForm, errors };
   const steps: IJobStep[] = [
     {
-      label: "Size & Location",
+      label: "Size & Dates",
       rightCont: { content: <JobSize {...contentProps} /> },
     },
     {
@@ -78,7 +78,7 @@ export default function JobForm({
       rightCont: { content: <JobBudget {...contentProps} /> },
     },
     {
-      label: "Description",
+      label: "Description & Location",
       rightCont: { content: <JobDescription {...contentProps} /> },
     },
     { label: "Preview", rightCont: { content: <JobPreview job={jobForm} /> } },
@@ -200,10 +200,10 @@ export interface IJobSteps {
   errors: IJobPost["errors"];
 }
 type TStepLabel =
-  | "Size & Location"
+  | "Size & Dates"
   | "Title & Skills"
   | "Budget"
-  | "Description"
+  | "Description & Location"
   | "Preview";
 
 export interface IJobPost {
@@ -257,9 +257,7 @@ const validateFields = ({
     return msg;
   };
 
-  if (checkAllSteps || stepName === "Size & Location") {
-    if (!address) fieldErrors.address = setErr("An address must be selected.");
-
+  if (checkAllSteps || stepName === "Size & Dates") {
     if (endDate && !startDate) {
       fieldErrors.startDate = setErr(
         "Start date must be selected if end date is chosen."
@@ -303,7 +301,8 @@ const validateFields = ({
     }
   }
 
-  if (checkAllSteps || stepName === "Description") {
+  if (checkAllSteps || stepName === "Description & Location") {
+    if (!address) fieldErrors.address = setErr("An address must be selected.");
     if (desc.length < minDesc) {
       fieldErrors.desc = setErr(
         `Description must be more than ${minDesc} characters`

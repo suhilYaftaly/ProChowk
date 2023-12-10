@@ -86,6 +86,8 @@ const jobGqlRespShort = gql`
     }
     address {
       city
+      lat
+      lng
     }
   }
 `;
