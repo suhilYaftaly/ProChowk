@@ -47,7 +47,6 @@ const jobGqlResp = gql`
     createdAt
     updatedAt
     userId
-    materials
     startDate
     endDate
     user {
@@ -223,7 +222,6 @@ export interface JobInput {
   budget: JobBudgetInput;
   address: AddressInput;
   images: ImageInput[];
-  materials: string[];
   startDate?: string;
   endDate?: string;
   isDraft: boolean;

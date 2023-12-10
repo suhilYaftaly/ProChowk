@@ -56,7 +56,6 @@ export const jobConfigs = {
       },
       images: [],
       address: undefined as any,
-      materials: [],
       startDate: undefined,
       endDate: undefined,
       isDraft: true,

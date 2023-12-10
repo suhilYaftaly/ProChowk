@@ -40,7 +40,6 @@ export default gql`
     address: Address
     userId: ID
     user: User
-    materials: [String]
     startDate: Date
     endDate: Date
     isDraft: Boolean
@@ -72,7 +71,6 @@ export default gql`
     budget: JobBudgetInput!
     address: AddressInput!
     images: [JobImageInput!]
-    materials: [String]
     startDate: Date
     endDate: Date
     isDraft: Boolean!

@@ -1,12 +1,5 @@
-import {
-  Chip,
-  Grid,
-  IconButton,
-  InputAdornment,
-  TextField,
-} from "@mui/material";
-import { ChangeEvent, useState, KeyboardEvent } from "react";
-import AddIcon from "@mui/icons-material/Add";
+import { TextField } from "@mui/material";
+import { ChangeEvent, useState } from "react";
 import { toast } from "react-toastify";
 
 import Text from "@reusable/Text";
@@ -26,39 +19,11 @@ export default function JobDescription({
   setJobForm,
   errors,
 }: IJobSteps) {
-  const [materialInput, setMaterialInput] = useState("");
   const [imgsTotalSize, setImgsTotalSize] = useState(0);
 
   const onValueChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
     setJobForm((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const addMaterial = () => {
-    const newMaterial = materialInput.trim();
-    if (newMaterial && !jobForm.materials.includes(newMaterial)) {
-      setJobForm((prev) => ({
-        ...prev,
-        materials: [...prev.materials, newMaterial],
-      }));
-    }
-    setMaterialInput("");
-  };
-
-  const handleMaterialKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      addMaterial();
-    }
-  };
-
-  const removeMaterial = (materialToRemove: string) => {
-    setJobForm((prev) => ({
-      ...prev,
-      materials: prev.materials.filter(
-        (material) => material !== materialToRemove
-      ),
-    }));
   };
 
   const onAddNewImages = (images: IImage[]) => {
@@ -90,41 +55,6 @@ export default function JobDescription({
   return (
     <>
       <Text type="subtitle" sx={{ mb }}>
-        Required materials
-      </Text>
-      <TextField
-        variant="outlined"
-        size="small"
-        name="materials"
-        value={materialInput}
-        onChange={(e) => setMaterialInput(e.target.value)}
-        onKeyDown={handleMaterialKeyDown}
-        placeholder="Materials, Tiles, Tools"
-        error={Boolean(errors.materials)}
-        helperText={errors.materials}
-        InputProps={{
-          endAdornment: (
-            <InputAdornment position="end">
-              <IconButton onClick={addMaterial}>
-                <AddIcon />
-              </IconButton>
-            </InputAdornment>
-          ),
-        }}
-      />
-      <Grid container spacing={1} direction={"row"} sx={{ mt: 0 }}>
-        {jobForm.materials?.map((material) => (
-          <Grid item key={material}>
-            <Chip
-              label={material}
-              variant="outlined"
-              onDelete={() => removeMaterial(material)}
-              color="default"
-            />
-          </Grid>
-        ))}
-      </Grid>
-      <Text type="subtitle" sx={{ mb, mt }}>
         Project Description ({maxDesc - jobForm.desc.length}/{maxDesc})
       </Text>
       <TextField
@@ -138,7 +68,7 @@ export default function JobDescription({
         helperText={errors.desc}
         required
         multiline
-        rows={4}
+        rows={5}
         inputProps={{ maxLength: maxDesc }}
         sx={{ mb: mt }}
       />

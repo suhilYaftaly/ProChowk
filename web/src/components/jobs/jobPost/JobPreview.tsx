@@ -12,18 +12,8 @@ interface Props {
   job: IJob | JobInput;
 }
 export default function JobPreview({ job }: Props) {
-  const {
-    title,
-    desc,
-    address,
-    budget,
-    skills,
-    materials,
-    images,
-    startDate,
-    endDate,
-  } = job;
-  const combinedMaterials = materials?.join(", ");
+  const { title, desc, address, budget, skills, images, startDate, endDate } =
+    job;
   const [openImg, setOpenImg] = useState(false);
   const [openImgIndex, setOpenImgIndex] = useState(0);
   const fsWidth = useRespVal("100%", undefined);
@@ -40,15 +30,6 @@ export default function JobPreview({ job }: Props) {
       <Text sx={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}>
         {desc}
       </Text>
-      {combinedMaterials && (
-        <>
-          <Divider sx={{ my: 2 }} />
-          <Text type="subtitle" sx={{}}>
-            Required Materials
-          </Text>
-          <Text>{combinedMaterials} (Contractor has to carry these items)</Text>
-        </>
-      )}
       {images?.length > 0 && (
         <>
           <Divider sx={{ my: 2 }} />

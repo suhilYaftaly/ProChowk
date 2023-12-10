@@ -54,7 +54,6 @@ export default function JobForm({
     budget: { from: "", to: "", maxHours: "" },
     images: "",
     address: "",
-    materials: "",
     endDate: "",
     startDate: "",
   });
@@ -192,7 +191,6 @@ interface IJobErrors {
   budget: { from: string; to: string; maxHours: string };
   images: string;
   address: string;
-  materials: string;
   endDate: string;
   startDate: string;
 }
@@ -245,7 +243,6 @@ const validateFields = ({
     skills: "",
     desc: "",
     images: "",
-    materials: "",
     budget: {
       from: "",
       to: "",

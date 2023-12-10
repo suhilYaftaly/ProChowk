@@ -124,7 +124,6 @@ model Job {
     skillIDs  String[]   @db.ObjectId
     skills    Skill[]    @relation(fields: [skillIDs], references: [id])
     budgetId  String?    @db.ObjectId
-    materials String[]
     startDate DateTime?
     endDate   DateTime?
     isDraft   Boolean    @default(false)

@@ -76,7 +76,7 @@ export default function AddressSearch({
     <>
       <Autocomplete
         freeSolo
-        value={value}
+        value={value || adr?.displayName}
         loading={loading}
         getOptionLabel={(option) =>
           typeof option === "string" ? option : option.displayName
