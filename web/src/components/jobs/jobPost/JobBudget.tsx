@@ -44,13 +44,24 @@ export default function JobBudget({ jobForm, setJobForm, errors }: IJobSteps) {
   const onValueChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
     const newValue = value === "" ? "" : Number(value);
-    setJobForm((prev) => ({
-      ...prev,
-      budget: { ...prev.budget, [name]: newValue },
-    }));
+    if (isProject) {
+      setJobForm((prev) => ({
+        ...prev,
+        budget: {
+          ...prev.budget,
+          from: newValue as number,
+          to: newValue as number,
+        },
+      }));
+    } else
+      setJobForm((prev) => ({
+        ...prev,
+        budget: { ...prev.budget, [name]: newValue },
+      }));
   };
 
   const isHourly = jobForm.budget.type === "Hourly";
+  const isProject = jobForm.budget.type === "Project";
 
   return (
     <>
@@ -72,34 +83,36 @@ export default function JobBudget({ jobForm, setJobForm, errors }: IJobSteps) {
         />
       </Stack>
       <Stack direction={useRespVal("column", "row")}>
-        <Stack sx={{ mr: 2, width: "100%" }}>
-          <Text type="subtitle" sx={{ mb, mt }}>
-            From
-          </Text>
-          <TextField
-            variant="outlined"
-            size="small"
-            name={"from"}
-            value={jobForm?.budget?.from}
-            type="number"
-            onChange={onValueChange}
-            placeholder={"From"}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">$</InputAdornment>
-              ),
-              endAdornment: isHourly && (
-                <InputAdornment position="end">/hour</InputAdornment>
-              ),
-            }}
-            error={Boolean(errors.budget.from)}
-            helperText={errors.budget.from}
-            required
-          />
-        </Stack>
+        {isHourly && (
+          <Stack sx={{ mr: 2, width: "100%" }}>
+            <Text type="subtitle" sx={{ mb, mt }}>
+              From
+            </Text>
+            <TextField
+              variant="outlined"
+              size="small"
+              name={"from"}
+              value={jobForm?.budget?.from}
+              type="number"
+              onChange={onValueChange}
+              placeholder={"From"}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">$</InputAdornment>
+                ),
+                endAdornment: isHourly && (
+                  <InputAdornment position="end">/hour</InputAdornment>
+                ),
+              }}
+              error={Boolean(errors.budget.from)}
+              helperText={errors.budget.from}
+              required
+            />
+          </Stack>
+        )}
         <Stack sx={{ width: "100%" }}>
           <Text type="subtitle" sx={{ mb, mt }}>
-            To
+            {isHourly ? "To" : "Fixed Budget"}
           </Text>
           <TextField
             variant="outlined"

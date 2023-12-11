@@ -1,17 +1,10 @@
 import {
   Button,
-  Checkbox,
   Divider,
-  FormControlLabel,
-  FormGroup,
   IconButton,
-  InputAdornment,
-  Slider,
   Stack,
   SwipeableDrawer,
-  TextField,
   Tooltip,
-  useTheme,
 } from "@mui/material";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import { SetStateAction, Dispatch, useState, useEffect } from "react";
@@ -25,6 +18,9 @@ import { BudgetType } from "@gqlOps/job";
 import { searchFilterConfigs as CC } from "@config/configConst";
 import { useUserStates } from "@/redux/reduxStates";
 import DayPosted, { IDateRange } from "./filters/DayPosted";
+import PriceRange from "./filters/PriceRange";
+import Radius from "./filters/Radius";
+import ProjectType from "./filters/ProjectType";
 
 export interface ISearchFilters {
   radius: number;
@@ -37,13 +33,12 @@ export interface ISearchFilters {
 export interface ISearchFilterErrors {
   radius: string;
   address?: string;
-  budget: { types: string; from: string; to: string };
+  budget: { from: string; to: string };
 }
 
 interface Props {
   open: boolean;
   setOpen: (toggle: boolean) => void;
-  initialTypes: BudgetType[];
   filters: ISearchFilters;
   setFilters: Dispatch<SetStateAction<ISearchFilters>>;
   filterErrors: ISearchFilterErrors;
@@ -53,7 +48,6 @@ interface Props {
 export default function SearchFilters({
   open,
   setOpen,
-  initialTypes,
   setFilters,
   filters,
   setFilterErrors,
@@ -93,19 +87,6 @@ export default function SearchFilters({
     });
   };
 
-  const onProjectTypeChange = (
-    event: React.SyntheticEvent<Element, Event>,
-    checked: boolean
-  ) => {
-    const name = (event.currentTarget as HTMLInputElement).name as BudgetType;
-    setFilters((prev) => {
-      const updatedTypes = checked
-        ? [...prev.budget.types, name]
-        : prev.budget.types.filter((t) => t !== name);
-      return { ...prev, budget: { ...prev.budget, types: updatedTypes } };
-    });
-  };
-
   const onAddressSelect = (address: IAddress) => {
     setFilters((prev) => {
       const newOptions = {
@@ -131,13 +112,6 @@ export default function SearchFilters({
       });
       return newOptions;
     });
-  };
-
-  const onBudgetPriceRangeChange = (_: Event, number: number | number[]) => {
-    if (Array.isArray(number)) {
-      onBudgetPriceChange(number[0], "from");
-      onBudgetPriceChange(number[1], "to");
-    }
   };
 
   const onDateChange = ({ startDate, endDate }: IDateRange) => {
@@ -199,113 +173,32 @@ export default function SearchFilters({
         />
       </Stack>
       <Divider sx={{ my: dMy }} />
-      <Stack sx={{ mx: px }}>
-        <Text type="title" sx={{ fontSize: 16, mb: 1 }}>
-          Radius*
-        </Text>
-        <TextField
-          variant="outlined"
-          size="small"
-          name={"radius"}
-          value={filters.radius}
-          type="number"
-          onChange={(e) => onRadiusChange(e.target.value)}
-          error={Boolean(filterErrors.radius)}
-          helperText={filterErrors.radius}
-          required
-          inputProps={{ min: CC.minRadius, max: CC.maxRadius }}
-          InputProps={{
-            endAdornment: <InputAdornment position="end"> km</InputAdornment>,
-          }}
-        />
-        <Slider
-          value={Number(filters.radius)}
-          onChange={(_, value) => onRadiusChange(Number(value))}
-          min={CC.minRadius}
-          max={CC.maxRadius}
-          onMouseDown={(e) => e.stopPropagation()}
-          onTouchStart={(e) => e.stopPropagation()}
-        />
-      </Stack>
-      <Divider sx={{ my: dMy }} />
-      <FormGroup sx={{ px }}>
-        <Text type="title" sx={{ fontSize: 16, mb: 1 }}>
-          Project Type*
-        </Text>
-        {initialTypes.map((type) => (
-          <CheckboxWithLable
-            key={type}
-            label={type}
-            name={type}
-            isChecked={filters.budget.types.includes(type)}
-            onChange={onProjectTypeChange}
-          />
-        ))}
-      </FormGroup>
+      <Radius
+        filters={filters}
+        filterErrors={filterErrors}
+        onRadiusChange={onRadiusChange}
+      />
 
       <Divider sx={{ my: dMy }} />
-      <Stack sx={{ px }}>
-        <Text type="title" sx={{ fontSize: 16, mb: 1 }}>
-          Day Posted
-        </Text>
-        <DayPosted
-          onDateChange={onDateChange}
-          selectedIndes={resets.dayPostedIndex}
-        />
-      </Stack>
+      <ProjectType
+        onTypesChange={(types) =>
+          setFilters((prev) => ({ ...prev, budget: { ...prev.budget, types } }))
+        }
+      />
 
       <Divider sx={{ my: dMy }} />
-      <Stack sx={{ mx: px }}>
-        <Text type="title" sx={{ fontSize: 16, mb: 1 }}>
-          Price Range*
-        </Text>
-        <Stack direction="row" sx={{ justifyContent: "space-between" }}>
-          <TextField
-            variant="outlined"
-            size="small"
-            name={"from"}
-            value={filters.budget.from}
-            type="number"
-            onChange={(e) => onBudgetPriceChange(e.target.value, "from")}
-            error={Boolean(filterErrors.budget.from)}
-            helperText={filterErrors.budget.from}
-            required
-            sx={{ width: 127 }}
-            inputProps={{ min: CC.budget.fromMin }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">$</InputAdornment>
-              ),
-            }}
-          />
-          <TextField
-            variant="outlined"
-            size="small"
-            name={"to"}
-            value={filters.budget.to}
-            type="number"
-            onChange={(e) => onBudgetPriceChange(e.target.value, "to")}
-            error={Boolean(filterErrors.budget.to)}
-            helperText={filterErrors.budget.to}
-            required
-            sx={{ width: 127 }}
-            inputProps={{ min: CC.budget.toMin }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">$</InputAdornment>
-              ),
-            }}
-          />
-        </Stack>
-        <Slider
-          value={[Number(filters.budget.from), Number(filters.budget.to)]}
-          onChange={onBudgetPriceRangeChange}
-          min={CC.budget.fromMin}
-          max={CC.budget.toMax}
-          onMouseDown={(e) => e.stopPropagation()}
-          onTouchStart={(e) => e.stopPropagation()}
-        />
-      </Stack>
+      <DayPosted
+        onDateChange={onDateChange}
+        selectedIndex={resets.dayPostedIndex}
+      />
+
+      <Divider sx={{ my: dMy }} />
+      <PriceRange
+        filters={filters}
+        filterErrors={filterErrors}
+        onPriceChange={onBudgetPriceChange}
+      />
+
       <Divider sx={{ my: dMy }} />
       <Button
         variant="contained"
@@ -331,7 +224,7 @@ export const checkFilterOptionsError = ({
   const {
     radius,
     latLng,
-    budget: { types, from, to },
+    budget: { from, to },
   } = filters;
 
   //location check
@@ -347,17 +240,6 @@ export const checkFilterOptionsError = ({
     setErrors((prev) => ({ ...prev, radius: errMsg }));
     errors.push(errMsg);
   } else setErrors((prev) => ({ ...prev, radius: "" }));
-
-  //budget project type check
-  if (types.length < 1) {
-    const errMsg = `At least 1 Project type must be selected`;
-    setErrors((prev) => ({
-      ...prev,
-      budget: { ...prev.budget, type: errMsg },
-    }));
-    errors.push(errMsg);
-  } else
-    setErrors((prev) => ({ ...prev, budget: { ...prev.budget, type: "" } }));
 
   //budget price from check
   if (from < CC.budget.fromMin) {
@@ -388,39 +270,4 @@ export const checkFilterOptionsError = ({
   }
 
   return errors;
-};
-
-interface ICheckboxWithLable {
-  isChecked: boolean;
-  label: string;
-  name: string;
-  onChange:
-    | ((event: React.SyntheticEvent<Element, Event>, checked: boolean) => void)
-    | undefined;
-}
-const CheckboxWithLable = ({
-  isChecked,
-  label,
-  name,
-  onChange,
-}: ICheckboxWithLable) => {
-  const theme = useTheme();
-  const darkTxColor = theme.palette.text.dark;
-  const color = isChecked ? darkTxColor : undefined;
-  return (
-    <FormControlLabel
-      key={name}
-      control={<Checkbox name={name} sx={{ color }} color="default" />}
-      label={label}
-      checked={isChecked}
-      onChange={onChange}
-      componentsProps={{
-        typography: {
-          fontSize: 14,
-          color,
-          fontWeight: isChecked ? "600" : undefined,
-        },
-      }}
-    />
-  );
 };

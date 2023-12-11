@@ -30,13 +30,13 @@ export default function JobView() {
   return (
     <AppContainer>
       <Grid container spacing={2}>
-        <Grid item xs={12} md={8.5}>
+        <Grid item xs={12} md={8.7}>
           <AppContainer addCard sx={{ m: 0 }}>
             {loading && <JobSkeleton />}
             {job?.job && <JobPreview job={job?.job} />}
           </AppContainer>
         </Grid>
-        <Grid item xs={12} md={3.5}>
+        <Grid item xs={12} md={3.3}>
           <AppContainer addCard sx={{ m: 0 }} cardSX={{ p: 0 }}>
             <PostedBy user={user} loading={userLoading} />
           </AppContainer>

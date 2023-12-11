@@ -25,7 +25,7 @@ export default function SearchJobsByText() {
   const [filterErrors, setFilterErrors] = useState<ISearchFilterErrors>({
     radius: "",
     address: "",
-    budget: { types: "", from: "", to: "" },
+    budget: { from: "", to: "" },
   });
   const {
     skillsAsync,
@@ -144,7 +144,6 @@ export default function SearchJobsByText() {
       <SearchFilters
         open={openDrawer}
         setOpen={setOpenDrawer}
-        initialTypes={FCC.defaults.budget.types}
         filters={filters}
         setFilters={setFilters}
         filterErrors={filterErrors}

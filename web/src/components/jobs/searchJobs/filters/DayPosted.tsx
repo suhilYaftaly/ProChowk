@@ -5,8 +5,11 @@ import {
   FormControlLabel,
   Radio,
   useTheme,
+  Stack,
 } from "@mui/material";
 import { formatISO, subHours, subDays, subMonths } from "date-fns";
+
+import Text from "@reusable/Text";
 
 const DayPostedOptions = [
   "24 Hr",
@@ -21,13 +24,13 @@ export interface IDateRange {
 }
 interface Props {
   onDateChange: ({ startDate, endDate }: IDateRange) => void;
-  selectedIndes: number;
+  selectedIndex: number;
 }
-export default function DayPosted({ onDateChange, selectedIndes }: Props) {
+export default function DayPosted({ onDateChange, selectedIndex }: Props) {
   const theme = useTheme();
   const darkTxColor = theme.palette.text.dark;
   const [selectedOption, setSelectedOption] = useState(
-    DayPostedOptions[selectedIndes]
+    DayPostedOptions[selectedIndex]
   );
 
   useEffect(() => {
@@ -36,8 +39,8 @@ export default function DayPosted({ onDateChange, selectedIndes }: Props) {
   }, [selectedOption]);
 
   useEffect(() => {
-    setSelectedOption(DayPostedOptions[selectedIndes]);
-  }, [selectedIndes]);
+    setSelectedOption(DayPostedOptions[selectedIndex]);
+  }, [selectedIndex]);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSelectedOption(event.target.value);
@@ -68,23 +71,28 @@ export default function DayPosted({ onDateChange, selectedIndes }: Props) {
   };
 
   return (
-    <FormControl>
-      <RadioGroup value={selectedOption} onChange={handleChange}>
-        {DayPostedOptions.map((option) => (
-          <FormControlLabel
-            key={option}
-            value={option}
-            control={<Radio />}
-            label={option}
-            componentsProps={{
-              typography: {
-                color: darkTxColor,
-                fontWeight: selectedOption === option ? "600" : undefined,
-              },
-            }}
-          />
-        ))}
-      </RadioGroup>
-    </FormControl>
+    <Stack sx={{ px: 2 }}>
+      <Text type="title" sx={{ fontSize: 16, mb: 1 }}>
+        Day Posted
+      </Text>
+      <FormControl>
+        <RadioGroup value={selectedOption} onChange={handleChange}>
+          {DayPostedOptions.map((option) => (
+            <FormControlLabel
+              key={option}
+              value={option}
+              control={<Radio />}
+              label={option}
+              componentsProps={{
+                typography: {
+                  color: darkTxColor,
+                  fontWeight: selectedOption === option ? "600" : undefined,
+                },
+              }}
+            />
+          ))}
+        </RadioGroup>
+      </FormControl>
+    </Stack>
   );
 }

@@ -5,13 +5,14 @@ interface Props {
   budget: JobInput["budget"];
 }
 export default function JobBudgetCost({ budget }: Props) {
+  const isHourly = budget.type === "Hourly";
   return (
     <Text type="body2" sx={{ mb: 1, fontWeight: "600" }}>
       {budget?.type}:{" "}
       <span style={{ opacity: 0.8 }}>
-        ${budget?.from}-${budget?.to}
+        {isHourly && `$${budget?.from}-`}${budget?.to}
       </span>
-      {budget?.type === "Hourly" && (
+      {isHourly && (
         <>
           {" "}
           | Max Hours:{" "}
