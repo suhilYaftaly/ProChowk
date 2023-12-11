@@ -21,6 +21,7 @@ interface Props {
   showLeftCont: boolean;
   nextBtnTitle?: string;
   loading: boolean;
+  sectionDesc?: string;
 }
 export default function JobContainer({
   children,
@@ -31,6 +32,7 @@ export default function JobContainer({
   showLeftCont,
   nextBtnTitle,
   loading,
+  sectionDesc,
 }: Props) {
   const isMobile = useIsMobile();
   const theme = useTheme();
@@ -61,10 +63,11 @@ export default function JobContainer({
             <Text type="subtitle" sx={{ color: palette.common.white }}>
               Post a new job
             </Text>
-            <Text sx={{ mb: 4, mt: 1, color: palette.grey[400] }}>
-              Job size and location will help your job post standout to the
-              right candidate.
-            </Text>
+            {sectionDesc && (
+              <Text sx={{ mb: 4, mt: 1, color: palette.grey[400] }}>
+                {sectionDesc}
+              </Text>
+            )}
           </Stack>
           <JobPostPerson style={{ alignSelf: "center" }} />
         </Stack>

@@ -1,14 +1,14 @@
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { Divider, Skeleton, Stack } from "@mui/material";
+import { Grid, Skeleton, Stack } from "@mui/material";
 
 import { useUserStates } from "@redux/reduxStates";
 import { useUser } from "@gqlOps/user";
 import { useJob } from "@gqlOps/job";
-import UserSection from "@jobs/jobView/UserSection";
-import CenteredStack from "@reusable/CenteredStack";
 import JobPreview from "@jobs/jobPost/JobPreview";
 import ChipSkeleton from "@reusable/skeleton/ChipSkeleton";
+import PostedBy from "@jobs/jobPost/PostedBy";
+import AppContainer from "@reusable/AppContainer";
 
 export default function JobView() {
   const { userId, jobId } = useParams();
@@ -28,12 +28,21 @@ export default function JobView() {
   }, [jobId]);
 
   return (
-    <CenteredStack mmx={0} addCard>
-      {loading && <JobSkeleton />}
-      {job?.job && <JobPreview job={job?.job} />}
-      <Divider sx={{ my: 4 }} />
-      <UserSection user={user} loading={userLoading} />
-    </CenteredStack>
+    <AppContainer>
+      <Grid container spacing={2}>
+        <Grid item xs={12} md={8.5}>
+          <AppContainer addCard sx={{ m: 0 }}>
+            {loading && <JobSkeleton />}
+            {job?.job && <JobPreview job={job?.job} />}
+          </AppContainer>
+        </Grid>
+        <Grid item xs={12} md={3.5}>
+          <AppContainer addCard sx={{ m: 0 }} cardSX={{ p: 0 }}>
+            <PostedBy user={user} loading={userLoading} />
+          </AppContainer>
+        </Grid>
+      </Grid>
+    </AppContainer>
   );
 }
 

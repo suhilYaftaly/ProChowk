@@ -66,20 +66,28 @@ export default function JobForm({
   const contentProps = { jobForm, setJobForm, errors };
   const steps: IJobStep[] = [
     {
-      label: "Size & Dates",
+      label: "Size & Timeline",
       rightCont: { content: <JobSize {...contentProps} /> },
+      sectionDesc:
+        "Job size and timeline will help your job post standout to the right candidate.",
     },
     {
       label: "Title & Skills",
       rightCont: { content: <JobTitleAndSkills {...contentProps} /> },
+      sectionDesc:
+        "Choosing the right job title and specifying the required skills will attract the perfect candidates to your job post!",
     },
     {
       label: "Budget",
       rightCont: { content: <JobBudget {...contentProps} /> },
+      sectionDesc:
+        "Setting the right budget type is key to finding top talent within your price range for a successful project!",
     },
     {
       label: "Description & Location",
       rightCont: { content: <JobDescription {...contentProps} /> },
+      sectionDesc:
+        "Crafting a detailed project description ensures clarity and attracts the perfect match for your job!",
     },
     { label: "Preview", rightCont: { content: <JobPreview job={jobForm} /> } },
   ];
@@ -92,8 +100,11 @@ export default function JobForm({
   const valProps = { jobForm, stepName: currentStep.label, setErrors };
 
   const onNavChange = (newIndex: number) => {
-    const errors = validateFields(valProps);
-    if (errors.length < 1) setStepIndex(newIndex);
+    if (stepIndex > newIndex) setStepIndex(newIndex);
+    else {
+      const errors = validateFields(valProps);
+      if (errors.length < 1) setStepIndex(newIndex);
+    }
   };
   const onNext = () => {
     if (isLastStep) finishDraft();
@@ -168,6 +179,7 @@ export default function JobForm({
           showLeftCont={!isLastStep}
           nextBtnTitle={isLastStep ? "Post Job" : undefined}
           loading={isLoading}
+          sectionDesc={currentStep?.sectionDesc}
         >
           {currentStep?.rightCont?.content}
         </JobContainer>
@@ -183,6 +195,7 @@ interface IRightCont {
 interface IJobStep {
   label: TStepLabel;
   rightCont: IRightCont;
+  sectionDesc?: string;
 }
 interface IJobErrors {
   title: string;
@@ -200,7 +213,7 @@ export interface IJobSteps {
   errors: IJobPost["errors"];
 }
 type TStepLabel =
-  | "Size & Dates"
+  | "Size & Timeline"
   | "Title & Skills"
   | "Budget"
   | "Description & Location"
@@ -257,7 +270,7 @@ const validateFields = ({
     return msg;
   };
 
-  if (checkAllSteps || stepName === "Size & Dates") {
+  if (checkAllSteps || stepName === "Size & Timeline") {
     if (endDate && !startDate) {
       fieldErrors.startDate = setErr(
         "Start date must be selected if end date is chosen."

@@ -1,0 +1,83 @@
+import {
+  Avatar,
+  Card,
+  List,
+  ListItem,
+  ListItemButton,
+  Skeleton,
+  Stack,
+} from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import StarIcon from "@mui/icons-material/Star";
+
+import { navigateToUserPage } from "@/utils/utilFuncs";
+import { IUser } from "@gqlOps/user";
+import Text from "@reusable/Text";
+import { useIsMobile } from "@hooks/hooks";
+
+interface Props {
+  loading: boolean;
+  user: IUser | undefined;
+}
+export default function PostedBy({ loading, user }: Props) {
+  const navigate = useNavigate();
+  const navigateToUser = () => navigateToUserPage({ user, navigate });
+  const isMobile = useIsMobile();
+
+  //TODO: add ratings, previous jobs, active jobs
+
+  return (
+    <Card>
+      {loading ? (
+        <CompSkeleton />
+      ) : (
+        <List component="nav">
+          <ListItem sx={{ my: 1 }} disableGutters>
+            <ListItemButton onClick={navigateToUser}>
+              <Avatar
+                alt={user?.name}
+                src={user?.image?.url}
+                sx={{ width: 60, height: 60, mr: 2 }}
+              />
+              <Stack
+                direction={"row"}
+                sx={{
+                  alignItems: "center",
+                  width: "100%",
+                  justifyContent: "space-between",
+                }}
+              >
+                <div>
+                  {isMobile && <Text>Posted By</Text>}
+                  <Text type="subtitle">{user?.name}</Text>
+                  {!isMobile && <Rating />}
+                </div>
+                {isMobile && <Rating />}
+              </Stack>
+            </ListItemButton>
+          </ListItem>
+        </List>
+      )}
+    </Card>
+  );
+}
+
+const Rating = () => (
+  <Stack direction={"row"} alignItems={"center"}>
+    <StarIcon color="primary" sx={{ width: 22, height: 22, mr: 0.5 }} />
+    <Text cColor="primary" sx={{ fontWeight: 700 }}>
+      4.8
+    </Text>
+  </Stack>
+);
+
+const CompSkeleton = () => (
+  <Card>
+    <List component="nav">
+      <ListItem sx={{ my: 1 }}>
+        <Skeleton variant="circular" width={60} height={60} sx={{ mr: 2 }} />
+        <Skeleton variant="text" sx={{ width: 150 }} />
+      </ListItem>
+    </List>
+  </Card>
+);

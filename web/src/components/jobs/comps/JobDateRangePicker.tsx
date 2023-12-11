@@ -1,8 +1,10 @@
-import { Stack, SxProps, Theme } from "@mui/material";
+import { IconButton, Stack, SxProps, Theme } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { startOfDay, endOfDay, parseISO } from "date-fns";
+import RefreshIcon from "@mui/icons-material/Refresh";
 
 import Text from "@reusable/Text";
+import { useIsMobile } from "@hooks/hooks";
 
 interface Props {
   startDate?: string;
@@ -22,6 +24,7 @@ export default function JobDateRangePicker({
   startDateErrTxt,
   endDateErrTxt,
 }: Props) {
+  const isMobile = useIsMobile();
   const handleStartDateChange = (date: Date | null) => {
     if (date) setStartDate(startOfDay(date).toISOString());
   };
@@ -32,13 +35,21 @@ export default function JobDateRangePicker({
   return (
     <Stack spacing={2} direction={"row"}>
       <Stack sx={{ width: "100%" }}>
-        <Text>Start Date</Text>
+        <Stack direction={"row"} alignItems={"center"}>
+          <Text>Start Date</Text>
+          {isMobile && (
+            <IconButton onClick={() => setStartDate("")} size="small">
+              <RefreshIcon />
+            </IconButton>
+          )}
+        </Stack>
         <DatePicker
           value={startDate ? parseISO(startDate) : null}
           onChange={handleStartDateChange}
           sx={datePickerSX}
           disablePast
           slotProps={{
+            field: { clearable: true, onClear: () => setStartDate("") },
             textField: {
               helperText: startDateErrTxt,
               error: Boolean(startDateErrTxt),
@@ -48,7 +59,14 @@ export default function JobDateRangePicker({
         />
       </Stack>
       <Stack sx={{ width: "100%" }}>
-        <Text>End Date</Text>
+        <Stack direction={"row"} alignItems={"center"}>
+          <Text>End Date</Text>
+          {isMobile && (
+            <IconButton onClick={() => setEndDate("")} size="small">
+              <RefreshIcon />
+            </IconButton>
+          )}
+        </Stack>
         <DatePicker
           value={endDate ? parseISO(endDate) : null}
           onChange={handleEndDateChange}
@@ -56,6 +74,7 @@ export default function JobDateRangePicker({
           disablePast
           minDate={startDate ? parseISO(startDate) : undefined}
           slotProps={{
+            field: { clearable: true, onClear: () => setEndDate("") },
             textField: {
               helperText: endDateErrTxt,
               error: Boolean(endDateErrTxt),

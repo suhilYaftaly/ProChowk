@@ -76,16 +76,15 @@ export default function JobPreview({ job }: Props) {
           />
         </FullScreenModal>
       )}
+      {"createdAt" in job || startDate || endDate}
       <Divider sx={{ my: 2 }} />
       <Stack direction={"row"} spacing={5}>
-        <Stack>
-          <Text type="subtitle">Posted Date</Text>
-          <Text>
-            {readISODate(
-              "createdAt" in job ? job?.createdAt : new Date().toISOString()
-            )}
-          </Text>
-        </Stack>
+        {"createdAt" in job && (
+          <Stack>
+            <Text type="subtitle">Posted Date</Text>
+            <Text>{readISODate(job?.createdAt)}</Text>
+          </Stack>
+        )}
         {startDate && (
           <Stack>
             <Text type="subtitle">Start Date</Text>
