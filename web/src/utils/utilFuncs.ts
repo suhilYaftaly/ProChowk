@@ -251,10 +251,9 @@ export const removeTypename = (obj: any): any => {
   return newObj;
 };
 
-export const removeServerMetadata = ({ obj }: { obj: any }): any => {
+export const removeServerMetadata = (obj: any): any => {
   if (!obj || typeof obj !== "object") return obj;
-  if (Array.isArray(obj))
-    return obj.map((item) => removeServerMetadata({ obj: item }));
+  if (Array.isArray(obj)) return obj.map((item) => removeServerMetadata(item));
 
   // Create a new object without the specified properties
   const newObj = Object.entries(obj).reduce((acc, [key, value]) => {
@@ -264,7 +263,7 @@ export const removeServerMetadata = ({ obj }: { obj: any }): any => {
       key !== "createdAt" &&
       key !== "updatedAt"
     ) {
-      acc[key] = removeServerMetadata({ obj: value });
+      acc[key] = removeServerMetadata(value);
     }
     return acc;
   }, {} as any);

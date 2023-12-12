@@ -169,7 +169,7 @@ export default function SearchFilters({
           address={filters?.address}
           onSelect={onAddressSelect}
           helperText={filterErrors.address}
-          enableMyLocationBtn
+          myLocationType="userLatLng"
           onMyLocation={({ lat, lng }) =>
             setFilters((prev) => ({ ...prev, latLng: { lat, lng } }))
           }

@@ -2,6 +2,7 @@ import { useState, useEffect, ChangeEvent } from "react";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import {
   Autocomplete,
+  CircularProgress,
   Grid,
   IconButton,
   InputAdornment,
@@ -9,8 +10,17 @@ import {
 } from "@mui/material";
 import MyLocationIcon from "@mui/icons-material/MyLocation";
 
-import { getUserLocation, removeTypename } from "@utils/utilFuncs";
-import { IAddress, ILatLng, useGeocode } from "@gqlOps/address";
+import {
+  getUserLocation,
+  removeServerMetadata,
+  removeTypename,
+} from "@utils/utilFuncs";
+import {
+  IAddress,
+  ILatLng,
+  useGeocode,
+  useReverseGeocode,
+} from "@gqlOps/address";
 import { useUserStates } from "@/redux/reduxStates";
 import { useAppDispatch } from "@/utils/hooks/hooks";
 import { userLocationSuccess } from "@rSlices/userSlice";
@@ -26,8 +36,9 @@ interface Props {
   /**The value of the autocomplete. */
   value?: string;
   setValue?: (value: string) => void;
-  enableMyLocationBtn?: boolean;
   onMyLocation?: ({ lat, lng }: ILatLng) => void;
+  /**Type of data to get back on my location click */
+  myLocationType?: "userLatLng";
 }
 
 export default function AddressSearch({
@@ -38,14 +49,15 @@ export default function AddressSearch({
   helperText,
   value,
   setValue,
-  enableMyLocationBtn,
   onMyLocation,
+  myLocationType,
 }: Props) {
   const dispatch = useAppDispatch();
   const { userLocation } = useUserStates();
   const lat = userLocation?.data?.lat;
   const lng = userLocation?.data?.lng;
   const { geocodeAsync, data, loading } = useGeocode();
+  const { reverseGeocodeAsync, loading: rGeoLoading } = useReverseGeocode();
   const [adr, setAdr] = useState<IAddress | undefined>(address);
   const [displayVal, setDisplayVal] = useState(value || "");
 
@@ -71,14 +83,21 @@ export default function AddressSearch({
   };
 
   const onMyLocationClick = () => {
-    //TODO: handle reverse geocode on my location
     getUserLocation({
       onSuccess: ({ lat, lng }) => {
         dispatch(userLocationSuccess({ lat, lng }));
         onMyLocation && onMyLocation({ lat, lng });
+        if (myLocationType !== "userLatLng") {
+          reverseGeocodeAsync({
+            variables: { lat, lng },
+            onSuccess: (data) => {
+              const cleanedAdr = removeServerMetadata(data);
+              onSelect(getAddressFormat(cleanedAdr));
+            },
+          });
+        }
       },
     });
-    setValue && setValue(value || "");
   };
 
   return (
@@ -108,15 +127,19 @@ export default function AddressSearch({
             InputProps={{
               ...params.InputProps,
               type: "search",
-              endAdornment: enableMyLocationBtn && (
+              endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton
-                    color="primary"
-                    size="small"
-                    onClick={onMyLocationClick}
-                  >
-                    <MyLocationIcon />
-                  </IconButton>
+                  {rGeoLoading ? (
+                    <CircularProgress size={15} color="inherit" />
+                  ) : (
+                    <IconButton
+                      color="primary"
+                      size="small"
+                      onClick={onMyLocationClick}
+                    >
+                      <MyLocationIcon />
+                    </IconButton>
+                  )}
                 </InputAdornment>
               ),
             }}

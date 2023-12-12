@@ -1,4 +1,4 @@
-import { gql, useLazyQuery } from "@apollo/client";
+import { gql, useApolloClient, useLazyQuery } from "@apollo/client";
 import { asyncOps } from "./gqlFuncs";
 
 const geoJsonGqlResp = gql`
@@ -124,6 +124,7 @@ interface IGeocodeAsyncI {
   onSuccess?: (res: IGeoAddress[]) => void;
 }
 export const useGeocode = () => {
+  const client = useApolloClient();
   const [geocode, { data, loading, error }] = useLazyQuery<
     IGeocodeData,
     IGeocodeI
@@ -135,7 +136,14 @@ export const useGeocode = () => {
       onSuccess: (dt: IGeocodeData) => onSuccess && onSuccess(dt.geocode),
     });
 
-  return { geocodeAsync, data, loading, error };
+  const updateGeocodeCache = (newData: IGeoAddress[]) => {
+    client.writeQuery<IGeocodeData, IGeocodeI>({
+      query: addressOps.Queries.geocode,
+      data: { geocode: newData },
+    });
+  };
+
+  return { geocodeAsync, updateGeocodeCache, data, loading, error };
 };
 
 interface IReverseGeocodeInput {
