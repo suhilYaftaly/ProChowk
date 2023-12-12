@@ -69,7 +69,7 @@ export default gql`
     jobSize: JobSize!
     skills: [SkillInput!]!
     budget: JobBudgetInput!
-    address: AddressInput!
+    address: AddressInput
     images: [JobImageInput!]
     startDate: Date
     endDate: Date

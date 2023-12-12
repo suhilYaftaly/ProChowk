@@ -10,7 +10,7 @@ import {
 import MyLocationIcon from "@mui/icons-material/MyLocation";
 
 import { getUserLocation, removeTypename } from "@utils/utilFuncs";
-import { IAddress, useGeocode } from "@gqlOps/address";
+import { IAddress, ILatLng, useGeocode } from "@gqlOps/address";
 import { useUserStates } from "@/redux/reduxStates";
 import { useAppDispatch } from "@/utils/hooks/hooks";
 import { userLocationSuccess } from "@rSlices/userSlice";
@@ -27,6 +27,7 @@ interface Props {
   value?: string;
   setValue?: (value: string) => void;
   enableMyLocationBtn?: boolean;
+  onMyLocation?: ({ lat, lng }: ILatLng) => void;
 }
 
 export default function AddressSearch({
@@ -38,6 +39,7 @@ export default function AddressSearch({
   value,
   setValue,
   enableMyLocationBtn,
+  onMyLocation,
 }: Props) {
   const dispatch = useAppDispatch();
   const { userLocation } = useUserStates();
@@ -45,29 +47,36 @@ export default function AddressSearch({
   const lng = userLocation?.data?.lng;
   const { geocodeAsync, data, loading } = useGeocode();
   const [adr, setAdr] = useState<IAddress | undefined>(address);
+  const [displayVal, setDisplayVal] = useState(value || "");
 
   useEffect(() => {
     if (address) {
       const formattedAdr = getAddressFormat(address);
       setAdr(formattedAdr);
       setValue && setValue(formattedAdr.displayName);
+      setDisplayVal(formattedAdr.displayName);
     } else if (setValue) setValue(value || "");
   }, [address]);
 
+  useEffect(() => {
+    if (value) setDisplayVal(value);
+  }, [value]);
+
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>): void => {
-    if (value && setValue) {
-      setValue("");
-      return;
-    }
     const { value: targValue } = e.target;
-    if (targValue.trim().length > 2)
+    if (targValue.trim().length > 2 && targValue.length > displayVal.length)
       geocodeAsync({ vars: { value: targValue, lat, lng } });
+    setDisplayVal(targValue);
+    setValue && setValue(targValue);
   };
 
   const onMyLocationClick = () => {
     //TODO: handle reverse geocode on my location
     getUserLocation({
-      onSuccess: ({ lat, lng }) => dispatch(userLocationSuccess({ lat, lng })),
+      onSuccess: ({ lat, lng }) => {
+        dispatch(userLocationSuccess({ lat, lng }));
+        onMyLocation && onMyLocation({ lat, lng });
+      },
     });
     setValue && setValue(value || "");
   };
@@ -76,14 +85,14 @@ export default function AddressSearch({
     <>
       <Autocomplete
         freeSolo
-        value={value || adr?.displayName || ""}
+        value={value || displayVal || ""}
         loading={loading}
         getOptionLabel={(option) =>
           typeof option === "string" ? option : option.displayName
         }
         options={data?.geocode || []}
-        disableClearable
         onChange={(_, value: any) => onSelect(getAddressFormat(value))}
+        disableClearable
         renderInput={(params) => (
           <TextField
             {...params}

@@ -390,7 +390,6 @@ const buildJobInputs = (jobInput: IJobInput) => {
 
 interface IUpdateJobInput {
   id: string;
-  imagesToDelete?: string[];
   jobInput: IJobInput;
 }
 interface IJobsByLocationInput {

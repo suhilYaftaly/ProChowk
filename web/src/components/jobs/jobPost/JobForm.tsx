@@ -29,16 +29,14 @@ import MJobNav from "@jobs/jobPost/mobile/MJobNav";
 interface Props {
   jobForm: JobInput;
   setJobForm: Dispatch<React.SetStateAction<JobInput>>;
-  onCreateJob: () => void;
-  onUpdateJob: (isDraft: boolean) => void;
+  createOrUpdateJob: (isDraft: boolean) => void;
   loading: boolean;
   uLoading: boolean;
 }
 export default function JobForm({
   jobForm,
   setJobForm,
-  onCreateJob,
-  onUpdateJob,
+  createOrUpdateJob,
   loading,
   uLoading,
 }: Props) {
@@ -92,7 +90,6 @@ export default function JobForm({
     { label: "Preview", rightCont: { content: <JobPreview job={jobForm} /> } },
   ];
 
-  const isFirstStep = stepIndex === 0;
   const isLastStep = steps.length === stepIndex + 1;
   const currentStep = steps[stepIndex];
   const prevStep = stepIndex > 0 && steps?.[stepIndex - 1];
@@ -112,8 +109,7 @@ export default function JobForm({
       const errors = validateFields(valProps);
       if (errors.length < 1) {
         setStepIndex((prev) => prev + 1);
-        if (isFirstStep) onCreateJob();
-        else onUpdateJob(true);
+        createOrUpdateJob(true);
       }
     }
   };
@@ -132,7 +128,7 @@ export default function JobForm({
     if (errors.length > 0) {
       toast.error(ToastErrorsList({ errors }));
       return;
-    } else onUpdateJob(false);
+    } else createOrUpdateJob(false);
   };
 
   const isLoading = loading || uLoading;

@@ -170,6 +170,9 @@ export default function SearchFilters({
           onSelect={onAddressSelect}
           helperText={filterErrors.address}
           enableMyLocationBtn
+          onMyLocation={({ lat, lng }) =>
+            setFilters((prev) => ({ ...prev, latLng: { lat, lng } }))
+          }
         />
       </Stack>
       <Divider sx={{ my: dMy }} />

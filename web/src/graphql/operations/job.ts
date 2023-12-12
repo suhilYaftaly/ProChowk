@@ -222,7 +222,7 @@ export interface JobInput {
   jobSize: JobSize;
   skills: SkillInput[];
   budget: JobBudgetInput;
-  address: AddressInput;
+  address?: AddressInput;
   images: ImageInput[];
   startDate?: string;
   endDate?: string;

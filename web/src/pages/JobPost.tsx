@@ -36,7 +36,6 @@ export default function JobPost() {
 
   const onUpdateJob = (isDraft: boolean) => {
     const isLastStep = !isDraft;
-
     if (
       (jobHasNewChanges || isLastStep) &&
       isExistingJob &&
@@ -50,7 +49,7 @@ export default function JobPost() {
           jobInput: { ...jobForm, isDraft },
         },
         onSuccess: () => {
-          if (!isDraft) {
+          if (isLastStep) {
             toast.success("Job posted successfully.");
             navigateToUserPage({ user, navigate });
           } else {
@@ -63,6 +62,13 @@ export default function JobPost() {
     }
   };
 
+  const createOrUpdateJob = (isDraft: boolean) => {
+    if (user?.id) {
+      if (isExistingJob && jobId) onUpdateJob(isDraft);
+      else if (!isExistingJob) onCreateJob();
+    }
+  };
+
   const handleJobFormChange = (job: SetStateAction<JobInput>) => {
     setJobForm(job);
     setJobHasNewChanges(true);
@@ -72,8 +78,7 @@ export default function JobPost() {
     <JobForm
       jobForm={jobForm}
       setJobForm={handleJobFormChange}
-      onCreateJob={onCreateJob}
-      onUpdateJob={onUpdateJob}
+      createOrUpdateJob={createOrUpdateJob}
       loading={loading}
       uLoading={uLoading}
     />

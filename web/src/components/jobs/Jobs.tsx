@@ -179,6 +179,7 @@ export const JobsCards = ({
                 <Divider sx={{ my: 1 }} />
                 <Stack direction={"row"} sx={{ alignItems: "center" }}>
                   <IconButton
+                    size="small"
                     onClick={(e) => {
                       e.stopPropagation();
                       openGoogleMapsDirections({

@@ -1,13 +1,14 @@
 import { gql, useLazyQuery } from "@apollo/client";
 import { asyncOps } from "./gqlFuncs";
 
-// const geoJsonGqlResp = gql`
-//   fragment GeoJsonFields on GeoJson {
-//     type
-//     coordinates
-//   }
-// `;
+const geoJsonGqlResp = gql`
+  fragment GeoJsonFields on GeoJson {
+    type
+    coordinates
+  }
+`;
 const geocodeGqlResp = gql`
+  ${geoJsonGqlResp}
   fragment GeocodeFields on Geocode {
     displayName
     street
@@ -20,9 +21,13 @@ const geocodeGqlResp = gql`
     countryCode
     lat
     lng
+    geometry {
+      ...GeoJsonFields
+    }
   }
 `;
 export const addressGqlResp = gql`
+  ${geoJsonGqlResp}
   fragment AddressFields on Address {
     id
     displayName
@@ -38,6 +43,9 @@ export const addressGqlResp = gql`
     lng
     createdAt
     updatedAt
+    geometry {
+      ...GeoJsonFields
+    }
   }
 `;
 
