@@ -17,6 +17,7 @@ import {
 } from "@utils/utilFuncs";
 import {
   IAddress,
+  IGeoAddress,
   ILatLng,
   useGeocode,
   useReverseGeocode,
@@ -174,5 +175,5 @@ export const getAddressFormat = (adr: IAddress) => {
     lat: adr.lat,
     lng: adr.lng,
     geometry: removeTypename(adr.geometry),
-  };
+  } as IGeoAddress;
 };

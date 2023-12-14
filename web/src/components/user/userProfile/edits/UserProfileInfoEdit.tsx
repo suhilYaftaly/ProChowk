@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import { ChangeEvent, Dispatch, SetStateAction, useRef, useState } from "react";
 import { isValidPhoneNumber } from "libphonenumber-js";
+import { toast } from "react-toastify";
 
 import { IUpdateUserInput, IUser, useUpdateUser } from "@gqlOps/user";
 import { ImageInput } from "@/types/commonTypes";
@@ -91,7 +92,15 @@ export default function UserProfileInfoEdit({ user, onClose }: Props) {
         edits: { name: form.name, phoneNum, address: form.address, image },
       };
 
-      updateUserAsync({ variables: updateData, onSuccess: onClose });
+      updateUserAsync({
+        variables: updateData,
+        onSuccess: () => {
+          toast.success("Profile updated successfully!", {
+            position: "bottom-right",
+          });
+          onClose();
+        },
+      });
     }
   };
 

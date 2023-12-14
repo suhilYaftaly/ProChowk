@@ -29,14 +29,14 @@ interface GeoJson {
   type: string;
   coordinates: number[];
 }
-interface IGeoAddress {
+export interface IGeoAddress {
   displayName: string;
-  street: string;
+  street?: string;
   city: string;
   county: string;
   state: string;
   stateCode: string;
-  postalCode: string;
+  postalCode?: string;
   country: string;
   countryCode: string;
   lat: number;

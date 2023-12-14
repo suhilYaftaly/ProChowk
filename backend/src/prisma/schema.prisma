@@ -54,12 +54,12 @@ model UserImage {
 model Address {
     id          String   @id @default(auto()) @map("_id") @db.ObjectId
     displayName String
-    street      String
+    street      String?
     city        String
     county      String
     state       String
     stateCode   String
-    postalCode  String
+    postalCode  String?
     country     String
     countryCode String
     lat         Float
