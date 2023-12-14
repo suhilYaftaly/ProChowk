@@ -73,69 +73,71 @@ export const muiTheme = (mode: ThemeMode) => {
             error: { main: cc.error, contrastText: cc.white },
           }),
     },
-    components:
-      mode === "light"
-        ? {
-            MuiChip: {
-              styleOverrides: {
-                root: {
-                  color: lc.text.dark,
-                  fontWeight: "450",
-                },
-                filled: { backgroundColor: lc.bg },
-                outlined: { borderColor: lc.text.dark },
-                colorPrimary: {
-                  color: lc.primary.main,
-                  "&.MuiChip-filled": {
-                    color: cc.white,
-                    backgroundColor: lc.primary.main,
-                  },
-                  "&.MuiChip-outlined": { borderColor: lc.primary.main },
-                },
-                colorSecondary: {
-                  color: lc.secondary.main,
-                  "&.MuiChip-filled": {
-                    color: cc.white,
-                    backgroundColor: lc.secondary.main,
-                  },
-                  "&.MuiChip-outlined": { borderColor: lc.secondary.main },
-                },
-                colorSuccess: {
-                  color: cc.success,
-                  "&.MuiChip-filled": {
-                    color: cc.white,
-                    backgroundColor: cc.success,
-                  },
-                  "&.MuiChip-outlined": { borderColor: cc.success },
-                },
-                colorInfo: {
-                  color: cc.info,
-                  "&.MuiChip-filled": {
-                    color: cc.white,
-                    backgroundColor: cc.info,
-                  },
-                  "&.MuiChip-outlined": { borderColor: cc.info },
-                },
-                colorWarning: {
-                  color: cc.warning,
-                  "&.MuiChip-filled": {
-                    color: cc.dark,
-                    backgroundColor: cc.warning,
-                  },
-                  "&.MuiChip-outlined": { borderColor: cc.warning },
-                },
-                colorError: {
-                  color: cc.error,
-                  "&.MuiChip-filled": {
-                    color: cc.white,
-                    backgroundColor: cc.error,
-                  },
-                  "&.MuiChip-outlined": { borderColor: cc.error },
-                },
-              },
+    components: {
+      MuiCard: { styleOverrides: { root: { borderRadius: 8 } } },
+      MuiButton: { styleOverrides: { root: { borderRadius: 25 } } },
+      MuiOutlinedInput: { styleOverrides: { root: { borderRadius: 8 } } },
+      ...(mode === "light" && {
+        MuiChip: {
+          styleOverrides: {
+            root: {
+              color: lc.text.dark,
+              fontWeight: "450",
             },
-          }
-        : {},
+            filled: { backgroundColor: lc.bg },
+            outlined: { borderColor: lc.text.dark },
+            colorPrimary: {
+              color: lc.primary.main,
+              "&.MuiChip-filled": {
+                color: cc.white,
+                backgroundColor: lc.primary.main,
+              },
+              "&.MuiChip-outlined": { borderColor: lc.primary.main },
+            },
+            colorSecondary: {
+              color: lc.secondary.main,
+              "&.MuiChip-filled": {
+                color: cc.white,
+                backgroundColor: lc.secondary.main,
+              },
+              "&.MuiChip-outlined": { borderColor: lc.secondary.main },
+            },
+            colorSuccess: {
+              color: cc.success,
+              "&.MuiChip-filled": {
+                color: cc.white,
+                backgroundColor: cc.success,
+              },
+              "&.MuiChip-outlined": { borderColor: cc.success },
+            },
+            colorInfo: {
+              color: cc.info,
+              "&.MuiChip-filled": {
+                color: cc.white,
+                backgroundColor: cc.info,
+              },
+              "&.MuiChip-outlined": { borderColor: cc.info },
+            },
+            colorWarning: {
+              color: cc.warning,
+              "&.MuiChip-filled": {
+                color: cc.dark,
+                backgroundColor: cc.warning,
+              },
+              "&.MuiChip-outlined": { borderColor: cc.warning },
+            },
+            colorError: {
+              color: cc.error,
+              "&.MuiChip-filled": {
+                color: cc.white,
+                backgroundColor: cc.error,
+              },
+              "&.MuiChip-outlined": { borderColor: cc.error },
+            },
+          },
+        },
+      }),
+    },
   });
 };
 

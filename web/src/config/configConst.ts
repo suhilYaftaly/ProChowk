@@ -12,6 +12,9 @@ export const maxWidthPG = 1128;
 
 const minimumWage = 14;
 
+/**phone country code */
+export const phoneCC = "CA";
+
 /**Dashboard search filter configs */
 export const searchFilterConfigs = {
   minRadius: 5,

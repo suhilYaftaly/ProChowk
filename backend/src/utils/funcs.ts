@@ -1,5 +1,5 @@
 import axios from "axios";
-import { GraphQLError } from "graphql";
+import { GraphQLError, GraphQLResolveInfo } from "graphql";
 import * as dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 
@@ -35,9 +35,23 @@ export function validateEmail(email: string): boolean {
   return emailPattern.test(email);
 }
 
-export function validatePhoneNum(phoneNumber: string): boolean {
-  const pattern = /^\d{3}-\d{3}-\d{4}$/;
-  if (phoneNumber) return pattern.test(phoneNumber);
+/**
+ * Checks if a phone number string is in E.164 format.
+ *
+ * The E.164 format is typically used for international phone numbers and
+ * is characterized by a leading plus sign, followed by the country code
+ * and the national phone number. This function validates the format, allowing
+ * for spaces or dashes as optional separators.
+ *
+ * @param number - The phone number string to be validated.
+ * @returns `true` if the phone number is in E.164 format, `false` otherwise.
+ */
+export function isE164PhoneNumber(number: string): boolean {
+  // E.164 format regular expression
+  // This pattern will match numbers like +1234567890, +12 345 678 9012, +123-456-7890
+  const pattern = /^\+\d{1,3}(\s|-)?\d{1,12}((\s|-)?\d{1,4})?$/;
+
+  if (number) return pattern.test(number);
   return false;
 }
 
@@ -233,3 +247,16 @@ export function formatDuration(durationInSeconds: number) {
 
   return output;
 }
+
+/** Reusable function to check if a field is requested */
+export const isFieldRequested = (
+  info: GraphQLResolveInfo,
+  fieldName: string
+): boolean => {
+  return info.fieldNodes.some((node) =>
+    node.selectionSet.selections.some(
+      (selection) =>
+        selection.kind === "Field" && selection.name.value === fieldName
+    )
+  );
+};

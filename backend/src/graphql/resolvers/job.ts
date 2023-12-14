@@ -1,7 +1,9 @@
 import { BudgetType, Job } from "@prisma/client";
+import { GraphQLResolveInfo } from "graphql";
+
 import { GraphQLContext, IJobInput } from "../../types/commonTypes";
 import checkAuth, { canUserUpdate } from "../../middlewares/checkAuth";
-import { gqlError } from "../../utils/funcs";
+import { gqlError, isFieldRequested } from "../../utils/funcs";
 import {
   ADDRESS_COLLECTION,
   SKILL_COLLECTION,
@@ -27,15 +29,22 @@ export default {
     userJobs: async (
       _: any,
       { userId }: { userId: string },
-      context: GraphQLContext
+      context: GraphQLContext,
+      info: GraphQLResolveInfo
     ): Promise<Job[]> => {
       const { prisma } = context;
 
       const jobsRes = await prisma.job.findMany({
         where: { userId },
         orderBy: { createdAt: "desc" },
-        include: { address: true, images: true, skills: true, budget: true },
+        include: {
+          address: isFieldRequested(info, "address"),
+          images: isFieldRequested(info, "images"),
+          skills: isFieldRequested(info, "skills"),
+          budget: isFieldRequested(info, "budget"),
+        },
       });
+
       if (!jobsRes) throw gqlError({ msg: "Failed to get jobs" });
       return jobsRes;
     },
@@ -104,7 +113,6 @@ export default {
         page = 1,
         pageSize = 100,
         budget,
-
         startDate,
         endDate,
       }: IJobsByTextInput,

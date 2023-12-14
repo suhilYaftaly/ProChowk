@@ -9,7 +9,7 @@ import {
   showInputError,
   gqlError,
   validateEmail,
-  validatePhoneNum,
+  isE164PhoneNumber,
   sendEmail,
   EmailParams,
   generateEmailTemplate,
@@ -652,7 +652,7 @@ const constructUpdateData = ({
   }
 
   if (phoneNum) {
-    if (!validatePhoneNum(phoneNum))
+    if (!isE164PhoneNumber(phoneNum))
       throw showInputError("Incorrect phone number format");
     dataToCreate.phoneNum = phoneNum;
   }

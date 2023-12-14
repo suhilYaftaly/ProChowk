@@ -1,16 +1,10 @@
-import {
-  Modal,
-  Stack,
-  IconButton,
-  Box,
-  Typography,
-  Divider,
-} from "@mui/material";
+import { Modal, Stack, IconButton, Box, Divider, styled } from "@mui/material";
 import { ReactNode } from "react";
 import CloseIcon from "@mui/icons-material/Close";
-import { styled, useTheme } from "@mui/system";
+
 import { maxWidthPG } from "@/config/configConst";
 import { useRespVal } from "@/utils/hooks/hooks";
+import Text from "./Text";
 
 interface Props {
   open: boolean;
@@ -27,31 +21,30 @@ const ModalContainer = styled(Box)(({ theme }) => ({
   minWidth: 350,
   maxWidth: maxWidthPG,
   maxHeight: "95%",
-  backgroundColor: theme.palette.background.paper, // Set the background color based on the theme
-  padding: theme.spacing(1),
-  borderRadius: 2,
+  backgroundColor: theme.palette.background.paper,
+  borderRadius: 8,
   display: "flex",
   flexDirection: "column",
 }));
 
-const ContentContainer = styled(Box)({
+const ContentContainer = styled(Box)(({ theme }) => ({
   overflowY: "auto",
-});
+  padding: theme.spacing(2),
+}));
 
 export default function CustomModal({ open, onClose, children, title }: Props) {
-  const theme = useTheme();
-
   return (
     <Modal open={open} onClose={() => onClose(false)}>
-      <ModalContainer theme={theme} sx={{ minWidth: useRespVal(370, 600) }}>
+      <ModalContainer sx={{ minWidth: useRespVal(370, 600) }}>
         <Stack
           direction="row"
           justifyContent="space-between"
           alignItems="center"
+          sx={{ p: 2 }}
         >
-          <Typography>{title}</Typography>
+          <Text type="title">{title}</Text>
           <IconButton onClick={() => onClose(false)}>
-            <CloseIcon />
+            <CloseIcon color="primary" />
           </IconButton>
         </Stack>
         <Divider />

@@ -14,7 +14,7 @@ import AddIcon from "@mui/icons-material/Add";
 
 import CustomModal from "@reusable/CustomModal";
 import FullScreenModal from "@reusable/FullScreenModal";
-import { IUserInfo } from "@user/userProfile/UserInfo";
+import { IUserInfo } from "@/components/user/userProfile/UserInfoOld";
 import UserLicensesEdit from "./edits/UserLicensesEdit";
 import { useRespVal } from "@/utils/hooks/hooks";
 import { useDeleteContractorLicense } from "@gqlOps/contractor";

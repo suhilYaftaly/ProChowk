@@ -10,7 +10,7 @@ import { useState } from "react";
 import EditIcon from "@mui/icons-material/Edit";
 
 import CustomModal from "@reusable/CustomModal";
-import { IUserInfo } from "@user/userProfile/UserInfo";
+import { IUserInfo } from "@/components/user/userProfile/UserInfoOld";
 import UserSkillsEdit from "./edits/UserSkillsEdit";
 
 export default function UserSkills({

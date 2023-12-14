@@ -15,7 +15,7 @@ interface Props {
 }
 export default function AppContainer({ children, sx, addCard, cardSX }: Props) {
   const isMobile = useIsMobile();
-  const cardBR = isMobile ? 0 : 1;
+  const cardBR = isMobile ? 0 : undefined;
   const m = useRespVal(0, pp);
 
   return (

@@ -13,111 +13,72 @@ import { IContractor, contractorGqlResp } from "./contractor";
 import { store } from "@redux/store";
 import { asyncOps } from "./gqlFuncs";
 import { SkillInput } from "./skill";
+import { imageGqlResp } from "../commonFields";
 
 const { dispatch } = store;
 
-export const userGqlResp = gql`
-  ${addressGqlResp}
-  fragment UserFields on User {
-    id
-    name
-    phoneNum
-    bio
-    email
-    emailVerified
-    createdAt
-    updatedAt
-    image {
-      id
-      name
-      url
-      size
-      type
-      createdAt
-      updatedAt
-    }
-    provider
-    roles
-    userTypes
-    address {
-      ...AddressFields
-    }
-  }
-`;
+export const userGqlResp = `id name phoneNum bio email emailVerified createdAt
+  updatedAt image {${imageGqlResp}} provider roles userTypes address {${addressGqlResp}}`;
 
 const userOps = {
   Queries: {
     user: gql`
-      ${userGqlResp}
       query User($id: ID!) {
-        user(id: $id) {
-          ...UserFields
-        }
+        user(id: $id) {${userGqlResp}}
       }
     `,
     users: gql`
-      ${userGqlResp}
       query Users {
-        users {
-          ...UserFields
-        }
+        users {${userGqlResp}}
       }
     `,
   },
   Mutations: {
     registerUser: gql`
-      ${userGqlResp}
       mutation RegisterUser(
         $name: String!
         $email: String!
         $password: String!
       ) {
         registerUser(name: $name, email: $email, password: $password) {
-          ...UserFields
+          ${userGqlResp}
           token
           refreshToken
         }
       }
     `,
     loginUser: gql`
-      ${userGqlResp}
       mutation LoginUser($email: String!, $password: String!) {
         loginUser(email: $email, password: $password) {
-          ...UserFields
+          ${userGqlResp}
           token
           refreshToken
         }
       }
     `,
     googleLogin: gql`
-      ${userGqlResp}
       mutation GoogleLogin($accessToken: String!) {
         googleLogin(accessToken: $accessToken) {
-          ...UserFields
+          ${userGqlResp}
           token
           refreshToken
         }
       }
     `,
     googleOneTapLogin: gql`
-      ${userGqlResp}
       mutation GoogleOneTapLogin($credential: String!) {
         googleOneTapLogin(credential: $credential) {
-          ...UserFields
+          ${userGqlResp}
           token
           refreshToken
         }
       }
     `,
     updateUser: gql`
-      ${userGqlResp}
-      ${contractorGqlResp}
       mutation UpdateUser($id: ID!, $edits: UpdateUserInput!) {
         updateUser(id: $id, edits: $edits) {
-          ...UserFields
-          contractor {
-            ...ContractorFields
-          }
+          ${userGqlResp}
+          contractor {${contractorGqlResp}}
         }
       }
     `,
@@ -137,10 +98,9 @@ const userOps = {
       }
     `,
     resetPassword: gql`
-      ${userGqlResp}
       mutation ResetPassword($token: String!, $newPassword: String!) {
         resetPassword(token: $token, newPassword: $newPassword) {
-          ...UserFields
+          ${userGqlResp}
           token
           refreshToken
         }
@@ -180,7 +140,7 @@ export interface IUser {
   contractor?: IContractor;
 }
 //inputs
-interface UpdateUserInput {
+export interface IUpdateUserInput {
   name?: string;
   phoneNum?: string;
   image?: ImageInput;
@@ -246,15 +206,15 @@ export const useUser = () => {
   return { userAsync, updateCache, data, loading, error };
 };
 
-interface IUpdateUserInput {
+interface IUpdateUserVars {
   id: string;
-  edits: UpdateUserInput;
+  edits: IUpdateUserInput;
 }
 interface IUpdateUserData {
   updateUser: IUser;
 }
 interface IUUUAsyncInput {
-  variables: IUpdateUserInput;
+  variables: IUpdateUserVars;
   onSuccess?: (data: IUser) => void;
   onError?: (error: any) => void;
 }
@@ -262,7 +222,7 @@ export const useUpdateUser = () => {
   const dispatch = useAppDispatch();
   const [updateUser, { data, loading, error }] = useMutation<
     IUpdateUserData,
-    IUpdateUserInput
+    IUpdateUserVars
   >(userOps.Mutations.updateUser);
   const { updateCache } = useUser();
 

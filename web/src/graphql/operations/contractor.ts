@@ -8,71 +8,34 @@ import {
 import { ISkill, skillGqlResp, SkillInput } from "./skill";
 import { asyncOps } from "./gqlFuncs";
 
-const licenseGqlResp = gql`
-  fragment LicenseFields on License {
-    id
-    name
-    desc
-    type
-    size
-    url
-    createdAt
-    updatedAt
-  }
-`;
-export const contractorGqlResp = gql`
-  ${licenseGqlResp}
-  ${skillGqlResp}
-  fragment ContractorFields on Contractor {
-    id
-    createdAt
-    updatedAt
-    licenses {
-      ...LicenseFields
-    }
-    skills {
-      ...SkillFields
-    }
-  }
-`;
+const licenseGqlResp = `id name desc type size url createdAt updatedAt`;
+export const contractorGqlResp = `id createdAt updatedAt licenses {${licenseGqlResp}} skills {${skillGqlResp}}`;
 
 const contOps = {
   Queries: {
     contractor: gql`
-      ${contractorGqlResp}
       query Contractor($id: ID, $userId: ID) {
-        contractor(id: $id, userId: $userId) {
-          ...ContractorFields
-        }
+        contractor(id: $id, userId: $userId) {${contractorGqlResp}}
       }
     `,
   },
   Mutations: {
     addContractorLicense: gql`
-      ${contractorGqlResp}
       mutation AddContractorLicense($contId: ID!, $license: LicenseInput!) {
-        addContractorLicense(contId: $contId, license: $license) {
-          ...ContractorFields
-        }
+        addContractorLicense(contId: $contId, license: $license) {${contractorGqlResp}}
       }
     `,
     deleteContractorLicense: gql`
-      ${contractorGqlResp}
       mutation DeleteContractorLicense($contId: ID!, $licId: ID!) {
-        deleteContractorLicense(contId: $contId, licId: $licId) {
-          ...ContractorFields
-        }
+        deleteContractorLicense(contId: $contId, licId: $licId) {${contractorGqlResp}}
       }
     `,
     addOrRemoveContractorSkills: gql`
-      ${contractorGqlResp}
       mutation AddOrRemoveContractorSkills(
         $contId: ID!
         $skills: [SkillInput!]!
       ) {
-        addOrRemoveContractorSkills(contId: $contId, skills: $skills) {
-          ...ContractorFields
-        }
+        addOrRemoveContractorSkills(contId: $contId, skills: $skills) {${contractorGqlResp}}
       }
     `,
   },

@@ -1,7 +1,7 @@
 import { Alert } from "@mui/material";
 
 import FileUpload from "@reusable/FileUpload";
-import { IUserInfo } from "@user/userProfile/UserInfo";
+import { IUserInfo } from "@/components/user/userProfile/UserInfoOld";
 import { LicenseInput, useAddContractorLicense } from "@gqlOps/contractor";
 
 interface Props extends IUserInfo {

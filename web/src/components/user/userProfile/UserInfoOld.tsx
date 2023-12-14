@@ -1,9 +1,9 @@
 import { Paper, Stack } from "@mui/material";
 
-import UserBasicInfo from "./UserBasicInfo";
+import UserBasicInfo from "./UserBasicInfoOld";
 import { ppx, ppy } from "@config/configConst";
-import UserSkills from "@contractor/UserSkills";
-import UserLicenses from "@contractor/UserLicenses";
+import UserSkills from "@/components/contractor/UserSkillsOld";
+import UserLicenses from "@/components/contractor/UserLicensesOld";
 import { IUser } from "@gqlOps/user";
 import { IContractor } from "@gqlOps/contractor";
 import Jobs from "@jobs/Jobs";

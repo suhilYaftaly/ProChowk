@@ -29,11 +29,12 @@ import { SkillInput } from "@gqlOps/skill";
 import SkillsSelection from "@appComps/SkillsSelection";
 import AddressSearch from "@appComps/AddressSearch";
 import {
-  formatPhoneNum,
+  formatToE164,
   navigateToUserPage,
   validatePhoneNum,
 } from "@/utils/utilFuncs";
 import { paths } from "@/routes/Routes";
+import PhoneTextField from "@appComps/PhoneTextField";
 
 interface IErrors {
   userType: string;
@@ -98,6 +99,7 @@ export default function ProfileSetup() {
           id: user.id,
           edits: {
             ...newForm,
+            phoneNum: formatToE164(form.phoneNum),
             userTypes: [userType],
             skills: userType === "contractor" ? form.skills : [],
           },
@@ -148,20 +150,10 @@ export default function ProfileSetup() {
             <FormHelperText>{errors.userType}</FormHelperText>
           )}
         </FormControl>
-        <TextField
-          label={"Phone Number"}
-          variant="outlined"
-          size="small"
+        <PhoneTextField
           value={form.phoneNum}
-          onChange={(e) =>
-            setForm((prev) => ({
-              ...prev,
-              phoneNum: formatPhoneNum(e.target.value),
-            }))
-          }
-          error={Boolean(errors.phoneNum)}
+          onChange={(phoneNum) => setForm((prev) => ({ ...prev, phoneNum }))}
           helperText={errors.phoneNum}
-          placeholder="e.g. 999-999-9999"
         />
         {form.userType === "contractor" && (
           <SkillsSelection

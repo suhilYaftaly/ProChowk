@@ -20,7 +20,7 @@ import { Add, Delete, MoreVert, LocationOn } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 
-import { IUserInfo } from "@user/userProfile/UserInfo";
+import { IUserInfo } from "@/components/user/userProfile/UserInfoOld";
 import {
   IJob,
   useCreateJob,
@@ -48,6 +48,8 @@ export default function Jobs({ isMyProfile, userId }: IUserInfo) {
   const { deleteJobAsync, loading: deleteLoading } = useDeleteJob();
   const [openErrBar, setContErrBar] = useState(false);
   const { userLocation } = useUserStates();
+
+  // maybe old comp? check later
 
   useEffect(() => {
     if (userId) userJobsAsync({ variables: { userId } });

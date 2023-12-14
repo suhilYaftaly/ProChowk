@@ -1,14 +1,13 @@
 import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { Alert } from "@mui/material";
+import { useEffect } from "react";
 
-import UserInfo from "@components/user/userProfile/UserInfo";
 import { useUserStates } from "@redux/reduxStates";
 import { useUser } from "@gqlOps/user";
 import { useContractor } from "@gqlOps/contractor";
-import ErrSnackbar from "@reusable/ErrSnackbar";
 import { useAppDispatch } from "@/utils/hooks/hooks";
 import { setUserProfile } from "@rSlices/userSlice";
+import UserProfile from "@user/userProfile/UserProfile";
+import { useUserJobs } from "@gqlOps/job";
 
 export default function User() {
   const { nameId } = useParams();
@@ -16,16 +15,15 @@ export default function User() {
   const userId = nameId?.split("-")?.[1];
   const isMyProfile = userId === loggedInUser?.id;
   const dispatch = useAppDispatch();
-  const { userAsync, data: userData, error: userError, loading } = useUser();
+  const { userAsync, data: userData, loading } = useUser();
   const {
     contractorAsync,
-    data: userContrData,
-    error: contError,
-    loading: contProfLoading,
+    data: contrData,
+    loading: contrLoading,
   } = useContractor();
+  const { userJobsAsync, data: jobsData, loading: jobsLoading } = useUserJobs();
 
-  const [openContErrBar, setOpenContErrBar] = useState(false);
-
+  //retrieve user
   useEffect(() => {
     if (userId) {
       userAsync({
@@ -35,39 +33,28 @@ export default function User() {
     }
   }, [isMyProfile]);
 
-  const user = isMyProfile ? loggedInUser : userData?.user;
+  const user = userData?.user;
 
+  //retrieve contractor
   useEffect(() => {
     if (userId && user?.userTypes?.includes("contractor"))
       contractorAsync({ variables: { userId } });
   }, [userId, user]);
 
+  //retrieve user jobs
+  useEffect(() => {
+    if (userId) userJobsAsync({ variables: { userId } });
+  }, [userId]);
+
   return (
-    <>
-      {userId && (
-        <>
-          <UserInfo
-            user={user}
-            isMyProfile={isMyProfile}
-            loading={loading}
-            contrData={userContrData?.contractor}
-            userId={userId}
-            contProfLoading={contProfLoading}
-          />
-          {userError && (
-            <Alert severity="error" color="error">
-              {userError.message}
-            </Alert>
-          )}
-          {contError?.message === "Contractor profile not found" ? null : (
-            <ErrSnackbar
-              open={openContErrBar}
-              handleClose={setOpenContErrBar}
-              errMsg={contError?.message}
-            />
-          )}
-        </>
-      )}
-    </>
+    <UserProfile
+      user={user}
+      isMyProfile={isMyProfile}
+      userLoading={loading}
+      contractor={contrData?.contractor}
+      contrLoading={contrLoading}
+      jobs={jobsData?.userJobs}
+      jobsLoading={jobsLoading}
+    />
   );
 }

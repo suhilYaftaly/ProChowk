@@ -8,12 +8,12 @@ import {
   Stack,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import StarIcon from "@mui/icons-material/Star";
 
 import { navigateToUserPage } from "@/utils/utilFuncs";
 import { IUser } from "@gqlOps/user";
 import Text from "@reusable/Text";
 import { useIsMobile } from "@hooks/hooks";
+import Rating from "@reusable/appComps/Rating";
 
 interface Props {
   loading: boolean;
@@ -61,15 +61,6 @@ export default function PostedBy({ loading, user }: Props) {
     </Card>
   );
 }
-
-const Rating = () => (
-  <Stack direction={"row"} alignItems={"center"}>
-    <StarIcon color="primary" sx={{ width: 22, height: 22, mr: 0.5 }} />
-    <Text cColor="primary" sx={{ fontWeight: 700 }}>
-      4.8
-    </Text>
-  </Stack>
-);
 
 const CompSkeleton = () => (
   <Card>

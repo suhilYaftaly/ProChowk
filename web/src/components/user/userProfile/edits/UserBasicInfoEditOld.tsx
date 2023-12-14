@@ -7,9 +7,9 @@ import {
   TextField,
 } from "@mui/material";
 
-import { formatPhoneNum, validatePhoneNum } from "@utils/utilFuncs";
+import { validatePhoneNum } from "@utils/utilFuncs";
 import { useUpdateUser } from "@gqlOps/user";
-import { IUserInfo } from "../UserInfo";
+import { IUserInfo } from "../UserInfoOld";
 import AddressSearch, { getAddressFormat } from "@appComps/AddressSearch";
 
 interface Props extends IUserInfo {
@@ -67,7 +67,7 @@ export default function UserBasicInfoEdit({ user, closeEdit }: Props) {
       setDisableSaveBtn(false);
       setFormData((prevData) => ({
         ...prevData,
-        [name]: name === "phoneNum" ? formatPhoneNum(value) : value,
+        [name]: value,
       }));
       setFormError((prevErrors) => ({
         ...prevErrors,

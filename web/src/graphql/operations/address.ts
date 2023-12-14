@@ -1,70 +1,22 @@
 import { gql, useApolloClient, useLazyQuery } from "@apollo/client";
 import { asyncOps } from "./gqlFuncs";
 
-const geoJsonGqlResp = gql`
-  fragment GeoJsonFields on GeoJson {
-    type
-    coordinates
-  }
-`;
-const geocodeGqlResp = gql`
-  ${geoJsonGqlResp}
-  fragment GeocodeFields on Geocode {
-    displayName
-    street
-    city
-    county
-    state
-    stateCode
-    postalCode
-    country
-    countryCode
-    lat
-    lng
-    geometry {
-      ...GeoJsonFields
-    }
-  }
-`;
-export const addressGqlResp = gql`
-  ${geoJsonGqlResp}
-  fragment AddressFields on Address {
-    id
-    displayName
-    street
-    city
-    county
-    state
-    stateCode
-    postalCode
-    country
-    countryCode
-    lat
-    lng
-    createdAt
-    updatedAt
-    geometry {
-      ...GeoJsonFields
-    }
-  }
-`;
+const geoJsonGqlResp = `type coordinates`;
+const geocodeGqlResp = `displayName street city county state stateCode 
+  postalCode country countryCode lat lng geometry {${geoJsonGqlResp}}`;
+export const addressGqlResp = `id displayName street city county state stateCode 
+  postalCode country countryCode lat lng createdAt updatedAt geometry {${geoJsonGqlResp}}`;
 
 const addressOps = {
   Queries: {
     geocode: gql`
-      ${geocodeGqlResp}
       query Query($value: String!, $lat: Float, $lng: Float, $limit: Float) {
-        geocode(value: $value, lat: $lat, lng: $lng, limit: $limit) {
-          ...GeocodeFields
-        }
+        geocode(value: $value, lat: $lat, lng: $lng, limit: $limit) {${geocodeGqlResp}}
       }
     `,
     reverseGeocode: gql`
-      ${geocodeGqlResp}
       query Query($lat: Float!, $lng: Float!) {
-        reverseGeocode(lat: $lat, lng: $lng) {
-          ...GeocodeFields
-        }
+        reverseGeocode(lat: $lat, lng: $lng) {${geocodeGqlResp}}
       }
     `,
   },

@@ -28,7 +28,7 @@ export default function CenteredStack({
 }: Props) {
   const isMobile = useIsMobile();
   const mx = mmx !== undefined ? useRespVal(mmx, pp) : pp;
-  const cardBR = mmx === 0 && isMobile ? 0 : 1;
+  const cardBR = mmx === 0 && isMobile ? 0 : undefined;
 
   return (
     <Stack

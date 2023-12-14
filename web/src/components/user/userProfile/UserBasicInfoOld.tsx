@@ -10,20 +10,13 @@ import { ChangeEvent, useEffect, useState } from "react";
 import EditIcon from "@mui/icons-material/Edit";
 import { toast } from "react-toastify";
 
-import {
-  processImageFile,
-  convertUnixToDate,
-  getBasicAdd,
-  openPhone,
-} from "@utils/utilFuncs";
-import { IUserInfo } from "./UserInfo";
-import UserBasicInfoEdit from "./edits/UserBasicInfoEdit";
+import { processImageFile, getBasicAdd, openPhone } from "@utils/utilFuncs";
+import { IUserInfo } from "./UserInfoOld";
+import UserBasicInfoEdit from "./edits/UserBasicInfoEditOld";
 import { useUpdateUser } from "@gqlOps/user";
 import CustomModal from "@reusable/CustomModal";
 import ErrSnackbar from "@reusable/ErrSnackbar";
 import ShowMoreTxt from "@reusable/ShowMoreTxt";
-import { userLink } from "@constants/links";
-import QRCodeModal from "@reusable/QRCodeModal";
 
 export default function UserBasicInfo({
   user,
@@ -103,9 +96,9 @@ export default function UserBasicInfo({
           ) : (
             <Stack>
               <Typography variant="h5">{user?.name}</Typography>
-              <Typography color="text.secondary">
+              {/* <Typography color="text.secondary">
                 Joined {convertUnixToDate(user?.createdAt)?.monthDayYear}
-              </Typography>
+              </Typography> */}
             </Stack>
           )}
         </Stack>
@@ -136,14 +129,6 @@ export default function UserBasicInfo({
                 )}
               </Stack>
               <Stack direction={"row"}>
-                {user && (
-                  <QRCodeModal
-                    modalTitle="Your Profile's QR Code."
-                    description="Print and stick it in your truck, sign boards, shop window and etc."
-                    fileName={user.name}
-                    value={userLink(`${user?.name}-${user?.id}`)}
-                  />
-                )}
                 {isMyProfile && (
                   <IconButton onClick={() => setOpenEdit(true)}>
                     <EditIcon />

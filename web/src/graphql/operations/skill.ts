@@ -1,24 +1,12 @@
 import { gql, useApolloClient, useLazyQuery } from "@apollo/client";
 import { asyncOps } from "./gqlFuncs";
 
-export const skillGqlResp = gql`
-  fragment SkillFields on Skill {
-    id
-    label
-    createdAt
-    updatedAt
-  }
-`;
+export const skillGqlResp = `id label createdAt updatedAt`;
 
 const skillOps = {
   Queries: {
     skills: gql`
-      ${skillGqlResp}
-      query Query {
-        skills {
-          ...SkillFields
-        }
-      }
+      query Query {skills {${skillGqlResp}}}
     `,
   },
 };

@@ -9,11 +9,13 @@ import {
 } from "date-fns";
 import { NavigateFunction } from "react-router-dom";
 import { toast } from "react-toastify";
+import parsePhoneNumberFromString, { CountryCode } from "libphonenumber-js";
 
 import { IUser } from "@gqlOps/user";
 import { paths } from "@/routes/Routes";
 import { IAddress } from "@gqlOps/address";
 import NoUserLocationMsg from "@appComps/NoUserLocationMsg";
+import { phoneCC } from "@config/configConst";
 
 export function decodeJwtToken(token: string | undefined) {
   if (token) {
@@ -38,18 +40,6 @@ export const getLocalData = (key: string) => {
   if (saved && saved != "") return JSON.parse(saved);
   return "";
 };
-
-export function convertUnixToDate(unixDate: number | string | undefined) {
-  const timestamp = Number(unixDate);
-  if (Number.isNaN(timestamp)) return null;
-
-  const fullDate = new Date(timestamp);
-
-  // Format the date as "MMMM dd, yyyy"
-  const monthDayYear = format(fullDate, "MMMM dd, yyyy");
-
-  return { fullDate, monthDayYear };
-}
 
 export function transformCamelCase(input: string): string {
   // Use a regular expression to split the string at each uppercase letter
@@ -168,18 +158,6 @@ export function validatePhoneNum(phoneNumber: string | undefined): boolean {
   if (phoneNumber) return pattern.test(phoneNumber);
   return false;
 }
-
-//format number to include dashes
-export const formatPhoneNum = (phoneNumber: string): string => {
-  const cleanedPhoneNumber = phoneNumber.replace(/\D/g, ""); // Remove non-digit characters
-
-  let formattedPhoneNumber = "";
-  for (let i = 0; i < cleanedPhoneNumber.length; i++) {
-    if (i === 3 || i === 6) formattedPhoneNumber += "-";
-    formattedPhoneNumber += cleanedPhoneNumber.charAt(i);
-  }
-  return formattedPhoneNumber;
-};
 
 interface INavigateToOnLogin {
   user: IUser | undefined;
@@ -383,4 +361,44 @@ interface Props {
 export const openGoogleMapsDirections = ({ lat, lng }: Props) => {
   const url = `https://www.google.com/maps/dir/?api=1&origin=current+location&destination=${lat},${lng}&travelmode=driving`;
   window.open(url, "_blank");
+};
+
+/**
+ * Formats a phone number to E.164 format.
+ * @param number - The phone number to format.
+ * @param CC     - ISO 3166-1 alpha-2 country code, defaults to 'CA'.
+ * @returns The phone number in E.164 format, or null if invalid.
+ */
+export const formatToE164 = (
+  number: string | undefined,
+  CC: CountryCode = phoneCC
+) => {
+  if (!number) return number;
+  const phoneNumber = parsePhoneNumberFromString(number, CC);
+
+  if (phoneNumber?.isValid()) return phoneNumber.number;
+  else {
+    console.error("Invalid phone number");
+    return number;
+  }
+};
+
+/**
+ * Formats a phone number to a human-readable international format.
+ *
+ * @param number - The phone number in E.164 format or national format.
+ * @param phoneCC - ISO 3166-1 alpha-2 country code, e.g., 'CA'.
+ * @returns The formatted phone number in international format.
+ */
+export const formatPhoneNumber = (number: string | undefined) => {
+  if (!number) return number;
+  try {
+    const parsedNumber = parsePhoneNumberFromString(number, phoneCC);
+    if (parsedNumber && parsedNumber.isValid()) {
+      return parsedNumber.formatInternational();
+    }
+  } catch (error) {
+    console.error("Error parsing phone number:", error);
+  }
+  return number;
 };

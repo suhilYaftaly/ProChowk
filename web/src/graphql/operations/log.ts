@@ -1,26 +1,15 @@
 import { gql, useApolloClient, useLazyQuery } from "@apollo/client";
 import { asyncOps } from "./gqlFuncs";
 
-export const logGqlResp = gql`
-  fragment LogFields on Log {
-    id
-    timestamp
-    level
-    message
-    meta
-  }
-`;
+const logGqlResp = `id timestamp level message meta`;
 
 const logOps = {
   Queries: {
     logs: gql`
-      ${logGqlResp}
       query Logs($skip: Int, $take: Int, $orderBy: OrderBy, $level: LogsLevel) {
         logs(skip: $skip, take: $take, orderBy: $orderBy, level: $level) {
           total
-          logs {
-            ...LogFields
-          }
+          logs {${logGqlResp}}
         }
       }
     `,

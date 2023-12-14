@@ -9,109 +9,30 @@ import { IUser, userGqlResp } from "./user";
 import { AddressInput, IAddress, LatLngInput, addressGqlResp } from "./address";
 import { IImage, ImageInput } from "@/types/commonTypes";
 import { asyncOps } from "./gqlFuncs";
+import { imageGqlResp } from "../commonFields";
 
-const budgetGqlResp = gql`
-  fragment BudgetFields on Budget {
-    id
-    type
-    from
-    to
-    maxHours
-    createdAt
-    updatedAt
-  }
-`;
-const jobImageGqlResp = gql`
-  fragment JobImageFields on JobImage {
-    id
-    name
-    size
-    type
-    url
-    createdAt
-    updatedAt
-  }
-`;
+const budgetGqlResp = `id type from to maxHours createdAt updatedAt`;
 
-const jobGqlResp = gql`
-  ${skillGqlResp}
-  ${userGqlResp}
-  ${budgetGqlResp}
-  ${jobImageGqlResp}
-  ${addressGqlResp}
-  fragment JobFields on Job {
-    id
-    title
-    desc
-    jobSize
-    createdAt
-    updatedAt
-    userId
-    startDate
-    endDate
-    user {
-      ...UserFields
-    }
-    skills {
-      ...SkillFields
-    }
-    budget {
-      ...BudgetFields
-    }
-    images {
-      ...JobImageFields
-    }
-    address {
-      ...AddressFields
-    }
-  }
-`;
-
-const jobGqlRespShort = gql`
-  fragment JobFieldsShort on Job {
-    id
-    title
-    desc
-    jobSize
-    userId
-    createdAt
-    skills {
-      label
-    }
-    budget {
-      type
-      from
-      to
-      maxHours
-    }
-    address {
-      city
-      lat
-      lng
-    }
-  }
-`;
+const jobGqlRespMini = `id title isDraft`;
+const jobGqlResp = `id title desc jobSize createdAt updatedAt userId startDate endDate isDraft 
+  user {${userGqlResp}} skills {${skillGqlResp}} budget {${budgetGqlResp}}
+  images {${imageGqlResp}} address {${addressGqlResp}}`;
+const jobGqlRespShort = `id title desc jobSize userId createdAt
+  skills {label} budget {type from to maxHours} address {city lat lng}`;
 
 const jobOps = {
   Queries: {
     job: gql`
-      ${jobGqlResp}
       query Job($id: ID!) {
-        job(id: $id) {
-          ...JobFields
-        }
+        job(id: $id) {${jobGqlResp}}
       }
     `,
     userJobs: gql`
-      ${jobGqlResp}
       query UserJobs($userId: ID!) {
-        userJobs(userId: $userId) {
-          ...JobFields
-        }
+        userJobs(userId: $userId) {${jobGqlRespMini}}
       }
     `,
     jobsByLocation: gql`
-      ${jobGqlRespShort}
       query JobsByLocation(
         $latLng: LatLngInput!
         $radius: Float
@@ -123,13 +44,10 @@ const jobOps = {
           radius: $radius
           page: $page
           pageSize: $pageSize
-        ) {
-          ...JobFieldsShort
-        }
+        ) {${jobGqlRespShort}}
       }
     `,
     jobsByText: gql`
-      ${jobGqlRespShort}
       query JobsByText(
         $inputText: String!
         $latLng: LatLngInput!
@@ -149,35 +67,24 @@ const jobOps = {
           startDate: $startDate
           endDate: $endDate
           budget: $budget
-        ) {
-          ...JobFieldsShort
-        }
+        ) {${jobGqlRespShort}}
       }
     `,
   },
   Mutations: {
     createJob: gql`
-      ${jobGqlResp}
       mutation CreateJob($userId: ID!, $jobInput: JobInput!) {
-        createJob(userId: $userId, jobInput: $jobInput) {
-          ...JobFields
-        }
+        createJob(userId: $userId, jobInput: $jobInput) {${jobGqlRespMini}}
       }
     `,
     updateJob: gql`
-      ${jobGqlResp}
       mutation UpdateJob($id: ID!, $jobInput: JobInput!) {
-        updateJob(id: $id, jobInput: $jobInput) {
-          ...JobFields
-        }
+        updateJob(id: $id, jobInput: $jobInput) {${jobGqlRespMini}}
       }
     `,
     deleteJob: gql`
-      ${jobGqlResp}
       mutation DeleteJob($id: ID!) {
-        deleteJob(id: $id) {
-          ...JobFields
-        }
+        deleteJob(id: $id) {${jobGqlRespMini}}
       }
     `,
   },
@@ -252,7 +159,6 @@ interface IJobIAsync {
   onError?: (error?: any) => void;
 }
 export const useJob = () => {
-  const client = useApolloClient();
   const [job, { data, loading, error }] = useLazyQuery<
     IUseJobData,
     IUseJobInput
@@ -265,21 +171,7 @@ export const useJob = () => {
       onError,
     });
 
-  const updateJobCache = (job: IJob) => {
-    client.cache.writeFragment({
-      id: client.cache.identify(job),
-      fragment: gql`
-        ${jobGqlResp}
-        fragment UpdatedJob on Job {
-          ...JobFields
-        }
-      `,
-      fragmentName: "UpdatedJob",
-      data: job,
-    });
-  };
-
-  return { jobAsync, updateJobCache, data, loading, error };
+  return { jobAsync, data, loading, error };
 };
 
 //userJobs op
@@ -571,7 +463,6 @@ export const useUpdateJob = () => {
     IUpdateJobInput
   >(jobOps.Mutations.updateJob);
   const { updateUserJobsCache } = useUserJobs();
-  const { updateJobCache } = useJob();
 
   const updateJobAsync = async ({
     variables,
@@ -584,7 +475,6 @@ export const useUpdateJob = () => {
       onSuccess: (dt: IUpdateJobData) => {
         onSuccess && onSuccess(dt.updateJob);
         updateUserJobsCache("update", dt.updateJob, userId);
-        updateJobCache(dt.updateJob);
       },
       onError,
     });
