@@ -90,7 +90,8 @@ export const logIn = (payload: IUser) => (dispatch: any) => {
   dispatch(setIsLoggedOut(false));
   localStorage.setItem(USER_PROFILE_KEY, JSON.stringify(user));
 
-  dispatch(setTokens({ accessToken: token, refreshToken }));
+  if (token && refreshToken)
+    dispatch(setTokens({ accessToken: token, refreshToken }));
 };
 export const logOut = () => (dispatch: any) => {
   googleLogout();

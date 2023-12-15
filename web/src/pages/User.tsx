@@ -8,6 +8,7 @@ import { useAppDispatch } from "@/utils/hooks/hooks";
 import { setUserProfile } from "@rSlices/userSlice";
 import UserProfile from "@user/userProfile/UserProfile";
 import { useUserJobs } from "@gqlOps/job";
+import { isContractor } from "@/utils/auth";
 
 export default function User() {
   const { nameId } = useParams();
@@ -38,7 +39,7 @@ export default function User() {
 
   //retrieve contractor
   useEffect(() => {
-    if (userId && user?.userTypes?.includes("contractor"))
+    if (userId && isContractor(user?.userTypes))
       contractorAsync({ variables: { userId } });
   }, [userId, user]);
 

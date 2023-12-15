@@ -17,31 +17,34 @@ export default function UserLicences({
   const [openImgIndex, setOpenImgIndex] = useState(0);
   const fsWidth = useRespVal("100%", undefined);
 
-  if (contrLoading) return <LicenseSkeleton p={p} />;
   return (
     <Stack sx={{ p }}>
       <Text type="subtitle">
         Licences/Certificates ({licences?.length || "0"})
       </Text>
       <Grid container spacing={1} direction={"row"} sx={{ mt: tmb }}>
-        {licences?.map((li, i) => (
-          <Grid
-            item
-            key={li.id}
-            sx={{ cursor: "pointer", "&:hover": { opacity: 0.7 } }}
-            onClick={() => {
-              setOpenImgIndex(i), setOpenImg(true);
-            }}
-          >
-            <img
-              src={li.url}
-              alt={li.name}
-              loading="lazy"
-              style={{ height: 130, borderRadius: 8 }}
-            />
-            <Text>{li.desc}</Text>
-          </Grid>
-        ))}
+        {contrLoading ? (
+          <LicenseSkeleton />
+        ) : (
+          licences?.map((li, i) => (
+            <Grid
+              item
+              key={li.id}
+              sx={{ cursor: "pointer", "&:hover": { opacity: 0.7 } }}
+              onClick={() => {
+                setOpenImgIndex(i), setOpenImg(true);
+              }}
+            >
+              <img
+                src={li.url}
+                alt={li.name}
+                loading="lazy"
+                style={{ height: 130, borderRadius: 8 }}
+              />
+              <Text>{li.desc}</Text>
+            </Grid>
+          ))
+        )}
       </Grid>
       {licences?.[openImgIndex] && (
         <FullScreenModal
@@ -66,23 +69,17 @@ export default function UserLicences({
   );
 }
 
-interface SProps {
-  p: number;
-}
-const LicenseSkeleton = ({ p }: SProps) => {
+const LicenseSkeleton = () => {
   return (
-    <Stack sx={{ p }}>
-      <Skeleton variant="text" sx={{ width: 100, mb: 2 }} />
-      <Stack direction={"row"} spacing={2}>
-        <Stack>
-          <Skeleton variant="rounded" sx={{ width: 200, height: 150 }} />
-          <Skeleton variant="text" width={100} />
-        </Stack>
-        <Stack>
-          <Skeleton variant="rounded" sx={{ width: 200, height: 150 }} />
-          <Skeleton variant="text" width={100} />
-        </Stack>
-      </Stack>
-    </Stack>
+    <>
+      <Grid item>
+        <Skeleton variant="rounded" sx={{ width: 200, height: 150 }} />
+        <Skeleton variant="text" width={100} />
+      </Grid>
+      <Grid item>
+        <Skeleton variant="rounded" sx={{ width: 200, height: 150 }} />
+        <Skeleton variant="text" width={100} />
+      </Grid>
+    </>
   );
 };
