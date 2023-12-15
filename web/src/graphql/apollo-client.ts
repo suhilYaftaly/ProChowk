@@ -9,11 +9,13 @@ import { onError } from "@apollo/client/link/error";
 import { isPast } from "date-fns";
 
 import { store } from "@redux/store";
-import { logOut, setUserProfile } from "@rSlices/userSlice";
+import { logOut, setTokens } from "@rSlices/userSlice";
 import { paths } from "@routes/Routes";
 import { navigate } from "@routes/navigationService";
 import userOps, { IRefreshTokenData, IRefreshTokenInput } from "@gqlOps/user";
-import { decodeJwtToken } from "@/utils/utilFuncs";
+import { decodeJwtToken, getLocalData } from "@/utils/utilFuncs";
+import { TOKENS_KEY } from "@/constants/localStorageKeys";
+import { ITokens } from "@/types/commonTypes";
 
 const { dispatch } = store;
 
@@ -32,16 +34,14 @@ const authLink = new ApolloLink((operation, forward) => {
         isRefreshingToken = true;
         tokenRefreshPromise = new Promise<string>(async (resolve, reject) => {
           try {
-            const userData = store.getState().user.userProfile.data;
-            const refreshToken = userData?.refreshToken;
-            if (refreshToken) {
-              const newToken = await fetchNewToken(refreshToken);
+            const tokens: ITokens | undefined = getLocalData(TOKENS_KEY);
+            const oldRefreshToken = tokens?.refreshToken;
+            if (oldRefreshToken) {
+              const newToken = await fetchNewToken(oldRefreshToken);
               if (newToken) {
                 const { accessToken, refreshToken } = newToken;
                 // Update Redux store with new token
-                dispatch(
-                  setUserProfile({ ...userData, refreshToken }, accessToken)
-                );
+                dispatch(setTokens({ accessToken, refreshToken }));
                 resolve(accessToken); // Resolve with new access token
               } else {
                 reject(new Error("Token refresh failed"));
@@ -61,7 +61,8 @@ const authLink = new ApolloLink((operation, forward) => {
     };
 
     const setTokenAndForward = async () => {
-      let token = store.getState().user.userProfile.data?.token;
+      const tokens: ITokens | undefined = getLocalData(TOKENS_KEY);
+      let token = tokens?.accessToken;
       if (token) {
         const decodedToken = decodeJwtToken(token);
 

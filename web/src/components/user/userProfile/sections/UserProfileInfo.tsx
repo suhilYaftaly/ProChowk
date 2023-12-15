@@ -1,11 +1,9 @@
 import {
   Avatar,
-  Chip,
   Divider,
   IconButton,
+  Skeleton,
   Stack,
-  Tooltip,
-  alpha,
   useTheme,
 } from "@mui/material";
 import {
@@ -32,20 +30,22 @@ export default function UserProfileInfo({
   user,
   isMyProfile,
   p,
+  userLoading,
 }: ISectionProps) {
   const theme = useTheme();
-  const chipBg = alpha(theme.palette.success.light, 0.1);
   const [showQRCode, setShowQRCode] = useState(false);
   const isMobile = useIsMobile();
   const [openEdit, setOpenEdit] = useState(false);
+  const avatarSize = 80;
 
+  if (userLoading) return <ProfileSkeleton p={p} avatarSize={avatarSize} />;
   return (
     <>
       <Stack direction={"row"} sx={{ alignItems: "center", p }}>
         <Avatar
           alt={user?.name}
           src={user?.image?.url}
-          sx={{ width: 80, height: 80 }}
+          sx={{ width: avatarSize, height: avatarSize }}
         />
         <Stack
           direction={"row"}
@@ -57,17 +57,6 @@ export default function UserProfileInfo({
           }}
         >
           <Stack spacing={1}>
-            <div>
-              <Tooltip title="DUMMY, coming soon!">
-                <Chip
-                  label="Available"
-                  variant="outlined"
-                  color="success"
-                  size="small"
-                  sx={{ backgroundColor: chipBg }}
-                />
-              </Tooltip>
-            </div>
             <Stack direction={"row"} spacing={1}>
               <Text type="title">{user?.name}</Text>
               <Rating />
@@ -163,3 +152,24 @@ export default function UserProfileInfo({
     </>
   );
 }
+
+interface SProps {
+  p: number;
+  avatarSize: number;
+}
+const ProfileSkeleton = ({ p, avatarSize }: SProps) => {
+  return (
+    <>
+      <Stack direction={"row"} sx={{ alignItems: "center", p }}>
+        <Skeleton
+          variant="circular"
+          sx={{ width: avatarSize, height: avatarSize }}
+        />
+        <Stack sx={{ ml: 2 }}>
+          <Skeleton variant="text" width={150} />
+          <Skeleton variant="text" width={200} />
+        </Stack>
+      </Stack>
+    </>
+  );
+};

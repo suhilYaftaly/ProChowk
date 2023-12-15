@@ -1,8 +1,9 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { googleLogout } from "@react-oauth/google";
-import { USER_PROFILE_KEY } from "@constants/localStorageKeys";
+import { TOKENS_KEY, USER_PROFILE_KEY } from "@constants/localStorageKeys";
 import { IUser } from "@gqlOps/user";
 import { ILatLng } from "@gqlOps/address";
+import { ITokens } from "@/types/commonTypes";
 
 interface UserState {
   userProfile: {
@@ -84,24 +85,35 @@ const { userProfileSuccess, setIsLoggedOut } = slice.actions;
 export default slice.reducer;
 
 export const logIn = (payload: IUser) => (dispatch: any) => {
-  dispatch(userProfileSuccess(payload));
+  const { token, refreshToken, ...user } = payload;
+  dispatch(userProfileSuccess(user));
   dispatch(setIsLoggedOut(false));
-  localStorage.setItem(USER_PROFILE_KEY, JSON.stringify(payload));
+  localStorage.setItem(USER_PROFILE_KEY, JSON.stringify(user));
+
+  dispatch(setTokens({ accessToken: token, refreshToken }));
 };
 export const logOut = () => (dispatch: any) => {
   googleLogout();
   dispatch(userProfileSuccess(undefined));
   dispatch(setIsLoggedOut(true));
   localStorage.removeItem(USER_PROFILE_KEY);
+  localStorage.removeItem(TOKENS_KEY);
 };
 export const setUserProfile =
-  (payload: IUser, tokenToUse = "") =>
-  (dispatch: any, getState: any) => {
-    const token = tokenToUse || getState().user.userProfile.data?.token;
-    const eUser = getState().user.userProfile.data;
-    const pData = eUser
-      ? { ...eUser, ...payload, token }
-      : { ...payload, token };
-    dispatch(setUserProfileInfo(pData));
-    localStorage.setItem(USER_PROFILE_KEY, JSON.stringify(pData));
+  (payload: IUser) => (dispatch: any, getState: any) => {
+    const { token, refreshToken, ...pUser } = payload;
+    const eUser: IUser | undefined = getState().user.userProfile.data;
+    const user = { ...eUser, ...pUser };
+    dispatch(setUserProfileInfo(user));
+    localStorage.setItem(USER_PROFILE_KEY, JSON.stringify(user));
+  };
+
+export const setTokens =
+  ({ accessToken, refreshToken }: ITokens) =>
+  () => {
+    //TODO: move to cookies
+    localStorage.setItem(
+      TOKENS_KEY,
+      JSON.stringify({ accessToken, refreshToken } as ITokens)
+    );
   };

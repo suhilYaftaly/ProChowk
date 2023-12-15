@@ -248,11 +248,8 @@ export function formatDuration(durationInSeconds: number) {
   return output;
 }
 
-/** Reusable function to check if a field is requested */
-export const isFieldRequested = (
-  info: GraphQLResolveInfo,
-  fieldName: string
-): boolean => {
+/** IFR=isFieldRequested - use for conditional prisma includes to include documents if they have been requested from FE */
+export const IFR = (info: GraphQLResolveInfo, fieldName: string): boolean => {
   return info.fieldNodes.some((node) =>
     node.selectionSet.selections.some(
       (selection) =>

@@ -8,7 +8,7 @@ import { iconCircleSX } from "@/styles/sxStyles";
 import { paths } from "@/routes/Routes";
 import PostJobBtn from "@/components/headerSection/PostJobBtn";
 
-export default function UserJobsMini({
+export default function UserProjectsMini({
   tmb,
   jobs,
   user,

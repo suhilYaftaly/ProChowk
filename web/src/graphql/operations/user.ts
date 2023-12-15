@@ -129,8 +129,8 @@ export interface IUser {
   createdAt: string;
   updatedAt: string;
   image: IImage;
-  token: string;
-  refreshToken: string;
+  token?: string;
+  refreshToken?: string;
   provider: Provider;
   roles?: Role[];
   phoneNum?: string;

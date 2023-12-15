@@ -3,7 +3,7 @@ import { GraphQLResolveInfo } from "graphql";
 
 import { GraphQLContext, IJobInput } from "../../types/commonTypes";
 import checkAuth, { canUserUpdate } from "../../middlewares/checkAuth";
-import { gqlError, isFieldRequested } from "../../utils/funcs";
+import { gqlError, IFR } from "../../utils/funcs";
 import {
   ADDRESS_COLLECTION,
   SKILL_COLLECTION,
@@ -14,13 +14,19 @@ export default {
     job: async (
       _: any,
       { id }: { id: string },
-      context: GraphQLContext
+      context: GraphQLContext,
+      info: GraphQLResolveInfo
     ): Promise<Job> => {
       const { prisma } = context;
 
       const jobRes = await prisma.job.findUnique({
         where: { id },
-        include: { address: true, images: true, skills: true, budget: true },
+        include: {
+          address: IFR(info, "address"),
+          images: IFR(info, "images"),
+          skills: IFR(info, "skills"),
+          budget: IFR(info, "budget"),
+        },
       });
       if (!jobRes) throw gqlError({ msg: "Failed to get the job" });
 
@@ -38,10 +44,10 @@ export default {
         where: { userId },
         orderBy: { createdAt: "desc" },
         include: {
-          address: isFieldRequested(info, "address"),
-          images: isFieldRequested(info, "images"),
-          skills: isFieldRequested(info, "skills"),
-          budget: isFieldRequested(info, "budget"),
+          address: IFR(info, "address"),
+          images: IFR(info, "images"),
+          skills: IFR(info, "skills"),
+          budget: IFR(info, "budget"),
         },
       });
 
@@ -51,7 +57,8 @@ export default {
     jobsByLocation: async (
       _: any,
       { latLng, radius = 60, page = 1, pageSize = 20 }: IJobsByLocationInput,
-      context: GraphQLContext
+      context: GraphQLContext,
+      info: GraphQLResolveInfo
     ): Promise<Job[]> => {
       const { mongoClient, prisma } = context;
       const db = mongoClient.db();
@@ -98,7 +105,12 @@ export default {
       // Fetch detailed job data from Prisma
       const jobs = await prisma.job.findMany({
         where: { id: { in: jobIds }, isDraft: false },
-        include: { address: true, skills: true, budget: true },
+        include: {
+          address: IFR(info, "address"),
+          images: IFR(info, "images"),
+          skills: IFR(info, "skills"),
+          budget: IFR(info, "budget"),
+        },
       });
 
       // Reorder the jobs based on the order in jobIds
@@ -116,7 +128,8 @@ export default {
         startDate,
         endDate,
       }: IJobsByTextInput,
-      context: GraphQLContext
+      context: GraphQLContext,
+      info: GraphQLResolveInfo
     ): Promise<Job[]> => {
       const { mongoClient, prisma } = context;
       const db = mongoClient.db();
@@ -227,7 +240,12 @@ export default {
       // Fetch detailed job data from Prisma
       const jobs = await prisma.job.findMany({
         where: { id: { in: jobIds }, isDraft: false },
-        include: { address: true, skills: true, budget: true },
+        include: {
+          address: IFR(info, "address"),
+          images: IFR(info, "images"),
+          skills: IFR(info, "skills"),
+          budget: IFR(info, "budget"),
+        },
       });
 
       // Reorder the jobs based on the order in jobIds
@@ -238,7 +256,8 @@ export default {
     createJob: async (
       _: any,
       { userId, jobInput }: { userId: string; jobInput: IJobInput },
-      context: GraphQLContext
+      context: GraphQLContext,
+      info: GraphQLResolveInfo
     ): Promise<Job> => {
       const { prisma, req } = context;
       const authUser = checkAuth(req);
@@ -256,7 +275,12 @@ export default {
           ...buildJobInputs(jobInput),
           budget: { create: jobInput.budget },
         },
-        include: { address: true, images: true, skills: true, budget: true },
+        include: {
+          address: IFR(info, "address"),
+          images: IFR(info, "images"),
+          skills: IFR(info, "skills"),
+          budget: IFR(info, "budget"),
+        },
       });
       if (!createdJob) throw gqlError({ msg: "Failed to update job" });
       return createdJob;
@@ -264,7 +288,8 @@ export default {
     updateJob: async (
       _: any,
       { id, jobInput }: IUpdateJobInput,
-      context: GraphQLContext
+      context: GraphQLContext,
+      info: GraphQLResolveInfo
     ): Promise<Job> => {
       const { prisma, req } = context;
       const authUser = checkAuth(req);
@@ -326,7 +351,12 @@ export default {
           images: imageData,
           budget: { update: jobInput.budget },
         },
-        include: { address: true, images: true, skills: true, budget: true },
+        include: {
+          address: IFR(info, "address"),
+          images: IFR(info, "images"),
+          skills: IFR(info, "skills"),
+          budget: IFR(info, "budget"),
+        },
       });
       if (!updatedJob) throw gqlError({ msg: "Failed to update job" });
       return updatedJob;

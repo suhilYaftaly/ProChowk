@@ -1,9 +1,16 @@
-import { Chip, Grid, Stack } from "@mui/material";
+import { Chip, Grid, Skeleton, Stack } from "@mui/material";
 
 import { ISectionProps } from "../UserProfile";
 import Text from "@reusable/Text";
+import ChipSkeleton from "@reusable/skeleton/ChipSkeleton";
 
-export default function UserSkills({ contractor, p, tmb }: ISectionProps) {
+export default function UserSkills({
+  contractor,
+  p,
+  tmb,
+  contrLoading,
+}: ISectionProps) {
+  if (contrLoading) return <SkillsSkeleton p={p} />;
   return (
     <Stack sx={{ p }}>
       <Text type="subtitle">Skills</Text>
@@ -17,3 +24,19 @@ export default function UserSkills({ contractor, p, tmb }: ISectionProps) {
     </Stack>
   );
 }
+
+interface SProps {
+  p: number;
+}
+const SkillsSkeleton = ({ p }: SProps) => {
+  return (
+    <Stack sx={{ p }}>
+      <Skeleton variant="text" sx={{ width: 100, mb: 2 }} />
+      <Stack direction={"row"} spacing={1}>
+        <ChipSkeleton />
+        <ChipSkeleton />
+        <ChipSkeleton />
+      </Stack>
+    </Stack>
+  );
+};

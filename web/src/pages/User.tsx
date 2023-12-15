@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useEffect } from "react";
 
-import { useUserStates } from "@redux/reduxStates";
+import { useSettingsStates, useUserStates } from "@redux/reduxStates";
 import { useUser } from "@gqlOps/user";
 import { useContractor } from "@gqlOps/contractor";
 import { useAppDispatch } from "@/utils/hooks/hooks";
@@ -12,6 +12,7 @@ import { useUserJobs } from "@gqlOps/job";
 export default function User() {
   const { nameId } = useParams();
   const { user: loggedInUser } = useUserStates();
+  const { isAppLoaded } = useSettingsStates();
   const userId = nameId?.split("-")?.[1];
   const isMyProfile = userId === loggedInUser?.id;
   const dispatch = useAppDispatch();
@@ -25,13 +26,13 @@ export default function User() {
 
   //retrieve user
   useEffect(() => {
-    if (userId) {
+    if (userId && isAppLoaded) {
       userAsync({
         variables: { id: userId },
         onSuccess: (d) => isMyProfile && dispatch(setUserProfile(d)),
       });
     }
-  }, [isMyProfile]);
+  }, [isMyProfile, isAppLoaded]);
 
   const user = userData?.user;
 

@@ -1,4 +1,4 @@
-import { Grid, Stack } from "@mui/material";
+import { Grid, Skeleton, Stack } from "@mui/material";
 import { useState } from "react";
 
 import { ISectionProps } from "../UserProfile";
@@ -6,12 +6,18 @@ import Text from "@reusable/Text";
 import FullScreenModal from "@reusable/FullScreenModal";
 import { useRespVal } from "@hooks/hooks";
 
-export default function UserLicences({ contractor, p, tmb }: ISectionProps) {
+export default function UserLicences({
+  contractor,
+  p,
+  tmb,
+  contrLoading,
+}: ISectionProps) {
   const licences = contractor?.licenses;
   const [openImg, setOpenImg] = useState(false);
   const [openImgIndex, setOpenImgIndex] = useState(0);
   const fsWidth = useRespVal("100%", undefined);
 
+  if (contrLoading) return <LicenseSkeleton p={p} />;
   return (
     <Stack sx={{ p }}>
       <Text type="subtitle">
@@ -59,3 +65,24 @@ export default function UserLicences({ contractor, p, tmb }: ISectionProps) {
     </Stack>
   );
 }
+
+interface SProps {
+  p: number;
+}
+const LicenseSkeleton = ({ p }: SProps) => {
+  return (
+    <Stack sx={{ p }}>
+      <Skeleton variant="text" sx={{ width: 100, mb: 2 }} />
+      <Stack direction={"row"} spacing={2}>
+        <Stack>
+          <Skeleton variant="rounded" sx={{ width: 200, height: 150 }} />
+          <Skeleton variant="text" width={100} />
+        </Stack>
+        <Stack>
+          <Skeleton variant="rounded" sx={{ width: 200, height: 150 }} />
+          <Skeleton variant="text" width={100} />
+        </Stack>
+      </Stack>
+    </Stack>
+  );
+};

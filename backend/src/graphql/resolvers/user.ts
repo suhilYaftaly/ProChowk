@@ -1,9 +1,10 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { Skill, User, UserType } from "@prisma/client";
+import { User, UserType } from "@prisma/client";
 import * as dotenv from "dotenv";
 import qs from "querystring";
 import axios from "axios";
+import { GraphQLResolveInfo } from "graphql";
 
 import {
   showInputError,
@@ -13,6 +14,7 @@ import {
   sendEmail,
   EmailParams,
   generateEmailTemplate,
+  IFR,
 } from "../../utils/funcs";
 import checkAuth, {
   canUserUpdate,
@@ -38,13 +40,17 @@ export default {
     user: async (
       _: any,
       { id }: { id: string },
-      context: GraphQLContext
+      context: GraphQLContext,
+      info: GraphQLResolveInfo
     ): Promise<User> => {
       const { prisma } = context;
 
       const foundUser = await prisma.user.findFirst({
         where: { id },
-        include: { image: true, address: true },
+        include: {
+          address: IFR(info, "address"),
+          image: IFR(info, "image"),
+        },
       });
       if (!foundUser)
         throw gqlError({ msg: "User not found", code: "BAD_REQUEST" });
@@ -54,12 +60,13 @@ export default {
     users: async (
       _: any,
       __: any,
-      context: GraphQLContext
+      context: GraphQLContext,
+      info: GraphQLResolveInfo
     ): Promise<User[]> => {
       const { prisma } = context;
 
       return await prisma.user.findMany({
-        include: { image: true, address: true },
+        include: { address: IFR(info, "address"), image: IFR(info, "image") },
       });
     },
   },
@@ -67,7 +74,8 @@ export default {
     registerUser: async (
       _: any,
       { name, password, email }: IRegisterUserInput,
-      context: GraphQLContext
+      context: GraphQLContext,
+      info: GraphQLResolveInfo
     ): Promise<User> => {
       const { prisma, userAgent } = context;
 
@@ -90,7 +98,7 @@ export default {
       password = await bcrypt.hash(password, 12);
       const newUser = await prisma.user.create({
         data: { name, email, password },
-        include: { image: true, address: true },
+        include: { address: IFR(info, "address"), image: IFR(info, "image") },
       });
 
       const accessToken = generateUserToken(newUser);
@@ -101,7 +109,8 @@ export default {
     loginUser: async (
       _: any,
       { password, email }: ILoginUserInput,
-      context: GraphQLContext
+      context: GraphQLContext,
+      info: GraphQLResolveInfo
     ): Promise<User> => {
       const { prisma, userAgent } = context;
 
@@ -110,7 +119,7 @@ export default {
 
       const foundUser = await prisma.user.findFirst({
         where: { email: { equals: email, mode: "insensitive" } },
-        include: { image: true, address: true },
+        include: { address: IFR(info, "address"), image: IFR(info, "image") },
       });
       if (!foundUser || !foundUser.password) {
         throw gqlError({
@@ -225,7 +234,8 @@ export default {
     updateUser: async (
       _: any,
       { id, edits }: { id: string; edits: IUpdateUserInput },
-      context: GraphQLContext
+      context: GraphQLContext,
+      info: GraphQLResolveInfo
     ): Promise<User> => {
       const { prisma, req } = context;
       const authUser = checkAuth(req);
@@ -279,11 +289,7 @@ export default {
       const updatedUser = await prisma.user.update({
         where: { id },
         data: recoData,
-        include: {
-          image: true,
-          address: true,
-          contractor: { include: { skills: true } },
-        },
+        include: { address: IFR(info, "address"), image: IFR(info, "image") },
       });
 
       return updatedUser;
@@ -366,7 +372,8 @@ export default {
     resetPassword: async (
       _: any,
       { token, newPassword }: { token: string; newPassword: string },
-      context: GraphQLContext
+      context: GraphQLContext,
+      info: GraphQLResolveInfo
     ): Promise<User> => {
       const { prisma, userAgent } = context;
 
@@ -376,7 +383,7 @@ export default {
       const updatedUser = await prisma.user.update({
         where: { id: user.id },
         data: { password: hashedPassword },
-        include: { image: true, address: true },
+        include: { address: IFR(info, "address"), image: IFR(info, "image") },
       });
       if (updatedUser) {
         const token = generateUserToken(updatedUser);

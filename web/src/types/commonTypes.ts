@@ -9,3 +9,8 @@ export interface IImage extends ImageInput {
   createdAt?: string;
   updatedAt?: string;
 }
+
+export interface ITokens {
+  accessToken: string | undefined;
+  refreshToken: string | undefined;
+}

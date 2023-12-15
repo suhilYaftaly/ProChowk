@@ -8,7 +8,6 @@ import UserAbout from "./sections/UserAbout";
 import UserSkills from "./sections/UserSkills";
 import UserLicences from "./sections/UserLicences";
 import { IJob } from "@gqlOps/job";
-import UserJobsMini from "./sections/UserJobsMini";
 
 export interface ISectionProps extends IUserProfile {
   /**padding */
@@ -50,7 +49,7 @@ export default function UserProfile({
   return (
     <AppContainer>
       <Grid container spacing={2}>
-        <Grid item xs={12} md={8.3}>
+        <Grid item xs={12} md={12}>
           <AppContainer addCard sx={{ m: 0 }} cardSX={{ p: 0 }}>
             <UserProfileInfo {...sectionProps} />
             <Divider />
@@ -61,11 +60,11 @@ export default function UserProfile({
             <UserLicences {...sectionProps} />
           </AppContainer>
         </Grid>
-        <Grid item xs={12} md={3.7}>
+        {/* <Grid item xs={12} md={3.7}>
           <AppContainer addCard sx={{ m: 0 }}>
-            <UserJobsMini {...sectionProps} />
+            <UserProjectsMini {...sectionProps} />
           </AppContainer>
-        </Grid>
+        </Grid> */}
       </Grid>
     </AppContainer>
   );

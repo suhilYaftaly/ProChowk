@@ -1,25 +1,31 @@
 import { Contractor, User } from "@prisma/client";
+import { GraphQLResolveInfo } from "graphql";
+
 import {
   GraphQLContext,
   ILicenseInput,
   ISkillInput,
 } from "../../types/commonTypes";
 import checkAuth, { canUserUpdate } from "../../middlewares/checkAuth";
-import { showInputError, gqlError } from "../../utils/funcs";
+import { showInputError, gqlError, IFR } from "../../utils/funcs";
 
 export default {
   Query: {
     contractor: async (
       _: any,
       { id, userId }: { id?: string; userId?: string },
-      context: GraphQLContext
+      context: GraphQLContext,
+      info: GraphQLResolveInfo
     ): Promise<Contractor> => {
       const { prisma } = context;
 
       if (id || userId) {
         const eContr = await prisma.contractor.findFirst({
           where: { OR: [{ userId }, { id }] },
-          include: { licenses: true, skills: true },
+          include: {
+            licenses: IFR(info, "licenses"),
+            skills: IFR(info, "skills"),
+          },
         });
         if (!eContr) throw gqlError({ msg: "Contractor not found" });
         return eContr;
@@ -30,7 +36,8 @@ export default {
     createContractor: async (
       _: any,
       { userId }: { userId: string },
-      context: GraphQLContext
+      context: GraphQLContext,
+      info: GraphQLResolveInfo
     ): Promise<User> => {
       const { prisma, req } = context;
       const authUser = checkAuth(req);
@@ -43,14 +50,20 @@ export default {
           contractor: { create: {} },
         },
         include: {
-          contractor: { include: { licenses: true, skills: true } },
+          contractor: {
+            include: {
+              licenses: IFR(info, "licenses"),
+              skills: IFR(info, "skills"),
+            },
+          },
         },
       });
     },
     addContractorLicense: async (
       _: any,
       { contId, license }: { contId: string; license: ILicenseInput },
-      context: GraphQLContext
+      context: GraphQLContext,
+      info: GraphQLResolveInfo
     ): Promise<Contractor> => {
       const { prisma, req } = context;
       const authUser = checkAuth(req);
@@ -63,13 +76,17 @@ export default {
       return await prisma.contractor.update({
         where: { id: contId },
         data: { licenses: { create: license } },
-        include: { licenses: true, skills: true },
+        include: {
+          licenses: IFR(info, "licenses"),
+          skills: IFR(info, "skills"),
+        },
       });
     },
     deleteContractorLicense: async (
       _: any,
       { contId, licId }: { contId: string; licId: string },
-      context: GraphQLContext
+      context: GraphQLContext,
+      info: GraphQLResolveInfo
     ): Promise<Contractor> => {
       const { prisma, req } = context;
       const authUser = checkAuth(req);
@@ -81,13 +98,17 @@ export default {
       return await prisma.contractor.update({
         where: { id: contId },
         data: { licenses: { delete: { id: licId } } },
-        include: { licenses: true, skills: true },
+        include: {
+          licenses: IFR(info, "licenses"),
+          skills: IFR(info, "skills"),
+        },
       });
     },
     addOrRemoveContractorSkills: async (
       _: any,
       { contId, skills }: { contId: string; skills: ISkillInput[] },
-      context: GraphQLContext
+      context: GraphQLContext,
+      info: GraphQLResolveInfo
     ): Promise<Contractor> => {
       const { prisma, req } = context;
       const authUser = checkAuth(req);
@@ -123,7 +144,10 @@ export default {
 
       return await prisma.contractor.findUnique({
         where: { id: contId },
-        include: { skills: true, licenses: true },
+        include: {
+          licenses: IFR(info, "licenses"),
+          skills: IFR(info, "skills"),
+        },
       });
     },
   },
