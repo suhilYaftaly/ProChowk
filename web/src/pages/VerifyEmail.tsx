@@ -13,11 +13,16 @@ import EmailIcon from "@mui/icons-material/Email";
 import { useSendVerificationEmail, useVerifyEmail } from "@gqlOps/user";
 import { useUserStates } from "@redux/reduxStates";
 import { useAppDispatch } from "@utils/hooks/hooks";
-import { setUserProfile, setUserProfileInfo } from "@rSlices/userSlice";
+import {
+  setTokens,
+  setUserProfile,
+  setUserProfileInfo,
+} from "@rSlices/userSlice";
 import { paths } from "@routes/Routes";
 import CenteredStack from "@reusable/CenteredStack";
 import { USER_PROFILE_KEY } from "@constants/localStorageKeys";
 import Text from "@reusable/Text";
+import { getLocalTokens } from "@/utils/auth";
 
 export default function VerifyEmail() {
   const theme = useTheme();
@@ -31,6 +36,7 @@ export default function VerifyEmail() {
   const { sendVerificationEmailAsync, loading: resendLoading } =
     useSendVerificationEmail();
   const darkColor = theme.palette.text.dark;
+  const tokens = getLocalTokens();
 
   //verify token
   useEffect(() => {
@@ -41,8 +47,12 @@ export default function VerifyEmail() {
   useEffect(() => {
     if (token && !user?.emailVerified) {
       if (data && user) {
+        dispatch(setUserProfile({ ...user, emailVerified: true }));
         dispatch(
-          setUserProfile({ ...user, emailVerified: true }, data.verifyEmail)
+          setTokens({
+            accessToken: data.verifyEmail,
+            refreshToken: tokens?.refreshToken,
+          })
         );
         toast.success("Email Verification successful");
         navigate("/");

@@ -13,9 +13,8 @@ import { logOut, setTokens } from "@rSlices/userSlice";
 import { paths } from "@routes/Routes";
 import { navigate } from "@routes/navigationService";
 import userOps, { IRefreshTokenData, IRefreshTokenInput } from "@gqlOps/user";
-import { decodeJwtToken, getLocalData } from "@/utils/utilFuncs";
-import { TOKENS_KEY } from "@/constants/localStorageKeys";
-import { ITokens } from "@/types/commonTypes";
+import { decodeJwtToken } from "@/utils/utilFuncs";
+import { getLocalTokens } from "@/utils/auth";
 
 const { dispatch } = store;
 
@@ -34,7 +33,7 @@ const authLink = new ApolloLink((operation, forward) => {
         isRefreshingToken = true;
         tokenRefreshPromise = new Promise<string>(async (resolve, reject) => {
           try {
-            const tokens: ITokens | undefined = getLocalData(TOKENS_KEY);
+            const tokens = getLocalTokens();
             const oldRefreshToken = tokens?.refreshToken;
             if (oldRefreshToken) {
               const newToken = await fetchNewToken(oldRefreshToken);
@@ -61,7 +60,7 @@ const authLink = new ApolloLink((operation, forward) => {
     };
 
     const setTokenAndForward = async () => {
-      const tokens: ITokens | undefined = getLocalData(TOKENS_KEY);
+      const tokens = getLocalTokens();
       let token = tokens?.accessToken;
       if (token) {
         const decodedToken = decodeJwtToken(token);

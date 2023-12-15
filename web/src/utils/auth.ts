@@ -1,4 +1,7 @@
 import { Role, UserType } from "@gqlOps/user";
+import { getLocalData } from "./utilFuncs";
+import { TOKENS_KEY } from "@/constants/localStorageKeys";
+import { ITokens } from "@/types/commonTypes";
 
 export const isSuperAdmin = (roles: Role[] | undefined) =>
   roles?.includes("superAdmin") || false;
@@ -12,3 +15,6 @@ export const isDeveloper = (roles: Role[] | undefined): boolean =>
 
 export const isContractor = (userTypes: UserType[] | undefined): boolean =>
   userTypes?.includes("contractor") || false;
+
+export const getLocalTokens = (): ITokens | undefined =>
+  getLocalData(TOKENS_KEY);
