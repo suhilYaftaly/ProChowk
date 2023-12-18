@@ -5,23 +5,32 @@ import { ISectionProps } from "../UserProfile";
 import Text from "@reusable/Text";
 import FullScreenModal from "@reusable/FullScreenModal";
 import { useRespVal } from "@hooks/hooks";
+import EditableTitle from "../edits/EditableTitle";
+import CustomModal from "@reusable/CustomModal";
+import UserLicenseEdit from "../edits/UserLicenseEdit";
 
 export default function UserLicences({
   contractor,
   p,
   tmb,
   contrLoading,
+  isMyProfile,
 }: ISectionProps) {
   const licences = contractor?.licenses;
   const [openImg, setOpenImg] = useState(false);
   const [openImgIndex, setOpenImgIndex] = useState(0);
   const fsWidth = useRespVal("100%", undefined);
+  const [openEdit, setOpenEdit] = useState(false);
+
+  const selectedLicense = licences?.[openImgIndex];
 
   return (
     <Stack sx={{ p }}>
-      <Text type="subtitle">
-        Licences/Certificates ({licences?.length || "0"})
-      </Text>
+      <EditableTitle
+        title={`Licences/Certificates (${licences?.length || "0"})`}
+        isMyProfile={isMyProfile}
+        setOpenEdit={setOpenEdit}
+      />
       <Grid container spacing={1} direction={"row"} sx={{ mt: tmb }}>
         {contrLoading ? (
           <LicenseSkeleton />
@@ -41,20 +50,20 @@ export default function UserLicences({
                 loading="lazy"
                 style={{ height: 130, borderRadius: 8 }}
               />
-              <Text>{li.desc}</Text>
+              <Text>{li.name}</Text>
             </Grid>
           ))
         )}
       </Grid>
-      {licences?.[openImgIndex] && (
+      {selectedLicense && (
         <FullScreenModal
-          title={"Job Image"}
+          title={selectedLicense.name}
           open={openImg}
           setOpen={setOpenImg}
         >
           <img
-            src={licences?.[openImgIndex].url}
-            alt={licences?.[openImgIndex].name}
+            src={selectedLicense.url}
+            alt={selectedLicense.name}
             loading="lazy"
             style={{
               width: fsWidth,
@@ -64,6 +73,14 @@ export default function UserLicences({
             }}
           />
         </FullScreenModal>
+      )}
+      {isMyProfile && contractor && (
+        <CustomModal title="Licenses" open={openEdit} onClose={setOpenEdit}>
+          <UserLicenseEdit
+            contractor={contractor}
+            onClose={() => setOpenEdit(false)}
+          />
+        </CustomModal>
       )}
     </Stack>
   );

@@ -30,12 +30,12 @@ const contOps = {
         deleteContractorLicense(contId: $contId, licId: $licId) {${contractorGqlResp}}
       }
     `,
-    addOrRemoveContractorSkills: gql`
-      mutation AddOrRemoveContractorSkills(
+    updateContractorSkills: gql`
+      mutation UpdateContractorSkills(
         $contId: ID!
         $skills: [SkillInput!]!
       ) {
-        addOrRemoveContractorSkills(contId: $contId, skills: $skills) {${contractorGqlResp}}
+        updateContractorSkills(contId: $contId, skills: $skills) {${contractorGqlResp}}
       }
     `,
   },
@@ -66,7 +66,7 @@ export interface LicenseInput {
   name: string;
   size: number;
   type: string;
-  desc: string;
+  desc?: string;
   url: string;
 }
 
@@ -210,35 +210,35 @@ export const useDeleteContractorLicense = () => {
   return { deleteContLicAsync, data, error, loading };
 };
 
-//addOrRemoveContractorSkills op
-interface IARCSInput {
+//updateContractorSkills op
+interface IUpdtCSInput {
   contId: string;
   skills: SkillInput[];
 }
-interface IARCSData {
-  addOrRemoveContractorSkills: IContractor;
+interface IUpdtCSData {
+  updateContractorSkills: IContractor;
 }
-interface IARCSAsync {
-  variables: IARCSInput;
+interface IUpdtCSAsync {
+  variables: IUpdtCSInput;
   onSuccess?: (data: IContractor) => void;
   onError?: (error?: any) => void;
 }
-export const useAddOrRemoveContSkills = () => {
-  const [addOrRemoveContractorSkills, { data, error, loading }] = useMutation<
-    IARCSData,
-    IARCSInput
-  >(contOps.Mutations.addOrRemoveContractorSkills);
+export const useUpdateContSkills = () => {
+  const [updateContractorSkills, { data, error, loading }] = useMutation<
+    IUpdtCSData,
+    IUpdtCSInput
+  >(contOps.Mutations.updateContractorSkills);
   const { updateCache, loading: contLoading } = useContractor();
 
-  const addOrRemoveContSkillsAsync = async ({
+  const updateContSkillsAsync = async ({
     variables,
     onSuccess,
     onError,
-  }: IARCSAsync) =>
+  }: IUpdtCSAsync) =>
     asyncOps({
-      operation: () => addOrRemoveContractorSkills({ variables }),
-      onSuccess: (dt: IARCSData) => {
-        const contData = dt?.addOrRemoveContractorSkills;
+      operation: () => updateContractorSkills({ variables }),
+      onSuccess: (dt: IUpdtCSData) => {
+        const contData = dt?.updateContractorSkills;
         onSuccess && onSuccess(contData);
         updateCache({
           variables: { id: variables.contId },
@@ -248,5 +248,5 @@ export const useAddOrRemoveContSkills = () => {
       onError,
     });
 
-  return { addOrRemoveContSkillsAsync, data, error, loading, contLoading };
+  return { updateContSkillsAsync, data, error, loading, contLoading };
 };

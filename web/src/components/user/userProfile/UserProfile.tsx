@@ -8,6 +8,7 @@ import UserAbout from "./sections/UserAbout";
 import UserSkills from "./sections/UserSkills";
 import UserLicences from "./sections/UserLicences";
 import { IJob } from "@gqlOps/job";
+import { isContractor } from "@/utils/auth";
 
 export interface ISectionProps extends IUserProfile {
   /**padding */
@@ -52,12 +53,20 @@ export default function UserProfile({
         <Grid item xs={12} md={12}>
           <AppContainer addCard sx={{ m: 0 }} cardSX={{ p: 0 }}>
             <UserProfileInfo {...sectionProps} />
-            <Divider />
-            <UserAbout {...sectionProps} />
-            <Divider />
-            <UserSkills {...sectionProps} />
-            <Divider />
-            <UserLicences {...sectionProps} />
+            {user?.bio && (
+              <>
+                <Divider />
+                <UserAbout {...sectionProps} />
+              </>
+            )}
+            {isContractor(user?.userTypes) && (
+              <>
+                <Divider />
+                <UserSkills {...sectionProps} />
+                <Divider />
+                <UserLicences {...sectionProps} />
+              </>
+            )}
           </AppContainer>
         </Grid>
         {/* <Grid item xs={12} md={3.7}>

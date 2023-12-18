@@ -26,7 +26,6 @@ interface Props {
   onClose: () => void;
   user: IUser;
 }
-
 export default function UserProfileInfoEdit({ user, onClose }: Props) {
   const theme = useTheme();
   const paperC = theme.palette.background.paper;
@@ -68,7 +67,7 @@ export default function UserProfileInfoEdit({ user, onClose }: Props) {
   };
 
   const handleFDataChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    let { name, value } = e.target;
+    const { name, value } = e.target;
 
     setDisableSaveBtn(false);
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -104,8 +103,15 @@ export default function UserProfileInfoEdit({ user, onClose }: Props) {
     }
   };
 
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "Enter") {
+      event.preventDefault(); // Prevents the default action of the enter key
+      handleSaveChanges(); // Calls the same function as your button's onClick
+    }
+  };
+
   return (
-    <Stack>
+    <Stack onKeyDown={handleKeyPress}>
       <Stack alignItems={"center"}>
         <Stack alignItems={"center"} sx={{ mb: -18 }}>
           <Avatar

@@ -1,23 +1,38 @@
 import { Skeleton, Stack } from "@mui/material";
+import { useState } from "react";
 
 import { ISectionProps } from "../UserProfile";
-import Text from "@reusable/Text";
+import CustomModal from "@reusable/CustomModal";
+import UserAboutEdit from "../edits/UserAboutEdit";
+import EditableTitle from "../edits/EditableTitle";
+import ShowMoreTxt from "@reusable/ShowMoreTxt";
 
 export default function UserAbout({
   user,
   p,
-  tmb,
   userLoading,
+  isMyProfile,
 }: ISectionProps) {
+  const [openEdit, setOpenEdit] = useState(false);
+
   return (
     <Stack sx={{ p }}>
-      <Text type="subtitle">About</Text>
+      <EditableTitle
+        title="About"
+        isMyProfile={isMyProfile}
+        setOpenEdit={setOpenEdit}
+      />
       {userLoading ? (
         <Skeleton variant="text" width={300} />
       ) : (
-        user?.bio && <Text sx={{ mt: tmb }}>{user?.bio}</Text>
+        <ShowMoreTxt text={user?.bio} />
       )}
-      {/* <ShowMoreTxt text={user?.bio} /> */}
+
+      {isMyProfile && user && (
+        <CustomModal title="About you" open={openEdit} onClose={setOpenEdit}>
+          <UserAboutEdit user={user} onClose={() => setOpenEdit(false)} />
+        </CustomModal>
+      )}
     </Stack>
   );
 }

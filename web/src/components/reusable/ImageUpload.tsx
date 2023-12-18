@@ -20,12 +20,14 @@ interface IImgUpload {
   caption?: string;
   /**error text */
   helperText?: string;
+  /**allow multiple image uploads @default true */
+  allowMultiple?: boolean;
 }
 export interface IImage {
   id?: string;
-  name?: string;
+  name: string;
   size: number;
-  type?: string;
+  type: string;
   url: string;
 }
 
@@ -52,6 +54,7 @@ export default function ImageUpload({
   onImageUpload,
   caption,
   helperText,
+  allowMultiple = true,
 }: IImgUpload) {
   const [isDragging, setIsDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -82,7 +85,7 @@ export default function ImageUpload({
     setIsLoading(true);
     const fileProcessingPromises = Array.from(files).map((file) =>
       processImageFile({ file }).then(({ imageUrl, fileSize }) => ({
-        name: file.name,
+        name: file.name.split(".").slice(0, -1).join("."),
         size: fileSize,
         type: file.type,
         url: imageUrl,
@@ -104,13 +107,13 @@ export default function ImageUpload({
   };
 
   const uploadTxt = useRespVal(
-    "Press to select images",
-    "Drag and drop images or click to select"
+    "Press to select image(s)",
+    "Drag and drop image(s) or click to select"
   );
-  const uploadTxtWithDrag = isDragging ? "Drop the images here" : uploadTxt;
+  const uploadTxtWithDrag = isDragging ? "Drop the image(s) here" : uploadTxt;
 
   return (
-    <Stack component="form">
+    <>
       <label htmlFor="image-upload-input">
         <DropzoneContainer
           onDrop={handleDrop}
@@ -118,6 +121,7 @@ export default function ImageUpload({
           onDragLeave={(e) => handleDrag(e, false)}
           isDragging={isDragging}
           error={Boolean(helperText)}
+          sx={{ pb: 2 }}
         >
           <input
             ref={inputRef}
@@ -126,7 +130,7 @@ export default function ImageUpload({
             onChange={handleImgUpload}
             style={{ display: "none" }}
             id="image-upload-input"
-            multiple
+            multiple={allowMultiple}
           />
           {isLoading ? (
             <CircularProgress size={35} color="primary" />
@@ -135,7 +139,7 @@ export default function ImageUpload({
           )}
           <Text sx={{ fontWeight: 550 }}>{uploadTxtWithDrag}</Text>
           {caption && (
-            <Text sx={{ mt: 1, mb: 2 }} type="caption">
+            <Text sx={{ mt: 1 }} type="caption">
               {caption}
             </Text>
           )}
@@ -146,7 +150,7 @@ export default function ImageUpload({
           {helperText}
         </Text>
       )}
-    </Stack>
+    </>
   );
 }
 

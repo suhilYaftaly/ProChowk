@@ -32,12 +32,12 @@ export default (req: any): ISignedProps => {
     }
     throw gqlError({
       msg: "Authentication token must be 'Bearer [token]'",
-      code: "BAD_REQUEST",
+      code: "UNAUTHENTICATED",
     });
   }
   throw gqlError({
     msg: "Authorization header must be provided",
-    code: "BAD_REQUEST",
+    code: "UNAUTHENTICATED",
   });
 };
 

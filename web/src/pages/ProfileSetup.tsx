@@ -35,6 +35,7 @@ import {
 } from "@/utils/utilFuncs";
 import { paths } from "@/routes/Routes";
 import PhoneTextField from "@appComps/PhoneTextField";
+import { clientBioPlaceholder, contractorBioPlaceholder } from "@/config/data";
 
 interface IErrors {
   userType: string;
@@ -237,8 +238,3 @@ const hasErrors = ({ form, setErrors }: IValidate): boolean => {
 
   return error;
 };
-
-const clientBioPlaceholder =
-  "Tell us about your home, your style preferences, or any upcoming renovation plans. For example: 'I live in a mid-century modern home and love natural light and open spaces. Planning to remodel my kitchen this summer.";
-const contractorBioPlaceholder =
-  "Describe your expertise, specializations, or notable projects. For example: 'I specialize in kitchen and bathroom renovations with a focus on sustainable materials. Recently transformed a Victorian house into a modern, energy-efficient home.";

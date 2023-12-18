@@ -1,8 +1,8 @@
 export interface ImageInput {
   url: string;
-  name?: string;
+  name: string;
   size: number;
-  type?: string;
+  type: string;
 }
 export interface IImage extends ImageInput {
   id?: string;

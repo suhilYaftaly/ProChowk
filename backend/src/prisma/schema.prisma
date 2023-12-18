@@ -90,7 +90,7 @@ model License {
     url          String      @unique
     type         String?
     size         Float?
-    desc         String
+    desc         String?
     createdAt    DateTime    @default(now())
     updatedAt    DateTime    @updatedAt
     contractorId String      @db.ObjectId

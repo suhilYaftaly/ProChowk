@@ -8,7 +8,7 @@ export default gql`
     createContractor(userId: ID!): User!
     addContractorLicense(contId: ID!, license: LicenseInput!): Contractor!
     deleteContractorLicense(contId: ID!, licId: ID!): Contractor!
-    addOrRemoveContractorSkills(contId: ID!, skills: [SkillInput]!): Contractor!
+    updateContractorSkills(contId: ID!, skills: [SkillInput]!): Contractor!
   }
 
   type Contractor {
@@ -36,6 +36,6 @@ export default gql`
     name: String!
     size: Float!
     type: String!
-    desc: String!
+    desc: String
   }
 `;

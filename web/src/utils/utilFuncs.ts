@@ -402,3 +402,9 @@ export const formatPhoneNumber = (number: string | undefined) => {
   }
   return number;
 };
+
+/** Display remaining character count, e.g., (5/1000) */
+export const charsCount = (text: string | undefined, max: number) => {
+  if (text) return `(${text.length}/${max})`;
+  return `(0/${max})`;
+};

@@ -7,7 +7,7 @@ import {
   ISkillInput,
 } from "../../types/commonTypes";
 import checkAuth, { canUserUpdate } from "../../middlewares/checkAuth";
-import { showInputError, gqlError, IFR } from "../../utils/funcs";
+import { showInputError, gqlError, ifr } from "../../utils/funcs";
 
 export default {
   Query: {
@@ -23,8 +23,8 @@ export default {
         const eContr = await prisma.contractor.findFirst({
           where: { OR: [{ userId }, { id }] },
           include: {
-            licenses: IFR(info, "licenses"),
-            skills: IFR(info, "skills"),
+            licenses: ifr(info, "licenses"),
+            skills: ifr(info, "skills"),
           },
         });
         if (!eContr) throw gqlError({ msg: "Contractor not found" });
@@ -52,8 +52,8 @@ export default {
         include: {
           contractor: {
             include: {
-              licenses: IFR(info, "licenses"),
-              skills: IFR(info, "skills"),
+              licenses: ifr(info, "licenses"),
+              skills: ifr(info, "skills"),
             },
           },
         },
@@ -77,8 +77,8 @@ export default {
         where: { id: contId },
         data: { licenses: { create: license } },
         include: {
-          licenses: IFR(info, "licenses"),
-          skills: IFR(info, "skills"),
+          licenses: ifr(info, "licenses"),
+          skills: ifr(info, "skills"),
         },
       });
     },
@@ -99,12 +99,12 @@ export default {
         where: { id: contId },
         data: { licenses: { delete: { id: licId } } },
         include: {
-          licenses: IFR(info, "licenses"),
-          skills: IFR(info, "skills"),
+          licenses: ifr(info, "licenses"),
+          skills: ifr(info, "skills"),
         },
       });
     },
-    addOrRemoveContractorSkills: async (
+    updateContractorSkills: async (
       _: any,
       { contId, skills }: { contId: string; skills: ISkillInput[] },
       context: GraphQLContext,
@@ -113,40 +113,37 @@ export default {
       const { prisma, req } = context;
       const authUser = checkAuth(req);
 
-      const contractor = await prisma.contractor.findUnique({
+      const foundCont = await prisma.contractor.findUnique({
         where: { id: contId },
         include: { skills: true },
       });
-      canUserUpdate({ id: contractor.userId, authUser });
-      if (!contractor) throw gqlError({ msg: "Contractor not found" });
+      if (!foundCont) throw gqlError({ msg: "Contractor not found" });
+      canUserUpdate({ id: foundCont.userId, authUser });
 
-      // Determine the IDs of the skills to disconnect
-      const skillIdsToDisconnect = contractor.skills
-        .filter((skill) => !skills.some((s) => s.label === skill.label))
-        .map((skill) => ({ id: skill.id }));
+      const foundSkills = foundCont?.skills;
+      // Determine skills to disconnect and prepare connectOrCreate operations
+      const existingSkillLabels = foundSkills?.map((skill) => skill.label);
+      const skillsToDisconnect = foundSkills?.filter(
+        (skill) => !skills.some((s) => s.label === skill.label)
+      );
+      const skillsToConnectOrCreate = skills?.filter(
+        (skill) => !existingSkillLabels?.includes(skill.label)
+      );
 
-      // Prepare connectOrCreate operations
-      const connectOrCreateOperations = skills.map((skill) => ({
-        where: { label: skill.label },
-        create: skill,
-      }));
-
-      // Perform one update operation that disconnects and connects or creates skills
-      await prisma.contractor.update({
+      return await prisma.contractor.update({
         where: { id: contId },
         data: {
           skills: {
-            disconnect: skillIdsToDisconnect,
-            connectOrCreate: connectOrCreateOperations,
+            disconnect: skillsToDisconnect.map((skill) => ({ id: skill.id })),
+            connectOrCreate: skillsToConnectOrCreate.map((skill) => ({
+              where: { label: skill.label },
+              create: skill,
+            })),
           },
         },
-      });
-
-      return await prisma.contractor.findUnique({
-        where: { id: contId },
         include: {
-          licenses: IFR(info, "licenses"),
-          skills: IFR(info, "skills"),
+          licenses: ifr(info, "licenses"),
+          skills: ifr(info, "skills"),
         },
       });
     },

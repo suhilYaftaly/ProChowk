@@ -3,7 +3,7 @@ import { GraphQLResolveInfo } from "graphql";
 
 import { GraphQLContext, IJobInput } from "../../types/commonTypes";
 import checkAuth, { canUserUpdate } from "../../middlewares/checkAuth";
-import { gqlError, IFR } from "../../utils/funcs";
+import { gqlError, ifr } from "../../utils/funcs";
 import {
   ADDRESS_COLLECTION,
   SKILL_COLLECTION,
@@ -22,10 +22,10 @@ export default {
       const jobRes = await prisma.job.findUnique({
         where: { id },
         include: {
-          address: IFR(info, "address"),
-          images: IFR(info, "images"),
-          skills: IFR(info, "skills"),
-          budget: IFR(info, "budget"),
+          address: ifr(info, "address"),
+          images: ifr(info, "images"),
+          skills: ifr(info, "skills"),
+          budget: ifr(info, "budget"),
         },
       });
       if (!jobRes) throw gqlError({ msg: "Failed to get the job" });
@@ -44,10 +44,10 @@ export default {
         where: { userId },
         orderBy: { createdAt: "desc" },
         include: {
-          address: IFR(info, "address"),
-          images: IFR(info, "images"),
-          skills: IFR(info, "skills"),
-          budget: IFR(info, "budget"),
+          address: ifr(info, "address"),
+          images: ifr(info, "images"),
+          skills: ifr(info, "skills"),
+          budget: ifr(info, "budget"),
         },
       });
 
@@ -106,10 +106,10 @@ export default {
       const jobs = await prisma.job.findMany({
         where: { id: { in: jobIds }, isDraft: false },
         include: {
-          address: IFR(info, "address"),
-          images: IFR(info, "images"),
-          skills: IFR(info, "skills"),
-          budget: IFR(info, "budget"),
+          address: ifr(info, "address"),
+          images: ifr(info, "images"),
+          skills: ifr(info, "skills"),
+          budget: ifr(info, "budget"),
         },
       });
 
@@ -241,10 +241,10 @@ export default {
       const jobs = await prisma.job.findMany({
         where: { id: { in: jobIds }, isDraft: false },
         include: {
-          address: IFR(info, "address"),
-          images: IFR(info, "images"),
-          skills: IFR(info, "skills"),
-          budget: IFR(info, "budget"),
+          address: ifr(info, "address"),
+          images: ifr(info, "images"),
+          skills: ifr(info, "skills"),
+          budget: ifr(info, "budget"),
         },
       });
 
@@ -276,10 +276,10 @@ export default {
           budget: { create: jobInput.budget },
         },
         include: {
-          address: IFR(info, "address"),
-          images: IFR(info, "images"),
-          skills: IFR(info, "skills"),
-          budget: IFR(info, "budget"),
+          address: ifr(info, "address"),
+          images: ifr(info, "images"),
+          skills: ifr(info, "skills"),
+          budget: ifr(info, "budget"),
         },
       });
       if (!createdJob) throw gqlError({ msg: "Failed to update job" });
@@ -352,10 +352,10 @@ export default {
           budget: { update: jobInput.budget },
         },
         include: {
-          address: IFR(info, "address"),
-          images: IFR(info, "images"),
-          skills: IFR(info, "skills"),
-          budget: IFR(info, "budget"),
+          address: ifr(info, "address"),
+          images: ifr(info, "images"),
+          skills: ifr(info, "skills"),
+          budget: ifr(info, "budget"),
         },
       });
       if (!updatedJob) throw gqlError({ msg: "Failed to update job" });

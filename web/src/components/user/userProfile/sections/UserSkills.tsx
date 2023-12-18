@@ -1,18 +1,28 @@
 import { Chip, Grid, Stack } from "@mui/material";
+import { useState } from "react";
 
 import { ISectionProps } from "../UserProfile";
-import Text from "@reusable/Text";
 import ChipSkeleton from "@reusable/skeleton/ChipSkeleton";
+import EditableTitle from "../edits/EditableTitle";
+import CustomModal from "@reusable/CustomModal";
+import UserSkillsEdit from "../edits/UserSkillsEdit";
 
 export default function UserSkills({
   contractor,
   p,
   tmb,
   contrLoading,
+  isMyProfile,
 }: ISectionProps) {
+  const [openEdit, setOpenEdit] = useState(false);
+
   return (
     <Stack sx={{ p }}>
-      <Text type="subtitle">Skills</Text>
+      <EditableTitle
+        title="Skills"
+        isMyProfile={isMyProfile}
+        setOpenEdit={setOpenEdit}
+      />
       <Grid container spacing={1} direction={"row"} sx={{ mt: tmb }}>
         {contrLoading ? (
           <SkillsSkeleton />
@@ -24,6 +34,14 @@ export default function UserSkills({
           ))
         )}
       </Grid>
+      {isMyProfile && contractor && (
+        <CustomModal title="Skills" open={openEdit} onClose={setOpenEdit}>
+          <UserSkillsEdit
+            contractor={contractor}
+            onClose={() => setOpenEdit(false)}
+          />
+        </CustomModal>
+      )}
     </Stack>
   );
 }

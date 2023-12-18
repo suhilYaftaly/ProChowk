@@ -141,11 +141,7 @@ export default function UserProfileInfo({
         />
       )}
       {isMyProfile && user && (
-        <CustomModal
-          title="Edit Profile Info"
-          open={openEdit}
-          onClose={setOpenEdit}
-        >
+        <CustomModal title="Profile Info" open={openEdit} onClose={setOpenEdit}>
           <UserProfileInfoEdit user={user} onClose={() => setOpenEdit(false)} />
         </CustomModal>
       )}

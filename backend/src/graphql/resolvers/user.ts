@@ -14,7 +14,7 @@ import {
   sendEmail,
   EmailParams,
   generateEmailTemplate,
-  IFR,
+  ifr,
 } from "../../utils/funcs";
 import checkAuth, {
   canUserUpdate,
@@ -48,8 +48,8 @@ export default {
       const foundUser = await prisma.user.findFirst({
         where: { id },
         include: {
-          address: IFR(info, "address"),
-          image: IFR(info, "image"),
+          address: ifr(info, "address"),
+          image: ifr(info, "image"),
         },
       });
       if (!foundUser)
@@ -66,7 +66,7 @@ export default {
       const { prisma } = context;
 
       return await prisma.user.findMany({
-        include: { address: IFR(info, "address"), image: IFR(info, "image") },
+        include: { address: ifr(info, "address"), image: ifr(info, "image") },
       });
     },
   },
@@ -98,7 +98,7 @@ export default {
       password = await bcrypt.hash(password, 12);
       const newUser = await prisma.user.create({
         data: { name, email, password },
-        include: { address: IFR(info, "address"), image: IFR(info, "image") },
+        include: { address: ifr(info, "address"), image: ifr(info, "image") },
       });
 
       const accessToken = generateUserToken(newUser);
@@ -119,7 +119,7 @@ export default {
 
       const foundUser = await prisma.user.findFirst({
         where: { email: { equals: email, mode: "insensitive" } },
-        include: { address: IFR(info, "address"), image: IFR(info, "image") },
+        include: { address: ifr(info, "address"), image: ifr(info, "image") },
       });
       if (!foundUser || !foundUser.password) {
         throw gqlError({
@@ -289,7 +289,7 @@ export default {
       const updatedUser = await prisma.user.update({
         where: { id },
         data: recoData,
-        include: { address: IFR(info, "address"), image: IFR(info, "image") },
+        include: { address: ifr(info, "address"), image: ifr(info, "image") },
       });
 
       return updatedUser;
@@ -383,7 +383,7 @@ export default {
       const updatedUser = await prisma.user.update({
         where: { id: user.id },
         data: { password: hashedPassword },
-        include: { address: IFR(info, "address"), image: IFR(info, "image") },
+        include: { address: ifr(info, "address"), image: ifr(info, "image") },
       });
       if (updatedUser) {
         const token = generateUserToken(updatedUser);
