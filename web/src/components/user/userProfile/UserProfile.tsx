@@ -53,7 +53,7 @@ export default function UserProfile({
         <Grid item xs={12} md={12}>
           <AppContainer addCard sx={{ m: 0 }} cardSX={{ p: 0 }}>
             <UserProfileInfo {...sectionProps} />
-            {user?.bio && (
+            {(user?.bio || isMyProfile) && (
               <>
                 <Divider />
                 <UserAbout {...sectionProps} />

@@ -79,10 +79,14 @@ export default function UserProfileInfo({
                   </Text>
                 </Stack>
               )}
-              <LocationOn sx={{ width: 20, height: 20 }} />
-              <Text sx={{ color: "inherit", ml: 0.5, fontWeight: 450 }}>
-                {user?.address?.city}, {user?.address?.stateCode}
-              </Text>
+              {user?.address && (
+                <>
+                  <LocationOn sx={{ width: 20, height: 20 }} />
+                  <Text sx={{ color: "inherit", ml: 0.5, fontWeight: 450 }}>
+                    {user?.address?.city}, {user?.address?.stateCode}
+                  </Text>
+                </>
+              )}
             </Stack>
           </Stack>
           {!isMobile && (

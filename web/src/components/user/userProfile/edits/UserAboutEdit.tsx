@@ -14,7 +14,7 @@ interface Props {
 export default function UserAboutEdit({ user, onClose }: Props) {
   const { updateUserAsync, loading: updLoading } = useUpdateUser();
   const [disableSaveBtn, setDisableSaveBtn] = useState(true);
-  const [form, setForm] = useState({ bio: user?.bio });
+  const [form, setForm] = useState({ bio: user?.bio || "" });
   const [errors, setErrors] = useState<IFormErrs>({ bio: "" });
 
   const handleFDataChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
@@ -87,7 +87,7 @@ const validateForm = ({ form, setErrors }: IValidateProps) => {
   let hasError = false;
   let formErrs: IFormErrs = { bio: "" };
 
-  if (form?.bio && form.bio?.length < 2) {
+  if (!form?.bio || form.bio?.length < 2) {
     formErrs.bio = "About you must be more than 5 characters";
     hasError = true;
   }
