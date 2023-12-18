@@ -5,7 +5,6 @@ import { toast } from "react-toastify";
 import { useSkills } from "@gqlOps/skill";
 import { useJobsByLocation, useJobsByText } from "@gqlOps/job";
 import { useUserStates } from "@redux/reduxStates";
-import { JobsCards } from "../Jobs";
 import SearchFilters, {
   ISearchFilterErrors,
   ISearchFilters,
@@ -16,6 +15,7 @@ import { searchFilterConfigs as FCC } from "@config/configConst";
 import NoSearchResultsWidget from "@reusable/widgets/NoSearchResultsWidget";
 import Text from "@reusable/Text";
 import ToastErrorsList from "@reusable/ToastErrorsList";
+import JobsCards from "./JobsCards";
 
 export default function SearchJobsByText() {
   const theme = useTheme();
@@ -43,8 +43,8 @@ export default function SearchJobsByText() {
     data: jByLData,
     loading: jByLLoading,
   } = useJobsByLocation();
-  const jobData = jByTData?.jobsByText || jByLData?.jobsByLocation;
-  const jobLoading = jByTLoading || jByLLoading;
+  const jobsData = jByTData?.jobsByText || jByLData?.jobsByLocation;
+  const jobsLoading = jByTLoading || jByLLoading;
 
   const { userLocation } = useUserStates();
   const [openDrawer, setOpenDrawer] = useState(false);
@@ -124,21 +124,17 @@ export default function SearchJobsByText() {
           setSearchText={setSearchText}
         />
       </Stack>
-      {jobData?.length === 0 ? (
+      {jobsData?.length === 0 ? (
         <NoSearchResultsWidget title="No jobs found!" />
       ) : (
         <>
-          {jobData && jobData?.length > 0 && (
+          {jobsData && jobsData?.length > 0 && (
             <Text type="subtitle" sx={{ mb: 2, mt: 3 }}>
               Jobs Found{" "}
-              <span style={{ color: primaryC }}>({jobData?.length})</span>
+              <span style={{ color: primaryC }}>({jobsData?.length})</span>
             </Text>
           )}
-          <JobsCards
-            jobs={jobData}
-            loading={jobLoading}
-            updateLoading={jobLoading}
-          />
+          <JobsCards jobs={jobsData} loading={jobsLoading} />
         </>
       )}
       <SearchFilters
