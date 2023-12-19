@@ -26,7 +26,6 @@ export default gql`
     name: String
     size: Float
     type: String
-    desc: String
     createdAt: String
     updatedAt: String
   }
@@ -36,6 +35,5 @@ export default gql`
     name: String!
     size: Float!
     type: String!
-    desc: String
   }
 `;

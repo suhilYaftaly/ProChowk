@@ -1,6 +1,5 @@
 import {
   Avatar,
-  Card,
   List,
   ListItem,
   ListItemButton,
@@ -27,7 +26,7 @@ export default function PostedBy({ loading, user }: Props) {
   //TODO: add ratings, previous jobs, active jobs
 
   return (
-    <Card>
+    <>
       {loading ? (
         <CompSkeleton />
       ) : (
@@ -58,17 +57,17 @@ export default function PostedBy({ loading, user }: Props) {
           </ListItem>
         </List>
       )}
-    </Card>
+    </>
   );
 }
 
 const CompSkeleton = () => (
-  <Card>
+  <>
     <List component="nav">
       <ListItem sx={{ my: 1 }}>
         <Skeleton variant="circular" width={60} height={60} sx={{ mr: 2 }} />
         <Skeleton variant="text" sx={{ width: 150 }} />
       </ListItem>
     </List>
-  </Card>
+  </>
 );

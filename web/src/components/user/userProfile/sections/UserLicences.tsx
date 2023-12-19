@@ -7,7 +7,7 @@ import FullScreenModal from "@reusable/FullScreenModal";
 import { useRespVal } from "@hooks/hooks";
 import EditableTitle from "../edits/EditableTitle";
 import CustomModal from "@reusable/CustomModal";
-import UserLicenseEdit from "../edits/UserLicenseEdit";
+import UserLicenseEdit from "../edits/license/UserLicenseEdit";
 
 export default function UserLicences({
   contractor,
@@ -50,7 +50,7 @@ export default function UserLicences({
                 loading="lazy"
                 style={{ height: 130, borderRadius: 8 }}
               />
-              <Text>{li.name}</Text>
+              <Text width={100}>{li.name}</Text>
             </Grid>
           ))
         )}

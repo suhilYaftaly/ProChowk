@@ -8,7 +8,7 @@ import {
 import { ISkill, skillGqlResp, SkillInput } from "./skill";
 import { asyncOps } from "./gqlFuncs";
 
-const licenseGqlResp = `id name desc type size url createdAt updatedAt`;
+const licenseGqlResp = `id name type size url createdAt updatedAt`;
 export const contractorGqlResp = `id createdAt updatedAt licenses {${licenseGqlResp}} skills {${skillGqlResp}}`;
 
 const contOps = {
@@ -49,7 +49,6 @@ interface ILicense {
   name: string;
   size: number;
   type: string;
-  desc: string;
   url: string;
   createdAt: string;
   updatedAt: string;
@@ -66,7 +65,6 @@ export interface LicenseInput {
   name: string;
   size: number;
   type: string;
-  desc?: string;
   url: string;
 }
 

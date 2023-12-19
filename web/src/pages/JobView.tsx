@@ -9,6 +9,7 @@ import JobPreview from "@jobs/jobPost/JobPreview";
 import ChipSkeleton from "@reusable/skeleton/ChipSkeleton";
 import PostedBy from "@jobs/jobPost/PostedBy";
 import AppContainer from "@reusable/AppContainer";
+import { useRespVal } from "@/utils/hooks/hooks";
 
 export default function JobView() {
   const { userId, jobId } = useParams();
@@ -29,7 +30,7 @@ export default function JobView() {
 
   return (
     <AppContainer>
-      <Grid container spacing={2}>
+      <Grid container spacing={2} sx={{ mb: useRespVal(2, undefined) }}>
         <Grid item xs={12} md={8.7}>
           <AppContainer addCard sx={{ m: 0 }}>
             {loading && <JobSkeleton />}
@@ -54,9 +55,6 @@ const JobSkeleton = () => (
     <Skeleton variant="text" sx={{ width: "90%" }} />
     <Skeleton variant="text" sx={{ width: "90%" }} />
     <Skeleton variant="text" sx={{ width: "70%" }} />
-    <Skeleton variant="rectangular" width={"100%"} height={1} sx={{ my: 2 }} />
-    <Skeleton variant="text" sx={{ width: "20%" }} />
-    <Skeleton variant="text" sx={{ width: "90%" }} />
     <Skeleton variant="rectangular" width={"100%"} height={1} sx={{ my: 2 }} />
     <Skeleton variant="text" sx={{ width: "20%", mb: 1 }} />
     <Stack direction={"row"} spacing={1}>

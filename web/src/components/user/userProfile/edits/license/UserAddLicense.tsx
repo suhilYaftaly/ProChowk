@@ -8,22 +8,17 @@ import {
   useAddContractorLicense,
 } from "@gqlOps/contractor";
 import ImageUpload, { IImage, ShowImages } from "@reusable/ImageUpload";
-import { charsCount } from "@/utils/utilFuncs";
 
 interface Props {
   onClose: () => void;
   contractor: IContractor;
 }
-export default function UserLicenseEdit({ contractor, onClose }: Props) {
+export default function UserAddLicense({ contractor, onClose }: Props) {
   const [disableSaveBtn, setDisableSaveBtn] = useState(true);
   const { addContLicAsync, loading } = useAddContractorLicense();
-  const defaults = { name: "", size: 0, type: "", url: "", desc: "" };
+  const defaults = { name: "", size: 0, type: "", url: "" };
   const [license, setLicense] = useState<LicenseInput>(defaults);
-  const [errors, setErrors] = useState<IFormErrs>({
-    url: "",
-    name: "",
-    desc: "",
-  });
+  const [errors, setErrors] = useState<IFormErrs>({ url: "", name: "" });
 
   const onLicenseUpload = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -59,36 +54,18 @@ export default function UserLicenseEdit({ contractor, onClose }: Props) {
   return (
     <Stack component={"form"} onSubmit={onLicenseUpload} spacing={2}>
       {license?.url && (
-        <>
-          <TextField
-            label={"Name"}
-            variant="outlined"
-            size="small"
-            name={"name"}
-            value={license.name}
-            onChange={handleFDataChange}
-            error={Boolean(errors.name)}
-            helperText={errors.name}
-            placeholder={"license name"}
-            required
-          />
-          <TextField
-            label={`Description ${charsCount(license.desc, 200)}`}
-            variant="outlined"
-            size="small"
-            name={"desc"}
-            value={license.desc}
-            onChange={handleFDataChange}
-            error={Boolean(errors.desc)}
-            helperText={errors.desc}
-            placeholder={
-              "Include any special notes or conditions of the license"
-            }
-            multiline={true}
-            rows={3}
-            inputProps={{ maxLength: 200 }}
-          />
-        </>
+        <TextField
+          label={"Name"}
+          variant="outlined"
+          size="small"
+          name={"name"}
+          value={license.name}
+          onChange={handleFDataChange}
+          error={Boolean(errors.name)}
+          helperText={errors.name}
+          placeholder={"license name"}
+          required
+        />
       )}
       <ImageUpload
         onImageUpload={onImagesChange}
@@ -120,7 +97,6 @@ export default function UserLicenseEdit({ contractor, onClose }: Props) {
 interface IFormErrs {
   url: string;
   name: string;
-  desc: string;
 }
 interface IValidateProps {
   license: LicenseInput;
@@ -129,7 +105,7 @@ interface IValidateProps {
 /**sets the errors and returns hasErrors @returns hasErrors as boolean */
 const validateForm = ({ license, setErrors }: IValidateProps) => {
   let hasError = false;
-  let formErrs: IFormErrs = { url: "", name: "", desc: "" };
+  let formErrs: IFormErrs = { url: "", name: "" };
 
   if (!license.url) {
     formErrs.url = "License file must be added.";
