@@ -15,7 +15,7 @@ import ColorThemeToggle from "../ColorThemeToggle";
 import Text from "@reusable/Text";
 import { useUserStates } from "@redux/reduxStates";
 import { paths } from "@routes/Routes";
-import { isContractor, isDeveloper } from "@/utils/auth";
+import { isDeveloper } from "@/utils/auth";
 import { ReactNode } from "react";
 import { navigateToUserPage } from "@utils/utilFuncs";
 
@@ -23,7 +23,7 @@ interface Props {
   onItemClick?: () => void;
 }
 export default function ProfileList({ onItemClick }: Props) {
-  const { user } = useUserStates();
+  const { user, userView } = useUserStates();
   const navigate = useNavigate();
   const theme = useTheme();
   const iconColor = theme.palette.text?.dark;
@@ -49,9 +49,7 @@ export default function ProfileList({ onItemClick }: Props) {
           />
           <div>
             <Text type="subtitle">{user?.name}</Text>
-            <Text cColor="dark">
-              {isContractor(user?.userTypes) ? "Contractor" : "Client"}
-            </Text>
+            <Text cColor="dark">{userView}</Text>
           </div>
         </ListItemButton>
       </ListItem>

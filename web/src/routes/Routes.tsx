@@ -20,7 +20,8 @@ import JobPost from "@/pages/JobPost";
 export const paths = {
   login: "/login",
   signUp: "/sign-up",
-  profileSetup: "/profile-setup",
+  profileSetup: (userType?: string) =>
+    `/profile-setup${userType ? `?userType=${userType}` : ""}`,
   user: (nameId: string) => `/user/${nameId}`, //nameId = (suhilmohammad-647edfd209ee1be1232asd)
   jobView: (userId: string, jobId: string) => `/job-view/${userId}/${jobId}`,
   verifyEmail: `/verify-email`,
@@ -35,7 +36,7 @@ const router = createBrowserRouter(
       <Route index element={<Home />} />
       <Route path={paths.login} element={<Login />} />
       <Route path={paths.signUp} element={<SignUp />} />
-      <Route path={paths.profileSetup} element={<ProfileSetup />} />
+      <Route path={paths.profileSetup()} element={<ProfileSetup />} />
       <Route path={paths.user(":nameId")} element={<User />} />
       <Route path={paths.jobView(":userId", ":jobId")} element={<JobView />} />
       <Route path={paths.verifyEmail} element={<VerifyEmail />} />

@@ -4,6 +4,7 @@ import ColorThemeToggle from "../ColorThemeToggle";
 import DMyProfilePopover from "./MMyProfilePopover";
 import LogInButton from "@/components/headerSection/LogInButton";
 import AppLogo from "@reusable/AppLogo";
+import SwitchUserViewButton from "@user/SwitchUserViewButton";
 
 export default function DHeader() {
   return (
@@ -13,20 +14,20 @@ export default function DHeader() {
     >
       <AppLogo type="text" />
       <Stack direction="row" alignItems={"center"}>
+        <SwitchUserViewButton />
         <LogInButton sx={{ mr: 1 }} />
-        <DMyProfilePopover />
-        <Divider
-          sx={{
-            height: 20,
-            m: 0.5,
-            borderColor: "gray",
-            borderWidth: 1,
-            mx: 1,
-          }}
-          orientation="vertical"
-        />
+        <LineDivider />
         <ColorThemeToggle />
+        <LineDivider />
+        <DMyProfilePopover />
       </Stack>
     </Stack>
   );
 }
+
+const LineDivider = () => (
+  <Divider
+    sx={{ height: 20, m: 0.5, borderColor: "gray", borderWidth: 1, mx: 1 }}
+    orientation="vertical"
+  />
+);

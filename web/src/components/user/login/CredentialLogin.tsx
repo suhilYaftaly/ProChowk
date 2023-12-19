@@ -67,12 +67,7 @@ export default function CredentialLogin({ setRedirectToHome }: Props) {
   };
 
   return (
-    <Stack
-      component="form"
-      noValidate
-      onSubmit={onLogin}
-      sx={{ textAlign: "center" }}
-    >
+    <Stack component="form" onSubmit={onLogin} sx={{ textAlign: "center" }}>
       <TextField
         label="Email"
         id={"email"}

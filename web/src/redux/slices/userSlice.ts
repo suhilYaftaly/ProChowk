@@ -4,6 +4,7 @@ import { TOKENS_KEY, USER_PROFILE_KEY } from "@constants/localStorageKeys";
 import { IUser } from "@gqlOps/user";
 import { ILatLng } from "@gqlOps/address";
 import { ITokens } from "@/types/commonTypes";
+import { TUserView } from "@user/SwitchUserViewButton";
 
 interface UserState {
   userProfile: {
@@ -17,12 +18,14 @@ interface UserState {
     isLoading: boolean;
     error: { message: string; [key: string]: any } | undefined;
   };
+  userView: TUserView | null;
 }
 
 const initialState: UserState = {
   userProfile: { data: undefined, isLoading: false, error: undefined },
   isLoggedOut: undefined,
   userLocation: { data: undefined, isLoading: false, error: undefined },
+  userView: null,
 };
 
 const slice = createSlice({
@@ -70,6 +73,9 @@ const slice = createSlice({
       state.userLocation.isLoading = false;
       state.userLocation.error = action.payload;
     },
+    setUserView(state, action: PayloadAction<UserState["userView"]>) {
+      state.userView = action.payload;
+    },
   },
 });
 
@@ -80,6 +86,7 @@ export const {
   userLocationSuccess,
   userLocationError,
   setUserProfileInfo,
+  setUserView,
 } = slice.actions;
 const { userProfileSuccess, setIsLoggedOut } = slice.actions;
 export default slice.reducer;

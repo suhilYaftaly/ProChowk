@@ -14,9 +14,17 @@ export const isDeveloper = (roles: Role[] | undefined): boolean =>
   false;
 
 export const isContractor = (userTypes: UserType[] | undefined): boolean =>
-  userTypes?.includes("contractor") || false;
+  userTypes?.includes("contractor") ?? false;
+
 export const isClient = (userTypes: UserType[] | undefined): boolean =>
-  userTypes?.includes("client") || false;
+  userTypes?.includes("client") ?? false;
+
+export const isUserClientAndContractor = (
+  userTypes: UserType[] | undefined
+): boolean => {
+  if (!userTypes) return false;
+  return userTypes.includes("client") && userTypes.includes("contractor");
+};
 
 export const getLocalTokens = (): ITokens | undefined =>
   getLocalData(TOKENS_KEY);

@@ -20,7 +20,6 @@ export default function PostJobBtn({ onSubmit, sx }: Props) {
       variant="contained"
       endIcon={<ChevronRightIcon />}
       onClick={onPostJob}
-      size="large"
       fullWidth
       sx={sx}
     >

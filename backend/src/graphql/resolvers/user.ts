@@ -123,7 +123,7 @@ export default {
       });
       if (!foundUser || !foundUser.password) {
         throw gqlError({
-          msg: "Invalid credentials",
+          msg: "Invalid email or password",
           code: "BAD_REQUEST",
         });
       }
@@ -134,7 +134,7 @@ export default {
       );
       if (!matchPass) {
         throw gqlError({
-          msg: "Invalid credentials",
+          msg: "Invalid email or password",
           code: "BAD_REQUEST",
         });
       }

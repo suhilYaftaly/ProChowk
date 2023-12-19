@@ -18,7 +18,7 @@ import {
   SetStateAction,
   useEffect,
 } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 import Text from "@reusable/Text";
 import CenteredStack from "@reusable/CenteredStack";
@@ -53,11 +53,13 @@ interface IForm {
 }
 
 export default function ProfileSetup() {
+  const [searchParams] = useSearchParams();
+  const userTypeQuery = searchParams.get("userType") as UserType | null;
   const navigate = useNavigate();
   const theme = useTheme();
   const { firstName, user } = useUserStates();
   const [form, setForm] = useState<IForm>({
-    userType: "client",
+    userType: userTypeQuery || "client",
     skills: [],
     phoneNum: "",
     address: undefined,
@@ -73,16 +75,10 @@ export default function ProfileSetup() {
   const userTypes: UserType[] = ["client", "contractor"];
   const { updateUserAsync, loading } = useUpdateUser();
 
-  //redirect if user setup is complete
   useEffect(() => {
-    if (user) {
-      if (user.userTypes.length > 0 && !user.emailVerified) {
-        navigate(paths.verifyEmail);
-      } else if (user.userTypes.length > 0) {
-        navigateToUserPage({ user, navigate });
-      }
-    }
-  }, [user]);
+    if (userTypeQuery)
+      setForm((prev) => ({ ...prev, userType: userTypeQuery }));
+  }, [userTypeQuery]);
 
   const onTypeSelect = (e: SelectChangeEvent) => {
     setForm((prev) => ({ ...prev, userType: e.target.value as UserType }));
@@ -104,6 +100,13 @@ export default function ProfileSetup() {
             userTypes: [userType],
             skills: userType === "contractor" ? form.skills : [],
           },
+        },
+        onSuccess: (newUser) => {
+          if (newUser.userTypes.length > 0 && !newUser.emailVerified) {
+            navigate(paths.verifyEmail);
+          } else if (newUser.userTypes.length > 0) {
+            navigateToUserPage({ user, navigate });
+          }
         },
       });
     }
@@ -220,7 +223,7 @@ const hasErrors = ({ form, setErrors }: IValidate): boolean => {
     error = true;
   } else setErrors((prev) => ({ ...prev, userType: "" }));
 
-  if (!validatePhoneNum(form.phoneNum)) {
+  if (form.phoneNum && !validatePhoneNum(form.phoneNum)) {
     setErrors((prev) => ({
       ...prev,
       phoneNum: "Invalid phone number format.",
@@ -228,7 +231,7 @@ const hasErrors = ({ form, setErrors }: IValidate): boolean => {
     error = true;
   } else setErrors((prev) => ({ ...prev, phoneNum: "" }));
 
-  if (form.skills.length < 1) {
+  if (form.userType === "contractor" && form.skills.length < 1) {
     setErrors((prev) => ({
       ...prev,
       skills: "You must select at least 1 skill.",
