@@ -93,7 +93,7 @@ export default function SignUp() {
       },
       onSuccess: (d) => {
         dispatch(logIn(d));
-        navigate(paths.profileSetup);
+        navigate(paths.profileSetup());
       },
       onError: (err) => dispatch(userProfileError({ message: err?.message })),
     });

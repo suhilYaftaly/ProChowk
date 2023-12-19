@@ -168,7 +168,7 @@ export const navigateToOnLogin = ({ user, navigate }: INavigateToOnLogin) => {
   if (!user) {
     navigate(paths.login);
   } else if (user.userTypes?.length < 1) {
-    navigate(paths.profileSetup);
+    navigate(paths.profileSetup());
   } else if (!user?.emailVerified) {
     navigate(paths.verifyEmail);
   } else navigate("/");
