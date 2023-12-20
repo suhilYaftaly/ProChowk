@@ -1,5 +1,5 @@
 import { useState, MouseEvent } from "react";
-import { Avatar, Box, IconButton, Popover } from "@mui/material";
+import { Avatar, Box, Divider, IconButton, Popover } from "@mui/material";
 
 import { useUserStates } from "@redux/reduxStates";
 import ProfileList from "../myProfile/ProfileList";
@@ -41,6 +41,7 @@ export default function DMyProfilePopover() {
         >
           <Box onMouseLeave={closePopover}>
             <ProfileList onItemClick={closePopover} />
+            <Divider />
             <Box sx={{ m: 2 }}>
               <PostJobBtn onSubmit={closePopover} />
             </Box>

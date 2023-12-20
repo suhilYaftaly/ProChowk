@@ -4,6 +4,7 @@ import {
   IconButton,
   Skeleton,
   Stack,
+  Tooltip,
   useTheme,
 } from "@mui/material";
 import {
@@ -96,9 +97,11 @@ export default function UserProfileInfo({
               </IconButton>
               {isMyProfile && (
                 <>
-                  <IconButton size="small">
-                    <Settings sx={iconCircleSX(theme)} />
-                  </IconButton>
+                  <Tooltip title="DUMMY, coming soon!">
+                    <IconButton size="small">
+                      <Settings sx={iconCircleSX(theme)} />
+                    </IconButton>
+                  </Tooltip>
                   <IconButton size="small" onClick={() => setOpenEdit(true)}>
                     <Edit sx={iconCircleSX(theme)} />
                   </IconButton>
@@ -121,11 +124,13 @@ export default function UserProfileInfo({
             </IconButton>
             {isMyProfile && (
               <>
-                <IconButton size="small">
-                  <Settings sx={iconCircleSX(theme)} />
-                  <Text sx={{ ml: 1, fontWeight: 500 }}>Settings</Text>
-                </IconButton>
-                <IconButton size="small">
+                <Tooltip title="DUMMY, coming soon!">
+                  <IconButton size="small">
+                    <Settings sx={iconCircleSX(theme)} />
+                    <Text sx={{ ml: 1, fontWeight: 500 }}>Settings</Text>
+                  </IconButton>
+                </Tooltip>
+                <IconButton size="small" onClick={() => setOpenEdit(true)}>
                   <Edit sx={iconCircleSX(theme)} />
                   <Text sx={{ ml: 1, fontWeight: 500 }}>Edit</Text>
                 </IconButton>

@@ -11,7 +11,7 @@ const cc = {
   dark: "#121212",
 };
 
-/**light colors*/
+/**light mode colors*/
 const lc = {
   text: { dark: "#023047", /*900*/ main: "#3B3356" },
   primary: { main: "#ff5f15" /*500*/ },
@@ -138,6 +138,7 @@ export const muiTheme = (mode: ThemeMode) => {
         },
       }),
     },
+    // typography: { fontFamily: "Mulish, Roboto, Arial, sans-serif" },
   });
 };
 

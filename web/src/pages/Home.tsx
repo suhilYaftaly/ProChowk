@@ -1,27 +1,23 @@
 import { Card, Divider, Stack } from "@mui/material";
 
-import CenteredStack from "@reusable/CenteredStack";
 import SearchJobsByText from "@jobs/searchJobs/SearchJobsByText";
 import { isDeveloper } from "@utils/auth";
 import { useUserStates } from "@redux/reduxStates";
 import Text from "@reusable/Text";
 import ViewAllUsers from "@user/ViewAllUsers";
 import ProfileList from "@components/headerSection/myProfile/ProfileList";
-import { useIsMobile, useRespVal } from "@utils/hooks/hooks";
+import { useIsMobile } from "@utils/hooks/hooks";
 import PostJobBtn from "@components/headerSection/PostJobBtn";
+import AppContainer from "@reusable/AppContainer";
 
 export default function Home() {
   const { user } = useUserStates();
   const isMobile = useIsMobile();
 
   return (
-    <CenteredStack contSX={{ my: 0 }} mmx={0}>
+    <AppContainer>
       <Stack direction={"row"}>
-        <CenteredStack
-          mmx={0}
-          contSX={{ mx: 0, width: "100%", my: useRespVal(0, 2) }}
-          addCard
-        >
+        <AppContainer addCard sx={{ m: 0 }}>
           <SearchJobsByText />
           {isDeveloper(user?.roles) && (
             <>
@@ -33,16 +29,18 @@ export default function Home() {
               <ViewAllUsers />
             </>
           )}
-        </CenteredStack>
-        {user && !isMobile && (
-          <Stack sx={{ minWidth: 300, ml: 2, mt: 2 }}>
-            <Card>
-              <ProfileList />
-            </Card>
-            <PostJobBtn sx={{ mt: 2 }} />
-          </Stack>
-        )}
+        </AppContainer>
+        <AppContainer sx={{ m: 0 }}>
+          {user && !isMobile && (
+            <Stack sx={{ minWidth: 300, ml: 2 }}>
+              <Card>
+                <ProfileList />
+              </Card>
+              <PostJobBtn sx={{ mt: 2 }} />
+            </Stack>
+          )}
+        </AppContainer>
       </Stack>
-    </CenteredStack>
+    </AppContainer>
   );
 }

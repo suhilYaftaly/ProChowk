@@ -14,7 +14,7 @@ import { imageGqlResp } from "../commonFields";
 const budgetGqlResp = `id type from to maxHours createdAt updatedAt`;
 
 const jobGqlRespMini = `id title isDraft`;
-const jobGqlResp = `id title desc jobSize createdAt updatedAt userId startDate endDate isDraft 
+const jobGqlResp = `id title desc jobSize createdAt updatedAt userId startDate endDate isDraft draftExpiry
   user {${userGqlResp}} skills {${skillGqlResp}} budget {${budgetGqlResp}}
   images {${imageGqlResp}} address {${addressGqlResp}}`;
 const jobGqlRespShort = `id title desc jobSize userId createdAt

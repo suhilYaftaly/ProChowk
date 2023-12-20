@@ -40,16 +40,9 @@ type IImageInput = Omit<
   "id" | "createdAt" | "updatedAt" | "job" | "jobId"
 >;
 type IBudgetInput = Omit<Budget, "id" | "createdAt" | "updatedAt">;
-export type IJobInput = Omit<
+export type IJobInput = Pick<
   Job,
-  | "id"
-  | "createdAt"
-  | "updatedAt"
-  | "user"
-  | "address"
-  | "skills"
-  | "images"
-  | "budget"
+  "title" | "desc" | "jobSize" | "startDate" | "endDate" | "isDraft"
 > & {
   address: IAddressInput;
   skills: ISkillInput[];

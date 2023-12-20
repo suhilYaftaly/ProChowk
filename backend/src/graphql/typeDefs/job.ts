@@ -43,6 +43,7 @@ export default gql`
     startDate: Date
     endDate: Date
     isDraft: Boolean
+    draftExpiry: Date
   }
   type Budget {
     id: ID
@@ -67,13 +68,13 @@ export default gql`
     title: String!
     desc: String!
     jobSize: JobSize!
+    startDate: Date
+    endDate: Date
+    isDraft: Boolean!
     skills: [SkillInput!]!
     budget: JobBudgetInput!
     address: AddressInput
     images: [JobImageInput!]
-    startDate: Date
-    endDate: Date
-    isDraft: Boolean!
   }
 
   input JobBudgetInput {

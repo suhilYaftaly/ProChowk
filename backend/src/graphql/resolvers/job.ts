@@ -9,6 +9,8 @@ import {
   SKILL_COLLECTION,
 } from "../../constants/dbCollectionNames";
 
+const ONE_WEEK_IN_MS = 7 * 24 * 60 * 60 * 1000;
+
 export default {
   Query: {
     job: async (
@@ -263,6 +265,11 @@ export default {
       const authUser = checkAuth(req);
       canUserUpdate({ id: userId, authUser });
 
+      //if its a draft set expiry to 1 week
+      const draftExpiry = jobInput.isDraft
+        ? new Date(Date.now() + ONE_WEEK_IN_MS)
+        : null;
+
       const createdJob = await prisma.job.create({
         data: {
           title: jobInput.title,
@@ -271,6 +278,7 @@ export default {
           startDate: jobInput.startDate,
           endDate: jobInput.endDate,
           isDraft: jobInput.isDraft,
+          draftExpiry,
           user: { connect: { id: userId } },
           ...buildJobInputs(jobInput),
           budget: { create: jobInput.budget },
@@ -337,6 +345,11 @@ export default {
         ...buildJobInputs(jobInput).skills,
       };
 
+      //if its a draft set expiry to 1 week
+      const draftExpiry = jobInput.isDraft
+        ? new Date(Date.now() + ONE_WEEK_IN_MS)
+        : null;
+
       const updatedJob = await prisma.job.update({
         where: { id },
         data: {
@@ -346,6 +359,7 @@ export default {
           startDate: jobInput.startDate,
           endDate: jobInput.endDate,
           isDraft: jobInput.isDraft,
+          draftExpiry,
           address: buildJobInputs(jobInput).address,
           skills: skillsInput,
           images: imageData,
