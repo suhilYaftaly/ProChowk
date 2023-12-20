@@ -278,7 +278,7 @@ export const openEmail = ({ email, subject, body }: IOpenEmail) => {
     }
   }
 
-  window.location.href = mailtoURL;
+  window.open(mailtoURL, "_blank");
 };
 
 interface ITrimTxt {

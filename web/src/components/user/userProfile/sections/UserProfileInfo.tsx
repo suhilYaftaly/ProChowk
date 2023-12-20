@@ -1,6 +1,7 @@
 import {
   Avatar,
   Divider,
+  Grid,
   IconButton,
   Skeleton,
   Stack,
@@ -13,6 +14,7 @@ import {
   LocationOn,
   Settings,
   Edit,
+  Email,
 } from "@mui/icons-material";
 import { useState } from "react";
 
@@ -20,7 +22,7 @@ import Text from "@reusable/Text";
 import Rating from "@reusable/appComps/Rating";
 import QRCodeModal from "@reusable/QRCodeModal";
 import { userLink } from "@constants/links";
-import { formatPhoneNumber, openPhone } from "@utils/utilFuncs";
+import { formatPhoneNumber, openEmail, openPhone } from "@utils/utilFuncs";
 import { useIsMobile } from "@hooks/hooks";
 import { ISectionProps } from "../UserProfile";
 import { iconCircleSX } from "@/styles/sxStyles";
@@ -57,41 +59,49 @@ export default function UserProfileInfo({
             flex: 1,
           }}
         >
-          <Stack spacing={1}>
-            <Stack direction={"row"} spacing={1}>
+          <Stack>
+            <Stack direction={"row"} spacing={1} sx={{ mb: 1 }}>
               <Text type="title">{user?.name}</Text>
               <Rating />
             </Stack>
-            <Stack
-              direction={"row"}
-              sx={{ alignItems: "center", color: "grey" }}
-            >
+            <Grid container sx={{ color: "grey" }} spacing={1}>
               {user?.phoneNum && (
-                <Stack
-                  direction={"row"}
-                  sx={{ alignItems: "center" }}
-                  onClick={() => openPhone(user?.phoneNum)}
-                >
-                  <LocalPhone sx={{ width: 20, height: 20 }} />
-                  <Text
-                    sx={{ mr: 1, color: "inherit", ml: 0.5, fontWeight: 450 }}
-                  >
-                    {formatPhoneNumber(user?.phoneNum)}
-                  </Text>
-                </Stack>
+                <Grid item onClick={() => openPhone(user?.phoneNum)}>
+                  <Stack direction={"row"} alignItems={"center"}>
+                    <LocalPhone sx={{ width: 20, height: 20 }} />
+                    <Text sx={{ color: "inherit", ml: 0.5, fontWeight: 450 }}>
+                      {formatPhoneNumber(user?.phoneNum)}
+                    </Text>
+                  </Stack>
+                </Grid>
               )}
               {user?.address && (
-                <>
-                  <LocationOn sx={{ width: 20, height: 20 }} />
-                  <Text sx={{ color: "inherit", ml: 0.5, fontWeight: 450 }}>
-                    {user?.address?.city}, {user?.address?.stateCode}
-                  </Text>
-                </>
+                <Grid item>
+                  <Stack direction={"row"} alignItems={"center"}>
+                    <LocationOn sx={{ width: 20, height: 20 }} />
+                    <Text sx={{ color: "inherit", ml: 0.5, fontWeight: 450 }}>
+                      {user?.address?.city}, {user?.address?.stateCode}
+                    </Text>
+                  </Stack>
+                </Grid>
               )}
-            </Stack>
+              <Grid
+                item
+                onClick={() =>
+                  isMobile && user?.email && openEmail({ email: user?.email })
+                }
+              >
+                <Stack direction={"row"} alignItems={"center"}>
+                  <Email sx={{ width: 20, height: 20 }} />
+                  <Text sx={{ color: "inherit", ml: 0.5, fontWeight: 450 }}>
+                    {user?.email}
+                  </Text>
+                </Stack>
+              </Grid>
+            </Grid>
           </Stack>
           {!isMobile && (
-            <Stack direction={"row"} alignItems={"row"}>
+            <Stack direction={"row"}>
               <IconButton size="small" onClick={() => setShowQRCode(true)}>
                 <QrCode sx={iconCircleSX(theme)} />
               </IconButton>

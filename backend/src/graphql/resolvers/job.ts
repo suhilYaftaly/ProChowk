@@ -110,8 +110,8 @@ export default {
         include: {
           address: ifr(info, "address"),
           images: ifr(info, "images"),
-          skills: ifr(info, "skills"),
           budget: ifr(info, "budget"),
+          skills: ifr(info, "skills") && { select: { label: true } },
         },
       });
 
@@ -137,10 +137,10 @@ export default {
       const db = mongoClient.db();
       const distanceInMeters = radius * 1000;
 
-      // Fetching skills based on text
+      // Fetching skills based on text and retrieving only their _id fields
       const skills = await db
         .collection(SKILL_COLLECTION)
-        .find({ $text: { $search: inputText } })
+        .find({ $text: { $search: inputText } }, { projection: { _id: 1 } })
         .toArray();
       const skillIds = skills.map((skill) => skill._id);
 
@@ -245,8 +245,8 @@ export default {
         include: {
           address: ifr(info, "address"),
           images: ifr(info, "images"),
-          skills: ifr(info, "skills"),
           budget: ifr(info, "budget"),
+          skills: ifr(info, "skills") && { select: { label: true } },
         },
       });
 
