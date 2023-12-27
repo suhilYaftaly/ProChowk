@@ -23,9 +23,11 @@ export default function SwitchUserViewButton({
   variant = "contained",
 }: Props) {
   const theme = useTheme();
+  const palette = theme.palette;
   const dispatch = useAppDispatch();
-  const whiteC = theme.palette.common.white;
-  const darkTC = theme.palette.text.dark;
+  const whiteC = palette.common.white;
+  const darkTC =
+    palette.mode === "light" ? palette.text.dark : palette.secondary.dark;
   const navigate = useNavigate();
   const savedView = localStorage.getItem(USER_VIEW) as TUserView | null;
   const { user, userView } = useUserStates();

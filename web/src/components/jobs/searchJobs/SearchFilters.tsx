@@ -61,8 +61,9 @@ export default function SearchFilters({
   const { userLocation } = useUserStates();
   const latLng = userLocation?.data;
   const [resets, setResets] = useState({
-    dayPostedIndex: CC.dayPostedIndex,
+    dayPostedIndex: CC.dayPostedIndex as number | undefined,
     addressDisplay: latLng ? "My Location" : "",
+    projectTypeIndex: CC.projectTypeIndex as number | undefined,
   });
 
   useEffect(() => {
@@ -114,7 +115,13 @@ export default function SearchFilters({
     });
   };
 
+  const onBudgetTypeChange = (types: BudgetType[]) => {
+    setResets((prev) => ({ ...prev, projectTypeIndex: undefined }));
+    setFilters((prev) => ({ ...prev, budget: { ...prev.budget, types } }));
+  };
+
   const onDateChange = ({ startDate, endDate }: IDateRange) => {
+    setResets((prev) => ({ ...prev, dayPostedIndex: undefined }));
     setFilters((prev) => ({ ...prev, startDate, endDate }));
   };
 
@@ -123,6 +130,7 @@ export default function SearchFilters({
     setResets({
       dayPostedIndex: CC.dayPostedIndex,
       addressDisplay: latLng ? "My Location" : "",
+      projectTypeIndex: CC.projectTypeIndex,
     });
   };
 
@@ -184,9 +192,8 @@ export default function SearchFilters({
 
       <Divider sx={{ my: dMy }} />
       <ProjectType
-        onTypesChange={(types) =>
-          setFilters((prev) => ({ ...prev, budget: { ...prev.budget, types } }))
-        }
+        onTypesChange={onBudgetTypeChange}
+        index={resets.projectTypeIndex}
       />
 
       <Divider sx={{ my: dMy }} />

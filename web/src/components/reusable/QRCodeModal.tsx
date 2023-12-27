@@ -118,7 +118,7 @@ const handleShare = async (qrCodeRef: RefType, fileName: string) => {
       });
     } else toast.error("Web Share API is not available in your browser.");
   } catch (error) {
-    toast.error("Error in sharing: " + JSON.stringify(error));
+    console.error("Error in sharing: ", error);
   }
 };
 

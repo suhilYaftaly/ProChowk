@@ -24,13 +24,13 @@ export interface IDateRange {
 }
 interface Props {
   onDateChange: ({ startDate, endDate }: IDateRange) => void;
-  selectedIndex: number;
+  selectedIndex?: number;
 }
 export default function DayPosted({ onDateChange, selectedIndex }: Props) {
   const theme = useTheme();
   const darkTxColor = theme.palette.text.dark;
   const [selectedOption, setSelectedOption] = useState(
-    DayPostedOptions[selectedIndex]
+    DayPostedOptions[selectedIndex ?? 0]
   );
 
   useEffect(() => {
@@ -39,7 +39,9 @@ export default function DayPosted({ onDateChange, selectedIndex }: Props) {
   }, [selectedOption]);
 
   useEffect(() => {
-    setSelectedOption(DayPostedOptions[selectedIndex]);
+    if (selectedIndex != undefined) {
+      setSelectedOption(DayPostedOptions[selectedIndex]);
+    }
   }, [selectedIndex]);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {

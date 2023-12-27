@@ -28,6 +28,7 @@ export const searchFilterConfigs = {
     toMax: 100000,
   },
   dayPostedIndex: 3,
+  projectTypeIndex: 0,
   defaults: {
     radius: 50,
     address: undefined,

@@ -1,4 +1,4 @@
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import {
   FormControl,
   RadioGroup,
@@ -17,11 +17,16 @@ export type TTypeOption = "All" | "Hourly" | "Project";
 
 interface Props {
   onTypesChange: (types: BudgetType[]) => void;
+  index?: number;
 }
-export default function ProjectType({ onTypesChange }: Props) {
+export default function ProjectType({ onTypesChange, index }: Props) {
   const theme = useTheme();
   const darkTxColor = theme.palette.text.dark;
-  const [selectedOption, setSelectedOption] = useState(TypeOptions[0]);
+  const [selectedOption, setSelectedOption] = useState(TypeOptions[index ?? 0]);
+
+  useEffect(() => {
+    if (index != undefined) setSelectedOption(TypeOptions[index]);
+  }, [index]);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const type = event.target.value as TTypeOption;

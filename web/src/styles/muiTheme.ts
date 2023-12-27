@@ -13,12 +13,17 @@ const cc = {
 
 /**light mode colors*/
 const lc = {
-  text: { dark: "#023047", /*900*/ main: "#3B3356" },
+  text: { dark: "#023047", /*900*/ main: "#3B3356", light: "#716A85" },
   primary: { main: "#ff5f15" /*500*/ },
   secondary: { main: "#275775" /*700*/ },
   bg: "#EAF1FB",
   icon: { main: "#716A85" },
   border: { main: "#DBD9E0" },
+};
+
+/**dark mode colors*/
+const dc = {
+  text: { dark: cc.white, main: cc.white, light: cc.white },
 };
 
 export const muiTheme = (mode: ThemeMode) => {
@@ -45,10 +50,9 @@ export const muiTheme = (mode: ThemeMode) => {
             warning: { main: cc.warning },
             error: { main: cc.error, contrastText: cc.white },
             text: {
-              primary: lc.text.main,
               dark: lc.text.dark,
               main: lc.text.main,
-              light: "#716A85",
+              light: lc.text.light,
             },
             iconColor: { main: lc.icon.main },
           }
@@ -71,6 +75,11 @@ export const muiTheme = (mode: ThemeMode) => {
             info: { main: cc.info, contrastText: cc.white },
             warning: { main: cc.warning },
             error: { main: cc.error, contrastText: cc.white },
+            text: {
+              dark: dc.text.dark,
+              main: dc.text.main,
+              light: dc.text.light,
+            },
           }),
     },
     components: {
