@@ -7,7 +7,6 @@ import { useContractor } from "@gqlOps/contractor";
 import { useAppDispatch } from "@/utils/hooks/hooks";
 import { setUserProfile } from "@rSlices/userSlice";
 import UserProfile from "@user/userProfile/UserProfile";
-import { useUserJobs } from "@gqlOps/job";
 import { isContractor } from "@/utils/auth";
 
 export default function User() {
@@ -23,7 +22,6 @@ export default function User() {
     data: contrData,
     loading: contrLoading,
   } = useContractor();
-  const { userJobsAsync, data: jobsData, loading: jobsLoading } = useUserJobs();
 
   //retrieve user
   useEffect(() => {
@@ -43,11 +41,6 @@ export default function User() {
       contractorAsync({ variables: { userId } });
   }, [userId, user]);
 
-  //retrieve user jobs
-  useEffect(() => {
-    if (userId) userJobsAsync({ variables: { userId } });
-  }, [userId]);
-
   return (
     <UserProfile
       user={user}
@@ -55,8 +48,6 @@ export default function User() {
       userLoading={loading}
       contractor={contrData?.contractor}
       contrLoading={contrLoading}
-      jobs={jobsData?.userJobs}
-      jobsLoading={jobsLoading}
     />
   );
 }

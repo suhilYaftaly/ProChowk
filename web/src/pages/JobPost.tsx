@@ -1,24 +1,72 @@
-import { SetStateAction, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { SetStateAction, useEffect, useRef, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
 import { jobConfigs } from "@/config/configConst";
 import { useUserStates } from "@/redux/reduxStates";
-import { navigateToUserPage } from "@/utils/utilFuncs";
-import { JobInput, useCreateJob, useUpdateJob } from "@gqlOps/job";
+import { navigateToUserPage, removeServerMetadata } from "@/utils/utilFuncs";
+import { JobInput, useCreateJob, useJob, useUpdateJob } from "@gqlOps/job";
 import JobForm from "@jobs/jobPost/JobForm";
+import { CircularProgress } from "@mui/material";
+import AppContainer from "@/components/reusable/AppContainer";
 
 export default function JobPost() {
+  const [searchParams] = useSearchParams();
+  const jobIdQuery = searchParams.get("jobId");
   const navigate = useNavigate();
   const { user } = useUserStates();
-  const { createJobAsync, loading, data: createData } = useCreateJob();
+  const {
+    createJobAsync,
+    loading: cLoading,
+    data: createData,
+  } = useCreateJob();
   const { updateJobAsync, loading: uLoading } = useUpdateJob();
   const [jobForm, setJobForm] = useState<JobInput>(jobConfigs.defaults.jobForm);
   const [isExistingJob, setIsExistingJob] = useState(false);
   const [jobHasNewChanges, setJobHasNewChanges] = useState(false);
-  const jobId = createData?.createJob?.id;
+  const { jobAsync, loading, data: existingJob } = useJob();
+  const [stepIndex, setStepIndex] = useState(0);
+  const hasShownToast = useRef(false);
+  const jobId = createData?.createJob?.id || existingJob?.job?.id;
+
+  useEffect(() => {
+    if (jobIdQuery)
+      jobAsync({
+        variables: { id: jobIdQuery },
+        onSuccess: (existingJob) => {
+          const cj = removeServerMetadata(existingJob);
+          setJobForm({
+            title: cj.title,
+            desc: cj.desc,
+            jobSize: cj.jobSize,
+            skills: cj.skills ?? [],
+            budget: cj.budget,
+            images: cj.images ?? [],
+            address: cj.address,
+            startDate: cj.startDate,
+            endDate: cj.endDate,
+            isDraft: cj.isDraft,
+          });
+          setStepIndex(1);
+          onJobChange();
+          if (!hasShownToast.current) {
+            toast.success(
+              "Draft loaded, continue editing to complete this draft.",
+              { position: "bottom-right" }
+            );
+            hasShownToast.current = true;
+          }
+        },
+      });
+  }, [jobIdQuery]);
+
+  const onJobChange = () => {
+    setIsExistingJob(true);
+    setJobHasNewChanges(false);
+  };
 
   const onCreateJob = () => {
+    console.log("create");
     if (jobHasNewChanges && !isExistingJob && user?.id) {
       createJobAsync({
         variables: {
@@ -26,8 +74,7 @@ export default function JobPost() {
           jobInput: { ...jobForm, isDraft: true },
         },
         onSuccess: () => {
-          setIsExistingJob(true);
-          setJobHasNewChanges(false);
+          onJobChange();
           toast.info("We saved a draft.", { position: "bottom-right" });
         },
       });
@@ -35,6 +82,7 @@ export default function JobPost() {
   };
 
   const onUpdateJob = (isDraft: boolean) => {
+    console.log("update");
     const isLastStep = !isDraft;
     if (
       (jobHasNewChanges || isLastStep) &&
@@ -53,8 +101,7 @@ export default function JobPost() {
             toast.success("Job posted successfully.");
             navigateToUserPage({ user, navigate });
           } else {
-            setIsExistingJob(true);
-            setJobHasNewChanges(false);
+            onJobChange();
             toast.info("We saved a draft.", { position: "bottom-right" });
           }
         },
@@ -63,6 +110,7 @@ export default function JobPost() {
   };
 
   const createOrUpdateJob = (isDraft: boolean) => {
+    console.log("createOrUpdateJob", user?.id);
     if (user?.id) {
       if (isExistingJob && jobId) onUpdateJob(isDraft);
       else if (!isExistingJob) onCreateJob();
@@ -75,12 +123,22 @@ export default function JobPost() {
   };
 
   return (
-    <JobForm
-      jobForm={jobForm}
-      setJobForm={handleJobFormChange}
-      createOrUpdateJob={createOrUpdateJob}
-      loading={loading}
-      uLoading={uLoading}
-    />
+    <>
+      {loading ? (
+        <AppContainer addCard sx={{ textAlign: "center" }}>
+          <CircularProgress size={150} color="primary" sx={{ m: 5 }} />
+        </AppContainer>
+      ) : (
+        <JobForm
+          jobForm={jobForm}
+          setJobForm={handleJobFormChange}
+          createOrUpdateJob={createOrUpdateJob}
+          loading={cLoading}
+          uLoading={uLoading}
+          stepIndex={stepIndex}
+          setStepIndex={setStepIndex}
+        />
+      )}
+    </>
   );
 }

@@ -10,7 +10,7 @@ import CustomModal from "@reusable/CustomModal";
 import UserLicenseEdit from "../edits/license/UserLicenseEdit";
 import SwipeableView from "@reusable/SwipeableView";
 
-export default function UserLicences({
+export default function UserLicenses({
   contractor,
   p,
   tmb,

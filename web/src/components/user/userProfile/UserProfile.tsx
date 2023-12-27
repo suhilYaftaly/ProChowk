@@ -6,8 +6,7 @@ import { IUser } from "@gqlOps/user";
 import UserProfileInfo from "./sections/UserProfileInfo";
 import UserAbout from "./sections/UserAbout";
 import UserSkills from "./sections/UserSkills";
-import UserLicences from "./sections/UserLicences";
-import { IJob } from "@gqlOps/job";
+import UserLicenses from "./sections/UserLicenses";
 import { isContractor } from "@/utils/auth";
 
 export interface ISectionProps extends IUserProfile {
@@ -22,8 +21,6 @@ interface IUserProfile {
   userLoading: boolean;
   contractor: IContractor | undefined;
   contrLoading: boolean;
-  jobs: IJob[] | undefined;
-  jobsLoading: boolean;
 }
 export default function UserProfile({
   user,
@@ -31,8 +28,6 @@ export default function UserProfile({
   userLoading,
   contractor,
   contrLoading,
-  jobs,
-  jobsLoading,
 }: IUserProfile) {
   const p = 2;
   const sectionProps = {
@@ -41,8 +36,6 @@ export default function UserProfile({
     userLoading,
     contractor,
     contrLoading,
-    jobs,
-    jobsLoading,
     p,
     tmb: 1,
   };
@@ -64,7 +57,7 @@ export default function UserProfile({
                 <Divider />
                 <UserSkills {...sectionProps} />
                 <Divider />
-                <UserLicences {...sectionProps} />
+                <UserLicenses {...sectionProps} />
               </>
             )}
           </AppContainer>

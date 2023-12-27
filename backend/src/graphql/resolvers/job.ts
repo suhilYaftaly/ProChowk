@@ -58,7 +58,7 @@ export default {
     },
     jobsByLocation: async (
       _: any,
-      { latLng, radius = 60, page = 1, pageSize = 20 }: IJobsByLocationInput,
+      { latLng, radius = 60, page = 1, pageSize = 100 }: IJobsByLocationInput,
       context: GraphQLContext,
       info: GraphQLResolveInfo
     ): Promise<Job[]> => {

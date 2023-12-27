@@ -28,12 +28,22 @@ import JobBudgetCost from "../comps/JobBudgetCost";
 interface Props {
   jobs: IJob[] | undefined;
   loading?: boolean;
+  onJobClick?: (job: IJob) => void;
 }
-export default function JobsCards({ jobs, loading = false }: Props) {
+export default function JobsCards({
+  jobs,
+  loading = false,
+  onJobClick,
+}: Props) {
   const navigate = useNavigate();
   const theme = useTheme();
   const primaryC = theme.palette.primary.main;
   const primary10 = alpha(primaryC, 0.1);
+
+  const handleJobClick = (job: IJob) => {
+    if (onJobClick) onJobClick(job);
+    else job.userId && navigate(paths.jobView(job.userId, job.id));
+  };
 
   return (
     <Grid container spacing={1} direction={"column"}>
@@ -56,9 +66,7 @@ export default function JobsCards({ jobs, loading = false }: Props) {
                     borderColor: primaryC,
                   },
                 }}
-                onClick={() =>
-                  job.userId && navigate(paths.jobView(job.userId, job.id))
-                }
+                onClick={() => handleJobClick(job)}
               >
                 <Stack
                   direction={"row"}
@@ -93,26 +101,30 @@ export default function JobsCards({ jobs, loading = false }: Props) {
                 </Grid>
                 <Divider sx={{ my: 1 }} />
                 <Stack direction={"row"} sx={{ alignItems: "center" }}>
-                  <IconButton
-                    size="small"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openGoogleMapsDirections({
-                        lat: job?.address?.lat,
-                        lng: job?.address?.lng,
-                      });
-                    }}
-                  >
-                    <LocationOn
-                      sx={{
-                        border: "2px solid",
-                        padding: 0.4,
-                        borderRadius: 5,
-                        color: theme.palette.text.light,
-                      }}
-                    />
-                  </IconButton>
-                  <Text type="subtitle">{job?.address?.city}</Text>
+                  {job?.address?.city && (
+                    <>
+                      <IconButton
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openGoogleMapsDirections({
+                            lat: job?.address?.lat,
+                            lng: job?.address?.lng,
+                          });
+                        }}
+                      >
+                        <LocationOn
+                          sx={{
+                            border: "2px solid",
+                            padding: 0.4,
+                            borderRadius: 5,
+                            color: theme.palette.text.light,
+                          }}
+                        />
+                      </IconButton>
+                      <Text type="subtitle">{job?.address?.city}</Text>
+                    </>
+                  )}
                 </Stack>
               </Card>
             </Grid>

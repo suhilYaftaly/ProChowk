@@ -11,7 +11,7 @@ interface Props {
 export default function PostJobBtn({ onSubmit, sx }: Props) {
   const navigate = useNavigate();
   const onPostJob = () => {
-    navigate(paths.jobPost);
+    navigate(paths.jobPost());
     onSubmit && onSubmit();
   };
 

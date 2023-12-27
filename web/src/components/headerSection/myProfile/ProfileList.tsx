@@ -18,6 +18,7 @@ import { paths } from "@routes/Routes";
 import { isDeveloper } from "@/utils/auth";
 import { ReactNode } from "react";
 import { navigateToUserPage } from "@utils/utilFuncs";
+import { useIsMobile } from "@/utils/hooks/hooks";
 
 interface Props {
   onItemClick?: () => void;
@@ -27,6 +28,7 @@ export default function ProfileList({ onItemClick }: Props) {
   const navigate = useNavigate();
   const theme = useTheme();
   const iconColor = theme.palette.text?.dark;
+  const isMobile = useIsMobile();
 
   const openMyProfile = () => {
     navigateToUserPage({ user, navigate });
@@ -37,6 +39,9 @@ export default function ProfileList({ onItemClick }: Props) {
     navigate(paths.logs);
     onItemClick && onItemClick();
   };
+
+  const onPostedJobs = () => navigate(paths.userJobTypes("Posted"));
+  const onDraftJobs = () => navigate(paths.userJobTypes("Draft"));
 
   return (
     <List component="nav">
@@ -54,7 +59,7 @@ export default function ProfileList({ onItemClick }: Props) {
         </ListItemButton>
       </ListItem>
       <Divider />
-      <ColorThemeToggle ui="mobile" />
+      {isMobile && <ColorThemeToggle ui="mobile" />}
       {isDeveloper(user?.roles) && (
         <CListItem
           label="Logs"
@@ -63,7 +68,9 @@ export default function ProfileList({ onItemClick }: Props) {
         />
       )}
       <LogOut ui="mobile" onLogout={onItemClick} />
-      {/* <Divider /> */}
+      <Divider />
+      <CListItem label="Posted Jobs" onClick={onPostedJobs} />
+      <CListItem label="Draft Jobs" onClick={onDraftJobs} />
     </List>
   );
 }

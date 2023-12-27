@@ -32,6 +32,8 @@ interface Props {
   createOrUpdateJob: (isDraft: boolean) => void;
   loading: boolean;
   uLoading: boolean;
+  stepIndex: number;
+  setStepIndex: Dispatch<React.SetStateAction<number>>;
 }
 export default function JobForm({
   jobForm,
@@ -39,12 +41,13 @@ export default function JobForm({
   createOrUpdateJob,
   loading,
   uLoading,
+  stepIndex,
+  setStepIndex,
 }: Props) {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { user } = useUserStates();
   const { isAppLoaded } = useSettingsStates();
-  const [stepIndex, setStepIndex] = useState(0);
   const [errors, setErrors] = useState<IJobErrors>({
     title: "",
     desc: "",

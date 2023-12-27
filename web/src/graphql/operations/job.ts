@@ -5,7 +5,7 @@ import {
   useMutation,
 } from "@apollo/client";
 import { ISkill, SkillInput, skillGqlResp } from "./skill";
-import { IUser, userGqlResp } from "./user";
+import { IUser } from "./user";
 import { AddressInput, IAddress, LatLngInput, addressGqlResp } from "./address";
 import { IImage, ImageInput } from "@/types/commonTypes";
 import { asyncOps } from "./gqlFuncs";
@@ -15,9 +15,9 @@ const budgetGqlResp = `id type from to maxHours createdAt updatedAt`;
 
 const jobGqlRespMini = `id title isDraft`;
 const jobGqlResp = `id title desc jobSize createdAt updatedAt userId startDate endDate isDraft draftExpiry
-  user {${userGqlResp}} skills {${skillGqlResp}} budget {${budgetGqlResp}}
+  skills {${skillGqlResp}} budget {${budgetGqlResp}}
   images {${imageGqlResp}} address {${addressGqlResp}}`;
-const jobGqlRespShort = `id title desc jobSize userId createdAt
+const jobGqlRespShort = `id title desc jobSize userId createdAt isDraft
   skills {label} budget {type from to maxHours} address {city lat lng}`;
 
 const jobOps = {
@@ -29,7 +29,7 @@ const jobOps = {
     `,
     userJobs: gql`
       query UserJobs($userId: ID!) {
-        userJobs(userId: $userId) {${jobGqlRespMini}}
+        userJobs(userId: $userId) {${jobGqlRespShort}}
       }
     `,
     jobsByLocation: gql`

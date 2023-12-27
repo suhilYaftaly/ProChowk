@@ -16,18 +16,22 @@ import Logs from "@pages/Logs";
 import SignUp from "@pages/SignUp";
 import ProfileSetup from "@pages/ProfileSetup";
 import JobPost from "@/pages/JobPost";
+import UserJobTypes, { JobType } from "@/pages/UserJobTypes";
+import { UserType } from "@gqlOps/user";
 
 export const paths = {
   login: "/login",
   signUp: "/sign-up",
-  profileSetup: (userType?: string) =>
+  profileSetup: (userType?: UserType) =>
     `/profile-setup${userType ? `?userType=${userType}` : ""}`,
   user: (nameId: string) => `/user/${nameId}`, //nameId = (suhilmohammad-647edfd209ee1be1232asd)
   jobView: (userId: string, jobId: string) => `/job-view/${userId}/${jobId}`,
   verifyEmail: `/verify-email`,
   resetPassword: `/reset-password`,
   logs: `/logs`,
-  jobPost: `/job-post`,
+  jobPost: (jobId?: string) => `/job-post${jobId ? `?jobId=${jobId}` : ""}`,
+  userJobTypes: (jobType?: JobType) =>
+    `/user-job-type${jobType ? `?jobType=${jobType}` : ""}`,
 };
 
 const router = createBrowserRouter(
@@ -42,7 +46,8 @@ const router = createBrowserRouter(
       <Route path={paths.verifyEmail} element={<VerifyEmail />} />
       <Route path={paths.resetPassword} element={<ResetPassword />} />
       <Route path={paths.logs} element={<Logs />} />
-      <Route path={paths.jobPost} element={<JobPost />} />
+      <Route path={paths.jobPost()} element={<JobPost />} />
+      <Route path={paths.userJobTypes()} element={<UserJobTypes />} />
     </Route>
   )
 );

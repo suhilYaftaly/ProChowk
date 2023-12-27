@@ -7,13 +7,18 @@ import Text from "@reusable/Text";
 import { iconCircleSX } from "@/styles/sxStyles";
 import { paths } from "@/routes/Routes";
 import PostJobBtn from "@/components/headerSection/PostJobBtn";
+import { IJob } from "@gqlOps/job";
 
+interface Props extends ISectionProps {
+  jobs: IJob[] | undefined;
+  jobsLoading: boolean;
+}
 export default function UserProjectsMini({
   tmb,
   jobs,
   user,
   isMyProfile,
-}: ISectionProps) {
+}: Props) {
   const theme = useTheme();
   const navigate = useNavigate();
 
