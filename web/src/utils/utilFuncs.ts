@@ -303,21 +303,35 @@ export const isMobileDevice = () => {
   return hasTouchScreen && isMobileUA;
 };
 
-/**returns given (ISO 8601) date timestamp as "1s", "1m", "1hr", "5hrs", "1day", "5days", etc.  */
-export function formatRelativeTime(timestamp: string): string {
+type TimeCalculationMode = "since" | "until";
+
+/**
+ * @param {string} timestamp - The ISO 8601 date string to calculate the relative time for.
+ * @param {TimeCalculationMode} [mode='since'] - The mode of calculation:
+ *  - 'since': Calculates the time passed since the date.
+ *  - 'until': Calculates the time remaining until the date.
+ * @return {string} The formatted relative time string as a string in the format of "1s", "1m", "1hr", "5hrs", "1day", "5days", etc.
+ */
+export function formatRelativeTime(
+  timestamp: string,
+  mode: TimeCalculationMode = "since"
+): string {
   const now = new Date();
   const date = parseISO(timestamp);
 
-  const seconds = differenceInSeconds(now, date);
+  // Determine the order of dates based on the mode
+  const [date1, date2] = mode === "until" ? [date, now] : [now, date];
+
+  const seconds = differenceInSeconds(date1, date2);
   if (seconds < 60) return `${seconds}s`;
 
-  const minutes = differenceInMinutes(now, date);
+  const minutes = differenceInMinutes(date1, date2);
   if (minutes < 60) return `${minutes}m`;
 
-  const hours = differenceInHours(now, date);
+  const hours = differenceInHours(date1, date2);
   if (hours < 24) return `${hours}hr`;
 
-  const days = differenceInDays(now, date);
+  const days = differenceInDays(date1, date2);
   return `${days}d`;
 }
 

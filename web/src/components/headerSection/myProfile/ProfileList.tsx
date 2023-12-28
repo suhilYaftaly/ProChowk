@@ -40,8 +40,14 @@ export default function ProfileList({ onItemClick }: Props) {
     onItemClick && onItemClick();
   };
 
-  const onPostedJobs = () => navigate(paths.userJobTypes("Posted"));
-  const onDraftJobs = () => navigate(paths.userJobTypes("Draft"));
+  const onPostedJobs = () => {
+    navigate(paths.userJobTypes("Posted"));
+    onItemClick && onItemClick();
+  };
+  const onDraftJobs = () => {
+    navigate(paths.userJobTypes("Draft"));
+    onItemClick && onItemClick();
+  };
 
   return (
     <List component="nav">

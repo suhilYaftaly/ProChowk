@@ -10,11 +10,11 @@ import {
   Divider,
   alpha,
 } from "@mui/material";
-import { LocationOn } from "@mui/icons-material";
+import { LocationOn, Delete, AccessTime } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import { useState } from "react";
 
-import { IJob } from "@gqlOps/job";
+import { IJob, useDeleteJob } from "@gqlOps/job";
 import {
   formatRelativeTime,
   openGoogleMapsDirections,
@@ -24,21 +24,30 @@ import { paths } from "@/routes/Routes";
 import ChipSkeleton from "@reusable/skeleton/ChipSkeleton";
 import Text from "@reusable/Text";
 import JobBudgetCost from "../comps/JobBudgetCost";
+import { iconCircleSX } from "@/styles/sxStyles";
+import DeleteModal from "@reusable/DeleteModal";
 
 interface Props {
   jobs: IJob[] | undefined;
   loading?: boolean;
   onJobClick?: (job: IJob) => void;
+  topRightComp?: React.ReactNode;
+  allowDelete?: boolean;
+  showDraftExpiry?: boolean;
 }
 export default function JobsCards({
   jobs,
   loading = false,
   onJobClick,
+  topRightComp,
+  allowDelete,
+  showDraftExpiry,
 }: Props) {
   const navigate = useNavigate();
   const theme = useTheme();
   const primaryC = theme.palette.primary.main;
   const primary10 = alpha(primaryC, 0.1);
+  const error10 = alpha(theme.palette.error.light, 0.1);
 
   const handleJobClick = (job: IJob) => {
     if (onJobClick) onJobClick(job);
@@ -77,12 +86,32 @@ export default function JobsCards({
                   }}
                 >
                   <Text type="subtitle">{job.title}</Text>
-                  <Chip
-                    variant="outlined"
-                    size="small"
-                    label={formatRelativeTime(job.createdAt)}
-                    icon={<AccessTimeIcon color="inherit" />}
-                  />
+                  <Stack direction={"row"} alignItems={"center"}>
+                    <Chip
+                      variant="outlined"
+                      size="small"
+                      label={formatRelativeTime(job.createdAt)}
+                      icon={<AccessTime color="inherit" />}
+                      sx={{ ml: 1 }}
+                    />
+                    {showDraftExpiry && job.isDraft && job.draftExpiry && (
+                      <Chip
+                        variant="outlined"
+                        size="small"
+                        color="error"
+                        label={`Expires in ${formatRelativeTime(
+                          job.draftExpiry,
+                          "until"
+                        )}`}
+                        icon={<AccessTime color="inherit" />}
+                        sx={{ ml: 1, backgroundColor: error10 }}
+                      />
+                    )}
+                    {topRightComp}
+                    {allowDelete && job.userId && (
+                      <DeleteJobIcon jobId={job.id} userId={job.userId} />
+                    )}
+                  </Stack>
                 </Stack>
                 <JobBudgetCost budget={job?.budget} />
                 <Typography variant="body2">
@@ -134,6 +163,44 @@ export default function JobsCards({
     </Grid>
   );
 }
+
+interface IDeleteJobProps {
+  jobId: string;
+  userId: string;
+}
+export const DeleteJobIcon = ({ jobId, userId }: IDeleteJobProps) => {
+  const theme = useTheme();
+  const { deleteJobAsync, loading } = useDeleteJob();
+  const [openDelete, setOpenDelete] = useState(false);
+
+  const deleteJob = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    deleteJobAsync({
+      userId,
+      variables: { id: jobId },
+      onSuccess: () => setOpenDelete(false),
+    });
+  };
+
+  const confirmDelete = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    setOpenDelete(true);
+  };
+
+  return (
+    <>
+      <IconButton size="small" sx={{ ml: 1 }} onClick={confirmDelete}>
+        <Delete sx={{ ...iconCircleSX(theme), width: 25, height: 25 }} />
+      </IconButton>
+      <DeleteModal
+        open={openDelete}
+        onClose={setOpenDelete}
+        onDelete={deleteJob}
+        loading={loading}
+      />
+    </>
+  );
+};
 
 const CardSkeleton = () => (
   <Card sx={{ p: 1 }} variant="outlined">

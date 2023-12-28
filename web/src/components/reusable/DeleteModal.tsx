@@ -1,6 +1,7 @@
 import {
   Button,
   Card,
+  CircularProgress,
   Modal,
   SxProps,
   Theme,
@@ -14,9 +15,15 @@ import Text from "./Text";
 interface Props {
   open: boolean;
   onClose: (close: boolean) => void;
-  onDelete: () => void;
+  onDelete: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  loading?: boolean;
 }
-export default function DeleteModal({ open, onClose, onDelete }: Props) {
+export default function DeleteModal({
+  open,
+  onClose,
+  onDelete,
+  loading,
+}: Props) {
   const theme = useTheme();
   const iconBgColor = alpha(theme.palette.error.main, 0.2);
 
@@ -42,7 +49,14 @@ export default function DeleteModal({ open, onClose, onDelete }: Props) {
             variant="contained"
             fullWidth
             onClick={onDelete}
-            startIcon={<DeleteIcon />}
+            disabled={loading}
+            startIcon={
+              loading ? (
+                <CircularProgress color="inherit" size={23} />
+              ) : (
+                <DeleteIcon />
+              )
+            }
           >
             Yes, Delete Permanently
           </Button>

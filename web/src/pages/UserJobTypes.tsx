@@ -87,10 +87,16 @@ interface IUserJobsCards {
 const UserJobsCards = ({ jobs, loading, onClick }: IUserJobsCards) => {
   return (
     <>
-      {jobs && jobs?.length > 0 ? (
-        <JobsCards jobs={jobs} loading={loading} onJobClick={onClick} />
-      ) : (
+      {jobs?.length === 0 ? (
         <NoJobsFound />
+      ) : (
+        <JobsCards
+          jobs={jobs}
+          loading={loading}
+          onJobClick={onClick}
+          allowDelete
+          showDraftExpiry
+        />
       )}
     </>
   );

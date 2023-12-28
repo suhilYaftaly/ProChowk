@@ -154,11 +154,6 @@ export type Role = "user" | "dev" | "admin" | "superAdmin";
 type Provider = "Google" | "Credentials";
 export type UserType = "client" | "contractor";
 
-//operation interfaces
-export interface IUsersData {
-  users: IUser[];
-}
-
 /**
  * OPERATIONS
  */
@@ -204,6 +199,28 @@ export const useUser = () => {
   };
 
   return { userAsync, updateCache, data, loading, error };
+};
+
+interface IUsersData {
+  users: IUser[];
+}
+interface IUsersIAsync {
+  onSuccess?: (data: IUser[]) => void;
+  onError?: (error?: any) => void;
+}
+export const useUsers = () => {
+  const [users, { data, loading, error }] = useLazyQuery<IUsersData>(
+    userOps.Queries.users
+  );
+
+  const userAsync = async ({ onSuccess, onError }: IUsersIAsync = {}) =>
+    asyncOps({
+      operation: () => users(),
+      onSuccess: (dt: IUsersData) => onSuccess && onSuccess(dt.users),
+      onError,
+    });
+
+  return { userAsync, data, loading, error };
 };
 
 interface IUpdateUserVars {

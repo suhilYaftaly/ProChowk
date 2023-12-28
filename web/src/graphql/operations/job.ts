@@ -17,7 +17,9 @@ const jobGqlRespMini = `id title isDraft`;
 const jobGqlResp = `id title desc jobSize createdAt updatedAt userId startDate endDate isDraft draftExpiry
   skills {${skillGqlResp}} budget {${budgetGqlResp}}
   images {${imageGqlResp}} address {${addressGqlResp}}`;
-const jobGqlRespShort = `id title desc jobSize userId createdAt isDraft
+const searchJobGqlResp = `id title desc jobSize userId createdAt
+  skills {label} budget {type from to maxHours} address {city lat lng}`;
+const usersJobGqlResp = `id title desc jobSize userId createdAt isDraft draftExpiry
   skills {label} budget {type from to maxHours} address {city lat lng}`;
 
 const jobOps = {
@@ -29,7 +31,7 @@ const jobOps = {
     `,
     userJobs: gql`
       query UserJobs($userId: ID!) {
-        userJobs(userId: $userId) {${jobGqlRespShort}}
+        userJobs(userId: $userId) {${usersJobGqlResp}}
       }
     `,
     jobsByLocation: gql`
@@ -44,7 +46,7 @@ const jobOps = {
           radius: $radius
           page: $page
           pageSize: $pageSize
-        ) {${jobGqlRespShort}}
+        ) {${searchJobGqlResp}}
       }
     `,
     jobsByText: gql`
@@ -67,7 +69,7 @@ const jobOps = {
           startDate: $startDate
           endDate: $endDate
           budget: $budget
-        ) {${jobGqlRespShort}}
+        ) {${searchJobGqlResp}}
       }
     `,
   },
@@ -103,6 +105,7 @@ export interface IJob extends JobInput {
   images: IImage[];
   userId?: string;
   user?: IUser;
+  draftExpiry?: string;
   __typename?: string;
   [key: string]: any;
 }
@@ -492,7 +495,6 @@ interface IDeleteJobInput {
 interface IDeleteJobIAsync {
   variables: IDeleteJobInput;
   userId: string;
-  latLng: LatLngInput;
   onSuccess?: (data: IJob) => void;
   onError?: (error?: any) => void;
 }
@@ -502,25 +504,18 @@ export const useDeleteJob = () => {
     IDeleteJobInput
   >(jobOps.Mutations.deleteJob);
   const { updateUserJobsCache } = useUserJobs();
-  const { updateCache: updateJByLCache } = useJobsByLocation();
 
   const deleteJobAsync = async ({
     variables,
     onSuccess,
     onError,
     userId,
-    latLng,
   }: IDeleteJobIAsync) =>
     asyncOps({
       operation: () => deleteJob({ variables }),
       onSuccess: (dt: IDeleteJobData) => {
         onSuccess && onSuccess(dt.deleteJob);
         updateUserJobsCache("delete", dt.deleteJob, userId);
-        updateJByLCache({
-          action: "delete",
-          job: dt.deleteJob,
-          variables: { latLng },
-        });
       },
       onError,
     });
