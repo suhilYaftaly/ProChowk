@@ -46,7 +46,7 @@ const jobOps = {
           radius: $radius
           page: $page
           pageSize: $pageSize
-        ) {${searchJobGqlResp}}
+        ) {totalCount jobs {${searchJobGqlResp}}}
       }
     `,
     jobsByText: gql`
@@ -69,7 +69,7 @@ const jobOps = {
           startDate: $startDate
           endDate: $endDate
           budget: $budget
-        ) {${searchJobGqlResp}}
+        ) {totalCount jobs {${searchJobGqlResp}}}
       }
     `,
   },
@@ -244,9 +244,13 @@ export const useUserJobs = () => {
   return { userJobsAsync, updateUserJobsCache, data, loading, error };
 };
 
+interface JobsSearchResponse {
+  jobs: IJob[];
+  totalCount: number;
+}
 //jobsByLocation op
 interface IJobsByLocationData {
-  jobsByLocation: IJob[];
+  jobsByLocation: JobsSearchResponse;
 }
 interface IJobsByLocationInput {
   latLng: LatLngInput;
@@ -256,11 +260,10 @@ interface IJobsByLocationInput {
 }
 interface IJobsByLocationIAsync {
   variables: IJobsByLocationInput;
-  onSuccess?: (data: IJob[]) => void;
+  onSuccess?: (data: JobsSearchResponse) => void;
   onError?: (error?: any) => void;
 }
 export const useJobsByLocation = () => {
-  const client = useApolloClient();
   const [jobsByLocation, { data, loading, error }] = useLazyQuery<
     IJobsByLocationData,
     IJobsByLocationInput
@@ -278,58 +281,12 @@ export const useJobsByLocation = () => {
       onError,
     });
 
-  const updateCache = ({
-    action,
-    job,
-    jobs,
-    variables,
-  }: {
-    action: "create" | "update" | "delete" | "updateAll";
-    job?: IJob;
-    jobs?: IJob[];
-    variables: IJobsByLocationInput;
-  }) => {
-    const cachedData = client.readQuery<
-      IJobsByLocationData,
-      IJobsByLocationInput
-    >({
-      query: jobOps.Queries.jobsByLocation,
-      variables,
-    });
-    let modifiedData: IJob[] = [];
-    if (cachedData && job) {
-      modifiedData = [...cachedData.jobsByLocation];
-      switch (action) {
-        case "create":
-          modifiedData.unshift(job);
-          break;
-        case "update":
-          modifiedData = modifiedData.map((j) => (j.id === job.id ? job : j));
-          break;
-        case "delete":
-          modifiedData = modifiedData.filter((j) => j.id !== job.id);
-          break;
-        default:
-          throw new Error("Invalid action type");
-      }
-    } else if (Array.isArray(jobs) && action === "updateAll")
-      modifiedData = jobs;
-
-    if (modifiedData !== undefined) {
-      client.writeQuery<IJobsByLocationData, IJobsByLocationInput>({
-        query: jobOps.Queries.jobsByLocation,
-        data: { jobsByLocation: modifiedData },
-        variables,
-      });
-    }
-  };
-
-  return { jobsByLocationAsync, updateCache, data, loading, error };
+  return { jobsByLocationAsync, data, loading, error };
 };
 
 //jobsByText op
 interface IJobsByTextData {
-  jobsByText: IJob[];
+  jobsByText: JobsSearchResponse;
 }
 interface IJobsByTextInput {
   inputText: string;
@@ -343,16 +300,14 @@ interface IJobsByTextInput {
 }
 interface IJobsByTextIAsync {
   variables: IJobsByTextInput;
-  onSuccess?: (data: IJob[]) => void;
+  onSuccess?: (data: JobsSearchResponse) => void;
   onError?: (error?: any) => void;
 }
 export const useJobsByText = () => {
-  const client = useApolloClient();
   const [jobsByText, { data, loading, error }] = useLazyQuery<
     IJobsByTextData,
     IJobsByTextInput
   >(jobOps.Queries.jobsByText);
-  const { updateCache: updateJByLCache } = useJobsByLocation();
 
   const jobsByTextAsync = async ({
     variables,
@@ -363,50 +318,11 @@ export const useJobsByText = () => {
       operation: () => jobsByText({ variables }),
       onSuccess: (dt: IJobsByTextData) => {
         onSuccess && onSuccess(dt.jobsByText);
-        updateJByLCache({
-          action: "updateAll",
-          jobs: dt.jobsByText,
-          variables,
-        });
       },
       onError,
     });
 
-  const updateCache = (
-    action: "create" | "update" | "delete",
-    job: IJob,
-    variables: IJobsByTextInput
-  ) => {
-    const cachedData = client.readQuery<IJobsByTextData, IJobsByTextInput>({
-      query: jobOps.Queries.jobsByText,
-      variables,
-    });
-
-    if (cachedData) {
-      let modifiedData: IJob[] = [...cachedData.jobsByText];
-      switch (action) {
-        case "create":
-          modifiedData.unshift(job);
-          break;
-        case "update":
-          modifiedData = modifiedData.map((j) => (j.id === job.id ? job : j));
-          break;
-        case "delete":
-          modifiedData = modifiedData.filter((j) => j.id !== job.id);
-          break;
-        default:
-          throw new Error("Invalid action type");
-      }
-
-      client.writeQuery<IJobsByTextData, IJobsByTextInput>({
-        query: jobOps.Queries.jobsByText,
-        data: { jobsByText: modifiedData },
-        variables,
-      });
-    }
-  };
-
-  return { jobsByTextAsync, updateCache, data, loading, error };
+  return { jobsByTextAsync, data, loading, error };
 };
 
 //createJob op

@@ -1,4 +1,4 @@
-import { Stack, useTheme } from "@mui/material";
+import { Pagination, Stack, useTheme } from "@mui/material";
 import { useState, FormEvent, useEffect } from "react";
 import { toast } from "react-toastify";
 
@@ -44,15 +44,19 @@ export default function SearchJobsByText() {
     loading: jByLLoading,
   } = useJobsByLocation();
   const jobsData = jByTData?.jobsByText || jByLData?.jobsByLocation;
+  const jobsList = jobsData?.jobs;
+  const jobsTotalCount = jobsData?.totalCount;
   const jobsLoading = jByTLoading || jByLLoading;
-
   const { userLocation } = useUserStates();
+  const latLng = userLocation?.data;
   const [openDrawer, setOpenDrawer] = useState(false);
+  const [page, setPage] = useState(1);
+  const pageSize = 20;
+  const totalPages = jobsTotalCount ? Math.ceil(jobsTotalCount / pageSize) : 0;
 
   useEffect(() => {
-    const latLng = userLocation?.data;
     if (latLng && !jByLData) {
-      jobsByLocationAsync({ variables: { latLng } });
+      searchByLocation();
       setFilters((prev) => ({ ...prev, latLng }));
     }
   }, [userLocation?.data]);
@@ -67,7 +71,15 @@ export default function SearchJobsByText() {
     }
   }, [openDrawer]);
 
-  const onSearch = (e?: FormEvent<HTMLFormElement>) => {
+  const searchByLocation = (currentPage = page) => {
+    if (latLng) {
+      jobsByLocationAsync({
+        variables: { latLng, page: currentPage, pageSize },
+      });
+    }
+  };
+
+  const searchByText = (e?: FormEvent<HTMLFormElement>, currentPage = page) => {
     e?.preventDefault();
     // Blur the currently focused element
     if (document.activeElement instanceof HTMLElement) {
@@ -103,9 +115,18 @@ export default function SearchJobsByText() {
           },
           radius: Number(filters.radius),
           startDate: filters.startDate,
+          page: currentPage,
+          pageSize,
         },
       });
     }
+  };
+
+  const handlePageChange = (_: any, value: number) => {
+    setPage(value);
+    //if results are from text search then call search by text
+    if (jByTData) searchByText(_, value);
+    else searchByLocation(value);
   };
 
   return (
@@ -113,7 +134,7 @@ export default function SearchJobsByText() {
       <Stack
         component="form"
         autoComplete="off"
-        onSubmit={onSearch}
+        onSubmit={searchByText}
         sx={{ mb: 2 }}
       >
         <SearchBar
@@ -124,17 +145,28 @@ export default function SearchJobsByText() {
           setSearchText={setSearchText}
         />
       </Stack>
-      {jobsData?.length === 0 ? (
+      {jobsList?.length === 0 ? (
         <NoSearchResultsWidget title="No jobs found!" />
       ) : (
         <>
-          {jobsData && jobsData?.length > 0 && (
+          {jobsList && jobsTotalCount && jobsTotalCount > 0 && (
             <Text type="subtitle" sx={{ mb: 2, mt: 3 }}>
               Jobs Found{" "}
-              <span style={{ color: primaryC }}>({jobsData?.length})</span>
+              <span
+                style={{ color: primaryC }}
+              >{`(${jobsList?.length}/${jobsTotalCount})`}</span>
             </Text>
           )}
-          <JobsCards jobs={jobsData} loading={jobsLoading} />
+          <JobsCards jobs={jobsList} loading={jobsLoading} />
+          {jobsTotalCount && jobsTotalCount > pageSize && (
+            <Pagination
+              count={totalPages}
+              page={page}
+              onChange={handlePageChange}
+              color="primary"
+              sx={{ display: "flex", justifyContent: "center", mt: 2 }}
+            />
+          )}
         </>
       )}
       <SearchFilters
@@ -144,7 +176,7 @@ export default function SearchJobsByText() {
         setFilters={setFilters}
         filterErrors={filterErrors}
         setFilterErrors={setFilterErrors}
-        onSearch={onSearch}
+        onSearch={searchByText}
       />
     </>
   );

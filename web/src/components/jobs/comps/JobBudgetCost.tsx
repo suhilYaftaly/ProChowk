@@ -5,7 +5,7 @@ interface Props {
   budget: JobInput["budget"];
 }
 export default function JobBudgetCost({ budget }: Props) {
-  const isHourly = budget.type === "Hourly";
+  const isHourly = budget?.type === "Hourly";
   return (
     <Text type="body2" sx={{ mb: 1, fontWeight: "600" }}>
       {budget?.type}:{" "}

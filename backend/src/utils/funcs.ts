@@ -248,12 +248,33 @@ export function formatDuration(durationInSeconds: number) {
   return output;
 }
 
-/** IFR=isFieldRequested - use for conditional prisma includes to include documents if they have been requested from FE */
+/** ifr=isFieldRequested - use for conditional prisma includes to include documents if they have been requested from FE */
 export const ifr = (info: GraphQLResolveInfo, fieldName: string): boolean => {
   return info.fieldNodes.some((node) =>
     node.selectionSet.selections.some(
       (selection) =>
         selection.kind === "Field" && selection.name.value === fieldName
+    )
+  );
+};
+
+//**infr isNestedFieldRequested - use for conditional prisma includes to include documents if they have been requested from FE */
+export const infr = (
+  info: GraphQLResolveInfo,
+  parentFieldName: string,
+  childFieldName: string
+): boolean => {
+  return info.fieldNodes.some((node) =>
+    node.selectionSet.selections.some(
+      (parentSelection) =>
+        parentSelection.kind === "Field" &&
+        parentSelection.name.value === parentFieldName &&
+        parentSelection.selectionSet &&
+        parentSelection.selectionSet.selections.some(
+          (childSelection) =>
+            childSelection.kind === "Field" &&
+            childSelection.name.value === childFieldName
+        )
     )
   );
 };

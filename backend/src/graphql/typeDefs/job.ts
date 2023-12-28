@@ -9,7 +9,7 @@ export default gql`
       radius: Float
       page: Int
       pageSize: Int
-    ): [Job!]!
+    ): JobsSearchResponse
     jobsByText(
       inputText: String!
       latLng: LatLngInput!
@@ -19,7 +19,7 @@ export default gql`
       startDate: Date
       endDate: Date
       budget: JobsByTxtBudgetInput
-    ): [Job!]!
+    ): JobsSearchResponse
   }
   type Mutation {
     createJob(userId: ID!, jobInput: JobInput!): Job!
@@ -62,6 +62,10 @@ export default gql`
     url: String!
     createdAt: String
     updatedAt: String
+  }
+  type JobsSearchResponse {
+    jobs: [Job!]!
+    totalCount: Int
   }
 
   input JobInput {

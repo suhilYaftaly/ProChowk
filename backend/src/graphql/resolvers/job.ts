@@ -3,7 +3,7 @@ import { GraphQLResolveInfo } from "graphql";
 
 import { GraphQLContext, IJobInput } from "../../types/commonTypes";
 import checkAuth, { canUserUpdate } from "../../middlewares/checkAuth";
-import { gqlError, ifr } from "../../utils/funcs";
+import { gqlError, ifr, infr } from "../../utils/funcs";
 import {
   ADDRESS_COLLECTION,
   SKILL_COLLECTION,
@@ -61,62 +61,68 @@ export default {
       { latLng, radius = 60, page = 1, pageSize = 100 }: IJobsByLocationInput,
       context: GraphQLContext,
       info: GraphQLResolveInfo
-    ): Promise<Job[]> => {
+    ): Promise<{ jobs: Job[]; totalCount: number }> => {
       const { mongoClient, prisma } = context;
       const db = mongoClient.db();
       const distanceInMeters = radius * 1000;
-
       const skip = (page - 1) * pageSize;
-      // Fetch addresses within a certain radius
-      const addresses = await db
+
+      const commonPipeline = [
+        {
+          $geoNear: {
+            near: { type: "Point", coordinates: [latLng.lng, latLng.lat] },
+            distanceField: "distance",
+            maxDistance: distanceInMeters,
+            spherical: true,
+          },
+        },
+        {
+          $lookup: {
+            from: "Job",
+            localField: "_id",
+            foreignField: "addressId",
+            as: "associatedJobs",
+          },
+        },
+        { $unwind: "$associatedJobs" },
+        { $match: { "associatedJobs.isDraft": { $ne: true } } },
+      ];
+
+      const aggregation = await db
         .collection(ADDRESS_COLLECTION)
         .aggregate([
+          ...commonPipeline,
           {
-            // Geospatial query to find addresses near the given location
-            $geoNear: {
-              near: {
-                type: "Point",
-                coordinates: [latLng.lng, latLng.lat],
-              },
-              distanceField: "distance",
-              maxDistance: distanceInMeters,
-              spherical: true,
+            $facet: {
+              paginatedResults: [{ $skip: skip }, { $limit: pageSize }],
+              totalCount: [{ $count: "total" }],
             },
           },
-          {
-            // Join with the Job collection to get the jobs at each address
-            $lookup: {
-              from: "Job",
-              localField: "_id",
-              foreignField: "addressId",
-              as: "associatedJobs",
-            },
-          },
-          { $unwind: "$associatedJobs" },
-          { $match: { "associatedJobs.isDraft": { $ne: true } } },
-          { $skip: skip },
-          { $limit: pageSize },
         ])
         .toArray();
 
-      // Extract job IDs from the address results
-      const jobIds = addresses.map((address) =>
+      const paginatedResults = aggregation[0].paginatedResults;
+      const totalCount = aggregation[0].totalCount[0]?.total || 0;
+
+      console.log(JSON.stringify(info.fieldNodes, null, 2));
+
+      const jobIds = paginatedResults.map((address) =>
         address.associatedJobs._id.toString()
       );
-
-      // Fetch detailed job data from Prisma
       const jobs = await prisma.job.findMany({
         where: { id: { in: jobIds }, isDraft: false },
         include: {
-          address: ifr(info, "address"),
-          images: ifr(info, "images"),
-          budget: ifr(info, "budget"),
-          skills: ifr(info, "skills") && { select: { label: true } },
+          address: infr(info, "jobs", "address"),
+          images: infr(info, "jobs", "images"),
+          budget: infr(info, "jobs", "budget"),
+          skills: infr(info, "jobs", "skills") && { select: { label: true } },
         },
       });
 
-      // Reorder the jobs based on the order in jobIds
-      return jobIds.map((jobId) => jobs.find((job) => job.id === jobId));
+      const orderedJobs = jobIds.map((jobId) =>
+        jobs.find((job) => job.id === jobId)
+      );
+      return { jobs: orderedJobs, totalCount };
     },
     jobsByText: async (
       _: any,
@@ -132,7 +138,7 @@ export default {
       }: IJobsByTextInput,
       context: GraphQLContext,
       info: GraphQLResolveInfo
-    ): Promise<Job[]> => {
+    ): Promise<{ jobs: Job[]; totalCount: number }> => {
       const { mongoClient, prisma } = context;
       const db = mongoClient.db();
       const distanceInMeters = radius * 1000;
@@ -195,8 +201,7 @@ export default {
 
       const skip = (page - 1) * pageSize;
 
-      // Fetching addresses within a certain radius that are related to jobs with the found skills or having the input text in title or description
-      const addresses = await db
+      const result = await db
         .collection(ADDRESS_COLLECTION)
         .aggregate([
           {
@@ -229,29 +234,36 @@ export default {
           },
           { $unwind: "$associatedJobs.budget" },
           { $match: matchCondition },
-          { $skip: skip },
-          { $limit: pageSize },
+          {
+            $facet: {
+              paginatedResults: [{ $skip: skip }, { $limit: pageSize }],
+              totalCount: [{ $count: "total" }],
+            },
+          },
         ])
-        .toArray();
+        .next();
+
+      const paginatedResults = result.paginatedResults;
+      const totalCount = result.totalCount[0]?.total || 0;
 
       // Extract job IDs from the address results
-      const jobIds = addresses.map((address) =>
+      const jobIds = paginatedResults.map((address) =>
         address.associatedJobs._id.toString()
       );
-
-      // Fetch detailed job data from Prisma
       const jobs = await prisma.job.findMany({
         where: { id: { in: jobIds }, isDraft: false },
         include: {
-          address: ifr(info, "address"),
-          images: ifr(info, "images"),
-          budget: ifr(info, "budget"),
-          skills: ifr(info, "skills") && { select: { label: true } },
+          address: infr(info, "jobs", "address"),
+          images: infr(info, "jobs", "images"),
+          budget: infr(info, "jobs", "budget"),
+          skills: infr(info, "jobs", "skills") && { select: { label: true } },
         },
       });
 
-      // Reorder the jobs based on the order in jobIds
-      return jobIds.map((jobId) => jobs.find((job) => job.id === jobId));
+      const orderedJobs = jobIds.map((jobId) =>
+        jobs.find((job) => job.id === jobId)
+      );
+      return { jobs: orderedJobs, totalCount };
     },
   },
   Mutation: {
