@@ -13,6 +13,7 @@ import {
 import { LocationOn, Delete, AccessTime } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 import { IJob, useDeleteJob } from "@gqlOps/job";
 import {
@@ -178,7 +179,12 @@ export const DeleteJobIcon = ({ jobId, userId }: IDeleteJobProps) => {
     deleteJobAsync({
       userId,
       variables: { id: jobId },
-      onSuccess: () => setOpenDelete(false),
+      onSuccess: () => {
+        toast.success("Job deleted successfully.", {
+          position: "bottom-right",
+        });
+        setOpenDelete(false);
+      },
     });
   };
 

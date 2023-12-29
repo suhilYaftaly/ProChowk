@@ -63,7 +63,9 @@ export default function DeleteModal({
           <Button
             variant="outlined"
             fullWidth
-            onClick={() => onClose(false)}
+            onClick={(e) => {
+              e.stopPropagation(), onClose(false);
+            }}
             sx={{ mt: 2 }}
           >
             Cancel
