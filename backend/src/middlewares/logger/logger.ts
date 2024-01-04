@@ -3,13 +3,13 @@ import winston from "winston";
 import "winston-mongodb";
 import DailyRotateFile from "winston-daily-rotate-file";
 
-import { LOG_COLLECTION } from "../../constants/dbCollectionNames";
+import { LOG_COLL } from "../../constants/dbCollectionNames";
 
 dotenv.config();
 
 const mongoDBTransporter = new winston.transports.MongoDB({
   db: process.env.MONGODB_URI,
-  collection: LOG_COLLECTION,
+  collection: LOG_COLL,
   capped: true,
   cappedSize: 10000000, //10MB
 });

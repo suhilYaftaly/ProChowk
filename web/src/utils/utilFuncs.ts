@@ -153,12 +153,6 @@ export const processImageFile = ({
   });
 };
 
-export function validatePhoneNum(phoneNumber: string | undefined): boolean {
-  const pattern = /^\d{3}-\d{3}-\d{4}$/;
-  if (phoneNumber) return pattern.test(phoneNumber);
-  return false;
-}
-
 interface INavigateToOnLogin {
   user: IUser | undefined;
   navigate: NavigateFunction;

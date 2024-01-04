@@ -76,12 +76,12 @@ const jobOps = {
   Mutations: {
     createJob: gql`
       mutation CreateJob($userId: ID!, $jobInput: JobInput!) {
-        createJob(userId: $userId, jobInput: $jobInput) {${jobGqlRespMini}}
+        createJob(userId: $userId, jobInput: $jobInput) {${usersJobGqlResp}}
       }
     `,
     updateJob: gql`
       mutation UpdateJob($id: ID!, $jobInput: JobInput!) {
-        updateJob(id: $id, jobInput: $jobInput) {${jobGqlRespMini}}
+        updateJob(id: $id, jobInput: $jobInput) {${usersJobGqlResp}}
       }
     `,
     deleteJob: gql`

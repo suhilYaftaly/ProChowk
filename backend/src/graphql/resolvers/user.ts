@@ -715,21 +715,18 @@ const addressHasError = (address: IAddressInput) => {
   if (county && county?.trim() === "")
     return showInputError("County is required");
   if (state && state?.trim() === "") return showInputError("State is required");
-  if (city && city?.trim() === "") return showInputError("City is required");
+  if (city?.trim() === "") return showInputError("City is required");
   if (stateCode && stateCode?.trim() === "")
     return showInputError("State Code is required");
-  if (postalCode && postalCode?.trim() === "")
+  if (postalCode?.trim() === "")
     return showInputError("Postal code is required");
-  if (country && country?.trim() === "")
-    return showInputError("Country is required");
+  if (country?.trim() === "") return showInputError("Country is required");
   if (countryCode && countryCode?.trim() === "")
     return showInputError("Country code is required");
   if (displayName && displayName?.trim() === "")
     return showInputError("Display name is required");
-  if (lat && isNaN(Number(lat)))
-    return showInputError("Invalid latitude value");
-  if (lng && isNaN(Number(lng)))
-    return showInputError("Invalid longitude value");
+  if (isNaN(Number(lat))) return showInputError("Invalid latitude value");
+  if (isNaN(Number(lng))) return showInputError("Invalid longitude value");
 
   return undefined;
 };

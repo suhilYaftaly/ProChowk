@@ -28,14 +28,12 @@ import { AddressInput } from "@gqlOps/address";
 import { SkillInput } from "@gqlOps/skill";
 import SkillsSelection from "@appComps/SkillsSelection";
 import AddressSearch from "@appComps/AddressSearch";
-import {
-  formatToE164,
-  navigateToUserPage,
-  validatePhoneNum,
-} from "@/utils/utilFuncs";
+import { formatToE164, navigateToUserPage } from "@/utils/utilFuncs";
 import { paths } from "@/routes/Routes";
 import PhoneTextField from "@appComps/PhoneTextField";
 import { clientBioPlaceholder, contractorBioPlaceholder } from "@/config/data";
+import { phoneCC } from "@/config/configConst";
+import { isValidPhoneNumber } from "libphonenumber-js";
 
 interface IErrors {
   userType: string;
@@ -172,6 +170,7 @@ export default function ProfileSetup() {
           onSelect={(adr) => setForm((prev) => ({ ...prev, address: adr }))}
           address={form.address}
           label="Address"
+          helperText={errors.address}
         />
         <TextField
           label={`A Bit About You (${form.bio?.length}/1000)`}
@@ -214,7 +213,9 @@ interface IValidate {
   setErrors: Dispatch<SetStateAction<IErrors>>;
 }
 const hasErrors = ({ form, setErrors }: IValidate): boolean => {
+  const isCont = form.userType === "contractor";
   let error = false;
+
   if (!form.userType) {
     setErrors((prev) => ({
       ...prev,
@@ -223,7 +224,7 @@ const hasErrors = ({ form, setErrors }: IValidate): boolean => {
     error = true;
   } else setErrors((prev) => ({ ...prev, userType: "" }));
 
-  if (form.phoneNum && !validatePhoneNum(form.phoneNum)) {
+  if (form.phoneNum && !isValidPhoneNumber(form?.phoneNum, phoneCC)) {
     setErrors((prev) => ({
       ...prev,
       phoneNum: "Invalid phone number format.",
@@ -231,13 +232,18 @@ const hasErrors = ({ form, setErrors }: IValidate): boolean => {
     error = true;
   } else setErrors((prev) => ({ ...prev, phoneNum: "" }));
 
-  if (form.userType === "contractor" && form.skills.length < 1) {
+  if (isCont && form.skills.length < 1) {
     setErrors((prev) => ({
       ...prev,
       skills: "You must select at least 1 skill.",
     }));
     error = true;
   } else setErrors((prev) => ({ ...prev, skills: "" }));
+
+  if (isCont && (!form.address?.lat || !form.address?.lng)) {
+    setErrors((prev) => ({ ...prev, address: "You must provide address." }));
+    error = true;
+  } else setErrors((prev) => ({ ...prev, address: "" }));
 
   return error;
 };

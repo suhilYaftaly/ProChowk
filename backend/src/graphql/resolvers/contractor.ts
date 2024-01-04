@@ -7,7 +7,13 @@ import {
   ISkillInput,
 } from "../../types/commonTypes";
 import checkAuth, { canUserUpdate } from "../../middlewares/checkAuth";
-import { showInputError, gqlError, ifr } from "../../utils/funcs";
+import { showInputError, gqlError, ifr, infr } from "../../utils/funcs";
+import {
+  ADDRESS_COLL,
+  CONTRACTOR_COLL,
+  SKILL_COLL,
+  USER_COLL,
+} from "../../constants/dbCollectionNames";
 
 export default {
   Query: {
@@ -30,6 +36,179 @@ export default {
         if (!eContr) throw gqlError({ msg: "Contractor not found" });
         return eContr;
       } else throw showInputError("userId or contractorId must be provided");
+    },
+    contractorsByLocation: async (
+      _: any,
+      { latLng, radius = 60, page = 1, pageSize = 100 }: IContByLocInput,
+      context: GraphQLContext,
+      info: GraphQLResolveInfo
+    ): Promise<{ users: User[]; totalCount: number }> => {
+      const { mongoClient, prisma } = context;
+      const db = mongoClient.db();
+      const distanceInMeters = radius * 1000;
+      const skip = (page - 1) * pageSize;
+
+      const commonPipeline = [
+        {
+          $geoNear: {
+            near: { type: "Point", coordinates: [latLng.lng, latLng.lat] },
+            distanceField: "distance",
+            maxDistance: distanceInMeters,
+            spherical: true,
+          },
+        },
+        {
+          $lookup: {
+            from: USER_COLL,
+            localField: "_id",
+            foreignField: "addressId",
+            as: "nearbyUsers",
+          },
+        },
+        { $unwind: "$nearbyUsers" },
+        {
+          $match: {
+            "nearbyUsers.userTypes": { $in: ["contractor"] }, // Match users with 'contractor' userType
+          },
+        },
+      ];
+
+      const aggregation = await db
+        .collection(ADDRESS_COLL)
+        .aggregate([
+          ...commonPipeline,
+          {
+            $facet: {
+              paginatedResults: [{ $skip: skip }, { $limit: pageSize }],
+              totalCount: [{ $count: "total" }],
+            },
+          },
+        ])
+        .toArray();
+
+      const paginatedResults = aggregation[0].paginatedResults;
+      const totalCount = aggregation[0].totalCount[0]?.total || 0;
+
+      const userIds = paginatedResults.map((item) =>
+        item.nearbyUsers._id.toString()
+      );
+
+      const users = await prisma.user.findMany({
+        where: { id: { in: userIds } },
+        include: {
+          address: infr(info, "users", "address"),
+          contractor: {
+            include: {
+              skills: {
+                select: { label: true },
+              },
+            },
+          },
+        },
+      });
+
+      const orderedUsers = userIds.map((userId) =>
+        users.find((user) => user.id === userId)
+      );
+      return { users: orderedUsers, totalCount };
+    },
+    contractorsByText: async (
+      _: any,
+      { input, latLng, radius = 60, page = 1, pageSize = 100 }: IContByTxtInput,
+      context: GraphQLContext,
+      info: GraphQLResolveInfo
+    ): Promise<{ users: User[]; totalCount: number }> => {
+      const { mongoClient, prisma } = context;
+      const db = mongoClient.db();
+      const distanceInMeters = radius * 1000;
+
+      const skills = await db
+        .collection(SKILL_COLL)
+        .find({ $text: { $search: input } }, { projection: { _id: 1 } })
+        .toArray();
+      const skillIds = skills.map((skill) => skill._id);
+
+      const matchingUsers = await db
+        .collection(USER_COLL)
+        .find({
+          $text: { $search: input },
+          userTypes: { $in: ["contractor"] },
+        })
+        .toArray();
+      const userIdsFromTextSearch = matchingUsers.map((user) => user._id);
+
+      const skip = (page - 1) * pageSize;
+
+      const result = await db
+        .collection(ADDRESS_COLL)
+        .aggregate([
+          {
+            $geoNear: {
+              near: { type: "Point", coordinates: [latLng.lng, latLng.lat] },
+              distanceField: "distance",
+              maxDistance: distanceInMeters,
+              spherical: true,
+            },
+          },
+          {
+            $lookup: {
+              from: USER_COLL,
+              localField: "_id",
+              foreignField: "addressId",
+              as: "associatedUsers",
+            },
+          },
+          { $unwind: "$associatedUsers" },
+          {
+            $lookup: {
+              from: CONTRACTOR_COLL,
+              localField: "associatedUsers._id",
+              foreignField: "userId",
+              as: "associatedContractors",
+            },
+          },
+          { $unwind: "$associatedContractors" },
+          {
+            $match: {
+              $and: [
+                { "associatedUsers.userTypes": { $in: ["contractor"] } },
+                {
+                  $or: [
+                    { "associatedUsers._id": { $in: userIdsFromTextSearch } },
+                    { "associatedContractors.skillIDs": { $in: skillIds } },
+                  ],
+                },
+              ],
+            },
+          },
+          {
+            $facet: {
+              paginatedResults: [{ $skip: skip }, { $limit: pageSize }],
+              totalCount: [{ $count: "total" }],
+            },
+          },
+        ])
+        .toArray();
+
+      const paginatedResults = result[0]?.paginatedResults || [];
+      const totalCount = result[0]?.totalCount[0]?.total || 0;
+
+      const userIds = paginatedResults.map((item) =>
+        item.associatedUsers._id.toString()
+      );
+      const users = await prisma.user.findMany({
+        where: { id: { in: userIds } },
+        include: {
+          address: infr(info, "users", "address"),
+          contractor: { include: { skills: { select: { label: true } } } },
+        },
+      });
+
+      const orderedUsers = userIds.map((userId) =>
+        users.find((user) => user.id === userId)
+      );
+
+      return { users: orderedUsers, totalCount };
     },
   },
   Mutation: {
@@ -149,3 +328,18 @@ export default {
     },
   },
 };
+
+interface IContByLocInput {
+  latLng: { lat: number; lng: number };
+  radius?: number;
+  page?: number;
+  pageSize?: number;
+}
+
+interface IContByTxtInput {
+  input: string;
+  latLng: { lat: number; lng: number };
+  radius?: number;
+  page?: number;
+  pageSize?: number;
+}

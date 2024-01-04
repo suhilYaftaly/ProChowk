@@ -5,8 +5,10 @@ import { GraphQLContext, IJobInput } from "../../types/commonTypes";
 import checkAuth, { canUserUpdate } from "../../middlewares/checkAuth";
 import { gqlError, ifr, infr } from "../../utils/funcs";
 import {
-  ADDRESS_COLLECTION,
-  SKILL_COLLECTION,
+  ADDRESS_COLL,
+  BUDGET_COLL,
+  JOB_COLL,
+  SKILL_COLL,
 } from "../../constants/dbCollectionNames";
 
 const ONE_WEEK_IN_MS = 7 * 24 * 60 * 60 * 1000;
@@ -78,18 +80,18 @@ export default {
         },
         {
           $lookup: {
-            from: "Job",
+            from: JOB_COLL,
             localField: "_id",
             foreignField: "addressId",
-            as: "associatedJobs",
+            as: "assoJobs",
           },
         },
-        { $unwind: "$associatedJobs" },
-        { $match: { "associatedJobs.isDraft": { $ne: true } } },
+        { $unwind: "$assoJobs" },
+        { $match: { "assoJobs.isDraft": { $ne: true } } },
       ];
 
       const aggregation = await db
-        .collection(ADDRESS_COLLECTION)
+        .collection(ADDRESS_COLL)
         .aggregate([
           ...commonPipeline,
           {
@@ -104,10 +106,8 @@ export default {
       const paginatedResults = aggregation[0].paginatedResults;
       const totalCount = aggregation[0].totalCount[0]?.total || 0;
 
-      console.log(JSON.stringify(info.fieldNodes, null, 2));
-
       const jobIds = paginatedResults.map((address) =>
-        address.associatedJobs._id.toString()
+        address.assoJobs._id.toString()
       );
       const jobs = await prisma.job.findMany({
         where: { id: { in: jobIds }, isDraft: false },
@@ -132,9 +132,9 @@ export default {
         radius = 60,
         page = 1,
         pageSize = 100,
-        budget,
         startDate,
         endDate,
+        budget,
       }: IJobsByTextInput,
       context: GraphQLContext,
       info: GraphQLResolveInfo
@@ -143,73 +143,55 @@ export default {
       const db = mongoClient.db();
       const distanceInMeters = radius * 1000;
 
-      // Fetching skills based on text and retrieving only their _id fields
+      // Create a query object for Job text search
+      let jobQuery: any = { $text: { $search: inputText }, isDraft: false };
+
+      // Add date range filters to job query if provided
+      if (startDate) {
+        jobQuery.createdAt = {};
+        if (!endDate) endDate = new Date().toISOString();
+        jobQuery.createdAt.$gte = new Date(startDate);
+        jobQuery.createdAt.$lte = new Date(endDate);
+      }
+
+      // Text search for jobs (titles, descriptions, and date range)
+      const matchingJobs = await db
+        .collection(JOB_COLL)
+        .find(jobQuery)
+        .toArray();
+      const jobIdsFromTextSearch = matchingJobs.map((job) => job._id);
+
+      // Text search for skills
       const skills = await db
-        .collection(SKILL_COLLECTION)
+        .collection(SKILL_COLL)
         .find({ $text: { $search: inputText } }, { projection: { _id: 1 } })
         .toArray();
       const skillIds = skills.map((skill) => skill._id);
 
-      // Initial match condition for text search and skills
-      let baseMatchCondition = {
-        $or: [
-          { "associatedJobs.skillIDs": { $in: skillIds } },
-          { "associatedJobs.title": { $regex: inputText, $options: "i" } },
-          { "associatedJobs.desc": { $regex: inputText, $options: "i" } },
-        ],
-      };
+      // Combine job and skill IDs
+      let combinedIds = [...jobIdsFromTextSearch, ...skillIds];
 
-      let budgetConditions = [];
+      // Initialize additional match conditions
+      let addiConds = {};
 
-      // Match condition for budget types
-      if (budget?.types) {
-        budgetConditions.push({
-          "associatedJobs.budget.type": { $in: budget.types },
-        });
-      }
-
-      // Additional match condition for price range (from and to)
-      if (budget.from !== undefined) {
-        budgetConditions.push({
-          "associatedJobs.budget.from": { $gte: budget.from },
-        });
-      }
-      if (budget.to !== undefined) {
-        budgetConditions.push({
-          "associatedJobs.budget.to": { $lte: budget.to },
-        });
-      }
-
-      const isNotDraft = { "associatedJobs.isDraft": { $ne: true } };
-      // Combine the match conditions with the base condition
-      let matchCondition = {
-        $and: [baseMatchCondition, ...budgetConditions, isNotDraft],
-      };
-
-      //DATE RANGE FILTERS
-      if (startDate) {
-        // Use current date in ISO string format if endDate is not provided
-        if (!endDate) endDate = new Date().toISOString();
-        let dateRangeCondition: {
-          "associatedJobs.createdAt": { $gte?: Date; $lte: Date };
-        } = { "associatedJobs.createdAt": { $lte: new Date(endDate) } };
-        dateRangeCondition["associatedJobs.createdAt"].$gte = new Date(
-          startDate
-        );
-        matchCondition.$and.push(dateRangeCondition);
+      // Add budget conditions if provided
+      if (budget) {
+        if (budget.types)
+          addiConds["assoJobs.budget.type"] = { $in: budget.types };
+        if (budget.from !== undefined)
+          addiConds["assoJobs.budget.from"] = { $gte: budget.from };
+        if (budget.to !== undefined)
+          addiConds["assoJobs.budget.to"] = { $lte: budget.to };
       }
 
       const skip = (page - 1) * pageSize;
 
       const result = await db
-        .collection(ADDRESS_COLLECTION)
+        .collection(ADDRESS_COLL)
         .aggregate([
           {
             $geoNear: {
-              near: {
-                type: "Point",
-                coordinates: [latLng.lng, latLng.lat],
-              },
+              near: { type: "Point", coordinates: [latLng.lng, latLng.lat] },
               distanceField: "distance",
               maxDistance: distanceInMeters,
               spherical: true,
@@ -217,23 +199,28 @@ export default {
           },
           {
             $lookup: {
-              from: "Job",
+              from: JOB_COLL,
               localField: "_id",
               foreignField: "addressId",
-              as: "associatedJobs",
+              as: "assoJobs",
             },
           },
-          { $unwind: "$associatedJobs" },
+          { $unwind: "$assoJobs" },
           {
             $lookup: {
-              from: "Budget",
-              localField: "associatedJobs._id",
+              from: BUDGET_COLL,
+              localField: "assoJobs._id",
               foreignField: "jobId",
-              as: "associatedJobs.budget",
+              as: "assoJobs.budget",
             },
           },
-          { $unwind: "$associatedJobs.budget" },
-          { $match: matchCondition },
+          { $unwind: "$assoJobs.budget" },
+          {
+            $match: {
+              "assoJobs._id": { $in: combinedIds },
+              ...addiConds,
+            },
+          },
           {
             $facet: {
               paginatedResults: [{ $skip: skip }, { $limit: pageSize }],
@@ -243,12 +230,11 @@ export default {
         ])
         .next();
 
-      const paginatedResults = result.paginatedResults;
+      const paginatedResults = result.paginatedResults || [];
       const totalCount = result.totalCount[0]?.total || 0;
 
-      // Extract job IDs from the address results
       const jobIds = paginatedResults.map((address) =>
-        address.associatedJobs._id.toString()
+        address.assoJobs._id.toString()
       );
       const jobs = await prisma.job.findMany({
         where: { id: { in: jobIds }, isDraft: false },
@@ -263,6 +249,7 @@ export default {
       const orderedJobs = jobIds.map((jobId) =>
         jobs.find((job) => job.id === jobId)
       );
+
       return { jobs: orderedJobs, totalCount };
     },
   },

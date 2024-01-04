@@ -1,10 +1,11 @@
 import { Db, MongoClient } from "mongodb";
 import {
-  ADDRESS_COLLECTION,
-  SKILL_COLLECTION,
-  REFRESH_TOKEN_COLLECTION,
-  JOB_COLLECTION,
-  BUDGET_COLLECTION,
+  ADDRESS_COLL,
+  SKILL_COLL,
+  REFRESH_TOKEN_COLL,
+  JOB_COLL,
+  BUDGET_COLL,
+  USER_COLL,
 } from "../../constants/dbCollectionNames";
 import { logger } from "../logger/logger";
 import {
@@ -52,33 +53,38 @@ export const connectToMongoDB = async (): Promise<MongoClient> => {
 };
 
 export const setupMongoIndexes = async (db: Db): Promise<void> => {
-  // create 2dsphere index on the "Address" collection for geometry
-  await db.collection(ADDRESS_COLLECTION).createIndex({ geometry: "2dsphere" });
+  // Geospatial index
+  await db.collection(ADDRESS_COLL).createIndex({ geometry: "2dsphere" });
 
-  //create skill label (case insensitive) index for faster queries
+  // Case-insensitive index for skill label
   await db
-    .collection(SKILL_COLLECTION)
+    .collection(SKILL_COLL)
     .createIndex({ label: 1 }, { collation: { locale: "en", strength: 2 } });
+  // Text index for skill label
+  await db.collection(SKILL_COLL).createIndex({ label: "text" });
 
-  // text indexs for MongoDB's $text operator
-  await db.collection(SKILL_COLLECTION).createIndex({ label: "text" });
+  // Text indexes for job title and description
+  await db.collection(JOB_COLL).createIndex({ title: "text", desc: "text" });
+  // Index for sorting jobs by creation date
+  await db.collection(JOB_COLL).createIndex({ createdAt: -1 });
+  // Index for filtering draft jobs
+  await db.collection(JOB_COLL).createIndex({ isDraft: 1 });
+  // TTL index for deleting expired draft jobs
   await db
-    .collection(JOB_COLLECTION)
-    .createIndex({ title: "text", desc: "text" });
-
-  await db.collection(JOB_COLLECTION).createIndex({ createdAt: -1 });
-  await db.collection(JOB_COLLECTION).createIndex({ isDraft: 1 });
-
-  //TTL to delete draft jobs after its expiry date
-  await db
-    .collection(JOB_COLLECTION)
+    .collection(JOB_COLL)
     .createIndex({ draftExpiry: 1 }, { expireAfterSeconds: 0 });
 
-  await db.collection(BUDGET_COLLECTION).createIndex({ type: 1 });
-  await db.collection(BUDGET_COLLECTION).createIndex({ from: 1, to: 1 });
+  // Text index for user name and bio
+  await db.collection(USER_COLL).createIndex({ name: "text", bio: "text" });
+  await db.collection(USER_COLL).createIndex({ userTypes: 1 });
 
-  //TTL(Time-to-Live) to remove old and expired token
+  // Index for filtering by budget type
+  await db.collection(BUDGET_COLL).createIndex({ type: 1 });
+  // Composite index for filtering by budget range
+  await db.collection(BUDGET_COLL).createIndex({ from: 1, to: 1 });
+
+  // TTL index for removing expired tokens
   await db
-    .collection(REFRESH_TOKEN_COLLECTION)
+    .collection(REFRESH_TOKEN_COLL)
     .createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 };

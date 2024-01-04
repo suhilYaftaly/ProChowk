@@ -1,4 +1,4 @@
-import React, { ChangeEvent } from "react";
+import { ChangeEvent } from "react";
 import { TextField } from "@mui/material";
 import { AsYouType } from "libphonenumber-js";
 
@@ -10,7 +10,7 @@ interface Props {
   helperText?: string;
 }
 
-const PhoneTextField: React.FC<Props> = ({ value, onChange, helperText }) => {
+export default function PhoneTextField({ value, onChange, helperText }: Props) {
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const inputNumber = event.target.value;
     let formattedNumber;
@@ -38,6 +38,4 @@ const PhoneTextField: React.FC<Props> = ({ value, onChange, helperText }) => {
       fullWidth
     />
   );
-};
-
-export default PhoneTextField;
+}

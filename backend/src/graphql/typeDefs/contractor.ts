@@ -3,6 +3,19 @@ import { gql } from "graphql-tag";
 export default gql`
   type Query {
     contractor(id: ID, userId: ID): Contractor!
+    contractorsByLocation(
+      latLng: LatLngInput!
+      radius: Float
+      page: Int
+      pageSize: Int
+    ): ContsSearchResponse
+    contractorsByText(
+      input: String!
+      latLng: LatLngInput!
+      radius: Float
+      page: Int
+      pageSize: Int
+    ): ContsSearchResponse
   }
   type Mutation {
     createContractor(userId: ID!): User!
@@ -28,6 +41,10 @@ export default gql`
     type: String
     createdAt: String
     updatedAt: String
+  }
+  type ContsSearchResponse {
+    users: [User!]!
+    totalCount: Int
   }
 
   input LicenseInput {
