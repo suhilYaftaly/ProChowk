@@ -163,15 +163,15 @@ export default function SearchNearbyContractors() {
             </Text>
           )}
           <ContractorsCards users={contsList} loading={contsLoading} />
-          {/* {contsTotalCount && contsTotalCount > pageSize && ( */}
-          <Pagination
-            count={totalPages}
-            page={page}
-            onChange={handlePageChange}
-            color="primary"
-            sx={{ display: "flex", justifyContent: "center", mt: 2 }}
-          />
-          {/* )} */}
+          {contsTotalCount && contsTotalCount > pageSize && (
+            <Pagination
+              count={totalPages}
+              page={page}
+              onChange={handlePageChange}
+              color="primary"
+              sx={{ display: "flex", justifyContent: "center", mt: 2 }}
+            />
+          )}
         </>
       )}
       <NearbyContsFilters
