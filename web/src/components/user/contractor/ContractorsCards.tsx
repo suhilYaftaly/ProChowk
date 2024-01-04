@@ -49,7 +49,7 @@ export default function ContractorsCards({ users, loading }: Props) {
   );
 }
 
-const avatarSize = 40;
+const avatarSize = 50;
 interface IContractorCardProps {
   user: IUser;
   onClick?: () => void;
@@ -77,18 +77,20 @@ const ContractorCard = ({ user, onClick }: IContractorCardProps) => {
           src={user?.image?.url}
           sx={{ width: avatarSize, height: avatarSize, mr: 1 }}
         />
-        <Text type="subtitle">{user.name}</Text>
+        <Stack>
+          <Text type="subtitle">{user.name}</Text>
+          <Tooltip title="DUMMY, coming soon!">
+            <Rating
+              defaultValue={4.4}
+              precision={0.5}
+              readOnly
+              size="small"
+              sx={{ color: primaryC }}
+            />
+          </Tooltip>
+        </Stack>
       </Stack>
-      <Tooltip title="DUMMY, coming soon!">
-        <Rating
-          defaultValue={4.2}
-          precision={0.5}
-          readOnly
-          size="small"
-          sx={{ color: primaryC }}
-        />
-      </Tooltip>
-      {user?.bio && <Text variant="body2">{trimText({ text: user.bio })}</Text>}
+      {user?.bio && <Text type="body2">{trimText({ text: user.bio })}</Text>}
       <Grid container spacing={1} sx={{ mt: 1, mb: 2 }}>
         {user?.contractor?.skills?.map((skill) => (
           <Grid item key={skill.label}>
@@ -122,9 +124,11 @@ const CardSkeleton = () => (
   <Card sx={{ p: 1 }} variant="outlined">
     <Stack direction={"row"} sx={{ alignItems: "center" }}>
       <Skeleton variant="circular" width={avatarSize} height={avatarSize} />
-      <Skeleton variant="text" width={100} sx={{ ml: 1 }} />
+      <Stack sx={{ ml: 1 }}>
+        <Skeleton variant="text" width={130} />
+        <Skeleton variant="text" width={100} />
+      </Stack>
     </Stack>
-    <Skeleton variant="text" width={100} />
     <Skeleton variant="text" width="60%" sx={{ mb: 2 }} />
     <Stack direction={"row"} spacing={1}>
       <ChipSkeleton />
