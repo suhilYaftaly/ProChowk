@@ -1,6 +1,6 @@
 import { Card, Stack } from "@mui/material";
 
-import SearchJobsByText from "@jobs/searchJobs/SearchJobsByText";
+import SearchNearbyJobs from "@jobs/searchJobs/SearchNearbyJobs";
 import { useUserStates } from "@redux/reduxStates";
 import ProfileList from "@components/headerSection/myProfile/ProfileList";
 import { useIsMobile } from "@utils/hooks/hooks";
@@ -8,16 +8,21 @@ import PostJobBtn from "@components/headerSection/PostJobBtn";
 import AppContainer from "@reusable/AppContainer";
 import { isDeveloper } from "@utils/auth";
 import ViewAllUsers from "@user/ViewAllUsers";
+import SearchNearbyContractors from "@user/contractor/SearchNearbyContractors";
 
 export default function Home() {
-  const { user } = useUserStates();
+  const { user, userView } = useUserStates();
   const isMobile = useIsMobile();
 
   return (
     <AppContainer>
       <Stack direction={"row"}>
         <AppContainer addCard sx={{ m: 0, width: "100%" }}>
-          <SearchJobsByText />
+          {userView === "Contractor" ? (
+            <SearchNearbyJobs />
+          ) : (
+            <SearchNearbyContractors />
+          )}
           {isDeveloper(user?.roles) && <ViewAllUsers />}
         </AppContainer>
         <AppContainer sx={{ m: 0 }}>

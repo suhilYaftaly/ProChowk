@@ -7,9 +7,12 @@ import {
 
 import { ISkill, skillGqlResp, SkillInput } from "./skill";
 import { asyncOps } from "./gqlFuncs";
+import { IUser } from "./user";
+import { LatLngInput } from "./address";
 
 const licenseGqlResp = `id name type size url createdAt updatedAt`;
 export const contractorGqlResp = `id createdAt updatedAt licenses {${licenseGqlResp}} skills {${skillGqlResp}}`;
+const searchContResp = `id name bio image {url} address {city lat lng} contractor {skills {label}}`;
 
 const contOps = {
   Queries: {
@@ -18,6 +21,38 @@ const contOps = {
         contractor(id: $id, userId: $userId) {${contractorGqlResp}}
       }
     `,
+    contractorsByLocation: gql`
+    query ContractorsByLocation(
+      $latLng: LatLngInput!
+      $radius: Float
+      $page: Int
+      $pageSize: Int
+    ) {
+      contractorsByLocation(
+        latLng: $latLng
+        radius: $radius
+        page: $page
+        pageSize: $pageSize
+      ) {totalCount users {${searchContResp}}}
+    }
+  `,
+    contractorsByText: gql`
+    query ContractorsByText(
+      $input: String!
+      $latLng: LatLngInput!
+      $radius: Float
+      $page: Int
+      $pageSize: Int
+    ) {
+      contractorsByText(
+        input: $input
+        latLng: $latLng
+        radius: $radius
+        page: $page
+        pageSize: $pageSize
+      ) {totalCount users {${searchContResp}}}
+    }
+  `,
   },
   Mutations: {
     addContractorLicense: gql`
@@ -124,6 +159,84 @@ export const useContractor = () => {
   };
 
   return { contractorAsync, updateCache, data, error, loading };
+};
+
+interface ContsSearchResponse {
+  users: IUser[];
+  totalCount: number;
+}
+//useContractorsByLocation op
+interface IContsByLocationData {
+  contractorsByLocation: ContsSearchResponse;
+}
+interface IContsByLocationInput {
+  latLng: LatLngInput;
+  radius?: number;
+  page?: number;
+  pageSize?: number;
+}
+interface IContsByLocationIAsync {
+  variables: IContsByLocationInput;
+  onSuccess?: (data: ContsSearchResponse) => void;
+  onError?: (error?: any) => void;
+}
+export const useContractorsByLocation = () => {
+  const [contractorsByLocation, { data, loading, error }] = useLazyQuery<
+    IContsByLocationData,
+    IContsByLocationInput
+  >(contOps.Queries.contractorsByLocation);
+
+  const contractorsByLocationAsync = async ({
+    variables,
+    onSuccess,
+    onError,
+  }: IContsByLocationIAsync) =>
+    asyncOps({
+      operation: () => contractorsByLocation({ variables }),
+      onSuccess: (dt: IContsByLocationData) =>
+        onSuccess && onSuccess(dt.contractorsByLocation),
+      onError,
+    });
+
+  return { contractorsByLocationAsync, data, loading, error };
+};
+
+//contractorsByText op
+interface IContsByTextData {
+  contractorsByText: ContsSearchResponse;
+}
+interface IContsByTextInput {
+  input: string;
+  latLng: LatLngInput;
+  radius?: number;
+  page?: number;
+  pageSize?: number;
+}
+interface IcontractorsByTextIAsync {
+  variables: IContsByTextInput;
+  onSuccess?: (data: ContsSearchResponse) => void;
+  onError?: (error?: any) => void;
+}
+export const useContractorsByText = () => {
+  const [contractorsByText, { data, loading, error }] = useLazyQuery<
+    IContsByTextData,
+    IContsByTextInput
+  >(contOps.Queries.contractorsByText);
+
+  const contractorsByTextAsync = async ({
+    variables,
+    onSuccess,
+    onError,
+  }: IcontractorsByTextIAsync) =>
+    asyncOps({
+      operation: () => contractorsByText({ variables }),
+      onSuccess: (dt: IContsByTextData) => {
+        onSuccess && onSuccess(dt.contractorsByText);
+      },
+      onError,
+    });
+
+  return { contractorsByTextAsync, data, loading, error };
 };
 
 //addContractorLicense op

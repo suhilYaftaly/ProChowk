@@ -1,6 +1,5 @@
 import {
   Stack,
-  Typography,
   IconButton,
   Card,
   Chip,
@@ -45,10 +44,6 @@ export default function JobsCards({
   showDraftExpiry,
 }: Props) {
   const navigate = useNavigate();
-  const theme = useTheme();
-  const primaryC = theme.palette.primary.main;
-  const primary10 = alpha(primaryC, 0.1);
-  const error10 = alpha(theme.palette.error.light, 0.1);
 
   const handleJobClick = (job: IJob) => {
     if (onJobClick) onJobClick(job);
@@ -65,98 +60,13 @@ export default function JobsCards({
         <>
           {jobs?.map((job) => (
             <Grid item key={job.id}>
-              <Card
-                variant={"outlined"}
-                sx={{
-                  p: 1,
-                  cursor: "pointer",
-                  transition: "0.3s",
-                  "&:hover": {
-                    backgroundColor: primary10,
-                    borderColor: primaryC,
-                  },
-                }}
+              <JobCard
+                job={job}
                 onClick={() => handleJobClick(job)}
-              >
-                <Stack
-                  direction={"row"}
-                  sx={{
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    mb: 1,
-                  }}
-                >
-                  <Text type="subtitle">{job.title}</Text>
-                  <Stack direction={"row"} alignItems={"center"}>
-                    <Chip
-                      variant="outlined"
-                      size="small"
-                      label={formatRelativeTime(job.createdAt)}
-                      icon={<AccessTime color="inherit" />}
-                      sx={{ ml: 1 }}
-                    />
-                    {showDraftExpiry && job.isDraft && job.draftExpiry && (
-                      <Chip
-                        variant="outlined"
-                        size="small"
-                        color="error"
-                        label={`Expires in ${formatRelativeTime(
-                          job.draftExpiry,
-                          "until"
-                        )}`}
-                        icon={<AccessTime color="inherit" />}
-                        sx={{ ml: 1, backgroundColor: error10 }}
-                      />
-                    )}
-                    {topRightComp}
-                    {allowDelete && job.userId && (
-                      <DeleteJobIcon jobId={job.id} userId={job.userId} />
-                    )}
-                  </Stack>
-                </Stack>
-                <JobBudgetCost budget={job?.budget} />
-                <Typography variant="body2">
-                  {trimText({ text: job.desc })}
-                </Typography>
-                <Grid container spacing={1} sx={{ mt: 2, mb: 2 }}>
-                  {job?.skills?.map((skill) => (
-                    <Grid item key={skill.label}>
-                      <Chip
-                        label={skill.label}
-                        variant="outlined"
-                        size="small"
-                      />
-                    </Grid>
-                  ))}
-                </Grid>
-                <Divider sx={{ my: 1 }} />
-                <Stack direction={"row"} sx={{ alignItems: "center" }}>
-                  {job?.address?.city && (
-                    <>
-                      <IconButton
-                        size="small"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          openGoogleMapsDirections({
-                            lat: job?.address?.lat,
-                            lng: job?.address?.lng,
-                          });
-                        }}
-                      >
-                        <LocationOn
-                          sx={{
-                            border: "2px solid",
-                            padding: 0.4,
-                            borderRadius: 5,
-                            color: theme.palette.text.light,
-                          }}
-                        />
-                      </IconButton>
-                      <Text type="subtitle">{job?.address?.city}</Text>
-                    </>
-                  )}
-                </Stack>
-              </Card>
+                allowDelete={allowDelete}
+                showDraftExpiry={showDraftExpiry}
+                topRightComp={topRightComp}
+              />
             </Grid>
           ))}
         </>
@@ -164,6 +74,115 @@ export default function JobsCards({
     </Grid>
   );
 }
+
+interface IJobCard {
+  job: IJob;
+  onClick: () => void;
+  topRightComp?: React.ReactNode;
+  allowDelete?: boolean;
+  showDraftExpiry?: boolean;
+}
+const JobCard = ({
+  job,
+  onClick,
+  topRightComp,
+  allowDelete,
+  showDraftExpiry,
+}: IJobCard) => {
+  const theme = useTheme();
+  const primaryC = theme.palette.primary.main;
+  const primary10 = alpha(primaryC, 0.1);
+  const error10 = alpha(theme.palette.error.light, 0.1);
+
+  return (
+    <Card
+      variant={"outlined"}
+      sx={{
+        p: 1,
+        cursor: "pointer",
+        transition: "0.3s",
+        "&:hover": {
+          backgroundColor: primary10,
+          borderColor: primaryC,
+        },
+      }}
+      onClick={onClick}
+    >
+      <Stack
+        direction={"row"}
+        sx={{
+          alignItems: "center",
+          justifyContent: "space-between",
+          mb: 1,
+        }}
+      >
+        <Text type="subtitle">{job.title}</Text>
+        <Stack direction={"row"} alignItems={"center"}>
+          <Chip
+            variant="outlined"
+            size="small"
+            label={formatRelativeTime(job.createdAt)}
+            icon={<AccessTime color="inherit" />}
+            sx={{ ml: 1 }}
+          />
+          {showDraftExpiry && job.isDraft && job.draftExpiry && (
+            <Chip
+              variant="outlined"
+              size="small"
+              color="error"
+              label={`Expires in ${formatRelativeTime(
+                job.draftExpiry,
+                "until"
+              )}`}
+              icon={<AccessTime color="inherit" />}
+              sx={{ ml: 1, backgroundColor: error10 }}
+            />
+          )}
+          {topRightComp}
+          {allowDelete && job.userId && (
+            <DeleteJobIcon jobId={job.id} userId={job.userId} />
+          )}
+        </Stack>
+      </Stack>
+      <JobBudgetCost budget={job?.budget} />
+      <Text variant="body2">{trimText({ text: job.desc })}</Text>
+      <Grid container spacing={1} sx={{ mt: 1, mb: 2 }}>
+        {job?.skills?.map((skill) => (
+          <Grid item key={skill.label}>
+            <Chip label={skill.label} variant="outlined" size="small" />
+          </Grid>
+        ))}
+      </Grid>
+      <Divider sx={{ my: 1 }} />
+      <Stack direction={"row"} sx={{ alignItems: "center" }}>
+        {job?.address?.city && (
+          <>
+            <IconButton
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                openGoogleMapsDirections({
+                  lat: job?.address?.lat,
+                  lng: job?.address?.lng,
+                });
+              }}
+            >
+              <LocationOn
+                sx={{
+                  border: "2px solid",
+                  padding: 0.4,
+                  borderRadius: 5,
+                  color: theme.palette.text.light,
+                }}
+              />
+            </IconButton>
+            <Text type="subtitle">{job?.address?.city}</Text>
+          </>
+        )}
+      </Stack>
+    </Card>
+  );
+};
 
 interface IDeleteJobProps {
   jobId: string;
@@ -226,7 +245,7 @@ const CardSkeleton = () => (
     </Stack>
     <Skeleton variant="rectangular" width={"100%"} height={1} sx={{ my: 2 }} />
     <Stack direction={"row"} spacing={1} alignItems={"center"}>
-      <Skeleton variant="circular" width={30} height={30} />
+      <Skeleton variant="circular" width={25} height={25} />
       <Skeleton variant="text" width={60} />
     </Stack>
   </Card>

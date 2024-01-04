@@ -1,8 +1,8 @@
 import { InputAdornment, Stack, TextField } from "@mui/material";
 
 import Text from "@reusable/Text";
-import { ISearchFilterErrors, ISearchFilters } from "../SearchFilters";
-import { searchFilterConfigs as CC } from "@config/configConst";
+import { ISearchFilterErrors, ISearchFilters } from "../NearbyJobsFilters";
+import { searchNearbyJobsFilterConfigs as CC } from "@config/configConst";
 
 interface Props {
   filters: ISearchFilters;

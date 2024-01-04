@@ -1,61 +1,66 @@
 import { Pagination, Stack, useTheme } from "@mui/material";
-import { useState, FormEvent, useEffect } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
+import SearchBar from "@reusable/appComps/SearchBar";
 import { useSkills } from "@gqlOps/skill";
-import { useJobsByLocation, useJobsByText } from "@gqlOps/job";
-import { useUserStates } from "@redux/reduxStates";
-import SearchFilters, {
-  ISearchFilterErrors,
-  ISearchFilters,
-  checkFilterOptionsError,
-} from "./SearchFilters";
-import SearchBar from "./SearchBar";
-import { searchFilterConfigs as FCC } from "@config/configConst";
+import {
+  useContractorsByLocation,
+  useContractorsByText,
+} from "@gqlOps/contractor";
+import { useUserStates } from "@/redux/reduxStates";
+import ToastErrorsList from "@reusable/ToastErrorsList";
+import { nearbyContsFilterConfigs as CC } from "@/config/configConst";
+import NearbyContsFilters, {
+  INearbyContFilterErrors,
+  checkNearbyContsFilters,
+} from "./NearbyContsFilters";
 import NoSearchResultsWidget from "@reusable/widgets/NoSearchResultsWidget";
 import Text from "@reusable/Text";
-import ToastErrorsList from "@reusable/ToastErrorsList";
-import JobsCards from "./JobsCards";
+import ContractorsCards from "./ContractorsCards";
 
-export default function SearchJobsByText() {
+export default function SearchNearbyContractors() {
   const theme = useTheme();
   const primaryC = theme.palette.primary.main;
+  const { userLocation } = useUserStates();
+  const latLng = userLocation?.data;
+  const [openDrawer, setOpenDrawer] = useState(false);
   const [searchText, setSearchText] = useState("");
-  const [filters, setFilters] = useState<ISearchFilters>(FCC.defaults);
-  const [filterErrors, setFilterErrors] = useState<ISearchFilterErrors>({
+  const [page, setPage] = useState(1);
+  const [filters, setFilters] = useState(CC.defaults);
+  const pageSize = 20;
+  const [filterErrors, setFilterErrors] = useState<INearbyContFilterErrors>({
     radius: "",
     address: "",
-    budget: { from: "", to: "" },
   });
+
   const {
     skillsAsync,
     data: allSkillsType,
     loading: allSkillsLoading,
   } = useSkills();
-  const allSkillsData = allSkillsType?.skills;
   const {
-    jobsByTextAsync,
-    data: jByTData,
-    loading: jByTLoading,
-  } = useJobsByText();
+    contractorsByLocationAsync,
+    data: cByLData,
+    loading: cByLLoading,
+  } = useContractorsByLocation();
   const {
-    jobsByLocationAsync,
-    data: jByLData,
-    loading: jByLLoading,
-  } = useJobsByLocation();
-  const jobsData = jByTData?.jobsByText || jByLData?.jobsByLocation;
-  const jobsList = jobsData?.jobs;
-  const jobsTotalCount = jobsData?.totalCount;
-  const jobsLoading = jByTLoading || jByLLoading;
-  const { userLocation } = useUserStates();
-  const latLng = userLocation?.data;
-  const [openDrawer, setOpenDrawer] = useState(false);
-  const [page, setPage] = useState(1);
-  const pageSize = 20;
-  const totalPages = jobsTotalCount ? Math.ceil(jobsTotalCount / pageSize) : 0;
+    contractorsByTextAsync,
+    data: cByTData,
+    loading: cByTLoading,
+  } = useContractorsByText();
+
+  const contsData =
+    cByTData?.contractorsByText || cByLData?.contractorsByLocation;
+  const contsList = contsData?.users;
+  const contsLoading = cByLLoading || cByTLoading;
+  const contsTotalCount = contsData?.totalCount;
+  const totalPages = contsTotalCount
+    ? Math.ceil(contsTotalCount / pageSize)
+    : 0;
 
   useEffect(() => {
-    if (latLng && !jByLData) {
+    if (latLng && !cByLData) {
       searchByLocation();
       setFilters((prev) => ({ ...prev, latLng }));
     }
@@ -73,8 +78,13 @@ export default function SearchJobsByText() {
 
   const searchByLocation = (currentPage = page) => {
     if (latLng) {
-      jobsByLocationAsync({
-        variables: { latLng, page: currentPage, pageSize },
+      contractorsByLocationAsync({
+        variables: {
+          latLng,
+          page: currentPage,
+          pageSize,
+          radius: Number(filters.radius),
+        },
       });
     }
   };
@@ -87,8 +97,8 @@ export default function SearchJobsByText() {
     }
 
     setOpenDrawer(false);
-    const errors = checkFilterOptionsError({
-      filters: filters,
+    const errors = checkNearbyContsFilters({
+      filters,
       setErrors: setFilterErrors,
     });
 
@@ -103,18 +113,11 @@ export default function SearchJobsByText() {
     }
 
     if (filters.latLng && searchText) {
-      const fBudget = filters.budget;
-      jobsByTextAsync({
+      contractorsByTextAsync({
         variables: {
-          inputText: searchText,
+          input: searchText,
           latLng: filters.latLng,
-          budget: {
-            ...fBudget,
-            from: Number(fBudget.from),
-            to: Number(fBudget.to),
-          },
           radius: Number(filters.radius),
-          startDate: filters.startDate,
           page: currentPage,
           pageSize,
         },
@@ -125,7 +128,7 @@ export default function SearchJobsByText() {
   const handlePageChange = (_: any, value: number) => {
     setPage(value);
     //if results are from text search then call search by text
-    if (jByTData) searchByText(_, value);
+    if (cByTData) searchByText(_, value);
     else searchByLocation(value);
   };
 
@@ -140,36 +143,38 @@ export default function SearchJobsByText() {
         <SearchBar
           acOnOpen={() => skillsAsync({})}
           acLoading={allSkillsLoading}
-          acOptions={allSkillsData?.map((skill) => skill.label) || []}
+          acOptions={allSkillsType?.skills?.map((skill) => skill.label) || []}
           onFilterClick={() => setOpenDrawer(!openDrawer)}
           setSearchText={setSearchText}
+          label="Search nearby contractors"
+          placeholder="Search by user name, about or skill"
         />
       </Stack>
-      {jobsList?.length === 0 ? (
-        <NoSearchResultsWidget title="No jobs found!" />
+      {contsList?.length === 0 ? (
+        <NoSearchResultsWidget title="No contractors found!" />
       ) : (
         <>
-          {jobsList && jobsTotalCount && jobsTotalCount > 0 && (
+          {contsList && contsTotalCount && contsTotalCount > 0 && (
             <Text type="subtitle" sx={{ mb: 2, mt: 3 }}>
-              Jobs Found{" "}
+              Contractors Found{" "}
               <span
                 style={{ color: primaryC }}
-              >{`(${jobsList?.length}/${jobsTotalCount})`}</span>
+              >{`(${contsList?.length}/${contsTotalCount})`}</span>
             </Text>
           )}
-          <JobsCards jobs={jobsList} loading={jobsLoading} />
-          {jobsTotalCount && jobsTotalCount > pageSize && (
-            <Pagination
-              count={totalPages}
-              page={page}
-              onChange={handlePageChange}
-              color="primary"
-              sx={{ display: "flex", justifyContent: "center", mt: 2 }}
-            />
-          )}
+          <ContractorsCards users={contsList} loading={contsLoading} />
+          {/* {contsTotalCount && contsTotalCount > pageSize && ( */}
+          <Pagination
+            count={totalPages}
+            page={page}
+            onChange={handlePageChange}
+            color="primary"
+            sx={{ display: "flex", justifyContent: "center", mt: 2 }}
+          />
+          {/* )} */}
         </>
       )}
-      <SearchFilters
+      <NearbyContsFilters
         open={openDrawer}
         setOpen={setOpenDrawer}
         filters={filters}

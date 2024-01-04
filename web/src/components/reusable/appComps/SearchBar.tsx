@@ -14,6 +14,9 @@ interface Props {
   acOnOpen: () => void;
   onFilterClick: () => void;
   setSearchText: (text: string) => void;
+  /**@default Search */
+  label?: string;
+  placeholder?: string;
 }
 export default function SearchBar({
   acOptions,
@@ -21,6 +24,8 @@ export default function SearchBar({
   acOnOpen,
   onFilterClick,
   setSearchText,
+  label = "Search",
+  placeholder,
 }: Props) {
   const onTextChange = (_: any, value: string | null) => {
     if (value) setSearchText(value);
@@ -42,7 +47,8 @@ export default function SearchBar({
       renderInput={(params) => (
         <TextField
           {...params}
-          label="Search nearby jobs"
+          label={label}
+          placeholder={placeholder}
           InputProps={{
             ...params.InputProps,
             endAdornment: (

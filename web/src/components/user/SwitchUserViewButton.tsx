@@ -17,10 +17,12 @@ import { setUserView } from "@/redux/slices/userSlice";
 interface Props {
   sx?: SxProps<Theme>;
   variant?: "text" | "contained" | "outlined";
+  onClick?: () => void;
 }
 export default function SwitchUserViewButton({
   sx,
   variant = "contained",
+  onClick,
 }: Props) {
   const theme = useTheme();
   const palette = theme.palette;
@@ -50,18 +52,28 @@ export default function SwitchUserViewButton({
   const switchView = (newView: TUserView) => {
     localStorage.setItem(USER_VIEW, newView);
     dispatch(setUserView(newView));
+    onClick && onClick();
+  };
+
+  const onVerifyEmail = () => {
+    navigate(paths.verifyEmail);
+    onClick && onClick();
+  };
+  const onBecomeContractor = () => {
+    navigate(paths.profileSetup("contractor"));
+    onClick && onClick();
   };
 
   const getBtnProps = () => {
     if (isVerifyEmail) {
       return {
         text: "Verify Email",
-        action: () => navigate(paths.verifyEmail),
+        action: onVerifyEmail,
       };
     } else if (isBecomeContractor) {
       return {
         text: "Become Contractor",
-        action: () => navigate(paths.profileSetup("contractor")),
+        action: onBecomeContractor,
       };
     } else if (isSwitchToCont) {
       return {

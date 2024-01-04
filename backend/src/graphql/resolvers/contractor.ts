@@ -42,7 +42,7 @@ export default {
       { latLng, radius = 60, page = 1, pageSize = 100 }: IContByLocInput,
       context: GraphQLContext,
       info: GraphQLResolveInfo
-    ): Promise<{ users: User[]; totalCount: number }> => {
+    ): Promise<{ totalCount: number; users: User[] }> => {
       const { mongoClient, prisma } = context;
       const db = mongoClient.db();
       const distanceInMeters = radius * 1000;
@@ -97,13 +97,8 @@ export default {
         where: { id: { in: userIds } },
         include: {
           address: infr(info, "users", "address"),
-          contractor: {
-            include: {
-              skills: {
-                select: { label: true },
-              },
-            },
-          },
+          image: infr(info, "users", "image"),
+          contractor: { include: { skills: { select: { label: true } } } },
         },
       });
 
@@ -117,7 +112,7 @@ export default {
       { input, latLng, radius = 60, page = 1, pageSize = 100 }: IContByTxtInput,
       context: GraphQLContext,
       info: GraphQLResolveInfo
-    ): Promise<{ users: User[]; totalCount: number }> => {
+    ): Promise<{ totalCount: number; users: User[] }> => {
       const { mongoClient, prisma } = context;
       const db = mongoClient.db();
       const distanceInMeters = radius * 1000;
@@ -200,6 +195,7 @@ export default {
         where: { id: { in: userIds } },
         include: {
           address: infr(info, "users", "address"),
+          image: infr(info, "users", "image"),
           contractor: { include: { skills: { select: { label: true } } } },
         },
       });

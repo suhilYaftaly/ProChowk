@@ -12,24 +12,26 @@ export default function MMyProfileDrawer({ open, setOpen }: Props) {
   const theme = useTheme();
   const primaryC = theme.palette.primary.main;
   const toggle = () => setOpen(!open);
+  const closeDrawer = () => setOpen(false);
 
   return (
     <SwipeableDrawer
       anchor="right"
       open={open}
-      onClose={toggle}
+      onClose={closeDrawer}
       onOpen={toggle}
     >
       <Stack sx={{ justifyContent: "space-between", flex: 1 }}>
         <Stack>
-          <ProfileList onItemClick={toggle} />
+          <ProfileList onItemClick={closeDrawer} />
           <Divider />
         </Stack>
         <Stack sx={{ m: 2 }}>
-          <PostJobBtn onSubmit={toggle} sx={{ mb: 2 }} />
+          <PostJobBtn onSubmit={closeDrawer} sx={{ mb: 2 }} />
           <SwitchUserViewButton
             variant="outlined"
             sx={{ borderColor: primaryC }}
+            onClick={closeDrawer}
           />
         </Stack>
       </Stack>

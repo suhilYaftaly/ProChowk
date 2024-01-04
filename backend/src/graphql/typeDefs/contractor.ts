@@ -43,8 +43,8 @@ export default gql`
     updatedAt: String
   }
   type ContsSearchResponse {
-    users: [User!]!
     totalCount: Int
+    users: [User!]!
   }
 
   input LicenseInput {

@@ -1,18 +1,20 @@
 import { InputAdornment, Slider, Stack, TextField } from "@mui/material";
 
 import Text from "@reusable/Text";
-import { ISearchFilterErrors, ISearchFilters } from "../SearchFilters";
-import { searchFilterConfigs as CC } from "@config/configConst";
 
 interface Props {
-  filters: ISearchFilters;
-  filterErrors: ISearchFilterErrors;
+  radius: number;
+  error: string;
   onRadiusChange: (value: number | string) => void;
+  maxRadius: number;
+  minRadius: number;
 }
-export default function Radius({
-  filters,
-  filterErrors,
+export default function RadiusInput({
+  radius,
+  error,
   onRadiusChange,
+  minRadius,
+  maxRadius,
 }: Props) {
   return (
     <Stack sx={{ mx: 2 }}>
@@ -23,22 +25,22 @@ export default function Radius({
         variant="outlined"
         size="small"
         name={"radius"}
-        value={filters.radius}
+        value={radius}
         type="number"
         onChange={(e) => onRadiusChange(e.target.value)}
-        error={Boolean(filterErrors.radius)}
-        helperText={filterErrors.radius}
+        error={Boolean(error)}
+        helperText={error}
         required
-        inputProps={{ min: CC.minRadius, max: CC.maxRadius }}
+        inputProps={{ min: minRadius, max: maxRadius }}
         InputProps={{
           endAdornment: <InputAdornment position="end"> km</InputAdornment>,
         }}
       />
       <Slider
-        value={Number(filters.radius)}
+        value={Number(radius)}
         onChange={(_, value) => onRadiusChange(Number(value))}
-        min={CC.minRadius}
-        max={CC.maxRadius}
+        min={minRadius}
+        max={maxRadius}
         onMouseDown={(e) => e.stopPropagation()}
         onTouchStart={(e) => e.stopPropagation()}
       />

@@ -1,5 +1,6 @@
-import { ISearchFilters } from "@jobs/searchJobs/SearchFilters";
+import { ISearchFilters } from "@/components/jobs/searchJobs/NearbyJobsFilters";
 import { BudgetType, JobInput } from "@gqlOps/job";
+import { INearbyContFilters } from "@/components/user/contractor/NearbyContsFilters";
 
 /**whole page padding */
 export const pp = 2;
@@ -15,8 +16,8 @@ const minimumWage = 14;
 /**phone country code */
 export const phoneCC = "CA";
 
-/**Dashboard search filter configs */
-export const searchFilterConfigs = {
+/**Dashboard search nearby jobs filter configs */
+export const searchNearbyJobsFilterConfigs = {
   minRadius: 5,
   maxRadius: 200,
   budget: {
@@ -41,6 +42,16 @@ export const searchFilterConfigs = {
       to: 50000,
     },
   } as ISearchFilters,
+};
+/**Dashboard search nearby contractors filter configs */
+export const nearbyContsFilterConfigs = {
+  minRadius: 5,
+  maxRadius: 200,
+  defaults: {
+    radius: 50,
+    address: undefined,
+    latLng: undefined,
+  } as INearbyContFilters,
 };
 
 /**Job post configs */

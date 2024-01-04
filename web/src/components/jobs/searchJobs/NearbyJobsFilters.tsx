@@ -6,20 +6,18 @@ import {
   SwipeableDrawer,
   Tooltip,
 } from "@mui/material";
-import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import { SetStateAction, Dispatch, useState, useEffect } from "react";
-import SearchIcon from "@mui/icons-material/Search";
-import RefreshIcon from "@mui/icons-material/Refresh";
+import { Refresh, Search, FilterAlt } from "@mui/icons-material";
 
 import Text from "@reusable/Text";
 import AddressSearch from "@appComps/AddressSearch";
 import { IAddress, LatLngInput } from "@gqlOps/address";
 import { BudgetType } from "@gqlOps/job";
-import { searchFilterConfigs as CC } from "@config/configConst";
+import { searchNearbyJobsFilterConfigs as CC } from "@config/configConst";
 import { useUserStates } from "@/redux/reduxStates";
 import DayPosted, { IDateRange } from "./filters/DayPosted";
 import PriceRange from "./filters/PriceRange";
-import Radius from "./filters/Radius";
+import RadiusInput from "@reusable/appComps/RadiusInput";
 import ProjectType from "./filters/ProjectType";
 
 export interface ISearchFilters {
@@ -45,7 +43,7 @@ interface Props {
   setFilterErrors: Dispatch<SetStateAction<ISearchFilterErrors>>;
   onSearch: () => void;
 }
-export default function SearchFilters({
+export default function NearbyJobsFilters({
   open,
   setOpen,
   setFilters,
@@ -152,14 +150,14 @@ export default function SearchFilters({
         }}
       >
         <Stack direction={"row"} alignItems={"center"}>
-          <FilterAltIcon sx={{ mr: 2 }} />
+          <FilterAlt sx={{ mr: 2 }} />
           <Text type="subtitle" sx={{ fontWeight: 650 }}>
             Filters
           </Text>
         </Stack>
         <Tooltip title="Reset Filters">
           <IconButton onClick={resetFilters} color="inherit">
-            <RefreshIcon />
+            <Refresh />
           </IconButton>
         </Tooltip>
       </Stack>
@@ -184,10 +182,12 @@ export default function SearchFilters({
         />
       </Stack>
       <Divider sx={{ my: dMy }} />
-      <Radius
-        filters={filters}
-        filterErrors={filterErrors}
+      <RadiusInput
+        radius={filters.radius}
+        error={filterErrors.radius}
         onRadiusChange={onRadiusChange}
+        minRadius={CC.minRadius}
+        maxRadius={CC.maxRadius}
       />
 
       <Divider sx={{ my: dMy }} />
@@ -214,7 +214,7 @@ export default function SearchFilters({
         variant="contained"
         onClick={onSearch}
         sx={{ mx: px, mb: 2 }}
-        endIcon={<SearchIcon />}
+        endIcon={<Search />}
       >
         Search
       </Button>
