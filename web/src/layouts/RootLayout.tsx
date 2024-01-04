@@ -5,7 +5,7 @@ import { useTheme } from "@mui/material";
 import { useEffect } from "react";
 
 import AppHeader from "@components/headerSection/AppHeader";
-import UserLocationPermission from "@user/UseUserLocation";
+import UserLocationPermission from "@user/userLocation/UseUserLocation";
 import { setNavigator } from "@routes/navigationService";
 import GlobalModals from "@pages/GlobalModals";
 import { useAppDispatch, useRespVal } from "@/utils/hooks/hooks";

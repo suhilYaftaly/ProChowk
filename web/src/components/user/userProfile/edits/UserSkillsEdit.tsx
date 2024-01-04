@@ -58,7 +58,6 @@ export default function UserSkillsEdit({ contractor, onClose }: Props) {
       <SkillsSelection
         skills={form.skills}
         setSkills={onSkillsChange}
-        required
         error={Boolean(errors.skills)}
         helperText={errors.skills}
         setAllSkills={setAllSkills}

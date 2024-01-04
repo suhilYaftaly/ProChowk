@@ -9,10 +9,13 @@ import AppContainer from "@reusable/AppContainer";
 import { isDeveloper } from "@utils/auth";
 import ViewAllUsers from "@user/ViewAllUsers";
 import SearchNearbyContractors from "@user/contractor/SearchNearbyContractors";
+import { EnableUserLocation } from "@user/userLocation/UseUserLocation";
 
 export default function Home() {
   const { user, userView } = useUserStates();
   const isMobile = useIsMobile();
+  const { userLocation } = useUserStates();
+  const latLng = userLocation?.data;
 
   return (
     <AppContainer>
@@ -23,6 +26,7 @@ export default function Home() {
           ) : (
             <SearchNearbyContractors />
           )}
+          {!latLng && <EnableUserLocation />}
           {isDeveloper(user?.roles) && <ViewAllUsers />}
         </AppContainer>
         <AppContainer sx={{ m: 0 }}>
