@@ -32,7 +32,9 @@ export default function QRCodeModal({
   const qrCodeRef = useRef<HTMLDivElement | null>(null);
   fileName = "NexaBind-QRCode-" + fileName;
   const theme = useTheme();
-  const fgColor = theme.palette.text.dark;
+  const palette = theme.palette;
+  const fgColor =
+    palette.mode === "light" ? palette.text.dark : palette.secondary.dark;
 
   const imageSettings = {
     src: logoWhiteOutline as any,
