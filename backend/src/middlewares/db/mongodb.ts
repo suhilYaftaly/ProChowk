@@ -6,6 +6,8 @@ import {
   JOB_COLL,
   BUDGET_COLL,
   USER_COLL,
+  JOB_BID_COLL,
+  NOTIFICATION_COLL,
 } from "../../constants/dbCollectionNames";
 import { logger } from "../logger/logger";
 import {
@@ -87,4 +89,14 @@ export const setupMongoIndexes = async (db: Db): Promise<void> => {
   await db
     .collection(REFRESH_TOKEN_COLL)
     .createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+
+  // TTL index to delete rejected jobBids
+  await db
+    .collection(JOB_BID_COLL)
+    .createIndex({ rejectionDate: 1 }, { expireAfterSeconds: 1209600 }); // 1209600 seconds = 14 days
+
+  // TTL index to delete read notifications
+  await db
+    .collection(NOTIFICATION_COLL)
+    .createIndex({ readDate: 1 }, { expireAfterSeconds: 1209600 }); // 1209600 seconds = 14 days
 };

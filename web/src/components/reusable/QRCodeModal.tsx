@@ -33,8 +33,8 @@ export default function QRCodeModal({
   fileName = "NexaBind-QRCode-" + fileName;
   const theme = useTheme();
   const palette = theme.palette;
-  const fgColor =
-    palette.mode === "light" ? palette.text.dark : palette.secondary.dark;
+  const darkC = palette.text.dark;
+  const fgColor = palette.mode === "light" ? darkC : palette.secondary.dark;
 
   const imageSettings = {
     src: logoWhiteOutline as any,
@@ -73,7 +73,7 @@ export default function QRCodeModal({
         <Button
           fullWidth
           startIcon={<FileDownload />}
-          sx={{ mt: 2, color: fgColor, fontWeight: 900 }}
+          sx={{ mt: 2, color: darkC, fontWeight: 900 }}
           onClick={() => handleSave({ ref: qrCodeRef, name: fileName })}
         >
           Save as image

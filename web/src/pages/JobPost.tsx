@@ -8,7 +8,7 @@ import { navigateToUserPage, removeServerMetadata } from "@/utils/utilFuncs";
 import { JobInput, useCreateJob, useJob, useUpdateJob } from "@gqlOps/job";
 import JobForm from "@jobs/jobPost/JobForm";
 import { CircularProgress } from "@mui/material";
-import AppContainer from "@/components/reusable/AppContainer";
+import AppContainer from "@reusable/AppContainer";
 
 export default function JobPost() {
   const [searchParams] = useSearchParams();

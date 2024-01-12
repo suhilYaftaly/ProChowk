@@ -25,7 +25,7 @@ import checkAuth, {
   verifyToken,
 } from "../../middlewares/checkAuth";
 import {
-  GraphQLContext,
+  GQLContext,
   IAddressInput,
   ISkillInput,
   IUserImageInput,
@@ -40,7 +40,7 @@ export default {
     user: async (
       _: any,
       { id }: { id: string },
-      context: GraphQLContext,
+      context: GQLContext,
       info: GraphQLResolveInfo
     ): Promise<User> => {
       const { prisma } = context;
@@ -60,7 +60,7 @@ export default {
     users: async (
       _: any,
       __: any,
-      context: GraphQLContext,
+      context: GQLContext,
       info: GraphQLResolveInfo
     ): Promise<User[]> => {
       const { prisma } = context;
@@ -74,7 +74,7 @@ export default {
     registerUser: async (
       _: any,
       { name, password, email }: IRegisterUserInput,
-      context: GraphQLContext,
+      context: GQLContext,
       info: GraphQLResolveInfo
     ): Promise<User> => {
       const { prisma, userAgent } = context;
@@ -109,7 +109,7 @@ export default {
     loginUser: async (
       _: any,
       { password, email }: ILoginUserInput,
-      context: GraphQLContext,
+      context: GQLContext,
       info: GraphQLResolveInfo
     ): Promise<User> => {
       const { prisma, userAgent } = context;
@@ -154,7 +154,7 @@ export default {
     googleLogin: async (
       _: any,
       { accessToken }: { accessToken: string },
-      context: GraphQLContext
+      context: GQLContext
     ): Promise<User> => {
       const { prisma, userAgent } = context;
 
@@ -204,7 +204,7 @@ export default {
     googleOneTapLogin: async (
       _: any,
       { credential }: { credential: string },
-      context: GraphQLContext
+      context: GQLContext
     ): Promise<User> => {
       const { prisma, userAgent } = context;
       const decodedToken = jwt.decode(credential);
@@ -234,7 +234,7 @@ export default {
     updateUser: async (
       _: any,
       { id, edits }: { id: string; edits: IUpdateUserInput },
-      context: GraphQLContext,
+      context: GQLContext,
       info: GraphQLResolveInfo
     ): Promise<User> => {
       const { prisma, req } = context;
@@ -297,7 +297,7 @@ export default {
     sendVerificationEmail: async (
       _: any,
       { email }: { email: string },
-      context: GraphQLContext
+      context: GQLContext
     ): Promise<boolean> => {
       const { prisma } = context;
 
@@ -322,7 +322,7 @@ export default {
     verifyEmail: async (
       _: any,
       { token }: { token: string },
-      context: GraphQLContext
+      context: GQLContext
     ): Promise<string> => {
       const { prisma } = context;
 
@@ -338,7 +338,7 @@ export default {
     requestPasswordReset: async (
       _: any,
       { email }: { email: string },
-      context: GraphQLContext
+      context: GQLContext
     ): Promise<boolean> => {
       const { prisma } = context;
 
@@ -372,7 +372,7 @@ export default {
     resetPassword: async (
       _: any,
       { token, newPassword }: { token: string; newPassword: string },
-      context: GraphQLContext,
+      context: GQLContext,
       info: GraphQLResolveInfo
     ): Promise<User> => {
       const { prisma, userAgent } = context;
@@ -401,7 +401,7 @@ export default {
     validateRefreshToken: async (
       _: any,
       { refreshToken }: { refreshToken: string },
-      context: GraphQLContext
+      context: GQLContext
     ): Promise<{ accessToken; refreshToken }> => {
       const { prisma, userAgent } = context;
       const decoded = verifyToken({ token: refreshToken, type: "" });
@@ -491,7 +491,7 @@ const requestPasswordReset = async (user: User): Promise<any> => {
 };
 
 const updateRefreshToken = async (
-  prisma: GraphQLContext["prisma"],
+  prisma: GQLContext["prisma"],
   user: User,
   userAgent: string
 ) => {
@@ -513,7 +513,7 @@ const updateRefreshToken = async (
   return refreshToken;
 };
 const createRefreshToken = async (
-  prisma: GraphQLContext["prisma"],
+  prisma: GQLContext["prisma"],
   user: User,
   userAgent: string
 ) => {
@@ -531,7 +531,7 @@ const createRefreshToken = async (
 };
 
 interface ICreateOrLoginWithG {
-  prisma: GraphQLContext["prisma"];
+  prisma: GQLContext["prisma"];
   email: string;
   url: string;
   emailVerified: boolean;

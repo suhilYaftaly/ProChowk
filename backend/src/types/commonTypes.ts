@@ -14,7 +14,7 @@ import { Context } from "graphql-ws/lib/server";
 import { MongoClient } from "mongodb";
 
 //server configs
-export interface GraphQLContext {
+export interface GQLContext {
   req: Request<any, any, any, any, Record<string, any>>;
   prisma: PrismaClient;
   pubsub: PubSub;

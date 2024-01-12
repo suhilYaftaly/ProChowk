@@ -8,17 +8,24 @@ import {
 import { setUserProfile } from "@rSlices/userSlice";
 import { useAppDispatch } from "@/utils/hooks/hooks";
 import { IImage, ImageInput } from "@/types/commonTypes";
-import { AddressInput, IAddress, addressGqlResp } from "./address";
-import { IContractor, contractorGqlResp } from "./contractor";
+import { AddressInput, IAddress } from "./address";
+import { IContractor } from "./contractor";
 import { store } from "@redux/store";
 import { asyncOps } from "./gqlFuncs";
 import { SkillInput } from "./skill";
-import { imageGqlResp } from "../commonFields";
+import {
+  addressFields,
+  contractorFields,
+  imageFields,
+  licenseFields,
+  skillFields,
+  userFields,
+} from "../gqlFrags";
 
 const { dispatch } = store;
 
-export const userGqlResp = `id name phoneNum bio email emailVerified createdAt
-  updatedAt image {${imageGqlResp}} provider roles userTypes address {${addressGqlResp}}`;
+const userGqlResp = `${userFields} image {${imageFields}} address {${addressFields}}`;
+const contractorGqlResp = `${contractorFields} licenses {${licenseFields}} skills {${skillFields}}`;
 
 const userOps = {
   Queries: {

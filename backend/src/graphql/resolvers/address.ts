@@ -3,7 +3,7 @@ import { Address } from "@prisma/client";
 
 import checkAuth from "../../middlewares/checkAuth";
 import { gqlError } from "../../utils/funcs";
-import { GraphQLContext } from "../../types/commonTypes";
+import { GQLContext } from "../../types/commonTypes";
 import { MAP_QUEST_KEYS } from "../../constants/constants";
 
 export default {
@@ -11,7 +11,7 @@ export default {
     geocode: async (
       _: any,
       { value, lat, lng, limit = 5 }: GeocodeInput,
-      context: GraphQLContext
+      context: GQLContext
     ): Promise<[IGeocode]> => {
       const { req } = context;
       //TODO: restrict this API to NexaBind only
@@ -24,7 +24,7 @@ export default {
     reverseGeocode: async (
       _: any,
       { lat, lng }: { lat: number; lng: number },
-      context: GraphQLContext
+      context: GQLContext
     ): Promise<IGeocode> => {
       const { req } = context;
       const user = checkAuth(req);

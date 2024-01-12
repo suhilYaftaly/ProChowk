@@ -416,3 +416,16 @@ export const charsCount = (text: string | undefined, max: number) => {
   if (text) return `(${text.length}/${max})`;
   return `(0/${max})`;
 };
+
+export function splitCamelCase(input: string | undefined) {
+  if (!input) return input;
+  return (
+    input
+      // Insert a space before all caps (except for the very first character if it's uppercase)
+      .replace(/([a-z])([A-Z])/g, "$1 $2")
+      // Replace any underscores or hyphens with a space
+      .replace(/[_\-]+/g, " ")
+      // Capitalize the first character if the original string was PascalCase
+      .replace(/^./, (str) => str.toUpperCase())
+  );
+}

@@ -1,11 +1,10 @@
 import { gql, useApolloClient, useLazyQuery } from "@apollo/client";
 import { asyncOps } from "./gqlFuncs";
+import { addressFields, geocodeFields } from "../gqlFrags";
 
 const geoJsonGqlResp = `type coordinates`;
-const geocodeGqlResp = `displayName street city county state stateCode 
-  postalCode country countryCode lat lng geometry {${geoJsonGqlResp}}`;
-export const addressGqlResp = `id displayName street city county state stateCode 
-  postalCode country countryCode lat lng createdAt updatedAt geometry {${geoJsonGqlResp}}`;
+const geocodeGqlResp = `${geocodeFields} geometry {${geoJsonGqlResp}}`;
+export const addressGqlResp = `${addressFields} geometry {${geoJsonGqlResp}}`;
 
 const addressOps = {
   Queries: {

@@ -2,7 +2,7 @@ import { Contractor, User } from "@prisma/client";
 import { GraphQLResolveInfo } from "graphql";
 
 import {
-  GraphQLContext,
+  GQLContext,
   ILicenseInput,
   ISkillInput,
 } from "../../types/commonTypes";
@@ -20,7 +20,7 @@ export default {
     contractor: async (
       _: any,
       { id, userId }: { id?: string; userId?: string },
-      context: GraphQLContext,
+      context: GQLContext,
       info: GraphQLResolveInfo
     ): Promise<Contractor> => {
       const { prisma } = context;
@@ -40,7 +40,7 @@ export default {
     contractorsByLocation: async (
       _: any,
       { latLng, radius = 60, page = 1, pageSize = 100 }: IContByLocInput,
-      context: GraphQLContext,
+      context: GQLContext,
       info: GraphQLResolveInfo
     ): Promise<{ totalCount: number; users: User[] }> => {
       const { mongoClient, prisma } = context;
@@ -110,7 +110,7 @@ export default {
     contractorsByText: async (
       _: any,
       { input, latLng, radius = 60, page = 1, pageSize = 100 }: IContByTxtInput,
-      context: GraphQLContext,
+      context: GQLContext,
       info: GraphQLResolveInfo
     ): Promise<{ totalCount: number; users: User[] }> => {
       const { mongoClient, prisma } = context;
@@ -211,7 +211,7 @@ export default {
     createContractor: async (
       _: any,
       { userId }: { userId: string },
-      context: GraphQLContext,
+      context: GQLContext,
       info: GraphQLResolveInfo
     ): Promise<User> => {
       const { prisma, req } = context;
@@ -237,7 +237,7 @@ export default {
     addContractorLicense: async (
       _: any,
       { contId, license }: { contId: string; license: ILicenseInput },
-      context: GraphQLContext,
+      context: GQLContext,
       info: GraphQLResolveInfo
     ): Promise<Contractor> => {
       const { prisma, req } = context;
@@ -260,7 +260,7 @@ export default {
     deleteContractorLicense: async (
       _: any,
       { contId, licId }: { contId: string; licId: string },
-      context: GraphQLContext,
+      context: GQLContext,
       info: GraphQLResolveInfo
     ): Promise<Contractor> => {
       const { prisma, req } = context;
@@ -282,7 +282,7 @@ export default {
     updateContractorSkills: async (
       _: any,
       { contId, skills }: { contId: string; skills: ISkillInput[] },
-      context: GraphQLContext,
+      context: GQLContext,
       info: GraphQLResolveInfo
     ): Promise<Contractor> => {
       const { prisma, req } = context;

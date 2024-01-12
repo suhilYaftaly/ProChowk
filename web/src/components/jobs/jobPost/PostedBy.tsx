@@ -1,5 +1,6 @@
 import {
   Avatar,
+  Divider,
   List,
   ListItem,
   ListItemButton,
@@ -17,8 +18,9 @@ import Rating from "@reusable/appComps/Rating";
 interface Props {
   loading: boolean;
   user: IUser | undefined;
+  title?: string;
 }
-export default function PostedBy({ loading, user }: Props) {
+export default function PostedBy({ loading, user, title }: Props) {
   const navigate = useNavigate();
   const navigateToUser = () => navigateToUserPage({ user, navigate });
   const isMobile = useIsMobile();
@@ -30,32 +32,42 @@ export default function PostedBy({ loading, user }: Props) {
       {loading ? (
         <CompSkeleton />
       ) : (
-        <List component="nav">
-          <ListItem sx={{ my: 1 }} disableGutters>
-            <ListItemButton onClick={navigateToUser}>
-              <Avatar
-                alt={user?.name}
-                src={user?.image?.url}
-                sx={{ width: 60, height: 60, mr: 2 }}
-              />
-              <Stack
-                direction={"row"}
-                sx={{
-                  alignItems: "center",
-                  width: "100%",
-                  justifyContent: "space-between",
-                }}
-              >
-                <div>
-                  {isMobile && <Text>Posted By</Text>}
-                  <Text type="subtitle">{user?.name}</Text>
-                  {!isMobile && <Rating />}
-                </div>
-                {isMobile && <Rating />}
-              </Stack>
-            </ListItemButton>
-          </ListItem>
-        </List>
+        <>
+          {!isMobile && title && (
+            <>
+              <Text cColor="dark" sx={{ mx: 2, my: 1, fontWeight: 550 }}>
+                {title}
+              </Text>
+              <Divider />
+            </>
+          )}
+          <List component="nav">
+            <ListItem disableGutters>
+              <ListItemButton onClick={navigateToUser}>
+                <Avatar
+                  alt={user?.name}
+                  src={user?.image?.url}
+                  sx={{ width: 60, height: 60, mr: 2 }}
+                />
+                <Stack
+                  direction={"row"}
+                  sx={{
+                    alignItems: "center",
+                    width: "100%",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <div>
+                    {isMobile && title && <Text>{title}</Text>}
+                    <Text type="subtitle">{user?.name}</Text>
+                    {!isMobile && <Rating />}
+                  </div>
+                  {isMobile && <Rating />}
+                </Stack>
+              </ListItemButton>
+            </ListItem>
+          </List>
+        </>
       )}
     </>
   );

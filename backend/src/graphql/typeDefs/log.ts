@@ -3,6 +3,7 @@ import { gql } from "graphql-tag";
 export default gql`
   scalar GraphQLJSON
   scalar Date
+  scalar DateTime
 
   type Query {
     logs(

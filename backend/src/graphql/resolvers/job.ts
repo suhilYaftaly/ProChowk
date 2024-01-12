@@ -1,7 +1,7 @@
 import { BudgetType, Job } from "@prisma/client";
 import { GraphQLResolveInfo } from "graphql";
 
-import { GraphQLContext, IJobInput } from "../../types/commonTypes";
+import { GQLContext, IJobInput } from "../../types/commonTypes";
 import checkAuth, { canUserUpdate } from "../../middlewares/checkAuth";
 import { gqlError, ifr, infr } from "../../utils/funcs";
 import {
@@ -18,7 +18,7 @@ export default {
     job: async (
       _: any,
       { id }: { id: string },
-      context: GraphQLContext,
+      context: GQLContext,
       info: GraphQLResolveInfo
     ): Promise<Job> => {
       const { prisma } = context;
@@ -39,7 +39,7 @@ export default {
     userJobs: async (
       _: any,
       { userId }: { userId: string },
-      context: GraphQLContext,
+      context: GQLContext,
       info: GraphQLResolveInfo
     ): Promise<Job[]> => {
       const { prisma } = context;
@@ -61,7 +61,7 @@ export default {
     jobsByLocation: async (
       _: any,
       { latLng, radius = 60, page = 1, pageSize = 100 }: IJobsByLocationInput,
-      context: GraphQLContext,
+      context: GQLContext,
       info: GraphQLResolveInfo
     ): Promise<{ jobs: Job[]; totalCount: number }> => {
       const { mongoClient, prisma } = context;
@@ -136,7 +136,7 @@ export default {
         endDate,
         budget,
       }: IJobsByTextInput,
-      context: GraphQLContext,
+      context: GQLContext,
       info: GraphQLResolveInfo
     ): Promise<{ jobs: Job[]; totalCount: number }> => {
       const { mongoClient, prisma } = context;
@@ -257,7 +257,7 @@ export default {
     createJob: async (
       _: any,
       { userId, jobInput }: { userId: string; jobInput: IJobInput },
-      context: GraphQLContext,
+      context: GQLContext,
       info: GraphQLResolveInfo
     ): Promise<Job> => {
       const { prisma, req } = context;
@@ -295,7 +295,7 @@ export default {
     updateJob: async (
       _: any,
       { id, jobInput }: IUpdateJobInput,
-      context: GraphQLContext,
+      context: GQLContext,
       info: GraphQLResolveInfo
     ): Promise<Job> => {
       const { prisma, req } = context;
@@ -377,14 +377,14 @@ export default {
     deleteJob: async (
       _: any,
       { id }: { id: string },
-      context: GraphQLContext
+      context: GQLContext
     ): Promise<Job> => {
       const { prisma, req } = context;
       const authUser = checkAuth(req);
 
       const job = await prisma.job.findUnique({
         where: { id },
-        include: { images: true, budget: true },
+        include: { images: true, budget: true, bids: true },
       });
       if (!job) throw gqlError({ msg: "Job not found" });
       canUserUpdate({ id: job.userId, authUser });
@@ -399,6 +399,11 @@ export default {
       // Deleting associated budget
       if (job.budget) {
         await prisma.budget.delete({ where: { id: job.budget.id } });
+      }
+
+      //delete assiciated bids
+      if (job.bids && job.bids.length > 0) {
+        await prisma.jobBid.deleteMany({ where: { jobId: id } });
       }
 
       // Finally, deleting the job

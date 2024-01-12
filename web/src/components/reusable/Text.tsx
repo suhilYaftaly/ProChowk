@@ -16,7 +16,15 @@ interface CustomTextProps extends TypographyProps {
   type?: "title" | "subtitle" | "body1" | "body2" | "caption";
   sx?: TypographyProps["sx"];
   /**custom theme color */
-  cColor?: "dark" | "main" | "light" | "primary" | "info" | "warning" | "error";
+  cColor?:
+    | "dark"
+    | "main"
+    | "light"
+    | "primary"
+    | "info"
+    | "warning"
+    | "error"
+    | "success";
 }
 
 /** Extending the standard MUI Typography to create a custom "Text" component .*/
@@ -89,6 +97,8 @@ const getColor = (
       return theme.palette.text.light;
     case "primary":
       return theme.palette.primary.main;
+    case "success":
+      return theme.palette.success.main;
     case "info":
       return theme.palette.info.main;
     case "warning":

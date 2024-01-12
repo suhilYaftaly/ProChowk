@@ -48,6 +48,14 @@ export default function ProfileList({ onItemClick }: Props) {
     navigate(paths.userJobTypes("Draft"));
     onItemClick && onItemClick();
   };
+  const onActiveJobs = () => {
+    navigate(paths.userJobTypes("Active"));
+    onItemClick && onItemClick();
+  };
+  const onBiddingJobs = () => {
+    navigate(paths.userJobTypes("Bidding"));
+    onItemClick && onItemClick();
+  };
 
   return (
     <List component="nav">
@@ -75,6 +83,8 @@ export default function ProfileList({ onItemClick }: Props) {
       )}
       <LogOut ui="mobile" onLogout={onItemClick} />
       <Divider />
+      <CListItem label="Active Jobs" onClick={onActiveJobs} />
+      <CListItem label="Bidding Jobs" onClick={onBiddingJobs} />
       <CListItem label="Posted Jobs" onClick={onPostedJobs} />
       <CListItem label="Draft Jobs" onClick={onDraftJobs} />
     </List>

@@ -1,6 +1,6 @@
 import { Log, LogsLevel } from "@prisma/client";
 
-import { GraphQLContext } from "../../types/commonTypes";
+import { GQLContext } from "../../types/commonTypes";
 import checkAuth, { isDeveloper } from "../../middlewares/checkAuth";
 import { gqlError } from "../../utils/funcs";
 
@@ -9,7 +9,7 @@ export default {
     logs: async (
       _: any,
       { skip = 0, take = 50, orderBy = "desc", level }: ILogsInput,
-      context: GraphQLContext
+      context: GQLContext
     ): Promise<ILogsResponse> => {
       const { prisma, req } = context;
       const authUser = checkAuth(req);

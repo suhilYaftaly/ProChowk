@@ -1,22 +1,26 @@
+import { SxProps, Theme } from "@mui/material";
 import Text from "@reusable/Text";
 import { JobInput } from "@gqlOps/job";
 
 interface Props {
   budget: JobInput["budget"];
+  sx?: SxProps<Theme>;
 }
-export default function JobBudgetCost({ budget }: Props) {
+export default function JobBudgetCost({ budget, sx }: Props) {
   const isHourly = budget?.type === "Hourly";
   return (
-    <Text type="body2" sx={{ mb: 1, fontWeight: "600" }}>
+    <Text sx={{ mb: 1, fontWeight: 500, ...sx }}>
       {budget?.type}:{" "}
-      <span style={{ opacity: 0.8 }}>
+      <Text component={"span"} cColor="primary" sx={{ fontWeight: 600 }}>
         {isHourly && `$${budget?.from}-`}${budget?.to}
-      </span>
+      </Text>
       {isHourly && (
         <>
           {" "}
           | Max Hours:{" "}
-          <span style={{ opacity: 0.8 }}>{budget?.maxHours}Hrs</span>
+          <Text component={"span"} cColor="primary" sx={{ fontWeight: 600 }}>
+            {budget?.maxHours}hr
+          </Text>
         </>
       )}
     </Text>

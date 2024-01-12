@@ -26,10 +26,12 @@ export default function JobDateRangePicker({
 }: Props) {
   const isMobile = useIsMobile();
   const handleStartDateChange = (date: Date | null) => {
-    if (date) setStartDate(startOfDay(date).toISOString());
+    if (date && !isNaN(date.getTime()))
+      setStartDate(startOfDay(date).toISOString());
   };
   const handleEndDateChange = (date: Date | null) => {
-    if (date) setEndDate(endOfDay(date).toISOString());
+    if (date && !isNaN(date.getTime()))
+      setEndDate(endOfDay(date).toISOString());
   };
 
   return (

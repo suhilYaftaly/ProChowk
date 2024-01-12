@@ -21,7 +21,7 @@ export default function Home() {
     <AppContainer>
       <Stack direction={"row"}>
         <AppContainer addCard sx={{ m: 0, width: "100%" }}>
-          {userView === "Contractor" ? (
+          {user && userView === "Contractor" ? (
             <SearchNearbyJobs />
           ) : (
             <SearchNearbyContractors />

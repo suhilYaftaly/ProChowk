@@ -6,6 +6,7 @@ import address from "./address";
 import job from "./job";
 import skill from "./skill";
 import log from "./log";
+import jobBid from "./jobBid";
 
 export default merge(
   {},
@@ -15,5 +16,6 @@ export default merge(
   address,
   job,
   skill,
-  log
+  log,
+  jobBid
 );

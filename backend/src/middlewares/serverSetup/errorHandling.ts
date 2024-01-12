@@ -9,7 +9,7 @@ import {
   isDevEnv,
 } from "../../utils/funcs";
 import { logger } from "../logger/logger";
-import { GraphQLContext } from "../../types/commonTypes";
+import { GQLContext } from "../../types/commonTypes";
 
 // utility function to wrap each resolver with the errorHandler
 export const wrapResolvers = (resolvers, errorHandler) => {
@@ -31,7 +31,7 @@ export const withCatch = (resolverFunction: Function) => {
       if (!isDevEnv) {
         if ((error?.extensions?.type as IGQLError["type"]) !== "skipLogging") {
           const [, , context] = args;
-          const req: GraphQLContext["req"] = context?.req;
+          const req: GQLContext["req"] = context?.req;
           const userAgent = req?.headers?.["user-agent"];
           const user = getUserFromReq(req);
           const ip = getClientIP(req);

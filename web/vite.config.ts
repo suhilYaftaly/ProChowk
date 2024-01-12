@@ -34,6 +34,7 @@ export default defineConfig({
       "@jobs": `${path.resolve(__dirname, "./src/components/jobs/")}`,
       "@types": `${path.resolve(__dirname, "./src/types/")}`,
       "@icons": `${path.resolve(__dirname, "./src/assets/icons/")}`,
+      "@chat": `${path.resolve(__dirname, "./src/components/chat/")}`,
     },
   },
 });

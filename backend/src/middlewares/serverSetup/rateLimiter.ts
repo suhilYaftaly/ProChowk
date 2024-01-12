@@ -6,7 +6,7 @@ import { rateLimitDirective } from "graphql-rate-limit-directive";
 
 import { getClientIP, getUserFromReq } from "../../utils/funcs";
 import { redisClient } from "../db/redis";
-import { GraphQLContext } from "../../types/commonTypes";
+import { GQLContext } from "../../types/commonTypes";
 
 const limiterOptions: IRateLimiterRedisOptions = {
   storeClient: redisClient,
@@ -16,7 +16,7 @@ const limiterOptions: IRateLimiterRedisOptions = {
 export const { rateLimitDirectiveTypeDefs, rateLimitDirectiveTransformer } =
   rateLimitDirective({
     keyGenerator: (directiveArgs, source, args, ctx: any, info) => {
-      const req: GraphQLContext["req"] = ctx?.req;
+      const req: GQLContext["req"] = ctx?.req;
       const user = getUserFromReq(req);
       const ip = getClientIP(req);
       const userAgent = req?.headers?.["user-agent"];

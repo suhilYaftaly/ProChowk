@@ -32,18 +32,23 @@ export default gql`
     title: String!
     desc: String!
     jobSize: JobSize!
-    createdAt: Date
-    updatedAt: Date
-    budget: Budget
-    skills: [Skill!]
-    images: [JobImage]
-    address: Address
-    userId: ID
-    user: User
+    status: JobStatus
     startDate: Date
     endDate: Date
     isDraft: Boolean
     draftExpiry: Date
+    createdAt: Date
+    updatedAt: Date
+    budgetId: ID
+    budget: Budget
+    skillIDs: [ID]
+    skills: [Skill!]
+    images: [JobImage]
+    addressId: ID
+    address: Address
+    userId: ID
+    user: User
+    bids: [JobBid!]
   }
   type Budget {
     id: ID
@@ -107,5 +112,11 @@ export default gql`
   enum BudgetType {
     Hourly
     Project
+  }
+  enum JobStatus {
+    Open
+    Bidding
+    InProgress
+    Completed
   }
 `;

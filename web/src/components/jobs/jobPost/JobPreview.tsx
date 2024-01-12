@@ -6,12 +6,13 @@ import Text from "@reusable/Text";
 import JobBudgetCost from "../comps/JobBudgetCost";
 import FullScreenModal from "@reusable/FullScreenModal";
 import { useRespVal } from "@/utils/hooks/hooks";
-import { readISODate } from "@/utils/utilFuncs";
+import { readISODate, splitCamelCase } from "@/utils/utilFuncs";
 
 interface Props {
   job: IJob | JobInput;
+  bidBtn?: React.ReactNode;
 }
-export default function JobPreview({ job }: Props) {
+export default function JobPreview({ job, bidBtn }: Props) {
   const { title, desc, address, budget, skills, images, startDate, endDate } =
     job;
   const [openImg, setOpenImg] = useState(false);
@@ -20,13 +21,17 @@ export default function JobPreview({ job }: Props) {
 
   return (
     <Stack>
-      <Text type="title" sx={{ mb: 2 }}>
-        {title} - {address?.city} {address?.stateCode}, {address?.countryCode}
-      </Text>
-      <JobBudgetCost budget={budget} />
-      <Text type="subtitle" sx={{ mt: 1 }}>
-        Job Description
-      </Text>
+      <Stack
+        direction={"row"}
+        sx={{ alignItems: "center", justifyContent: "space-between" }}
+      >
+        <Text type="subtitle" sx={{ mb: 2 }}>
+          {title} - {address?.city} {address?.stateCode}, {address?.countryCode}
+        </Text>
+        {bidBtn}
+      </Stack>
+      <JobBudgetCost budget={budget} sx={{ mb: 2 }} />
+      <Text type="subtitle">Job Description</Text>
       <Text sx={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}>
         {desc}
       </Text>
@@ -112,3 +117,26 @@ export default function JobPreview({ job }: Props) {
     </Stack>
   );
 }
+
+export const JobStatus = ({ job }: { job: IJob }) => {
+  const getStatusColor = () => {
+    switch (job?.status) {
+      case "InProgress":
+        return "info";
+      case "Completed":
+        return "success";
+      default:
+        "main";
+    }
+    return "main";
+  };
+
+  return (
+    <>
+      <Text type="subtitle">Job Status</Text>
+      <Text cColor={getStatusColor()} sx={{ fontWeight: 500 }}>
+        {splitCamelCase(job.status)}
+      </Text>
+    </>
+  );
+};

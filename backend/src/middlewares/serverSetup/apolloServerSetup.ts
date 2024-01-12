@@ -9,7 +9,7 @@ import { makeExecutableSchema } from "@graphql-tools/schema";
 import http from "http";
 import depthLimit from "graphql-depth-limit";
 
-import { SubsciptionContext, GraphQLContext } from "../../types/commonTypes";
+import { SubsciptionContext, GQLContext } from "../../types/commonTypes";
 import { connectToMongoDB } from "../db/mongodb";
 import resolvers from "../../graphql/resolvers";
 import typeDefs from "../../graphql/typeDefs";
@@ -48,7 +48,7 @@ export const apolloServerSetup = async () => {
   const serverCleanup = useServer(
     {
       schema,
-      context: async (ctx: SubsciptionContext): Promise<GraphQLContext> => {
+      context: async (ctx: SubsciptionContext): Promise<GQLContext> => {
         if (ctx?.connectionParams?.session) {
           const { session } = ctx.connectionParams;
           return {
@@ -67,7 +67,7 @@ export const apolloServerSetup = async () => {
 
   const server = new ApolloServer({
     schema,
-    validationRules: [depthLimit(4)],
+    validationRules: [depthLimit(6)],
     csrfPrevention: true,
     formatError: apolloServerFormatError,
     plugins: [

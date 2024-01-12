@@ -6,7 +6,7 @@ import jwt from "jsonwebtoken";
 import { ISignedProps } from "../middlewares/checkAuth";
 import { appName, appNamePascalCase } from "../constants/constants";
 import { logger } from "../middlewares/logger/logger";
-import { GraphQLContext } from "../types/commonTypes";
+import { GQLContext } from "../types/commonTypes";
 
 dotenv.config();
 const baseUrl = process.env.CLIENT_ORIGIN;
@@ -182,13 +182,13 @@ export async function sendFailureEmailNotification({
   });
 }
 
-export const getUserFromReq = (req: GraphQLContext["req"]): ISignedProps => {
+export const getUserFromReq = (req: GQLContext["req"]): ISignedProps => {
   const authHeader = req?.headers?.authorization;
   const token = authHeader?.split("Bearer ")?.[1];
   return jwt.decode(token) as ISignedProps;
 };
 
-export const getClientIP = (req: GraphQLContext["req"]) => {
+export const getClientIP = (req: GQLContext["req"]) => {
   const xForwardedFor = req?.headers?.["x-forwarded-for"];
   let ip: string | string[] | undefined = "";
 

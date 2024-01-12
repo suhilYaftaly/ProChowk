@@ -32,6 +32,7 @@ export default gql`
     licenses: [License]
     userId: ID
     user: User
+    bids: [JobBid!]
   }
   type License {
     id: ID

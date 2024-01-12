@@ -1,7 +1,7 @@
 import * as dotenv from "dotenv";
 
 import checkAuth from "../../middlewares/checkAuth";
-import { GraphQLContext } from "../../types/commonTypes";
+import { GQLContext } from "../../types/commonTypes";
 
 dotenv.config();
 
@@ -10,7 +10,7 @@ export default {
     getGoogleMapKey: async (
       _: any,
       __: any,
-      context: GraphQLContext
+      context: GQLContext
     ): Promise<string> => {
       const { req } = context;
       const user = checkAuth(req);

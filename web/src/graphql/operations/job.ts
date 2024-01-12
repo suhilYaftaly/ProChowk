@@ -4,31 +4,26 @@ import {
   useLazyQuery,
   useMutation,
 } from "@apollo/client";
-import { ISkill, SkillInput, skillGqlResp } from "./skill";
+import { ISkill, SkillInput } from "./skill";
 import { IUser } from "./user";
 import { AddressInput, IAddress, LatLngInput, addressGqlResp } from "./address";
 import { IImage, ImageInput } from "@/types/commonTypes";
 import { asyncOps } from "./gqlFuncs";
-import { imageGqlResp } from "../commonFields";
-
-const budgetGqlResp = `id type from to maxHours createdAt updatedAt`;
+import {
+  jobBudgetFields,
+  imageFields,
+  jobFields,
+  skillFields,
+} from "../gqlFrags";
 
 const jobGqlRespMini = `id title isDraft`;
-const jobGqlResp = `id title desc jobSize createdAt updatedAt userId startDate endDate isDraft draftExpiry
-  skills {${skillGqlResp}} budget {${budgetGqlResp}}
-  images {${imageGqlResp}} address {${addressGqlResp}}`;
-const searchJobGqlResp = `id title desc jobSize userId createdAt
-  skills {label} budget {type from to maxHours} address {city lat lng}`;
-const usersJobGqlResp = `id title desc jobSize userId createdAt isDraft draftExpiry
-  skills {label} budget {type from to maxHours} address {city lat lng}`;
+export const jobGqlResp = `${jobFields} skills {${skillFields}} budget {${jobBudgetFields}} images {${imageFields}} address {${addressGqlResp}}`;
+export const searchJobGqlResp = `id title desc jobSize status userId createdAt skills {label} budget {type from to maxHours} address {city lat lng}`;
+const usersJobGqlResp = `id title desc jobSize userId createdAt isDraft draftExpiry skills {label} budget {type from to maxHours} address {city lat lng}`;
 
 const jobOps = {
   Queries: {
-    job: gql`
-      query Job($id: ID!) {
-        job(id: $id) {${jobGqlResp}}
-      }
-    `,
+    job: gql`query Job($id: ID!) {job(id: $id) {${jobGqlResp}}}`,
     userJobs: gql`
       query UserJobs($userId: ID!) {
         userJobs(userId: $userId) {${usersJobGqlResp}}
@@ -97,15 +92,17 @@ const jobOps = {
  */
 export interface IJob extends JobInput {
   id: string;
+  draftExpiry?: string;
   createdAt: string;
   updatedAt: string;
+  skillIDs?: string[];
   skills: ISkill[];
   budget: IJobBudget;
+  addressId?: string;
   address: IAddress;
   images: IImage[];
   userId?: string;
   user?: IUser;
-  draftExpiry?: string;
   __typename?: string;
   [key: string]: any;
 }
@@ -118,6 +115,7 @@ interface IJobBudget extends JobBudgetInput {
 //types
 type JobSize = "Small" | "Medium" | "Large";
 export type BudgetType = "Hourly" | "Project";
+type JobStatus = "Open" | "Bidding" | "InProgress" | "Completed";
 
 //inputes
 interface JobBudgetInput {
@@ -130,13 +128,14 @@ export interface JobInput {
   title: string;
   desc: string;
   jobSize: JobSize;
+  startDate?: string;
+  endDate?: string;
+  isDraft: boolean;
+  status?: JobStatus;
   skills: SkillInput[];
   budget: JobBudgetInput;
   address?: AddressInput;
   images: ImageInput[];
-  startDate?: string;
-  endDate?: string;
-  isDraft: boolean;
 }
 
 export interface JobsByTxtBudgetInput {
@@ -162,6 +161,7 @@ interface IJobIAsync {
   onError?: (error?: any) => void;
 }
 export const useJob = () => {
+  const client = useApolloClient();
   const [job, { data, loading, error }] = useLazyQuery<
     IUseJobData,
     IUseJobInput
@@ -174,7 +174,23 @@ export const useJob = () => {
       onError,
     });
 
-  return { jobAsync, data, loading, error };
+  const updateCache = (job: IJob) => {
+    const variables = { id: job.id };
+    const cachedData = client.readQuery<IUseJobData, IUseJobInput>({
+      query: jobOps.Queries.job,
+      variables,
+    });
+
+    if (cachedData) {
+      client.writeQuery<IUseJobData, IUseJobInput>({
+        query: jobOps.Queries.job,
+        data: { job: { ...cachedData?.job, ...job } },
+        variables,
+      });
+    }
+  };
+
+  return { jobAsync, updateCache, data, loading, error };
 };
 
 //userJobs op

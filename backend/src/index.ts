@@ -3,7 +3,7 @@ import express from "express";
 import * as dotenv from "dotenv";
 import cors from "cors";
 
-import { GraphQLContext } from "./types/commonTypes";
+import { GQLContext } from "./types/commonTypes";
 import { serverSetup } from "./middlewares/serverSetup/serverSetup";
 
 async function main() {
@@ -19,7 +19,7 @@ async function main() {
     }),
     express.json({ limit: "20mb" }),
     expressMiddleware(server, {
-      context: async ({ req, res }): Promise<GraphQLContext> => ({
+      context: async ({ req, res }): Promise<GQLContext> => ({
         req,
         prisma,
         pubsub,

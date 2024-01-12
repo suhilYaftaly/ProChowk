@@ -1,12 +1,11 @@
 import { gql, useApolloClient, useLazyQuery } from "@apollo/client";
 import { asyncOps } from "./gqlFuncs";
-
-export const skillGqlResp = `id label createdAt updatedAt`;
+import { skillFields } from "../gqlFrags";
 
 const skillOps = {
   Queries: {
     skills: gql`
-      query Query {skills {${skillGqlResp}}}
+      query Query {skills {${skillFields}}}
     `,
   },
 };

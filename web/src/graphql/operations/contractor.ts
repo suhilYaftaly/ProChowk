@@ -5,14 +5,14 @@ import {
   useMutation,
 } from "@apollo/client";
 
-import { ISkill, skillGqlResp, SkillInput } from "./skill";
+import { ISkill, SkillInput } from "./skill";
 import { asyncOps } from "./gqlFuncs";
 import { IUser } from "./user";
 import { LatLngInput } from "./address";
+import { contractorFields, licenseFields, skillFields } from "../gqlFrags";
 
-const licenseGqlResp = `id name type size url createdAt updatedAt`;
-export const contractorGqlResp = `id createdAt updatedAt licenses {${licenseGqlResp}} skills {${skillGqlResp}}`;
 const searchContResp = `id name bio image {url} address {city lat lng} contractor {skills {label}}`;
+const contractorGqlResp = `${contractorFields} licenses {${licenseFields}} skills {${skillFields}}`;
 
 const contOps = {
   Queries: {
@@ -94,6 +94,8 @@ export interface IContractor {
   updatedAt: string;
   skills: ISkill[];
   licenses: ILicense[];
+  userId?: string;
+  user?: IUser;
 }
 //inputs
 export interface LicenseInput {
