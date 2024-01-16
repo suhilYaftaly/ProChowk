@@ -106,8 +106,8 @@ export default {
       const paginatedResults = aggregation[0].paginatedResults;
       const totalCount = aggregation[0].totalCount[0]?.total || 0;
 
-      const jobIds = paginatedResults.map((address) =>
-        address.assoJobs._id.toString()
+      const jobIds = paginatedResults.map((address: any) =>
+        address?.assoJobs?._id.toString()
       );
       const jobs = await prisma.job.findMany({
         where: { id: { in: jobIds }, isDraft: false },
@@ -119,7 +119,7 @@ export default {
         },
       });
 
-      const orderedJobs = jobIds.map((jobId) =>
+      const orderedJobs = jobIds.map((jobId: string) =>
         jobs.find((job) => job.id === jobId)
       );
       return { jobs: orderedJobs, totalCount };
@@ -172,7 +172,7 @@ export default {
       let combinedIds = [...jobIdsFromTextSearch, ...skillIds];
 
       // Initialize additional match conditions
-      let addiConds = {};
+      let addiConds: any = {};
 
       // Add budget conditions if provided
       if (budget) {
@@ -230,11 +230,11 @@ export default {
         ])
         .next();
 
-      const paginatedResults = result.paginatedResults || [];
-      const totalCount = result.totalCount[0]?.total || 0;
+      const paginatedResults = result?.paginatedResults || [];
+      const totalCount = result?.totalCount[0]?.total || 0;
 
-      const jobIds = paginatedResults.map((address) =>
-        address.assoJobs._id.toString()
+      const jobIds = paginatedResults.map((address: any) =>
+        address?.assoJobs?._id.toString()
       );
       const jobs = await prisma.job.findMany({
         where: { id: { in: jobIds }, isDraft: false },
@@ -246,7 +246,7 @@ export default {
         },
       });
 
-      const orderedJobs = jobIds.map((jobId) =>
+      const orderedJobs = jobIds.map((jobId: string) =>
         jobs.find((job) => job.id === jobId)
       );
 
@@ -415,7 +415,7 @@ export default {
 };
 
 const buildJobInputs = (jobInput: IJobInput) => {
-  let data;
+  let data: any;
   if (jobInput.address)
     data = {
       ...data,

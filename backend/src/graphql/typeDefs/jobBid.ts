@@ -15,6 +15,7 @@ export default gql`
     id: ID!
     quote: String!
     startDate: DateTime
+    endDate: DateTime
     proposal: String
     isAccepted: Boolean
     isRejected: Boolean
@@ -38,6 +39,7 @@ export default gql`
     contractorId: String!
     quote: Float!
     startDate: DateTime
+    endDate: DateTime
     proposal: String
     agreementAccepted: Boolean!
   }

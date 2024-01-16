@@ -1,10 +1,11 @@
-import { Avatar, IconButton, Stack, useTheme } from "@mui/material";
+import { Avatar, Divider, IconButton, Stack, useTheme } from "@mui/material";
 import { useState } from "react";
 
 import AppLogo from "@reusable/AppLogo";
 import LogInButton from "@/components/headerSection/LogInButton";
 import MMyProfileDrawer from "./MMyProfileDrawer";
 import { useUserStates } from "@/redux/reduxStates";
+import NotificationIcon from "@user/notification/NotificationIcon";
 
 export default function MHeader() {
   const theme = useTheme();
@@ -21,16 +22,20 @@ export default function MHeader() {
         <Stack direction="row" alignItems={"center"}>
           <LogInButton />
           {user && (
-            <IconButton
-              sx={{ color: theme.palette.common.white }}
-              onClick={() => setOpenDrawer(!openDrawer)}
-            >
-              <Avatar
-                alt={user?.name}
-                src={user?.image?.url}
-                sx={{ width: 30, height: 30 }}
-              />
-            </IconButton>
+            <>
+              <NotificationIcon />
+              <LineDivider />
+              <IconButton
+                sx={{ color: theme.palette.common.white }}
+                onClick={() => setOpenDrawer(!openDrawer)}
+              >
+                <Avatar
+                  alt={user?.name}
+                  src={user?.image?.url}
+                  sx={{ width: 30, height: 30 }}
+                />
+              </IconButton>
+            </>
           )}
         </Stack>
       </Stack>
@@ -38,3 +43,10 @@ export default function MHeader() {
     </>
   );
 }
+
+const LineDivider = () => (
+  <Divider
+    sx={{ height: 20, m: 0.5, borderColor: "gray", borderWidth: 1, mx: 1 }}
+    orientation="vertical"
+  />
+);

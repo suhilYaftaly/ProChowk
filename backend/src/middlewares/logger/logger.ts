@@ -8,7 +8,7 @@ import { LOG_COLL } from "../../constants/dbCollectionNames";
 dotenv.config();
 
 const mongoDBTransporter = new winston.transports.MongoDB({
-  db: process.env.MONGODB_URI,
+  db: process.env.MONGODB_URI || "",
   collection: LOG_COLL,
   capped: true,
   cappedSize: 10000000, //10MB

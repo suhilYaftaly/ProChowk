@@ -89,8 +89,8 @@ export default {
       const paginatedResults = aggregation[0].paginatedResults;
       const totalCount = aggregation[0].totalCount[0]?.total || 0;
 
-      const userIds = paginatedResults.map((item) =>
-        item.nearbyUsers._id.toString()
+      const userIds = paginatedResults.map((item: any) =>
+        item?.nearbyUsers?._id.toString()
       );
 
       const users = await prisma.user.findMany({
@@ -102,7 +102,7 @@ export default {
         },
       });
 
-      const orderedUsers = userIds.map((userId) =>
+      const orderedUsers = userIds.map((userId: string) =>
         users.find((user) => user.id === userId)
       );
       return { users: orderedUsers, totalCount };
@@ -188,8 +188,8 @@ export default {
       const paginatedResults = result[0]?.paginatedResults || [];
       const totalCount = result[0]?.totalCount[0]?.total || 0;
 
-      const userIds = paginatedResults.map((item) =>
-        item.associatedUsers._id.toString()
+      const userIds = paginatedResults.map((item: any) =>
+        item?.associatedUsers?._id.toString()
       );
       const users = await prisma.user.findMany({
         where: { id: { in: userIds } },
@@ -200,7 +200,7 @@ export default {
         },
       });
 
-      const orderedUsers = userIds.map((userId) =>
+      const orderedUsers = userIds.map((userId: string) =>
         users.find((user) => user.id === userId)
       );
 
@@ -246,7 +246,8 @@ export default {
       const cont = await prisma.contractor.findUnique({
         where: { id: contId },
       });
-      canUserUpdate({ id: cont.userId, authUser });
+      if (!cont) throw gqlError({ msg: "Contractor not found!" });
+      canUserUpdate({ id: cont?.userId, authUser });
 
       return await prisma.contractor.update({
         where: { id: contId },
@@ -269,6 +270,7 @@ export default {
       const cont = await prisma.contractor.findUnique({
         where: { id: contId },
       });
+      if (!cont) throw gqlError({ msg: "Contractor not found!" });
       canUserUpdate({ id: cont.userId, authUser });
       return await prisma.contractor.update({
         where: { id: contId },

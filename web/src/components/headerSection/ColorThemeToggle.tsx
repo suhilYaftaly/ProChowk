@@ -60,7 +60,7 @@ interface UIProps {
 
 const DesktopUI = ({ colorMode, toggleColorMode, theme }: UIProps) => {
   return (
-    <IconButton onClick={toggleColorMode} color="inherit">
+    <IconButton onClick={toggleColorMode} color="inherit" size="small">
       {colorMode === "dark" ? (
         <DarkModeIcon sx={{ width: 30, height: 30 }} />
       ) : (

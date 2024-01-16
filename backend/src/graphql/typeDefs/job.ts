@@ -56,8 +56,8 @@ export default gql`
     from: Float!
     to: Float!
     maxHours: Float!
-    createdAt: String
-    updatedAt: String
+    createdAt: Date
+    updatedAt: Date
   }
   type JobImage {
     id: String
@@ -65,8 +65,8 @@ export default gql`
     size: Float
     type: String
     url: String!
-    createdAt: String
-    updatedAt: String
+    createdAt: Date
+    updatedAt: Date
   }
   type JobsSearchResponse {
     jobs: [Job!]!

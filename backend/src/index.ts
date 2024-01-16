@@ -14,7 +14,7 @@ async function main() {
   app.use(
     "/graphql",
     cors<cors.CorsRequest>({
-      origin: [process.env.CLIENT_ORIGIN],
+      origin: [process.env.CLIENT_ORIGIN || "not found"],
       credentials: true,
     }),
     express.json({ limit: "20mb" }),
@@ -24,7 +24,7 @@ async function main() {
         prisma,
         pubsub,
         mongoClient,
-        userAgent: req?.headers?.["user-agent"],
+        userAgent: req?.headers?.["user-agent"] || "Not Found",
       }),
     })
   );

@@ -101,10 +101,10 @@ export const generateRefreshToken = ({
 
   // Decode the token to get the 'exp' claim
   const decoded = jwt.decode(refreshToken);
-  if (!decoded || typeof decoded !== "object" || !("exp" in decoded)) {
+  if (!decoded || typeof decoded !== "object" || !decoded.exp) {
     throw new Error("Invalid token");
   }
-  const expiresAt = new Date(decoded.exp * 1000);
+  const expiresAt = new Date(decoded?.exp * 1000);
 
   return { refreshToken, expiresAt };
 };
@@ -122,7 +122,10 @@ interface IVerifyToken {
 }
 export const verifyToken = ({ token, type = "session" }: IVerifyToken) => {
   try {
-    const results = jwt.verify(token, process.env.AUTH_SECRET) as ISignedProps;
+    const results = jwt.verify(
+      token,
+      process.env.AUTH_SECRET || ""
+    ) as ISignedProps;
     if (!results) {
       throw gqlError({ msg: "Invalid token", code: "UNAUTHENTICATED" });
     }
@@ -130,8 +133,8 @@ export const verifyToken = ({ token, type = "session" }: IVerifyToken) => {
       throw gqlError({ msg: "incorrect token type." });
 
     return results;
-  } catch (error) {
-    if (error.name === "TokenExpiredError")
+  } catch (error: any) {
+    if (error?.name === "TokenExpiredError")
       switch (type) {
         case "session":
           throw gqlError({
@@ -151,11 +154,11 @@ export const verifyToken = ({ token, type = "session" }: IVerifyToken) => {
         case "":
           throw gqlError({ msg: "Token expired", code: "UNAUTHENTICATED" });
         default:
-          throw gqlError({ msg: error.message, code: "UNAUTHENTICATED" });
+          throw gqlError({ msg: error?.message, code: "UNAUTHENTICATED" });
       }
     else {
       // other errors
-      throw gqlError({ msg: error.message, code: "UNAUTHENTICATED" });
+      throw gqlError({ msg: error?.message, code: "UNAUTHENTICATED" });
     }
   }
 };

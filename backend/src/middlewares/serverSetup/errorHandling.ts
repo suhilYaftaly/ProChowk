@@ -12,11 +12,11 @@ import { logger } from "../logger/logger";
 import { GQLContext } from "../../types/commonTypes";
 
 // utility function to wrap each resolver with the errorHandler
-export const wrapResolvers = (resolvers, errorHandler) => {
-  const wrappedResolvers = {};
+export const wrapResolvers = (resolvers: any, errorHandler: any) => {
+  const wrappedResolvers: any = {};
   for (const [type, typeResolvers] of Object.entries(resolvers)) {
     wrappedResolvers[type] = {};
-    for (const [key, resolver] of Object.entries(typeResolvers)) {
+    for (const [key, resolver] of Object.entries(typeResolvers as any)) {
       wrappedResolvers[type][key] = errorHandler(resolver);
     }
   }

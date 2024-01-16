@@ -17,13 +17,13 @@ import AcceptedBid from "@jobs/bid/AcceptedBid";
 
 export default function JobView() {
   const isMobile = useIsMobile();
-  const { userId, jobId } = useParams();
+  const { jobId } = useParams();
   const { user: loggedInUser } = useUserStates();
-  const isMyProfile = userId === loggedInUser?.id;
   const { userAsync, data: userData, loading: userLoading } = useUser();
-  const jobPoster = isMyProfile ? loggedInUser : userData?.user;
   const { jobAsync, data: jobData, loading } = useJob();
   const job = jobData?.job;
+  const isMyProfile = job?.userId === loggedInUser?.id;
+  const jobPoster = isMyProfile ? loggedInUser : userData?.user;
   const { getBidsAsync, data: bidsData } = useGetBids();
   const bids = bidsData?.getBids;
   const filteredBids = bids?.filter(
@@ -32,10 +32,10 @@ export default function JobView() {
   const acceptedBid = bids?.find((bid) => bid.isAccepted);
   const isMyJob = job?.userId === loggedInUser?.id;
 
-  //retriev user info if its not my profile
+  //retriev user info
   useEffect(() => {
-    if (userId && !isMyProfile) userAsync({ variables: { id: userId } });
-  }, [isMyProfile]);
+    if (job?.userId) userAsync({ variables: { id: job?.userId } });
+  }, [job?.userId]);
 
   useEffect(() => {
     if (jobId) jobAsync({ variables: { id: jobId } });
@@ -46,14 +46,13 @@ export default function JobView() {
     if (isMyJob && job?.id) {
       getBidsAsync({ variables: { filter: { jobId: job.id } } });
     }
-  }, [job]);
+  }, [job, isMyJob]);
 
   //prevent self bidding & must be contractor
   const allowBid = isAllowBid({
     userTypes: loggedInUser?.userTypes,
     userId: loggedInUser?.id,
     jobUserId: job?.userId,
-    jobStatus: job?.status,
   });
 
   return (

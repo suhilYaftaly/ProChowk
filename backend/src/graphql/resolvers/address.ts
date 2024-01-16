@@ -12,7 +12,7 @@ export default {
       _: any,
       { value, lat, lng, limit = 5 }: GeocodeInput,
       context: GQLContext
-    ): Promise<[IGeocode]> => {
+    ): Promise<IGeocode[] | undefined> => {
       const { req } = context;
       //TODO: restrict this API to NexaBind only
       // const user = checkAuth(req);
@@ -25,7 +25,7 @@ export default {
       _: any,
       { lat, lng }: { lat: number; lng: number },
       context: GQLContext
-    ): Promise<IGeocode> => {
+    ): Promise<IGeocode | undefined> => {
       const { req } = context;
       const user = checkAuth(req);
 
@@ -41,8 +41,8 @@ const fetchMQGeocode = async ({
   lat,
   lng,
   limit,
-}: GeocodeInput): Promise<[IGeocode]> => {
-  const getResponse = async (key: string): Promise<[IGeocode]> => {
+}: GeocodeInput): Promise<IGeocode[] | undefined> => {
+  const getResponse = async (key: string): Promise<IGeocode[] | undefined> => {
     const getUrl = () => {
       let url = `https://www.mapquestapi.com/search/v3/prediction?key=${key}&limit=${limit}&collection=adminArea,poi,address,category,franchise,airport&q=${encodeURIComponent(
         value
@@ -57,10 +57,13 @@ const fetchMQGeocode = async ({
     return undefined;
   };
 
-  let response;
+  let response = [] as Array<any>;
   for (let i = 0; i < MAP_QUEST_KEYS.length; i++) {
-    response = await getResponse(MAP_QUEST_KEYS[i]);
-    if (response) break;
+    const key = MAP_QUEST_KEYS[i];
+    if (key) {
+      response = (await getResponse(key)) || [];
+      if (response) break;
+    }
   }
 
   if (response) {
@@ -91,8 +94,8 @@ const fetchMQReverseGeocode = async ({
 }: {
   lat: number;
   lng: number;
-}): Promise<IGeocode> => {
-  const getResponse = async (key: string): Promise<IGeocode> => {
+}): Promise<IGeocode | undefined> => {
+  const getResponse = async (key: string): Promise<IGeocode | undefined> => {
     const resp = await axios.get(
       `http://www.mapquestapi.com/geocoding/v1/reverse?key=${key}&location=${lat},${lng}`
     );
@@ -101,10 +104,13 @@ const fetchMQReverseGeocode = async ({
     return undefined;
   };
 
-  let response;
+  let response: any;
   for (let i = 0; i < MAP_QUEST_KEYS.length; i++) {
-    response = await getResponse(MAP_QUEST_KEYS[i]);
-    if (response) break;
+    const key = MAP_QUEST_KEYS[i];
+    if (key) {
+      response = await getResponse(key);
+      if (response) break;
+    }
   }
 
   if (response) {

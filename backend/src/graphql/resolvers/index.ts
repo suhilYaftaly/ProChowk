@@ -7,6 +7,7 @@ import job from "./job";
 import skill from "./skill";
 import log from "./log";
 import jobBid from "./jobBid";
+import notification from "./notification";
 
 export default merge(
   {},
@@ -17,5 +18,6 @@ export default merge(
   job,
   skill,
   log,
-  jobBid
+  jobBid,
+  notification
 );

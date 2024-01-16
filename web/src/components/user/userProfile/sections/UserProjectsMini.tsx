@@ -24,7 +24,7 @@ export default function UserProjectsMini({
 
   const handleCardClick = (jobId: string) => {
     //TODO: handle draft navigation, maybe take to job edit screen
-    if (user?.id) navigate(paths.jobView(user?.id, jobId));
+    if (user?.id) navigate(paths.jobView(jobId));
   };
 
   // isMyProfile? show all jobs else show jobs which are not drafts

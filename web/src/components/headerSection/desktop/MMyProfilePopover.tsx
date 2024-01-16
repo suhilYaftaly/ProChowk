@@ -9,7 +9,7 @@ export default function DMyProfilePopover() {
   const { user } = useUserStates();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const open = Boolean(anchorEl);
-  const id = open ? "simple-popover" : undefined;
+  const id = open ? "myProfile-popover" : undefined;
 
   const openPopover = (event: MouseEvent<HTMLButtonElement>) =>
     setAnchorEl(event.currentTarget);

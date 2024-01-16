@@ -56,10 +56,16 @@ export const apolloServerSetup = async () => {
             prisma,
             pubsub,
             mongoClient,
-            userAgent: session?.headers?.["user-agent"],
+            userAgent: session?.headers?.["user-agent"] || "not found",
           };
         }
-        return { req: null, prisma, pubsub, mongoClient, userAgent: null };
+        return {
+          req: null as any,
+          prisma,
+          pubsub,
+          mongoClient,
+          userAgent: null || "not found",
+        };
       },
     },
     wsServer

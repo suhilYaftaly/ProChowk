@@ -105,7 +105,7 @@ export const sendEmail = async ({ params, onSuccess }: ISendEmail) => {
     const response = await axios.post(API_URL, data, { headers });
     onSuccess && (await onSuccess());
     return response?.data;
-  } catch (error) {
+  } catch (error: any) {
     const errMsg =
       "MailerSend: " + error?.response
         ? error?.response?.data?.message
@@ -184,7 +184,7 @@ export async function sendFailureEmailNotification({
 
 export const getUserFromReq = (req: GQLContext["req"]): ISignedProps => {
   const authHeader = req?.headers?.authorization;
-  const token = authHeader?.split("Bearer ")?.[1];
+  const token = authHeader?.split("Bearer ")?.[1] || "";
   return jwt.decode(token) as ISignedProps;
 };
 
@@ -251,7 +251,7 @@ export function formatDuration(durationInSeconds: number) {
 /** ifr=isFieldRequested - use for conditional prisma includes to include documents if they have been requested from FE */
 export const ifr = (info: GraphQLResolveInfo, fieldName: string): boolean => {
   return info.fieldNodes.some((node) =>
-    node.selectionSet.selections.some(
+    node?.selectionSet?.selections.some(
       (selection) =>
         selection.kind === "Field" && selection.name.value === fieldName
     )
@@ -265,7 +265,7 @@ export const infr = (
   childFieldName: string
 ): boolean => {
   return info.fieldNodes.some((node) =>
-    node.selectionSet.selections.some(
+    node?.selectionSet?.selections.some(
       (parentSelection) =>
         parentSelection.kind === "Field" &&
         parentSelection.name.value === parentFieldName &&

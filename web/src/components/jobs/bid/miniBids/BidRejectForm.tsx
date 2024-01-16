@@ -100,14 +100,14 @@ export default function BidRejectForm({ bidId, onSuccess, onGoBack }: Props) {
       />
       <Divider sx={{ my: 3 }} />
       <Button variant="contained" onClick={onSubmit}>
-        Submit Now
-      </Button>
-      <Button onClick={onGoBack} color="inherit" sx={{ mt: 1 }}>
         {loading ? (
           <CircularProgress size={20} color="inherit" />
         ) : (
-          "Cancel & Go Back To Bid"
+          "Submit Now"
         )}
+      </Button>
+      <Button onClick={onGoBack} color="inherit" sx={{ mt: 1 }}>
+        Cancel & Go Back To Bid
       </Button>
     </Stack>
   );

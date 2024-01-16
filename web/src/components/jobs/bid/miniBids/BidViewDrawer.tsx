@@ -90,6 +90,12 @@ export default function BidViewDrawer({
                     </Text>
                   </Text>
                 )}
+                {bid?.endDate && (
+                  <Text sx={{ fontWeight: 500, mt: 1 }}>
+                    End Date:{" "}
+                    <Text component={"span"}>{readISODate(bid?.endDate)}</Text>
+                  </Text>
+                )}
                 {bid?.proposal && (
                   <>
                     <Divider sx={{ my: 2 }} />

@@ -1,10 +1,11 @@
 import { JobBid } from "@prisma/client";
-import { isBefore, parseISO, startOfDay } from "date-fns";
+import { isAfter, isFuture, isToday, parseISO } from "date-fns";
 import { GraphQLResolveInfo } from "graphql";
 
 import { GQLContext } from "../../types/commonTypes";
 import checkAuth, { canUserUpdate } from "../../middlewares/checkAuth";
 import { gqlError, ifr, infr } from "../../utils/funcs";
+import { z } from "zod";
 
 export default {
   Query: {
@@ -88,7 +89,7 @@ export default {
   Mutation: {
     placeBid: async (
       _: any,
-      args,
+      { input }: { input: TPlaceBidInput },
       context: GQLContext,
       info: GraphQLResolveInfo
     ): Promise<JobBid> => {
@@ -97,14 +98,18 @@ export default {
         contractorId,
         quote,
         startDate,
+        endDate,
         proposal,
         agreementAccepted,
-      }: TPlaceBidInput = args.input;
+      }: TPlaceBidInput = input;
       const { prisma, req } = context;
       const authUser = checkAuth(req);
 
       //validate inputs
-      validatePlaceBidInput(args.input);
+      const parsedInput = PlaceBidInputSchema.safeParse(input);
+      if (!parsedInput.success) {
+        throw gqlError({ msg: parsedInput?.error?.message });
+      }
 
       // Check if the contractor exists
       const contractor = await prisma.contractor.findUnique({
@@ -132,6 +137,7 @@ export default {
         data: {
           quote,
           startDate: startDate || null,
+          endDate: endDate || null,
           proposal: proposal || null,
           agreementAccepted,
           job: { connect: { id: jobId } },
@@ -152,6 +158,16 @@ export default {
               },
             },
           },
+        },
+      });
+
+      //send notification to the job poster
+      await prisma.notification.create({
+        data: {
+          userId: job.userId,
+          title: `${authUser.name} bid on your job.`,
+          type: "BidPlaced",
+          data: { jobId: job.id, bidId: newBid.id },
         },
       });
 
@@ -188,7 +204,7 @@ export default {
               skills: infr(info, "job", "skills"),
             },
           },
-          contractor: ifr(info, "contractor") && {
+          contractor: {
             include: {
               user: infr(info, "contractor", "user") && {
                 include: { image: true },
@@ -198,16 +214,25 @@ export default {
         },
       });
 
-      if (updatedBid) {
-        const updatedJob = await prisma.job.update({
-          where: { id: bid.jobId },
-          data: { status: "InProgress" },
-        });
+      if (!updatedBid) throw gqlError({ msg: "Error updating bid!" });
 
-        // Merge the updated job status into the existing job data in the updated bid
-        updatedBid.job = { ...updatedBid.job, status: updatedJob.status };
-      }
+      const updatedJob = await prisma.job.update({
+        where: { id: bid.jobId },
+        data: { status: "InProgress" },
+      });
 
+      //send notification to the bidder
+      await prisma.notification.create({
+        data: {
+          userId: updatedBid.contractor.userId,
+          title: `${authUser.name} accepted your bid.`,
+          type: "BidAccepted",
+          data: { bidId, jobId: bid.jobId },
+        },
+      });
+
+      // Merge the updated job status into the existing job data in the updated bid
+      updatedBid.job = { ...updatedBid.job, status: updatedJob.status };
       return updatedBid;
     },
     rejectBid: async (
@@ -230,7 +255,7 @@ export default {
       canUserUpdate({ id: bid.job?.userId, authUser });
 
       // Update the bid to mark it as rejected
-      return await prisma.jobBid.update({
+      const updatedBid = await prisma.jobBid.update({
         where: { id: bidId },
         data: {
           isRejected: true,
@@ -245,7 +270,7 @@ export default {
               skills: infr(info, "job", "skills"),
             },
           },
-          contractor: ifr(info, "contractor") && {
+          contractor: {
             include: {
               user: infr(info, "contractor", "user") && {
                 include: { image: true },
@@ -254,6 +279,19 @@ export default {
           },
         },
       });
+
+      //send notification to the job poster
+      await prisma.notification.create({
+        data: {
+          userId: updatedBid.contractor.userId,
+          title: `${authUser.name} rejected your bid, you can place a new bid.`,
+          message: rejectionReason,
+          type: "BidRejected",
+          data: { bidId, jobId: bid.jobId },
+        },
+      });
+
+      return updatedBid;
     },
   },
 };
@@ -267,31 +305,40 @@ type TQueryConditions = {
   jobId?: string | { in: string[] };
   contractorId?: string;
 };
-type TPlaceBidInput = {
-  jobId: string;
-  contractorId: string;
-  quote: number;
-  startDate?: string;
-  proposal?: string;
-  agreementAccepted: boolean;
+
+const validateDate = (dateString: string | undefined) => {
+  if (!dateString) return true;
+  const date = parseISO(dateString);
+  return isToday(date) || isFuture(date);
 };
 
-function validatePlaceBidInput(input: TPlaceBidInput) {
-  const { quote, startDate, agreementAccepted } = input;
-
-  if (!agreementAccepted) {
-    throw gqlError({ msg: "Agreement must be accepted to place a bid." });
-  }
-
-  if (quote <= 0) {
-    throw gqlError({ msg: "Quote must be a positive number." });
-  }
-
-  if (startDate) {
-    const start = startOfDay(parseISO(startDate));
-    const today = startOfDay(new Date());
-    if (isBefore(start, today)) {
-      throw gqlError({ msg: "Start date must be today or in the future." });
+const PlaceBidInputSchema = z
+  .object({
+    jobId: z.string(),
+    contractorId: z.string(),
+    quote: z.number().min(0.01, "Quote must be a positive number."),
+    startDate: z
+      .string()
+      .optional()
+      .refine(validateDate, "Start date must be today or in the future."),
+    endDate: z.string().optional(),
+    proposal: z.string().optional(),
+    agreementAccepted: z
+      .boolean()
+      .refine((val) => val, "Agreement must be accepted to place a bid."),
+  })
+  .refine(
+    (data) => {
+      if (data.startDate && data.endDate) {
+        return isAfter(parseISO(data.endDate), parseISO(data.startDate));
+      }
+      return true;
+    },
+    {
+      message: "End date must be after start date.",
+      path: ["endDate"],
     }
-  }
-}
+  );
+
+// Infer TypeScript type
+type TPlaceBidInput = z.infer<typeof PlaceBidInputSchema>;

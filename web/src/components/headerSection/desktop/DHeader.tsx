@@ -5,8 +5,12 @@ import DMyProfilePopover from "./MMyProfilePopover";
 import LogInButton from "@/components/headerSection/LogInButton";
 import AppLogo from "@reusable/AppLogo";
 import SwitchUserViewButton from "@user/SwitchUserViewButton";
+import NotificationIcon from "@user/notification/NotificationIcon";
+import { useUserStates } from "@/redux/reduxStates";
 
 export default function DHeader() {
+  const { user } = useUserStates();
+
   return (
     <Stack
       direction="row"
@@ -16,6 +20,12 @@ export default function DHeader() {
       <Stack direction="row" alignItems={"center"}>
         <SwitchUserViewButton />
         <LogInButton sx={{ mr: 1 }} />
+        {user && (
+          <>
+            <LineDivider />
+            <NotificationIcon />
+          </>
+        )}
         <LineDivider />
         <ColorThemeToggle />
         <LineDivider />

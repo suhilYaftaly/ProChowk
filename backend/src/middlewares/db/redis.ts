@@ -14,7 +14,7 @@ const getRedisUrl = () => {
   try {
     if (process.env.REDIS_URL) return process.env.REDIS_URL;
     else throw gqlError({ msg: "REDIS_URL not defined" });
-  } catch (error) {
+  } catch (error: any) {
     throw gqlError({ msg: error?.message });
   }
 };

@@ -54,7 +54,6 @@ export default function BidThisJob({ job }: Props) {
     userTypes: user?.userTypes,
     userId: user?.id,
     jobUserId: job?.userId,
-    jobStatus: job?.status,
   });
 
   const handleBidClick = () => {
@@ -96,16 +95,7 @@ type TIsAllowBid = {
   userTypes: UserType[] | undefined;
   jobUserId: string | undefined;
   userId: string | undefined;
-  jobStatus: IJob["status"];
 };
 /**prevent self bidding & must be contractor */
-export const isAllowBid = ({
-  userTypes,
-  userId,
-  jobUserId,
-  jobStatus,
-}: TIsAllowBid) =>
-  isContractor(userTypes) &&
-  jobUserId !== userId &&
-  jobStatus !== "InProgress" &&
-  jobStatus !== "Completed";
+export const isAllowBid = ({ userTypes, userId, jobUserId }: TIsAllowBid) =>
+  isContractor(userTypes) && jobUserId !== userId;

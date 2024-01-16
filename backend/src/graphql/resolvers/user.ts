@@ -275,7 +275,7 @@ export default {
 
       //create contractor profile
       if (!eUser.contractor && userTypes?.includes("contractor")) {
-        if (skills?.length > 0) {
+        if (skills && skills?.length > 0) {
           const skillsOps = skills.map((skill) => ({
             where: { label: skill.label },
             create: skill,
@@ -333,7 +333,8 @@ export default {
         where: { id: verifiedUser.id },
         data: { emailVerified: true },
       });
-      if (user) return generateUserToken(user);
+      if (!user) throw gqlError({ msg: "Error updating user!" });
+      return generateUserToken(user);
     },
     requestPasswordReset: async (
       _: any,
@@ -402,7 +403,7 @@ export default {
       _: any,
       { refreshToken }: { refreshToken: string },
       context: GQLContext
-    ): Promise<{ accessToken; refreshToken }> => {
+    ): Promise<{ accessToken: string; refreshToken: string }> => {
       const { prisma, userAgent } = context;
       const decoded = verifyToken({ token: refreshToken, type: "" });
 
@@ -419,8 +420,9 @@ export default {
       }
 
       const user = await prisma.user.findUnique({ where: { id: decoded.id } });
+      if (!user) throw gqlError({ msg: "Invalid User!" });
       const newAccessToken = generateUserToken(user);
-      const newRefreshToken = updateRefreshToken(prisma, user, userAgent);
+      const newRefreshToken = await updateRefreshToken(prisma, user, userAgent);
 
       return { accessToken: newAccessToken, refreshToken: newRefreshToken };
     },

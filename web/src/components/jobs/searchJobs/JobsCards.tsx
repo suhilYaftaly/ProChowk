@@ -47,7 +47,7 @@ export default function JobsCards({
 
   const handleJobClick = (job: IJob) => {
     if (onJobClick) onJobClick(job);
-    else job.userId && navigate(paths.jobView(job.userId, job.id));
+    else job.userId && navigate(paths.jobView(job.id));
   };
 
   return (

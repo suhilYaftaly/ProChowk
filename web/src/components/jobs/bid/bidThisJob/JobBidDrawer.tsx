@@ -5,7 +5,6 @@ import {
   Divider,
   FormControlLabel,
   FormGroup,
-  IconButton,
   InputAdornment,
   Stack,
   SwipeableDrawer,
@@ -14,16 +13,15 @@ import {
 } from "@mui/material";
 import { toast } from "react-toastify";
 import { ChangeEvent, useState } from "react";
-import { LocationOn, Refresh } from "@mui/icons-material";
-import { DatePicker } from "@mui/x-date-pickers";
-import { isBefore, parseISO, startOfDay } from "date-fns";
+import { LocationOn } from "@mui/icons-material";
+import { isAfter, isBefore, parseISO, startOfDay } from "date-fns";
 
 import { IJob } from "@gqlOps/job";
 import { usePlaceBid } from "@gqlOps/jobBid";
 import Text from "@reusable/Text";
 import { charsCount } from "@/utils/utilFuncs";
-import { useIsMobile } from "@/utils/hooks/hooks";
 import { agreementTxt } from "@/config/data";
+import BidDateRange from "./BidDateRange";
 
 type Props = {
   job: IJob;
@@ -43,19 +41,20 @@ export default function JobBidDrawer({
 }: Props) {
   const theme = useTheme();
   const lightC = theme.palette.text.light;
-  const isMobile = useIsMobile();
   /**padding */
   const p = 2;
   const { placeBidAsync, loading: bidLoading } = usePlaceBid();
   const [form, setForm] = useState<TForm>({
     quote: 200,
     startDate: "",
+    endDate: "",
     proposal: "",
     agreementAccepted: false,
   });
   const [errors, setErrors] = useState<TErrors>({
     quote: "",
     startDate: "",
+    endDate: "",
     proposal: "",
     agreementAccepted: "",
   });
@@ -88,18 +87,6 @@ export default function JobBidDrawer({
     const newValue = value === "" ? "" : Number(value);
 
     setForm((prev) => ({ ...prev, [name]: newValue }));
-  };
-
-  const handleStartDateChange = (date: Date | null) => {
-    if (date) setStartDate(date);
-  };
-
-  const setStartDate = (date: Date | "") => {
-    setForm((prev) => ({
-      ...prev,
-      startDate:
-        date && !isNaN(date.getTime()) ? startOfDay(date).toISOString() : "",
-    }));
   };
 
   const handleAgreementCheck = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -156,30 +143,17 @@ export default function JobBidDrawer({
               sx={{ mb: 2 }}
               inputProps={{ min: configs.minQuote }}
             />
-            <Stack direction={"row"} alignItems={"center"} sx={{ mb: 1 }}>
-              <Text sx={{ fontWeight: 500 }}>Start Date</Text>
-              {isMobile && (
-                <IconButton onClick={() => setStartDate("")} size="small">
-                  <Refresh />
-                </IconButton>
-              )}
-            </Stack>
-            <DatePicker
-              value={form.startDate ? parseISO(form.startDate) : null}
-              onChange={handleStartDateChange}
-              disablePast
-              sx={{ mb: 2 }}
-              slotProps={{
-                field: {
-                  clearable: true,
-                  onClear: () => setStartDate(""),
-                },
-                textField: {
-                  helperText: errors.startDate,
-                  error: Boolean(errors.startDate),
-                  size: "small",
-                },
-              }}
+            <BidDateRange
+              startDate={form.startDate}
+              endDate={form.endDate}
+              setStartDate={(startDate) =>
+                setForm((prev) => ({ ...prev, startDate }))
+              }
+              setEndDate={(endDate) =>
+                setForm((prev) => ({ ...prev, endDate }))
+              }
+              startDateErrTxt={errors.startDate}
+              endDateErrTxt={errors.endDate}
             />
             <Text sx={{ mb: 1, fontWeight: 500 }}>
               Proposal ${charsCount(form.proposal, configs.maxProposal)}
@@ -245,12 +219,14 @@ const proposalPlaceholder =
 type TErrors = {
   quote: string;
   startDate: string;
+  endDate: string;
   proposal: string;
   agreementAccepted: string;
 };
 type TForm = {
   quote: number;
   startDate: string;
+  endDate: string;
   proposal: string;
   agreementAccepted: boolean;
 };
@@ -264,6 +240,7 @@ const validateErrors = ({ form, setErrors }: TValidateErrors) => {
   const errors: TErrors = {
     quote: "",
     startDate: "",
+    endDate: "",
     proposal: "",
     agreementAccepted: "",
   };
@@ -278,6 +255,16 @@ const validateErrors = ({ form, setErrors }: TValidateErrors) => {
     const today = startOfDay(new Date());
     if (isBefore(startDate, today)) {
       errors.startDate = "Start date must be today or in the future.";
+      hasError = true;
+    }
+  }
+  if (form.endDate && !form.startDate) {
+    errors.endDate = "Start date must selected if end is selected";
+    hasError = true;
+  }
+  if (form.startDate && form.endDate) {
+    if (!isAfter(parseISO(form.endDate), parseISO(form.startDate))) {
+      errors.endDate = "End date must be after start date.";
       hasError = true;
     }
   }

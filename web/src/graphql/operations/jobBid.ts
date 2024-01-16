@@ -30,6 +30,7 @@ export type TBid = {
   id: string;
   quote: string;
   startDate?: string;
+  endDate?: string;
   proposal?: string;
   isAccepted?: boolean;
   isRejected?: boolean;
@@ -128,6 +129,7 @@ type TPlaceBidInputProp = {
   contractorId: string;
   quote: number;
   startDate?: string;
+  endDate?: string;
   proposal?: string;
   agreementAccepted: boolean;
 };
