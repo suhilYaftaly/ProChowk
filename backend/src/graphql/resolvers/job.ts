@@ -1,5 +1,6 @@
 import { BudgetType, Job } from "@prisma/client";
 import { GraphQLResolveInfo } from "graphql";
+import { Notification } from "@prisma/client";
 
 import { GQLContext, IJobInput } from "../../types/commonTypes";
 import checkAuth, { canUserUpdate } from "../../middlewares/checkAuth";
@@ -374,6 +375,69 @@ export default {
       if (!updatedJob) throw gqlError({ msg: "Failed to update job" });
       return updatedJob;
     },
+    updateJobStatus: async (
+      _: any,
+      { jobId, status }: { jobId: string; status: Job["status"] },
+      context: GQLContext,
+      info: GraphQLResolveInfo
+    ): Promise<Job> => {
+      const { prisma, req } = context;
+      const authUser = checkAuth(req);
+
+      const job = await prisma.job.findUnique({ where: { id: jobId } });
+      if (!job) throw gqlError({ msg: "Job not found" });
+      canUserUpdate({ id: job.userId, authUser });
+
+      if (status === "Completed") {
+        // Retrieve all bids
+        const bids = await prisma.jobBid.findMany({
+          where: { jobId },
+          include: { contractor: true },
+        });
+
+        const notificationData: any = [];
+
+        for (const bid of bids) {
+          if (bid.isAccepted) {
+            // Notify accepted contractor that job is finished
+            notificationData.push({
+              userId: bid.contractor.userId,
+              title: `Job '${job.title}' Completed: Thanks for Your Work, ${authUser.name}!`,
+              type: "JobFinished",
+              data: { jobId: job.id, bidId: bid.id },
+            });
+          } else {
+            // Notify other contractors their bid was not accepted
+            notificationData.push({
+              userId: bid.contractor.userId,
+              title: `Your bid on '${job.title}' was not accepted.`,
+              type: "BidRejected",
+              data: { jobId: job.id, bidId: bid.id },
+            });
+          }
+        }
+
+        // Update all non-accepted bids to rejected
+        await prisma.jobBid.updateMany({
+          where: { jobId, isAccepted: false },
+          data: { isRejected: true, rejectionDate: new Date() },
+        });
+
+        await prisma.notification.createMany({ data: notificationData });
+      }
+
+      return await prisma.job.update({
+        where: { id: jobId },
+        data: { status },
+        include: {
+          address: ifr(info, "address"),
+          images: ifr(info, "images"),
+          skills: ifr(info, "skills"),
+          budget: ifr(info, "budget"),
+        },
+      });
+    },
+
     deleteJob: async (
       _: any,
       { id }: { id: string },

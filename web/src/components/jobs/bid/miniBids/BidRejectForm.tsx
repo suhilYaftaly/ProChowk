@@ -84,20 +84,22 @@ export default function BidRejectForm({ bidId, onSuccess, onGoBack }: Props) {
           })}
         </RadioGroup>
       </FormControl>
-      <TextField
-        label="Describe the reason"
-        variant="outlined"
-        size="small"
-        value={otherReason}
-        onChange={(e) => setOtherReason(e.target.value)}
-        error={Boolean(errors.otherReason)}
-        helperText={errors.otherReason}
-        multiline
-        rows={4}
-        inputProps={{ maxLength: configs.maxOtherReason }}
-        disabled={!isOtherReasonActive}
-        sx={{ mt: 2 }}
-      />
+      {isOtherReasonActive && (
+        <TextField
+          label="Describe the reason"
+          variant="outlined"
+          size="small"
+          value={otherReason}
+          onChange={(e) => setOtherReason(e.target.value)}
+          error={Boolean(errors.otherReason)}
+          helperText={errors.otherReason}
+          multiline
+          rows={4}
+          inputProps={{ maxLength: configs.maxOtherReason }}
+          disabled={!isOtherReasonActive}
+          sx={{ mt: 2 }}
+        />
+      )}
       <Divider sx={{ my: 3 }} />
       <Button variant="contained" onClick={onSubmit}>
         {loading ? (

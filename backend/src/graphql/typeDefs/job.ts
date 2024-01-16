@@ -24,6 +24,7 @@ export default gql`
   type Mutation {
     createJob(userId: ID!, jobInput: JobInput!): Job!
     updateJob(id: ID!, jobInput: JobInput!): Job!
+    updateJobStatus(jobId: ID!, status: JobStatus!): Job!
     deleteJob(id: ID!): Job!
   }
 

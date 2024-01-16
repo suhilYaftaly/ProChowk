@@ -110,7 +110,7 @@ const CreateNotificationSchema = z.object({
   title: z.string().min(1),
   message: z.string().optional(),
   data: z.any().optional(),
-  type: z.enum(["BidAccepted", "BidRejected", "BidPlaced"]),
+  type: z.enum(["BidAccepted", "BidRejected", "BidPlaced", "JobFinished"]),
 });
 
 type TCreateNotificationInput = z.infer<typeof CreateNotificationSchema>;

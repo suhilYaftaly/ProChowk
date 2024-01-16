@@ -14,6 +14,7 @@ import BidThisJob, { isAllowBid } from "@jobs/bid/bidThisJob/BidThisJob";
 import { useGetBids } from "@gqlOps/jobBid";
 import MiniBidsList from "@jobs/bid/miniBids/MiniBidsList";
 import AcceptedBid from "@jobs/bid/AcceptedBid";
+import CompleteJobBtn from "@jobs/jobPost/completeJob/CompleteJobBtn";
 
 export default function JobView() {
   const isMobile = useIsMobile();
@@ -31,6 +32,7 @@ export default function JobView() {
   );
   const acceptedBid = bids?.find((bid) => bid.isAccepted);
   const isMyJob = job?.userId === loggedInUser?.id;
+  const isJobReadyForCompletion = isMyJob && job?.status === "InProgress";
 
   //retriev user info
   useEffect(() => {
@@ -55,6 +57,14 @@ export default function JobView() {
     jobUserId: job?.userId,
   });
 
+  const actionBtn =
+    job &&
+    (isJobReadyForCompletion ? (
+      <CompleteJobBtn jobId={job.id} />
+    ) : (
+      allowBid && <BidThisJob job={job} />
+    ));
+
   return (
     <>
       <AppContainer>
@@ -63,10 +73,7 @@ export default function JobView() {
             <AppContainer addCard sx={{ m: 0 }}>
               {loading && <JobSkeleton />}
               {job && (
-                <JobPreview
-                  job={job}
-                  bidBtn={allowBid && !isMobile && <BidThisJob job={job} />}
-                />
+                <JobPreview job={job} topRightBtn={!isMobile && actionBtn} />
               )}
             </AppContainer>
             {job?.status && (
@@ -94,14 +101,14 @@ export default function JobView() {
                 </AppContainer>
               )}
             {isMyJob && acceptedBid && job && (
-              <AppContainer addCard sx={{ m: 0, my: 2 }} cardSX={{ p: 0 }}>
+              <AppContainer addCard sx={{ m: 0, mt: 2 }} cardSX={{ p: 0 }}>
                 <AcceptedBid bid={acceptedBid} job={job} />
               </AppContainer>
             )}
           </Grid>
         </Grid>
       </AppContainer>
-      {isMobile && allowBid && job && <BidThisJob job={job} />}
+      {isMobile && actionBtn}
     </>
   );
 }

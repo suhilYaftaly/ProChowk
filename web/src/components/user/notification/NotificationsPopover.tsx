@@ -27,7 +27,10 @@ export default function NotificationsPopover({
   const navigate = useNavigate();
   const closePopover = () => setAnchorEl(null);
 
-  const handleSeeAllNotifications = () => navigate(paths.notificationsView);
+  const handleSeeAllNotifications = () => {
+    navigate(paths.notificationsView);
+    closePopover();
+  };
 
   const open = Boolean(anchorEl);
   const id = open ? "notifications-popover" : undefined;

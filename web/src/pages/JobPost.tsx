@@ -6,7 +6,7 @@ import { jobConfigs } from "@/config/configConst";
 import { useUserStates } from "@/redux/reduxStates";
 import { navigateToUserPage, removeServerMetadata } from "@/utils/utilFuncs";
 import { JobInput, useCreateJob, useJob, useUpdateJob } from "@gqlOps/job";
-import JobForm from "@jobs/jobPost/JobForm";
+import JobForm from "@/components/jobs/jobPost/forms/JobForm";
 import { CircularProgress } from "@mui/material";
 import AppContainer from "@reusable/AppContainer";
 

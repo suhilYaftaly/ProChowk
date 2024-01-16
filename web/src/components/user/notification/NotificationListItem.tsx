@@ -6,12 +6,11 @@ import {
   alpha,
   useTheme,
 } from "@mui/material";
-import { Notifications, Circle } from "@mui/icons-material";
+import { Notifications, Circle, Work } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
 import { TNotification, useMarkNotificationAsRead } from "@gqlOps/notification";
 import Text from "@reusable/Text";
-import { useUserStates } from "@/redux/reduxStates";
 import { paths } from "@/routes/Routes";
 import { BidIcon } from "@/components/JSXIcons";
 
@@ -26,7 +25,6 @@ export default function NotificationListItem({
   onMarkSuccess,
 }: Props) {
   const navigate = useNavigate();
-  const { userId } = useUserStates();
   const theme = useTheme();
   const primaryC = theme.palette.primary.light;
   const iconColor = theme.palette.text?.dark;
@@ -45,26 +43,27 @@ export default function NotificationListItem({
     onClick && onClick(notificationId);
   };
 
+  const markAndNavigateToJob = () => {
+    onMarkAsRead(id);
+    if (data?.jobId) navigate(paths.jobView(data.jobId));
+  };
+
   const getNotificationItemProps = () => {
     switch (type) {
       case "BidPlaced":
         return {
           icons: <BidIcon />,
-          onClick: () => {
-            onMarkAsRead(id);
-            if (userId && data?.jobId) navigate(paths.jobView(data.jobId));
-          },
+          onClick: markAndNavigateToJob,
         };
       case "BidAccepted":
         return {
           icons: <BidIcon />,
-          onClick: () => {
-            onMarkAsRead(id);
-            if (userId && data?.jobId) navigate(paths.jobView(data.jobId));
-          },
+          onClick: markAndNavigateToJob,
         };
       case "BidRejected":
-        return { icons: <BidIcon />, onClick: () => onMarkAsRead(id) };
+        return { icons: <BidIcon />, onClick: markAndNavigateToJob };
+      case "JobFinished":
+        return { icons: <Work />, onClick: markAndNavigateToJob };
       default:
         return { icon: <Notifications />, onClick: () => onMarkAsRead(id) };
     }

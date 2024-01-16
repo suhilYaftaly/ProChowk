@@ -44,5 +44,6 @@ export default gql`
     BidAccepted
     BidRejected
     BidPlaced
+    JobFinished
   }
 `;

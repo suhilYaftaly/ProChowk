@@ -192,6 +192,13 @@ export default {
       // Authorization check: ensure the user owns the job related to the bid
       canUserUpdate({ id: bid.job?.userId, authUser });
 
+      //check if job is in progress or completed
+      if (bid.job.status === "InProgress" || bid.job.status === "Completed") {
+        gqlError({
+          msg: "This job already has an accepted bid, you cannot accept another bid!",
+        });
+      }
+
       // Update the bid to mark it as accepted
       const updatedBid = await prisma.jobBid.update({
         where: { id: bidId },

@@ -244,4 +244,5 @@ enum NotificationType {
     BidAccepted
     BidRejected
     BidPlaced
+    JobFinished
 }

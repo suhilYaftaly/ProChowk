@@ -40,7 +40,11 @@ export type TNotification = {
   userId: string;
 };
 
-type NotificationType = "BidAccepted" | "BidRejected" | "BidPlaced";
+type NotificationType =
+  | "BidAccepted"
+  | "BidRejected"
+  | "BidPlaced"
+  | "JobFinished";
 
 //OPERATIONS
 //userNotifications OP

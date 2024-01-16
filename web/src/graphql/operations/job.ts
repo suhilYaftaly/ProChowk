@@ -19,7 +19,7 @@ import {
 const jobGqlRespMini = `id title isDraft`;
 export const jobGqlResp = `${jobFields} skills {${skillFields}} budget {${jobBudgetFields}} images {${imageFields}} address {${addressGqlResp}}`;
 export const searchJobGqlResp = `id title desc jobSize status userId createdAt skills {label} budget {type from to maxHours} address {city lat lng}`;
-const usersJobGqlResp = `id title desc jobSize userId createdAt isDraft draftExpiry skills {label} budget {type from to maxHours} address {city lat lng}`;
+const usersJobGqlResp = `id title desc jobSize status userId createdAt isDraft draftExpiry skills {label} budget {type from to maxHours} address {city lat lng}`;
 
 const jobOps = {
   Queries: {
@@ -77,6 +77,11 @@ const jobOps = {
     updateJob: gql`
       mutation UpdateJob($id: ID!, $jobInput: JobInput!) {
         updateJob(id: $id, jobInput: $jobInput) {${usersJobGqlResp}}
+      }
+    `,
+    updateJobStatus: gql`
+      mutation UpdateJobStatus($jobId: ID!, $status: JobStatus!) {
+        updateJobStatus(jobId: $jobId, status: $status) {${jobGqlResp}}
       }
     `,
     deleteJob: gql`
@@ -415,6 +420,40 @@ export const useUpdateJob = () => {
     });
 
   return { updateJobAsync, data, loading, error };
+};
+
+//updateJobStatus op
+interface IUpdateJobStatusData {
+  updateJobStatus: IJob;
+}
+interface IUpdateJobStatusInput {
+  jobId: string;
+  status: JobStatus;
+}
+interface IUpdateJobStatusIAsync {
+  variables: IUpdateJobStatusInput;
+  onSuccess?: (data: IJob) => void;
+  onError?: (error?: any) => void;
+}
+export const useUpdateJobStatus = () => {
+  const [updateJobStatus, { data, loading, error }] = useMutation<
+    IUpdateJobStatusData,
+    IUpdateJobStatusInput
+  >(jobOps.Mutations.updateJobStatus);
+
+  const updateJobStatusAsync = async ({
+    variables,
+    onSuccess,
+    onError,
+  }: IUpdateJobStatusIAsync) =>
+    asyncOps({
+      operation: () => updateJobStatus({ variables }),
+      onSuccess: (dt: IUpdateJobStatusData) =>
+        onSuccess && onSuccess(dt.updateJobStatus),
+      onError,
+    });
+
+  return { updateJobStatusAsync, data, loading, error };
 };
 
 //deleteJob op

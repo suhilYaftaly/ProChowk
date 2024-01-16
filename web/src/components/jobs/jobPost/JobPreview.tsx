@@ -10,9 +10,9 @@ import { readISODate, splitCamelCase } from "@/utils/utilFuncs";
 
 interface Props {
   job: IJob | JobInput;
-  bidBtn?: React.ReactNode;
+  topRightBtn?: React.ReactNode;
 }
-export default function JobPreview({ job, bidBtn }: Props) {
+export default function JobPreview({ job, topRightBtn }: Props) {
   const { title, desc, address, budget, skills, images, startDate, endDate } =
     job;
   const [openImg, setOpenImg] = useState(false);
@@ -28,7 +28,7 @@ export default function JobPreview({ job, bidBtn }: Props) {
         <Text type="subtitle" sx={{ mb: 2 }}>
           {title} - {address?.city} {address?.stateCode}, {address?.countryCode}
         </Text>
-        {bidBtn}
+        {topRightBtn}
       </Stack>
       <JobBudgetCost budget={budget} sx={{ mb: 2 }} />
       <Text type="subtitle">Job Description</Text>

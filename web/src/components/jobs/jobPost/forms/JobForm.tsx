@@ -12,13 +12,13 @@ import { isAfter, parseISO } from "date-fns";
 
 import CenteredStack from "@reusable/CenteredStack";
 import DJobNav from "@jobs/jobPost/desktop/DJobNav";
-import JobContainer from "@jobs/jobPost/JobContainer";
+import JobContainer from "@/components/jobs/jobPost/forms/JobContainer";
 import { JobInput } from "@gqlOps/job";
-import JobSize from "@jobs/jobPost/JobSize";
-import JobTitleAndSkills from "@jobs/jobPost/JobTitleAndSkills";
-import JobBudget from "@jobs/jobPost/JobBudget";
+import JobSize from "@/components/jobs/jobPost/forms/JobSize";
+import JobTitleAndSkills from "@/components/jobs/jobPost/forms/JobTitleAndSkills";
+import JobBudget from "@/components/jobs/jobPost/forms/JobBudget";
 import { jobConfigs } from "@/config/configConst";
-import JobDescription from "@jobs/jobPost/JobDescription";
+import JobDescription from "@/components/jobs/jobPost/forms/JobDescription";
 import JobPreview from "@jobs/jobPost/JobPreview";
 import { useIsMobile, useRespVal } from "@/utils/hooks/hooks";
 import ToastErrorsList from "@reusable/ToastErrorsList";
