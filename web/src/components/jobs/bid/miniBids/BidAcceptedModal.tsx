@@ -8,10 +8,10 @@ import ChatWithUserCard from "@chat/ChatWithUserCard";
 interface Props {
   open: boolean;
   onClose: (close: boolean) => void;
-  poster: IUser | undefined;
+  bidder: IUser | undefined;
 }
-export default function BidAcceptedModal({ open, onClose, poster }: Props) {
-  const firstName = poster?.name?.split(" ")?.[0];
+export default function BidAcceptedModal({ open, onClose, bidder }: Props) {
+  const firstName = bidder?.name?.split(" ")?.[0];
 
   return (
     <Modal open={open} onClose={() => onClose(false)}>
@@ -21,10 +21,10 @@ export default function BidAcceptedModal({ open, onClose, poster }: Props) {
           Congratulation!
         </Text>
         <Text type="subtitle" sx={{ mt: 0.5 }}>
-          You hired {poster?.name}
+          You hired {bidder?.name}
         </Text>
         <Text sx={{ my: 2 }}>Start Conversation with {firstName}</Text>
-        {poster && <ChatWithUserCard user={poster} />}
+        {bidder && <ChatWithUserCard user={bidder} />}
         <Button
           variant="contained"
           onClick={() => onClose(false)}

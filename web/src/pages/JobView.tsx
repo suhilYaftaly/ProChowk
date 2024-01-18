@@ -2,26 +2,30 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Grid, Skeleton, Stack } from "@mui/material";
 
-import { useUserStates } from "@redux/reduxStates";
+import { useBidStates, useUserStates } from "@redux/reduxStates";
 import { useUser } from "@gqlOps/user";
 import { useJob } from "@gqlOps/job";
 import JobPreview, { JobStatus } from "@jobs/jobPost/JobPreview";
 import ChipSkeleton from "@reusable/skeleton/ChipSkeleton";
 import PostedBy from "@jobs/jobPost/PostedBy";
 import AppContainer from "@reusable/AppContainer";
-import { useIsMobile, useRespVal } from "@/utils/hooks/hooks";
+import { useAppDispatch, useIsMobile, useRespVal } from "@/utils/hooks/hooks";
 import BidThisJob, { isAllowBid } from "@jobs/bid/bidThisJob/BidThisJob";
 import { useGetBids } from "@gqlOps/jobBid";
 import MiniBidsList from "@jobs/bid/miniBids/MiniBidsList";
 import AcceptedBid from "@jobs/bid/AcceptedBid";
 import CompleteJobBtn from "@jobs/jobPost/completeJob/CompleteJobBtn";
 import GiveReviewModal from "@/components/review/GiveReviewModal";
+import BidAcceptedModal from "@/components/jobs/bid/miniBids/BidAcceptedModal";
+import { setShowHiredModal } from "@/redux/slices/bidSlice";
 
 export default function JobView() {
   const isMobile = useIsMobile();
   const { jobId } = useParams();
+  const dispatch = useAppDispatch();
   const { user: loggedInUser } = useUserStates();
   const [openRating, setOpenRating] = useState(false);
+  const { showHiredModal } = useBidStates();
 
   const { userAsync, data: userData, loading: userLoading } = useUser();
   const { jobAsync, data: jobData, loading } = useJob();
@@ -120,6 +124,11 @@ export default function JobView() {
           reviewedId={acceptedBidderUserId}
         />
       )}
+      <BidAcceptedModal
+        open={showHiredModal}
+        onClose={() => dispatch(setShowHiredModal(false))}
+        bidder={acceptedBid?.contractor?.user}
+      />
     </>
   );
 }

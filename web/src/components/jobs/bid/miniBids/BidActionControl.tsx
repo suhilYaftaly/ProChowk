@@ -1,35 +1,32 @@
 import { Button, CircularProgress, Stack } from "@mui/material";
-import { useState } from "react";
 
 import { useAcceptBid } from "@gqlOps/jobBid";
 import Text from "@reusable/Text";
-import BidAcceptedModal from "./BidAcceptedModal";
-import { IUser } from "@gqlOps/user";
+import { useAppDispatch } from "@/utils/hooks/hooks";
+import { setShowHiredModal } from "@/redux/slices/bidSlice";
 
 type Props = {
   bidId: string;
   onReject: () => void;
   onAcceptSuccess: () => void;
-  poster: IUser | undefined;
 };
 export default function BidActionControl({
   bidId,
   onReject,
   onAcceptSuccess,
-  poster,
 }: Props) {
+  const dispatch = useAppDispatch();
   const { acceptBidAsync, loading } = useAcceptBid();
-  const [openModal, setOpenModal] = useState(false);
 
   const acceptTheBid = () => {
     acceptBidAsync({
       variables: { bidId },
-      onSuccess: () => setOpenModal(true),
+      onSuccess: onDrawerClose,
     });
   };
 
   const onDrawerClose = () => {
-    setOpenModal(false);
+    dispatch(setShowHiredModal(true));
     onAcceptSuccess();
   };
 
@@ -53,11 +50,6 @@ export default function BidActionControl({
           Not Interested
         </Button>
       </Stack>
-      <BidAcceptedModal
-        open={openModal}
-        onClose={onDrawerClose}
-        poster={poster}
-      />
     </>
   );
 }

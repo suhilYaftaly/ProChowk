@@ -15,3 +15,5 @@ export const useConfigsStates = () => useAppSelector((state) => state.configs);
 
 export const useGlobalModalsStates = () =>
   useAppSelector((state) => state.globalModals);
+
+export const useBidStates = () => useAppSelector((state) => state.bid);

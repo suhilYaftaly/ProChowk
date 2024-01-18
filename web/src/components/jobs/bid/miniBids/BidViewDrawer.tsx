@@ -127,7 +127,6 @@ export default function BidViewDrawer({
             bidId={bid.id}
             onReject={() => setIsBidRejected(true)}
             onAcceptSuccess={toggleDrawer}
-            poster={poster}
           />
         </Paper>
       )}
