@@ -44,7 +44,8 @@ type NotificationType =
   | "BidAccepted"
   | "BidRejected"
   | "BidPlaced"
-  | "JobFinished";
+  | "JobFinished"
+  | "ReviewReceived";
 
 //OPERATIONS
 //userNotifications OP

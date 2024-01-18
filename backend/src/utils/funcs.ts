@@ -7,6 +7,7 @@ import { ISignedProps } from "../middlewares/checkAuth";
 import { appName, appNamePascalCase } from "../constants/constants";
 import { logger } from "../middlewares/logger/logger";
 import { GQLContext } from "../types/commonTypes";
+import { Review } from "@prisma/client";
 
 dotenv.config();
 const baseUrl = process.env.CLIENT_ORIGIN;
@@ -278,3 +279,9 @@ export const infr = (
     )
   );
 };
+
+export function calculateAverageRating(reviews: Review[]) {
+  if (reviews.length === 0) return 0;
+  const totalRating = reviews.reduce((acc, review) => acc + review.rating, 0);
+  return totalRating / reviews.length;
+}

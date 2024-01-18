@@ -6,13 +6,15 @@ import {
   alpha,
   useTheme,
 } from "@mui/material";
-import { Notifications, Circle, Work } from "@mui/icons-material";
+import { Notifications, Circle, Work, Reviews } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
 import { TNotification, useMarkNotificationAsRead } from "@gqlOps/notification";
 import Text from "@reusable/Text";
 import { paths } from "@/routes/Routes";
 import { BidIcon } from "@/components/JSXIcons";
+import { navigateToUserPage } from "@/utils/utilFuncs";
+import { useUserStates } from "@/redux/reduxStates";
 
 type Props = {
   notification: TNotification;
@@ -24,6 +26,7 @@ export default function NotificationListItem({
   onClick,
   onMarkSuccess,
 }: Props) {
+  const { user } = useUserStates();
   const navigate = useNavigate();
   const theme = useTheme();
   const primaryC = theme.palette.primary.light;
@@ -64,6 +67,14 @@ export default function NotificationListItem({
         return { icons: <BidIcon />, onClick: markAndNavigateToJob };
       case "JobFinished":
         return { icons: <Work />, onClick: markAndNavigateToJob };
+      case "ReviewReceived":
+        return {
+          icons: <Reviews />,
+          onClick: () => {
+            onMarkAsRead(id);
+            navigateToUserPage({ user, navigate });
+          },
+        };
       default:
         return { icon: <Notifications />, onClick: () => onMarkAsRead(id) };
     }

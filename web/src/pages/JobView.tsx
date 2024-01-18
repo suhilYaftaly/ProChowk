@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Grid, Skeleton, Stack } from "@mui/material";
 
@@ -15,11 +15,14 @@ import { useGetBids } from "@gqlOps/jobBid";
 import MiniBidsList from "@jobs/bid/miniBids/MiniBidsList";
 import AcceptedBid from "@jobs/bid/AcceptedBid";
 import CompleteJobBtn from "@jobs/jobPost/completeJob/CompleteJobBtn";
+import GiveReviewModal from "@/components/review/GiveReviewModal";
 
 export default function JobView() {
   const isMobile = useIsMobile();
   const { jobId } = useParams();
   const { user: loggedInUser } = useUserStates();
+  const [openRating, setOpenRating] = useState(false);
+
   const { userAsync, data: userData, loading: userLoading } = useUser();
   const { jobAsync, data: jobData, loading } = useJob();
   const job = jobData?.job;
@@ -33,6 +36,7 @@ export default function JobView() {
   const acceptedBid = bids?.find((bid) => bid.isAccepted);
   const isMyJob = job?.userId === loggedInUser?.id;
   const isJobReadyForCompletion = isMyJob && job?.status === "InProgress";
+  const acceptedBidderUserId = acceptedBid?.contractor?.user?.id;
 
   //retriev user info
   useEffect(() => {
@@ -60,7 +64,7 @@ export default function JobView() {
   const actionBtn =
     job &&
     (isJobReadyForCompletion ? (
-      <CompleteJobBtn jobId={job.id} />
+      <CompleteJobBtn jobId={job.id} onSuccess={() => setOpenRating(true)} />
     ) : (
       allowBid && <BidThisJob job={job} />
     ));
@@ -109,6 +113,13 @@ export default function JobView() {
         </Grid>
       </AppContainer>
       {isMobile && actionBtn}
+      {acceptedBidderUserId && (
+        <GiveReviewModal
+          open={openRating}
+          onClose={setOpenRating}
+          reviewedId={acceptedBidderUserId}
+        />
+      )}
     </>
   );
 }

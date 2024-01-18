@@ -47,7 +47,7 @@ export default function NotificationIcon() {
           <Notifications />
         </Badge>
       </IconButton>
-      {!isMobile && (
+      {!isMobile && notifications && (
         <NotificationsPopover
           notifications={notifications}
           anchorEl={anchorEl}

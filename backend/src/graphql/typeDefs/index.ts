@@ -7,6 +7,7 @@ import skill from "./skill";
 import log from "./log";
 import jobBid from "./jobBid";
 import notification from "./notification";
+import review from "./review";
 
 export default [
   user,
@@ -18,4 +19,5 @@ export default [
   log,
   jobBid,
   notification,
+  review,
 ];

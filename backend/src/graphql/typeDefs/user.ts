@@ -43,6 +43,9 @@ export default gql`
     token: String
     refreshToken: String
     contractor: Contractor
+    notifications: [Notification]
+    writtenReviews: [Review]
+    receivedReviews: [Review]
   }
   type UserImage {
     id: ID

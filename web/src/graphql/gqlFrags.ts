@@ -20,3 +20,5 @@ export const jobFields = `id title desc jobSize status startDate endDate isDraft
 export const jobBidFields = `id quote startDate endDate proposal isAccepted isRejected rejectionReason agreementAccepted createdAt updatedAt jobId contractorId`;
 
 export const notificationFields = `id title message read type readDate data createdAt updatedAt userId`;
+
+export const reviewFields = `id rating comment createdAt updatedAt reviewerId reviewedId`;

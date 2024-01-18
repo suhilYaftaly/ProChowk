@@ -177,17 +177,18 @@ interface ICanUserUpdate {
   id: string;
   authUser: ISignedProps;
   checkEmail?: boolean;
+  /**@default "Unauthorized User. You cannot update someone else's account" */
+  message?: string;
 }
 export const canUserUpdate = ({
   id,
   authUser,
   checkEmail = true,
+  message = "Unauthorized User. You cannot update someone else's account",
 }: ICanUserUpdate) => {
-  if (id !== authUser.id && !isAdmin(authUser.roles)) {
-    throw gqlError({
-      msg: "Unauthorized User. You cannot update someone else's account",
-      code: "FORBIDDEN",
-    });
+  // if (id !== authUser.id && !isSuperAdmin(authUser.roles)) {
+  if (id !== authUser.id) {
+    throw gqlError({ msg: message, code: "FORBIDDEN" });
   }
 
   if (checkEmail) {

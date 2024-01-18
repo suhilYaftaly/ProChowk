@@ -397,15 +397,30 @@ export default {
 
         const notificationData: any = [];
 
+        let authorizationCreated = false;
+
         for (const bid of bids) {
           if (bid.isAccepted) {
             // Notify accepted contractor that job is finished
             notificationData.push({
               userId: bid.contractor.userId,
-              title: `Job '${job.title}' Completed: Thanks for Your Work, ${authUser.name}!`,
+              title: `Job '${job.title}' Completed`,
+              message: `Thanks for Your Work, ${authUser.name}!`,
               type: "JobFinished",
               data: { jobId: job.id, bidId: bid.id },
             });
+
+            // Create Review Authorization for job poster to review accepted contractor
+            if (!authorizationCreated) {
+              await prisma.reviewAuthorization.create({
+                data: {
+                  reviewerId: job.userId,
+                  reviewedId: bid.contractor.userId,
+                  description: `Authorized to review contractor following the completion of job '${job.title}' (Job ID: ${job.id}).`,
+                },
+              });
+              authorizationCreated = true;
+            }
           } else {
             // Notify other contractors their bid was not accepted
             notificationData.push({
@@ -437,7 +452,6 @@ export default {
         },
       });
     },
-
     deleteJob: async (
       _: any,
       { id }: { id: string },

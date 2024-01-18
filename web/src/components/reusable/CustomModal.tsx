@@ -11,6 +11,36 @@ interface Props {
   onClose: (open: boolean) => void;
   children: ReactNode;
   title: string;
+  /**close on background click? @default false */
+  disableBGClose?: boolean;
+}
+
+export default function CustomModal({
+  open,
+  onClose,
+  children,
+  title,
+  disableBGClose = false,
+}: Props) {
+  return (
+    <Modal open={open} onClose={() => !disableBGClose && onClose(false)}>
+      <ModalContainer sx={{ minWidth: useRespVal(370, 600) }}>
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+          sx={{ p: 2 }}
+        >
+          <Text type="title">{title}</Text>
+          <IconButton onClick={() => onClose(false)}>
+            <CloseIcon color="primary" />
+          </IconButton>
+        </Stack>
+        <Divider />
+        <ContentContainer>{children}</ContentContainer>
+      </ModalContainer>
+    </Modal>
+  );
 }
 
 const ModalContainer = styled(Box)(({ theme }) => ({
@@ -31,25 +61,3 @@ const ContentContainer = styled(Box)(({ theme }) => ({
   overflowY: "auto",
   padding: theme.spacing(2),
 }));
-
-export default function CustomModal({ open, onClose, children, title }: Props) {
-  return (
-    <Modal open={open} onClose={() => onClose(false)}>
-      <ModalContainer sx={{ minWidth: useRespVal(370, 600) }}>
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-          sx={{ p: 2 }}
-        >
-          <Text type="title">{title}</Text>
-          <IconButton onClick={() => onClose(false)}>
-            <CloseIcon color="primary" />
-          </IconButton>
-        </Stack>
-        <Divider />
-        <ContentContainer>{children}</ContentContainer>
-      </ModalContainer>
-    </Modal>
-  );
-}

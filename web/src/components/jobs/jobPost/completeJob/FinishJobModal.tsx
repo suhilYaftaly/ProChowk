@@ -1,4 +1,11 @@
-import { Button, Card, Modal, SxProps, Theme } from "@mui/material";
+import {
+  Button,
+  Card,
+  CircularProgress,
+  Modal,
+  SxProps,
+  Theme,
+} from "@mui/material";
 
 import Text from "@reusable/Text";
 
@@ -6,8 +13,14 @@ type Props = {
   open: boolean;
   onClose: (close: boolean) => void;
   onAccept: () => void;
+  loading: boolean;
 };
-export default function FinishJobModal({ open, onClose, onAccept }: Props) {
+export default function FinishJobModal({
+  open,
+  onClose,
+  onAccept,
+  loading,
+}: Props) {
   return (
     <Modal open={open} onClose={() => onClose(false)}>
       <Card sx={style}>
@@ -21,7 +34,7 @@ export default function FinishJobModal({ open, onClose, onAccept }: Props) {
           onClick={onAccept}
           sx={{ mr: 1, minWidth: 100 }}
         >
-          Yes
+          {loading ? <CircularProgress color="inherit" size={24} /> : "Yes"}
         </Button>
         <Button
           variant="contained"

@@ -6,11 +6,10 @@ import { useIsMobile } from "@/utils/hooks/hooks";
 import FinishJobModal from "./FinishJobModal";
 import { useUpdateJobStatus } from "@gqlOps/job";
 
-type Props = { jobId: string };
-export default function CompleteJobBtn({ jobId }: Props) {
+type Props = { jobId: string; onSuccess: () => void };
+export default function CompleteJobBtn({ jobId, onSuccess }: Props) {
   const isMobile = useIsMobile();
   const [openFinish, setOpenFinish] = useState(false);
-  const [openRating, setOpenRating] = useState(false);
 
   const { updateJobStatusAsync, loading } = useUpdateJobStatus();
 
@@ -18,13 +17,13 @@ export default function CompleteJobBtn({ jobId }: Props) {
     updateJobStatusAsync({
       variables: { jobId, status: "Completed" },
       onSuccess: () => {
-        toast.success("Job completed successfully", {
+        toast.success("Job completed successfully.", {
           position: "bottom-right",
         });
+        setOpenFinish(false);
+        onSuccess();
       },
     });
-    setOpenFinish(false);
-    setOpenRating(true);
   };
 
   const sx: SxProps<Theme> = isMobile
@@ -51,6 +50,7 @@ export default function CompleteJobBtn({ jobId }: Props) {
         open={openFinish}
         onClose={setOpenFinish}
         onAccept={onFinishJob}
+        loading={loading}
       />
     </>
   );

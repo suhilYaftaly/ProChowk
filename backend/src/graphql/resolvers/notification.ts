@@ -1,9 +1,9 @@
 import { Notification } from "@prisma/client";
+import { z } from "zod";
 
 import { GQLContext } from "../../types/commonTypes";
 import checkAuth, { canUserUpdate } from "../../middlewares/checkAuth";
 import { gqlError } from "../../utils/funcs";
-import { z } from "zod";
 
 export default {
   Query: {
@@ -110,7 +110,13 @@ const CreateNotificationSchema = z.object({
   title: z.string().min(1),
   message: z.string().optional(),
   data: z.any().optional(),
-  type: z.enum(["BidAccepted", "BidRejected", "BidPlaced", "JobFinished"]),
+  type: z.enum([
+    "BidAccepted",
+    "BidRejected",
+    "BidPlaced",
+    "JobFinished",
+    "ReviewReceived",
+  ]),
 });
 
 type TCreateNotificationInput = z.infer<typeof CreateNotificationSchema>;

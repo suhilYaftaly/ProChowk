@@ -8,25 +8,29 @@ generator client {
 }
 
 model User {
-    id            String         @id @default(auto()) @map("_id") @db.ObjectId
-    name          String
-    email         String         @unique
-    emailVerified Boolean        @default(false)
-    password      String?
-    phoneNum      String?
-    bio           String?
-    createdAt     DateTime       @default(now())
-    updatedAt     DateTime       @updatedAt
-    provider      Provider       @default(Credentials)
-    roles         Role[]         @default([user])
-    userTypes     UserType[]
-    image         UserImage?
-    address       Address?       @relation(fields: [addressId], references: [id])
-    addressId     String?        @db.ObjectId
-    contractor    Contractor?
-    jobs          Job[]
-    refreshToken  RefreshToken[]
-    notifications Notification[]
+    id                  String                @id @default(auto()) @map("_id") @db.ObjectId
+    name                String
+    email               String                @unique
+    emailVerified       Boolean               @default(false)
+    password            String?
+    phoneNum            String?
+    bio                 String?
+    createdAt           DateTime              @default(now())
+    updatedAt           DateTime              @updatedAt
+    provider            Provider              @default(Credentials)
+    roles               Role[]                @default([user])
+    userTypes           UserType[]
+    image               UserImage?
+    address             Address?              @relation(fields: [addressId], references: [id])
+    addressId           String?               @db.ObjectId
+    contractor          Contractor?
+    jobs                Job[]
+    refreshToken        RefreshToken[]
+    notifications       Notification[]
+    writtenReviews      Review[]              @relation("reviewedBy")
+    receivedReviews     Review[]              @relation("reviewsAbout")
+    reviewAuthsGiven    ReviewAuthorization[] @relation("reviewAuthBy")
+    reviewAuthsReceived ReviewAuthorization[] @relation("reviewAuthTo")
 }
 
 model RefreshToken {
@@ -198,6 +202,32 @@ model Notification {
     user      User             @relation(fields: [userId], references: [id])
 }
 
+model Review {
+    id         String   @id @default(auto()) @map("_id") @db.ObjectId
+    rating     Int
+    comment    String?
+    createdAt  DateTime @default(now())
+    updatedAt  DateTime @updatedAt
+    reviewerId String   @db.ObjectId
+    reviewedId String   @db.ObjectId
+    reviewer   User     @relation("reviewedBy", fields: [reviewerId], references: [id])
+    reviewed   User     @relation("reviewsAbout", fields: [reviewedId], references: [id])
+}
+
+model ReviewAuthorization {
+    id          String   @id @default(auto()) @map("_id") @db.ObjectId
+    description String?
+    createdAt   DateTime @default(now())
+    validUntil  DateTime @default(now())
+
+    reviewerId String @db.ObjectId
+    reviewedId String @db.ObjectId
+    reviewer   User   @relation("reviewAuthBy", fields: [reviewerId], references: [id])
+    reviewed   User   @relation("reviewAuthTo", fields: [reviewedId], references: [id])
+
+    @@unique([reviewerId, reviewedId])
+}
+
 enum BudgetType {
     Hourly
     Project
@@ -245,4 +275,5 @@ enum NotificationType {
     BidRejected
     BidPlaced
     JobFinished
+    ReviewReceived
 }

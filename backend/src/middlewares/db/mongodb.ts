@@ -8,6 +8,7 @@ import {
   USER_COLL,
   JOB_BID_COLL,
   NOTIFICATION_COLL,
+  REVIEW_AUTH_COLL,
 } from "../../constants/dbCollectionNames";
 import { logger } from "../logger/logger";
 import {
@@ -99,4 +100,9 @@ export const setupMongoIndexes = async (db: Db): Promise<void> => {
   await db
     .collection(NOTIFICATION_COLL)
     .createIndex({ readDate: 1 }, { expireAfterSeconds: 1209600 }); // 1209600 seconds = 14 days
+
+  // TTL index to delete expired review authorization after 1 week
+  await db
+    .collection(REVIEW_AUTH_COLL)
+    .createIndex({ validUntil: 1 }, { expireAfterSeconds: 604800 }); // 604800 seconds = 7 days
 };

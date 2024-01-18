@@ -1,0 +1,137 @@
+import { gql, useLazyQuery, useMutation } from "@apollo/client";
+import { reviewFields } from "../gqlFrags";
+import { IUser } from "./user";
+import { asyncOps } from "./gqlFuncs";
+
+const reviewGqlResp = `${reviewFields} reviewer {id name}`;
+
+const reviewOps = {
+  Queries: {
+    getUserReviews: gql`query GetUserReviews($userId: ID!) {
+        getUserReviews(userId: $userId) {
+            averageRating
+            reviews {${reviewGqlResp}}
+        }
+    }`,
+  },
+  Mutations: {
+    submitReview: gql`mutation SubmitReview($reviewerId: ID!, $reviewedId: ID!, $rating: Int!, $comment: String) {
+        submitReview(reviewerId: $reviewerId, reviewedId: $reviewedId, rating: $rating, comment: $comment) {${reviewGqlResp}}
+    }`,
+    updateReview: gql`mutation UpdateReview($reviewId: ID!, $rating: Int!, $comment: String) {
+        updateReview(reviewId: $reviewId, rating: $rating, comment: $comment) {${reviewGqlResp}}
+    }`,
+  },
+};
+
+//TYPES
+export type Review = {
+  id: string;
+  rating: number;
+  comment?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  reviewerId?: string;
+  reviewedId?: string;
+  reviewer?: IUser;
+  reviewed?: IUser;
+};
+
+//OPERATIONS
+//getUserReviews OP
+type TGetUserReviewsData = {
+  getUserReviews: { averageRating?: number; reviews: Review[] };
+};
+type TGetUserReviewsInput = { userId: string };
+type TGetUserReviewsAsync = {
+  variables: TGetUserReviewsInput;
+  onSuccess?: (data: TGetUserReviewsData["getUserReviews"]) => void;
+  onError?: (error?: any) => void;
+};
+export const useGetUserReviews = () => {
+  const [getUserReviews, { data, loading, error }] = useLazyQuery<
+    TGetUserReviewsData,
+    TGetUserReviewsInput
+  >(reviewOps.Queries.getUserReviews);
+
+  const getUserReviewsAsync = async ({
+    variables,
+    onSuccess,
+    onError,
+  }: TGetUserReviewsAsync) =>
+    asyncOps({
+      operation: () => getUserReviews({ variables }),
+      onSuccess: (dt: TGetUserReviewsData) =>
+        onSuccess && onSuccess(dt.getUserReviews),
+      onError,
+    });
+
+  return { getUserReviewsAsync, data, loading, error };
+};
+
+//submitReview OP
+type TSubmitReviewData = { submitReview: Review };
+type TSubmitReviewInput = {
+  reviewerId: string;
+  reviewedId: string;
+  rating: number;
+  comment?: string;
+};
+type TSubmitReviewAsync = {
+  variables: TSubmitReviewInput;
+  onSuccess?: (data: TSubmitReviewData["submitReview"]) => void;
+  onError?: (error?: any) => void;
+};
+export const useSubmitReview = () => {
+  const [submitReview, { data, loading, error }] = useMutation<
+    TSubmitReviewData,
+    TSubmitReviewInput
+  >(reviewOps.Mutations.submitReview);
+
+  const submitReviewAsync = async ({
+    variables,
+    onSuccess,
+    onError,
+  }: TSubmitReviewAsync) =>
+    asyncOps({
+      operation: () => submitReview({ variables }),
+      onSuccess: (dt: TSubmitReviewData) =>
+        onSuccess && onSuccess(dt.submitReview),
+      onError,
+    });
+
+  return { submitReviewAsync, data, loading, error };
+};
+
+//updateReview OP
+type TUpdateReviewData = { updateReview: Review };
+type TUpdateReviewInput = {
+  reviewId: string;
+  rating: number;
+  comment?: string;
+};
+type TUpdateReviewAsync = {
+  variables: TUpdateReviewInput;
+  onSuccess?: (data: TUpdateReviewData["updateReview"]) => void;
+  onError?: (error?: any) => void;
+};
+export const useUpdateReview = () => {
+  const [updateReview, { data, loading, error }] = useMutation<
+    TUpdateReviewData,
+    TUpdateReviewInput
+  >(reviewOps.Mutations.updateReview);
+
+  const updateReviewAsync = async ({
+    variables,
+    onSuccess,
+    onError,
+  }: TUpdateReviewAsync) =>
+    asyncOps({
+      operation: () => updateReview({ variables }),
+      onSuccess: (dt: TUpdateReviewData) =>
+        onSuccess && onSuccess(dt.updateReview),
+      onError,
+    });
+
+  return { updateReviewAsync, data, loading, error };
+};
