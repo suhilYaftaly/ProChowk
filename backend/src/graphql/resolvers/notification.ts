@@ -79,21 +79,6 @@ export default {
 
       return true;
     },
-    createNotification: async (
-      _: any,
-      { input }: { input: TCreateNotificationInput },
-      context: GQLContext
-    ): Promise<Notification> => {
-      const { prisma, req } = context;
-      const authUser = checkAuth(req);
-
-      const parsedInput = CreateNotificationSchema.safeParse(input);
-      if (!parsedInput.success) {
-        throw gqlError({ msg: parsedInput?.error?.message });
-      }
-
-      return await prisma.notification.create({ data: input });
-    },
   },
 };
 
@@ -104,19 +89,3 @@ const UserNotificationsInputSchema = z.object({
 });
 
 type UserNotificationsInput = z.infer<typeof UserNotificationsInputSchema>;
-
-const CreateNotificationSchema = z.object({
-  userId: z.string().length(24),
-  title: z.string().min(1),
-  message: z.string().optional(),
-  data: z.any().optional(),
-  type: z.enum([
-    "BidAccepted",
-    "BidRejected",
-    "BidPlaced",
-    "JobFinished",
-    "ReviewReceived",
-  ]),
-});
-
-type TCreateNotificationInput = z.infer<typeof CreateNotificationSchema>;

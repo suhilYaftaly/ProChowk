@@ -12,7 +12,7 @@ import { isContractor } from "@/utils/auth";
 import { useContractor } from "@gqlOps/contractor";
 import { useGetBids } from "@gqlOps/jobBid";
 
-export type JobType = "Posted" | "Draft" | "Active" | "Bidding";
+export type JobType = "Posted" | "Draft" | "Active" | "Bidding" | "Completed";
 
 export default function UserJobTypes() {
   const [searchParams] = useSearchParams();
@@ -61,18 +61,25 @@ export default function UserJobTypes() {
 
   const postedJobs = userJobs?.userJobs?.filter((job) => !job.isDraft);
   const draftJobs = userJobs?.userJobs?.filter((job) => job.isDraft);
-  const { activeJobs, biddingJobs } = (bids ?? []).reduce<JobCategorization>(
+  const { activeJobs, biddingJobs, completedJobs } = (
+    bids ?? []
+  ).reduce<JobCategorization>(
     (acc, bid) => {
       if (bid?.job) {
-        if (bid.isAccepted && bid.job?.status === "InProgress") {
+        if (bid.status === "Accepted" && bid.job?.status === "InProgress") {
           acc.activeJobs.push(bid.job);
-        } else if (!bid.isRejected && !bid.isAccepted) {
+        } else if (bid.status === "Open") {
           acc.biddingJobs.push(bid.job);
+        } else if (
+          bid.status === "Completed" &&
+          bid.job?.status === "Completed"
+        ) {
+          acc.completedJobs.push(bid.job);
         }
       }
       return acc;
     },
-    { activeJobs: [], biddingJobs: [] }
+    { activeJobs: [], biddingJobs: [], completedJobs: [] }
   );
 
   const handleDraftClick = (job: IJob) => navigate(paths.jobPost(job.id));
@@ -86,6 +93,7 @@ export default function UserJobTypes() {
             comp: (
               <JobsWrapper
                 length={activeJobs?.length}
+                loading={bidJobsLoading}
                 children={
                   <JobsCards jobs={activeJobs} loading={bidJobsLoading} />
                 }
@@ -98,8 +106,22 @@ export default function UserJobTypes() {
             comp: (
               <JobsWrapper
                 length={biddingJobs?.length}
+                loading={bidJobsLoading}
                 children={
                   <JobsCards jobs={biddingJobs} loading={bidJobsLoading} />
+                }
+              />
+            ),
+          },
+          {
+            label: "Completed",
+            total: completedJobs?.length ?? 0,
+            comp: (
+              <JobsWrapper
+                length={completedJobs?.length}
+                loading={bidJobsLoading}
+                children={
+                  <JobsCards jobs={completedJobs} loading={bidJobsLoading} />
                 }
               />
             ),
@@ -169,14 +191,16 @@ export default function UserJobTypes() {
 interface JobCategorization {
   activeJobs: IJob[];
   biddingJobs: IJob[];
+  completedJobs: IJob[];
 }
 
 interface IJobsWrapper {
   length: number | undefined;
   children: React.ReactNode;
+  loading?: boolean;
 }
-const JobsWrapper = ({ length, children }: IJobsWrapper) => {
-  return <>{length === 0 ? <NoJobsFound /> : children}</>;
+const JobsWrapper = ({ length, children, loading = false }: IJobsWrapper) => {
+  return <>{length === 0 && !loading ? <NoJobsFound /> : children}</>;
 };
 
 const NoJobsFound = () => (

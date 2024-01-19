@@ -16,7 +16,7 @@ import MiniBidsList from "@jobs/bid/miniBids/MiniBidsList";
 import AcceptedBid from "@jobs/bid/AcceptedBid";
 import CompleteJobBtn from "@jobs/jobPost/completeJob/CompleteJobBtn";
 import GiveReviewModal from "@/components/review/GiveReviewModal";
-import BidAcceptedModal from "@/components/jobs/bid/miniBids/BidAcceptedModal";
+import BidAcceptedModal from "@jobs/bid/miniBids/BidAcceptedModal";
 import { setShowHiredModal } from "@/redux/slices/bidSlice";
 
 export default function JobView() {
@@ -24,8 +24,8 @@ export default function JobView() {
   const { jobId } = useParams();
   const dispatch = useAppDispatch();
   const { user: loggedInUser } = useUserStates();
-  const [openRating, setOpenRating] = useState(false);
   const { showHiredModal } = useBidStates();
+  const [openRating, setOpenRating] = useState(false);
 
   const { userAsync, data: userData, loading: userLoading } = useUser();
   const { jobAsync, data: jobData, loading } = useJob();
@@ -34,13 +34,17 @@ export default function JobView() {
   const jobPoster = isMyProfile ? loggedInUser : userData?.user;
   const { getBidsAsync, data: bidsData } = useGetBids();
   const bids = bidsData?.getBids;
-  const filteredBids = bids?.filter(
-    (bid) => !bid.isRejected && !bid.isAccepted
+  const openBids = bids?.filter((bid) => bid.status === "Open");
+  const acceptedBid = bids?.find(
+    (bid) => bid.status === "Accepted" || bid.status === "Completed"
   );
-  const acceptedBid = bids?.find((bid) => bid.isAccepted);
   const isMyJob = job?.userId === loggedInUser?.id;
-  const isJobReadyForCompletion = isMyJob && job?.status === "InProgress";
-  const acceptedBidderUserId = acceptedBid?.contractor?.user?.id;
+  const isJobReadyForCompletion =
+    isMyJob &&
+    job?.status === "InProgress" &&
+    acceptedBid?.status === "Completed";
+  const bidder = acceptedBid?.contractor?.user;
+  const acceptedBidderUserId = bidder?.id;
 
   //retriev user info
   useEffect(() => {
@@ -70,7 +74,7 @@ export default function JobView() {
     (isJobReadyForCompletion ? (
       <CompleteJobBtn jobId={job.id} onSuccess={() => setOpenRating(true)} />
     ) : (
-      allowBid && <BidThisJob job={job} />
+      allowBid && <BidThisJob job={job} jobPoster={jobPoster} />
     ));
 
   return (
@@ -99,18 +103,22 @@ export default function JobView() {
               />
             </AppContainer>
             {!acceptedBid &&
-              filteredBids &&
-              filteredBids?.length > 0 &&
+              openBids &&
+              openBids?.length > 0 &&
               isMyJob &&
               jobPoster &&
               job && (
                 <AppContainer addCard sx={{ m: 0, my: 2 }}>
-                  <MiniBidsList bids={filteredBids} job={job} />
+                  <MiniBidsList bids={openBids} job={job} />
                 </AppContainer>
               )}
             {isMyJob && acceptedBid && job && (
               <AppContainer addCard sx={{ m: 0, mt: 2 }} cardSX={{ p: 0 }}>
-                <AcceptedBid bid={acceptedBid} job={job} />
+                <AcceptedBid
+                  bid={acceptedBid}
+                  job={job}
+                  jobPoster={jobPoster}
+                />
               </AppContainer>
             )}
           </Grid>
@@ -126,8 +134,8 @@ export default function JobView() {
       )}
       <BidAcceptedModal
         open={showHiredModal}
-        onClose={() => dispatch(setShowHiredModal(false))}
-        bidder={acceptedBid?.contractor?.user}
+        onClose={(toggle) => dispatch(setShowHiredModal(toggle))}
+        bidder={bidder}
       />
     </>
   );

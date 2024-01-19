@@ -124,7 +124,7 @@ export default function JobBidDrawer({
           </Stack>
           <Divider />
           <Stack sx={{ p }}>
-            <Text sx={{ mb: 1, fontWeight: 500 }}>Bid Quote</Text>
+            <Text sx={{ mb: 1, fontWeight: 500 }}>Bid Quote*</Text>
             <TextField
               variant="outlined"
               size="small"
@@ -172,7 +172,7 @@ export default function JobBidDrawer({
               inputProps={{ maxLength: configs.maxProposal }}
               sx={{ mb: 2 }}
             />
-            <Text sx={{ mb: 1, fontWeight: 500 }}>Agreement</Text>
+            <Text sx={{ mb: 1, fontWeight: 500 }}>Agreement*</Text>
             <Text>{agreementTxt}</Text>
             <FormGroup>
               <FormControlLabel
@@ -250,13 +250,11 @@ const validateErrors = ({ form, setErrors }: TValidateErrors) => {
     hasError = true;
   }
 
-  if (form.startDate) {
-    const startDate = startOfDay(parseISO(form.startDate));
-    const today = startOfDay(new Date());
-    if (isBefore(startDate, today)) {
-      errors.startDate = "Start date must be today or in the future.";
-      hasError = true;
-    }
+  const startDate = startOfDay(parseISO(form.startDate));
+  const today = startOfDay(new Date());
+  if (isBefore(startDate, today)) {
+    errors.startDate = "Start date must be today or in the future.";
+    hasError = true;
   }
   if (form.endDate && !form.startDate) {
     errors.endDate = "Start date must selected if end is selected";

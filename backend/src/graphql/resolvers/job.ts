@@ -391,7 +391,7 @@ export default {
       if (status === "Completed") {
         // Retrieve all bids
         const bids = await prisma.jobBid.findMany({
-          where: { jobId },
+          where: { jobId, status: { not: "Rejected" } },
           include: { contractor: true },
         });
 
@@ -400,8 +400,8 @@ export default {
         let authorizationCreated = false;
 
         for (const bid of bids) {
-          if (bid.isAccepted) {
-            // Notify accepted contractor that job is finished
+          if (bid.status === "Completed") {
+            // Notify Completed contractor that job is finished
             notificationData.push({
               userId: bid.contractor.userId,
               title: `Job '${job.title}' Completed`,
@@ -434,8 +434,8 @@ export default {
 
         // Update all non-accepted bids to rejected
         await prisma.jobBid.updateMany({
-          where: { jobId, isAccepted: false },
-          data: { isRejected: true, rejectionDate: new Date() },
+          where: { jobId, status: "Open" },
+          data: { status: "Rejected", rejectionDate: new Date() },
         });
 
         await prisma.notification.createMany({ data: notificationData });

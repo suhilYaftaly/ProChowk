@@ -50,7 +50,7 @@ export default function NotificationsPopover({
         horizontal: "center",
       }}
     >
-      <List>
+      <List sx={{ maxWidth: 600 }}>
         {notifications?.slice(0, 5).map((notification) => (
           <NotificationListItem
             key={notification.id}

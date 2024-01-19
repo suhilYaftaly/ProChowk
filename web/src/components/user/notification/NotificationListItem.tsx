@@ -65,6 +65,8 @@ export default function NotificationListItem({
         };
       case "BidRejected":
         return { icons: <BidIcon />, onClick: markAndNavigateToJob };
+      case "BidCompleted":
+        return { icons: <Work />, onClick: markAndNavigateToJob };
       case "JobFinished":
         return { icons: <Work />, onClick: markAndNavigateToJob };
       case "ReviewReceived":

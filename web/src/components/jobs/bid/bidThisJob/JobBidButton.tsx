@@ -12,7 +12,7 @@ type Props = {
 };
 export default function JobBidButton({ existingBid, onClick, loading }: Props) {
   const isMobile = useIsMobile();
-  const placedBidActive = existingBid && !existingBid.isRejected;
+  const placedBidActive = existingBid && existingBid?.status !== "Rejected";
   const bidTime =
     existingBid?.createdAt && formatRelativeTime(existingBid.createdAt);
 

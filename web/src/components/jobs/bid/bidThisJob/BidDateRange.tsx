@@ -37,7 +37,7 @@ export default function BidDateRange({
   return (
     <>
       <Stack direction={"row"} alignItems={"center"} sx={{ mb: 1 }}>
-        <Text sx={{ fontWeight: 500 }}>Start Date</Text>
+        <Text sx={{ fontWeight: 500 }}>Start Date*</Text>
         {isMobile && (
           <IconButton onClick={() => setStartDate("")} size="small">
             <RefreshIcon />
@@ -58,6 +58,7 @@ export default function BidDateRange({
             helperText: startDateErrTxt,
             error: Boolean(startDateErrTxt),
             size: "small",
+            required: true,
           },
         }}
       />

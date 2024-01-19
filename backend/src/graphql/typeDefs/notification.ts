@@ -11,8 +11,6 @@ export default gql`
   type Mutation {
     markNotificationAsRead(notificationId: ID!): Notification!
     markAllNotificationsAsRead(userId: ID!): Boolean
-    createNotification(input: CreateNotificationInput!): Notification!
-      @rateLimit(limit: 5, duration: 60)
   }
 
   type Notification {
@@ -44,6 +42,7 @@ export default gql`
     BidAccepted
     BidRejected
     BidPlaced
+    BidCompleted
     JobFinished
     ReviewReceived
   }

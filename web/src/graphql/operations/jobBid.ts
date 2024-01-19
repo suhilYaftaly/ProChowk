@@ -19,23 +19,25 @@ const jobBidOps = {
   },
   Mutations: {
     placeBid: gql`mutation PlaceBid($input: PlaceBidInput!) {placeBid(input: $input) {${bidGqlResp}}}`,
-    acceptBid: gql`mutation acceptBid($bidId: ID!) {acceptBid(bidId: $bidId) {${bidGqlResp}}}`,
-    rejectBid: gql`mutation rejectBid($bidId: ID!, $rejectionReason: String)
+    acceptBid: gql`mutation AcceptBid($bidId: ID!) {acceptBid(bidId: $bidId) {${bidGqlResp}}}`,
+    rejectBid: gql`mutation RejectBid($bidId: ID!, $rejectionReason: String)
         {rejectBid(bidId: $bidId, rejectionReason: $rejectionReason) {${bidGqlResp}}}`,
+    completeBid: gql`mutation CompleteBid($bidId: ID!) {completeBid(bidId: $bidId) {${bidGqlResp}}}`,
   },
 };
 
 //INTERACES
+type JobBidStatus = "Open" | "Accepted" | "Completed" | "Rejected";
+
 export type TBid = {
   id: string;
   quote: string;
   startDate?: string;
   endDate?: string;
   proposal?: string;
-  isAccepted?: boolean;
-  isRejected?: boolean;
   rejectionReason?: string;
   agreementAccepted?: boolean;
+  status?: JobBidStatus;
   createdAt?: string;
   updatedAt?: string;
   jobId?: string;
@@ -128,7 +130,7 @@ type TPlaceBidInputProp = {
   jobId: string;
   contractorId: string;
   quote: number;
-  startDate?: string;
+  startDate: string;
   endDate?: string;
   proposal?: string;
   agreementAccepted: boolean;
@@ -187,8 +189,6 @@ export const useAcceptBid = () => {
 
   const { updateCache } = useJob();
 
-  // const { updateBidsCache } = useGetBids();
-
   const acceptBidAsync = async ({
     variables,
     onSuccess,
@@ -198,8 +198,6 @@ export const useAcceptBid = () => {
       operation: () => acceptBid({ variables }),
       onSuccess: (dt: TAcceptBidData) => {
         const bid = dt.acceptBid;
-        // const jobId = bid?.jobId;
-        // updateBidsCache(bid, { filter: { jobId } });
 
         if (bid?.job) updateCache(bid.job);
         onSuccess && onSuccess(bid);
@@ -243,4 +241,43 @@ export const useRejectBid = () => {
     });
 
   return { rejectBidAsync, data, loading, error };
+};
+
+//completeBid OP
+type TCompleteBidData = { completeBid: TBid };
+type TCompleteBidInput = { bidId: string };
+type TCompleteBidAsync = {
+  variables: TCompleteBidInput;
+  onSuccess?: (data: TCompleteBidData["completeBid"]) => void;
+  onError?: (error?: any) => void;
+};
+export const useCompleteBid = () => {
+  const [completeBid, { data, loading, error }] = useMutation<
+    TCompleteBidData,
+    TCompleteBidInput
+  >(jobBidOps.Mutations.completeBid);
+
+  const { updateCache } = useJob();
+
+  // const { updateBidsCache } = useGetBids();
+
+  const completeBidAsync = async ({
+    variables,
+    onSuccess,
+    onError,
+  }: TCompleteBidAsync) =>
+    asyncOps({
+      operation: () => completeBid({ variables }),
+      onSuccess: (dt: TCompleteBidData) => {
+        const bid = dt.completeBid;
+        // const jobId = bid?.jobId;
+        // updateBidsCache(bid, { filter: { jobId } });
+
+        if (bid?.job) updateCache(bid.job);
+        onSuccess && onSuccess(bid);
+      },
+      onError,
+    });
+
+  return { completeBidAsync, data, loading, error };
 };

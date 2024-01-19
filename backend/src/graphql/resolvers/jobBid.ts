@@ -66,7 +66,7 @@ export default {
       }
 
       return await prisma.jobBid.findMany({
-        where: { ...queryConditions, isRejected: false },
+        where: { ...queryConditions, status: { not: "Rejected" } },
         include: {
           job: ifr(info, "job") && {
             include: {
@@ -136,7 +136,7 @@ export default {
       const newBid = await prisma.jobBid.create({
         data: {
           quote,
-          startDate: startDate || null,
+          startDate,
           endDate: endDate || null,
           proposal: proposal || null,
           agreementAccepted,
@@ -202,7 +202,7 @@ export default {
       // Update the bid to mark it as accepted
       const updatedBid = await prisma.jobBid.update({
         where: { id: bidId },
-        data: { isAccepted: true },
+        data: { status: "Accepted" },
         include: {
           job: ifr(info, "job") && {
             include: {
@@ -265,7 +265,7 @@ export default {
       const updatedBid = await prisma.jobBid.update({
         where: { id: bidId },
         data: {
-          isRejected: true,
+          status: "Rejected",
           rejectionReason: rejectionReason || null,
           rejectionDate: new Date(),
         },
@@ -300,6 +300,80 @@ export default {
 
       return updatedBid;
     },
+    completeBid: async (
+      _: any,
+      { bidId }: { bidId: string },
+      context: GQLContext,
+      info: GraphQLResolveInfo
+    ): Promise<JobBid> => {
+      const { prisma, req } = context;
+      const authUser = checkAuth(req);
+
+      // Retrieve the bid
+      const bid = await prisma.jobBid.findUnique({
+        where: { id: bidId },
+        include: { contractor: true },
+      });
+      if (!bid) throw gqlError({ msg: "Bid not found!" });
+
+      // Authorization check: ensure the user owns the bid
+      canUserUpdate({ id: bid.contractor.userId, authUser });
+
+      //check if bid is accepted
+      if (bid.status !== "Accepted") {
+        gqlError({
+          msg: "Bid must be accepted first before it can be completed!",
+        });
+      }
+      //check if bid is already completed
+      if (bid.status === "Completed") {
+        gqlError({ msg: "This bid is already completed!" });
+      }
+
+      // Update the bid to mark it as accepted
+      const updatedBid = await prisma.jobBid.update({
+        where: { id: bidId },
+        data: { status: "Completed" },
+        include: {
+          job: {
+            include: {
+              address: infr(info, "job", "address"),
+              budget: infr(info, "job", "budget"),
+              skills: infr(info, "job", "skills"),
+            },
+          },
+          contractor: {
+            include: {
+              user: infr(info, "contractor", "user") && {
+                include: { image: true },
+              },
+            },
+          },
+        },
+      });
+      if (!updatedBid) throw gqlError({ msg: "Error updating bid!" });
+
+      //send notification to the job poster
+      await prisma.notification.create({
+        data: {
+          userId: updatedBid.job.userId,
+          title: `${authUser.name} completed job '${updatedBid.job.title}'.`,
+          type: "BidCompleted",
+          data: { bidId, jobId: bid.jobId },
+        },
+      });
+
+      // Create Review Authorization for bidder to review job poster
+      await prisma.reviewAuthorization.create({
+        data: {
+          reviewerId: bid.contractor.userId,
+          reviewedId: updatedBid.job.userId,
+          description: `Authorized bidder to review job poster following the completion of job '${updatedBid.job.title}' (Job ID: ${updatedBid.job.id}).`,
+        },
+      });
+
+      return updatedBid;
+    },
   },
 };
 
@@ -326,7 +400,6 @@ const PlaceBidInputSchema = z
     quote: z.number().min(0.01, "Quote must be a positive number."),
     startDate: z
       .string()
-      .optional()
       .refine(validateDate, "Start date must be today or in the future."),
     endDate: z.string().optional(),
     proposal: z.string().optional(),

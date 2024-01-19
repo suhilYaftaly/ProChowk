@@ -15,8 +15,8 @@ import { IUser } from "@gqlOps/user";
 import Text from "../reusable/Text";
 import { navigateToUserPage } from "@/utils/utilFuncs";
 
-type Props = { user: IUser };
-export default function ChatWithUserCard({ user }: Props) {
+type Props = { user: IUser; onClick?: () => void };
+export default function ChatWithUserCard({ user, onClick }: Props) {
   const navigate = useNavigate();
   const theme = useTheme();
   const userCardBGC = alpha(theme.palette.secondary.light, 0.2);
@@ -24,7 +24,10 @@ export default function ChatWithUserCard({ user }: Props) {
   const iconColor = theme.palette.secondary.dark;
 
   //TODO: implement chatting
-  const onPosterClick = () => navigateToUserPage({ user, navigate });
+  const onPosterClick = () => {
+    navigateToUserPage({ user, navigate });
+    onClick && onClick();
+  };
 
   return (
     <Tooltip title="DUMMY, chatting coming soon!">

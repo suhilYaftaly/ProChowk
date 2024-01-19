@@ -2,20 +2,23 @@ import { useEffect, useState } from "react";
 
 import { IJob } from "@gqlOps/job";
 import { isContractor } from "@/utils/auth";
-import { UserType } from "@gqlOps/user";
+import { IUser, UserType } from "@gqlOps/user";
 import { useUserStates } from "@/redux/reduxStates";
 import JobBidDrawer from "./JobBidDrawer";
 import { useGetBids } from "@gqlOps/jobBid";
 import { useContractor } from "@gqlOps/contractor";
 import JobBidButton from "./JobBidButton";
 import BidViewDrawer from "../miniBids/BidViewDrawer";
+import CompleteBidBtn from "../../jobPost/completeBid/CompleteBidBtn";
+import GiveReviewModal from "@/components/review/GiveReviewModal";
 
-type Props = { job: IJob };
-export default function BidThisJob({ job }: Props) {
+type Props = { job: IJob; jobPoster: IUser | undefined };
+export default function BidThisJob({ job, jobPoster }: Props) {
   const { user } = useUserStates();
   const userId = user?.id;
   const [openJobDrawer, setOpenJobDrawer] = useState(false);
   const [openBidDrawer, setOpenBidDrawer] = useState(false);
+  const [openRating, setOpenRating] = useState(false);
 
   const {
     contractorAsync,
@@ -27,9 +30,11 @@ export default function BidThisJob({ job }: Props) {
   const { getBidsAsync, data: bidsData, loading: bidsLoading } = useGetBids();
   const bids = bidsData?.getBids;
   const existingBid = bids?.find(
-    (bid) => bid.contractorId === contractorId && bid.jobId === job.id
+    (bid) =>
+      bid.contractorId === contractorId &&
+      bid.jobId === job.id &&
+      bid.status !== "Rejected"
   );
-  const placedBidActive = existingBid && !existingBid.isRejected;
 
   const btnLoading = bidsLoading || contactorLoading;
 
@@ -57,11 +62,19 @@ export default function BidThisJob({ job }: Props) {
   });
 
   const handleBidClick = () => {
-    if (placedBidActive) setOpenBidDrawer(true);
+    if (existingBid) setOpenBidDrawer(true);
     else toggleJobDrawer();
   };
 
   if (!allowBid) return null;
+  if (existingBid?.status === "Accepted")
+    return (
+      <CompleteBidBtn
+        bidId={existingBid.id}
+        onSuccess={() => setOpenRating(true)}
+      />
+    );
+
   return (
     <>
       <JobBidButton
@@ -85,6 +98,14 @@ export default function BidThisJob({ job }: Props) {
           setOpenDrawer={setOpenBidDrawer}
           bid={existingBid}
           job={job}
+          jobPoster={jobPoster}
+        />
+      )}
+      {openRating && jobPoster?.id && (
+        <GiveReviewModal
+          open={openRating}
+          onClose={setOpenRating}
+          reviewedId={jobPoster.id}
         />
       )}
     </>

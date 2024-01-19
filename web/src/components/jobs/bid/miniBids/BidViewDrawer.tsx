@@ -17,6 +17,7 @@ import { useUserStates } from "@/redux/reduxStates";
 import { agreementTxt } from "@/config/data";
 import BidRejectForm from "./BidRejectForm";
 import ChatWithUserCard from "@chat/ChatWithUserCard";
+import { IUser } from "@gqlOps/user";
 
 type Props = {
   bid: TBid;
@@ -25,6 +26,7 @@ type Props = {
   setOpenDrawer: (toggle: boolean) => void;
   /**disable accept/reject buttons @default false */
   disableBidAction?: boolean;
+  jobPoster?: IUser;
 };
 export default function BidViewDrawer({
   bid,
@@ -32,6 +34,7 @@ export default function BidViewDrawer({
   openDrawer,
   setOpenDrawer,
   disableBidAction = false,
+  jobPoster,
 }: Props) {
   const { userId } = useUserStates();
   const theme = useTheme();
@@ -40,8 +43,8 @@ export default function BidViewDrawer({
   const ownderId = job?.userId;
   const isMyPostedJob = ownderId === userId;
   const [isBidRejected, setIsBidRejected] = useState(false);
-  const poster = bid?.contractor?.user;
-  const isMyBid = poster?.id === userId;
+  const bidder = bid?.contractor?.user;
+  const isMyBid = bidder?.id === userId;
 
   const toggleDrawer = () => setOpenDrawer(!openDrawer);
 
@@ -73,7 +76,7 @@ export default function BidViewDrawer({
           <Stack sx={{ p }}>
             {isBidRejected ? (
               <BidRejectForm
-                bidId={bid.id}
+                bidId={bid?.id}
                 onSuccess={toggleDrawer}
                 onGoBack={toggleDrawer}
               />
@@ -107,13 +110,22 @@ export default function BidViewDrawer({
                 <Text sx={{ fontWeight: 500, mb: 0.5 }}>Agreements</Text>
                 <Text sx={{ mb: 3 }}>{agreementTxt}</Text>
                 <Divider sx={{ my: 2 }} />
-                {!isMyBid && poster && (
+                {!isMyBid && bidder ? (
                   <>
                     <Text type="subtitle" sx={{ mb: 1 }}>
-                      Chat with the contractor!
+                      Chat with the bidder!
                     </Text>
-                    <ChatWithUserCard user={poster} />
+                    <ChatWithUserCard user={bidder} />
                   </>
+                ) : (
+                  jobPoster && (
+                    <>
+                      <Text type="subtitle" sx={{ mb: 1 }}>
+                        Chat with the job poster!
+                      </Text>
+                      <ChatWithUserCard user={jobPoster} />
+                    </>
+                  )
                 )}
               </>
             )}
@@ -124,7 +136,7 @@ export default function BidViewDrawer({
         <Paper sx={{ position: "sticky", bottom: 0 }}>
           <Divider />
           <BidActionControl
-            bidId={bid.id}
+            bidId={bid?.id}
             onReject={() => setIsBidRejected(true)}
             onAcceptSuccess={toggleDrawer}
           />

@@ -20,9 +20,6 @@ const notificationOps = {
         markAllNotificationsAsRead(userId: $userId)
       }
     `,
-    createNotification: gql`mutation CreateNotification($input: CreateNotificationInput!) {
-        createNotification(input: $input) {${notificationFields}}
-      }`,
   },
 };
 
@@ -44,6 +41,7 @@ type NotificationType =
   | "BidAccepted"
   | "BidRejected"
   | "BidPlaced"
+  | "BidCompleted"
   | "JobFinished"
   | "ReviewReceived";
 
@@ -144,41 +142,4 @@ export const useMarkAllNotificationsAsRead = () => {
     });
 
   return { markAllNotificationsAsReadAsync, data, loading, error };
-};
-
-//createNotification OP
-type TCNData = { createNotification: TNotification };
-type TCNInputProp = {
-  userId: string;
-  title: string;
-  type: NotificationType;
-  message?: string;
-  data?: any;
-};
-type TCNInput = { input: TCNInputProp };
-type TCNAsync = {
-  variables: TCNInput;
-  onSuccess?: (data: TCNData["createNotification"]) => void;
-  onError?: (error?: any) => void;
-};
-export const useCreateNotification = () => {
-  const [createNotification, { data, loading, error }] = useMutation<
-    TCNData,
-    TCNInput
-  >(notificationOps.Mutations.createNotification);
-
-  const createNotificationAsync = async ({
-    variables,
-    onSuccess,
-    onError,
-  }: TCNAsync) =>
-    asyncOps({
-      operation: () => createNotification({ variables }),
-      onSuccess: (dt: TCNData) => {
-        onSuccess && onSuccess(dt.createNotification);
-      },
-      onError,
-    });
-
-  return { createNotificationAsync, data, loading, error };
 };

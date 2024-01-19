@@ -24,7 +24,9 @@ export default function BidAcceptedModal({ open, onClose, bidder }: Props) {
           You hired {bidder?.name}
         </Text>
         <Text sx={{ my: 2 }}>Start Conversation with {firstName}</Text>
-        {bidder && <ChatWithUserCard user={bidder} />}
+        {bidder && (
+          <ChatWithUserCard user={bidder} onClick={() => onClose(false)} />
+        )}
         <Button
           variant="contained"
           onClick={() => onClose(false)}

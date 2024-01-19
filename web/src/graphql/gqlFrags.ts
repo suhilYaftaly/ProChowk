@@ -17,7 +17,7 @@ export const addressFields = `id ${geocodeFields} lat lng createdAt updatedAt`;
 export const jobBudgetFields = `id type from to maxHours createdAt updatedAt`;
 export const jobFields = `id title desc jobSize status startDate endDate isDraft draftExpiry createdAt updatedAt userId`;
 
-export const jobBidFields = `id quote startDate endDate proposal isAccepted isRejected rejectionReason agreementAccepted createdAt updatedAt jobId contractorId`;
+export const jobBidFields = `id quote startDate endDate proposal rejectionReason agreementAccepted status createdAt updatedAt jobId contractorId`;
 
 export const notificationFields = `id title message read type readDate data createdAt updatedAt userId`;
 

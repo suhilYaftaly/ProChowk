@@ -7,11 +7,11 @@ import {
   TextField,
   useTheme,
 } from "@mui/material";
+import { toast } from "react-toastify";
 
 import CustomModal from "../reusable/CustomModal";
 import { useSubmitReview } from "@gqlOps/review";
 import { useUserStates } from "@/redux/reduxStates";
-import { toast } from "react-toastify";
 
 type Props = {
   open: boolean;

@@ -9,6 +9,7 @@ export default gql`
     placeBid(input: PlaceBidInput!): JobBid!
     acceptBid(bidId: ID!): JobBid!
     rejectBid(bidId: ID!, rejectionReason: String): JobBid!
+    completeBid(bidId: ID!): JobBid!
   }
 
   type JobBid {
@@ -17,10 +18,9 @@ export default gql`
     startDate: DateTime
     endDate: DateTime
     proposal: String
-    isAccepted: Boolean
-    isRejected: Boolean
     rejectionReason: String
     agreementAccepted: Boolean
+    status: JobBidStatus
     createdAt: DateTime
     updatedAt: DateTime
     jobId: ID
@@ -38,9 +38,16 @@ export default gql`
     jobId: String!
     contractorId: String!
     quote: Float!
-    startDate: DateTime
+    startDate: DateTime!
     endDate: DateTime
     proposal: String
     agreementAccepted: Boolean!
+  }
+
+  enum JobBidStatus {
+    Open
+    Accepted
+    Completed
+    Rejected
   }
 `;

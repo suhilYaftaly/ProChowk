@@ -12,17 +12,18 @@ import { TBid } from "@gqlOps/jobBid";
 import { IJob } from "@gqlOps/job";
 import Text from "@reusable/Text";
 import BidViewDrawer from "./miniBids/BidViewDrawer";
+import { IUser } from "@/graphql/operations/user";
 
-type Props = { job: IJob; bid: TBid };
-export default function AcceptedBid({ bid, job }: Props) {
+type Props = { job: IJob; bid: TBid; jobPoster: IUser | undefined };
+export default function AcceptedBid({ bid, job, jobPoster }: Props) {
   const [openDrawer, setOpenDrawer] = useState(false);
-  const user = bid?.contractor?.user;
+  const bidder = bid?.contractor?.user;
   const avatarSize = 60;
 
   return (
     <Stack>
       <Text cColor="dark" sx={{ mx: 2, my: 1, fontWeight: 550 }}>
-        Accepted Bid
+        Hired Bidder
       </Text>
       <Divider />
       <List component="nav">
@@ -33,12 +34,12 @@ export default function AcceptedBid({ bid, job }: Props) {
           >
             <Stack direction={"row"} alignItems={"center"}>
               <Avatar
-                alt={user?.name}
-                src={user?.image?.url}
+                alt={bidder?.name}
+                src={bidder?.image?.url}
                 sx={{ width: avatarSize, height: avatarSize, mr: 1 }}
               />
               <Text type="subtitle" sx={{ mr: 1 }}>
-                {user?.name}
+                {bidder?.name}
               </Text>
             </Stack>
             <Stack>
@@ -57,6 +58,7 @@ export default function AcceptedBid({ bid, job }: Props) {
         bid={bid}
         job={job}
         disableBidAction
+        jobPoster={jobPoster}
       />
     </Stack>
   );

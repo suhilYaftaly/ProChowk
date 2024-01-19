@@ -162,22 +162,21 @@ model Budget {
 }
 
 model JobBid {
-    id                String     @id @default(auto()) @map("_id") @db.ObjectId
+    id                String       @id @default(auto()) @map("_id") @db.ObjectId
     quote             Float
-    startDate         DateTime?
+    startDate         DateTime
     endDate           DateTime?
     proposal          String?
-    isAccepted        Boolean    @default(false)
-    isRejected        Boolean    @default(false)
-    agreementAccepted Boolean    @default(false)
+    agreementAccepted Boolean      @default(false)
     rejectionReason   String?
     rejectionDate     DateTime?
-    createdAt         DateTime   @default(now())
-    updatedAt         DateTime   @updatedAt
-    jobId             String     @db.ObjectId
-    contractorId      String     @db.ObjectId
-    job               Job        @relation(fields: [jobId], references: [id])
-    contractor        Contractor @relation(fields: [contractorId], references: [id])
+    status            JobBidStatus @default(Open)
+    createdAt         DateTime     @default(now())
+    updatedAt         DateTime     @updatedAt
+    jobId             String       @db.ObjectId
+    contractorId      String       @db.ObjectId
+    job               Job          @relation(fields: [jobId], references: [id])
+    contractor        Contractor   @relation(fields: [contractorId], references: [id])
 }
 
 model Log {
@@ -270,10 +269,18 @@ enum JobStatus {
     Completed
 }
 
+enum JobBidStatus {
+    Open
+    Accepted
+    Completed
+    Rejected
+}
+
 enum NotificationType {
     BidAccepted
     BidRejected
     BidPlaced
+    BidCompleted
     JobFinished
     ReviewReceived
 }
