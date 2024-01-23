@@ -12,15 +12,20 @@ export default {
       _: any,
       { userId }: { userId: string },
       { prisma }: GQLContext
-    ): Promise<{ reviews: Review[]; averageRating: number }> => {
+    ): Promise<{
+      reviews: Review[];
+      averageRating: number;
+      totalCount: number;
+    }> => {
       const reviews = await prisma.review.findMany({
         where: { reviewedId: userId },
+        orderBy: { createdAt: "desc" },
         include: { reviewer: true },
       });
 
       const averageRating = calculateAverageRating(reviews);
 
-      return { reviews, averageRating };
+      return { reviews, averageRating, totalCount: reviews.length };
     },
   },
   Mutation: {

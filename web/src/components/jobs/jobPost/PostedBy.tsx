@@ -19,13 +19,19 @@ interface Props {
   loading: boolean;
   user: IUser | undefined;
   title?: string;
+  userAvgRating: number | undefined;
 }
-export default function PostedBy({ loading, user, title }: Props) {
+export default function PostedBy({
+  loading,
+  user,
+  title,
+  userAvgRating,
+}: Props) {
   const navigate = useNavigate();
   const navigateToUser = () => navigateToUserPage({ user, navigate });
   const isMobile = useIsMobile();
 
-  //TODO: add ratings, previous jobs, active jobs
+  console.log(userAvgRating);
 
   return (
     <>
@@ -60,9 +66,13 @@ export default function PostedBy({ loading, user, title }: Props) {
                   <div>
                     {isMobile && title && <Text>{title}</Text>}
                     <Text type="subtitle">{user?.name}</Text>
-                    {!isMobile && <Rating />}
+                    {!isMobile && userAvgRating && (
+                      <Rating averageRating={userAvgRating} />
+                    )}
                   </div>
-                  {isMobile && <Rating />}
+                  {isMobile && userAvgRating && (
+                    <Rating averageRating={userAvgRating} />
+                  )}
                 </Stack>
               </ListItemButton>
             </ListItem>

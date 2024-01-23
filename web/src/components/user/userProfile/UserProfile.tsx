@@ -8,6 +8,8 @@ import UserAbout from "./sections/UserAbout";
 import UserSkills from "./sections/UserSkills";
 import UserLicenses from "./sections/UserLicenses";
 import { isContractor } from "@/utils/auth";
+import { TReview } from "@gqlOps/review";
+import UserReviews from "./sections/UserReviews";
 
 export interface ISectionProps extends IUserProfile {
   /**padding */
@@ -21,6 +23,8 @@ interface IUserProfile {
   userLoading: boolean;
   contractor: IContractor | undefined;
   contrLoading: boolean;
+  reviews?: TReview[];
+  averageRating?: number;
 }
 export default function UserProfile({
   user,
@@ -28,6 +32,8 @@ export default function UserProfile({
   userLoading,
   contractor,
   contrLoading,
+  reviews,
+  averageRating,
 }: IUserProfile) {
   const p = 2;
   const sectionProps = {
@@ -38,6 +44,7 @@ export default function UserProfile({
     contrLoading,
     p,
     tmb: 1,
+    averageRating,
   };
 
   return (
@@ -58,6 +65,16 @@ export default function UserProfile({
                 <UserSkills {...sectionProps} />
                 <Divider />
                 <UserLicenses {...sectionProps} />
+                {reviews && (
+                  <>
+                    <Divider />
+                    <UserReviews
+                      reviews={reviews}
+                      p={p}
+                      tmb={sectionProps.tmb}
+                    />
+                  </>
+                )}
               </>
             )}
           </AppContainer>

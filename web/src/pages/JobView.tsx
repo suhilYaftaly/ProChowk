@@ -18,6 +18,7 @@ import CompleteJobBtn from "@jobs/jobPost/completeJob/CompleteJobBtn";
 import GiveReviewModal from "@/components/review/GiveReviewModal";
 import BidAcceptedModal from "@jobs/bid/miniBids/BidAcceptedModal";
 import { setShowHiredModal } from "@/redux/slices/bidSlice";
+import { useGetUserAvgReviews } from "@gqlOps/review";
 
 export default function JobView() {
   const isMobile = useIsMobile();
@@ -27,6 +28,9 @@ export default function JobView() {
   const { showHiredModal } = useBidStates();
   const [openRating, setOpenRating] = useState(false);
 
+  const { getUserAvgReviewsAsync, data: reviewAvgData } =
+    useGetUserAvgReviews();
+  const userAvgRating = reviewAvgData?.getUserReviews?.averageRating;
   const { userAsync, data: userData, loading: userLoading } = useUser();
   const { jobAsync, data: jobData, loading } = useJob();
   const job = jobData?.job;
@@ -48,7 +52,10 @@ export default function JobView() {
 
   //retriev user info
   useEffect(() => {
-    if (job?.userId) userAsync({ variables: { id: job?.userId } });
+    if (job?.userId) {
+      userAsync({ variables: { id: job.userId } });
+      getUserAvgReviewsAsync({ variables: { userId: job.userId } });
+    }
   }, [job?.userId]);
 
   useEffect(() => {
@@ -100,6 +107,7 @@ export default function JobView() {
                 user={jobPoster}
                 loading={userLoading}
                 title="Posted By"
+                userAvgRating={userAvgRating}
               />
             </AppContainer>
             {!acceptedBid &&

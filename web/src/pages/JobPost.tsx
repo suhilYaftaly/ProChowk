@@ -6,7 +6,7 @@ import { jobConfigs } from "@/config/configConst";
 import { useUserStates } from "@/redux/reduxStates";
 import { navigateToUserPage, removeServerMetadata } from "@/utils/utilFuncs";
 import { JobInput, useCreateJob, useJob, useUpdateJob } from "@gqlOps/job";
-import JobForm from "@/components/jobs/jobPost/forms/JobForm";
+import JobForm from "@jobs/jobPost/forms/JobForm";
 import { CircularProgress } from "@mui/material";
 import AppContainer from "@reusable/AppContainer";
 
@@ -66,7 +66,6 @@ export default function JobPost() {
   };
 
   const onCreateJob = () => {
-    console.log("create");
     if (jobHasNewChanges && !isExistingJob && user?.id) {
       createJobAsync({
         variables: {
@@ -82,7 +81,6 @@ export default function JobPost() {
   };
 
   const onUpdateJob = (isDraft: boolean) => {
-    console.log("update");
     const isLastStep = !isDraft;
     if (
       (jobHasNewChanges || isLastStep) &&
@@ -110,7 +108,6 @@ export default function JobPost() {
   };
 
   const createOrUpdateJob = (isDraft: boolean) => {
-    console.log("createOrUpdateJob", user?.id);
     if (user?.id) {
       if (isExistingJob && jobId) onUpdateJob(isDraft);
       else if (!isExistingJob) onCreateJob();

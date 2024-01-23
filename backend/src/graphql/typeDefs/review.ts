@@ -30,5 +30,6 @@ export default gql`
   type UserReviewsResponse {
     averageRating: Float
     reviews: [Review!]!
+    totalCount: Float
   }
 `;

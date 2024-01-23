@@ -11,8 +11,17 @@ const reviewOps = {
         getUserReviews(userId: $userId) {
             averageRating
             reviews {${reviewGqlResp}}
+            totalCount
         }
     }`,
+    getUserAvgReviews: gql`
+      query GetUserAvgReviews($userId: ID!) {
+        getUserReviews(userId: $userId) {
+          averageRating
+          totalCount
+        }
+      }
+    `,
   },
   Mutations: {
     submitReview: gql`mutation SubmitReview($reviewerId: ID!, $reviewedId: ID!, $rating: Int!, $comment: String) {
@@ -25,7 +34,7 @@ const reviewOps = {
 };
 
 //TYPES
-export type Review = {
+export type TReview = {
   id: string;
   rating: number;
   comment?: string;
@@ -40,7 +49,11 @@ export type Review = {
 //OPERATIONS
 //getUserReviews OP
 type TGetUserReviewsData = {
-  getUserReviews: { averageRating?: number; reviews: Review[] };
+  getUserReviews: {
+    averageRating?: number;
+    reviews: TReview[];
+    totalCount?: number;
+  };
 };
 type TGetUserReviewsInput = { userId: string };
 type TGetUserReviewsAsync = {
@@ -69,8 +82,39 @@ export const useGetUserReviews = () => {
   return { getUserReviewsAsync, data, loading, error };
 };
 
+//getUserAvgReviews OP
+type TGetUserAvgReviewsData = {
+  getUserReviews: { averageRating?: number; totalCount?: number };
+};
+type TGetUserAvgReviewsInput = { userId: string };
+type TGetUserAvgReviewsAsync = {
+  variables: TGetUserAvgReviewsInput;
+  onSuccess?: (data: TGetUserAvgReviewsData["getUserReviews"]) => void;
+  onError?: (error?: any) => void;
+};
+export const useGetUserAvgReviews = () => {
+  const [getUserAvgReviews, { data, loading, error }] = useLazyQuery<
+    TGetUserAvgReviewsData,
+    TGetUserAvgReviewsInput
+  >(reviewOps.Queries.getUserAvgReviews);
+
+  const getUserAvgReviewsAsync = async ({
+    variables,
+    onSuccess,
+    onError,
+  }: TGetUserAvgReviewsAsync) =>
+    asyncOps({
+      operation: () => getUserAvgReviews({ variables }),
+      onSuccess: (dt: TGetUserAvgReviewsData) =>
+        onSuccess && onSuccess(dt.getUserReviews),
+      onError,
+    });
+
+  return { getUserAvgReviewsAsync, data, loading, error };
+};
+
 //submitReview OP
-type TSubmitReviewData = { submitReview: Review };
+type TSubmitReviewData = { submitReview: TReview };
 type TSubmitReviewInput = {
   reviewerId: string;
   reviewedId: string;
@@ -104,7 +148,7 @@ export const useSubmitReview = () => {
 };
 
 //updateReview OP
-type TUpdateReviewData = { updateReview: Review };
+type TUpdateReviewData = { updateReview: TReview };
 type TUpdateReviewInput = {
   reviewId: string;
   rating: number;

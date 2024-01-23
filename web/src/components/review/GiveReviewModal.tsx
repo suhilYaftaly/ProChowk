@@ -12,6 +12,7 @@ import { toast } from "react-toastify";
 import CustomModal from "../reusable/CustomModal";
 import { useSubmitReview } from "@gqlOps/review";
 import { useUserStates } from "@/redux/reduxStates";
+import { charsCount } from "@/utils/utilFuncs";
 
 type Props = {
   open: boolean;
@@ -22,8 +23,9 @@ export default function GiveReviewModal({ open, onClose, reviewedId }: Props) {
   const theme = useTheme();
   const primaryC = theme.palette.primary.main;
   const { userId } = useUserStates();
-  const [form, setForm] = useState({ rating: 4, comment: "" });
+  const [form, setForm] = useState({ rating: 5, comment: "" });
   const { submitReviewAsync, loading } = useSubmitReview();
+  const maxReview = 350;
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -58,7 +60,7 @@ export default function GiveReviewModal({ open, onClose, reviewedId }: Props) {
           size="large"
         />
         <TextField
-          label={"Comment"}
+          label={`Comment ${charsCount(form.comment, maxReview)}`}
           variant="outlined"
           size="small"
           value={form.comment}
@@ -68,6 +70,7 @@ export default function GiveReviewModal({ open, onClose, reviewedId }: Props) {
           placeholder={"Share your experience... What did you like or dislike?"}
           multiline
           rows={4}
+          inputProps={{ maxLength: maxReview }}
           sx={{ my: 3 }}
         />
         <Button variant="contained" type="submit" sx={{ mb: 1 }}>

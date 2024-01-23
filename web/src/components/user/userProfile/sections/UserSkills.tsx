@@ -19,7 +19,7 @@ export default function UserSkills({
   return (
     <Stack sx={{ p }}>
       <EditableTitle
-        title="Skills"
+        title={`Skills (${contractor?.skills?.length})`}
         isMyProfile={isMyProfile}
         setOpenEdit={setOpenEdit}
       />
