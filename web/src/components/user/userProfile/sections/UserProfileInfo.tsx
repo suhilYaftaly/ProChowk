@@ -63,7 +63,7 @@ export default function UserProfileInfo({
           <Stack>
             <Stack direction={"row"} spacing={1} sx={{ mb: 1 }}>
               <Text type="title">{user?.name}</Text>
-              {averageRating && <Rating averageRating={averageRating} />}
+              <Rating averageRating={averageRating} />
             </Stack>
             <Grid container sx={{ color: "grey" }} spacing={1}>
               {user?.phoneNum && (

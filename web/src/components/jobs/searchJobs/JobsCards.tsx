@@ -15,11 +15,7 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 
 import { IJob, useDeleteJob } from "@gqlOps/job";
-import {
-  formatRelativeTime,
-  openGoogleMapsDirections,
-  trimText,
-} from "@utils/utilFuncs";
+import { formatRelativeTime, trimText } from "@utils/utilFuncs";
 import { paths } from "@/routes/Routes";
 import ChipSkeleton from "@reusable/skeleton/ChipSkeleton";
 import Text from "@reusable/Text";
@@ -157,25 +153,15 @@ const JobCard = ({
       <Stack direction={"row"} sx={{ alignItems: "center" }}>
         {job?.address?.city && (
           <>
-            <IconButton
-              size="small"
-              onClick={(e) => {
-                e.stopPropagation();
-                openGoogleMapsDirections({
-                  lat: job?.address?.lat,
-                  lng: job?.address?.lng,
-                });
+            <LocationOn
+              sx={{
+                border: "2px solid",
+                padding: 0.4,
+                borderRadius: 5,
+                color: theme.palette.text.light,
+                mr: 1,
               }}
-            >
-              <LocationOn
-                sx={{
-                  border: "2px solid",
-                  padding: 0.4,
-                  borderRadius: 5,
-                  color: theme.palette.text.light,
-                }}
-              />
-            </IconButton>
+            />
             <Text type="subtitle">{job?.address?.city}</Text>
           </>
         )}

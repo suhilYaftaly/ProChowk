@@ -2,7 +2,7 @@ import { Card, Stack } from "@mui/material";
 
 import SearchNearbyJobs from "@jobs/searchJobs/SearchNearbyJobs";
 import { useUserStates } from "@redux/reduxStates";
-import ProfileList from "@components/headerSection/myProfile/ProfileList";
+import UserMenuOptions from "@/components/headerSection/myProfile/UserMenuOptions";
 import { useIsMobile } from "@utils/hooks/hooks";
 import PostJobBtn from "@components/headerSection/PostJobBtn";
 import AppContainer from "@reusable/AppContainer";
@@ -33,7 +33,7 @@ export default function Home() {
           {user && !isMobile && (
             <Stack sx={{ minWidth: 300, ml: 2 }}>
               <Card>
-                <ProfileList />
+                <UserMenuOptions />
               </Card>
               <PostJobBtn sx={{ mt: 2 }} />
             </Stack>

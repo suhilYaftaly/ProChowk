@@ -65,7 +65,7 @@ export default function UserProfile({
                 <UserSkills {...sectionProps} />
                 <Divider />
                 <UserLicenses {...sectionProps} />
-                {reviews && (
+                {reviews && reviews.length > 0 && (
                   <>
                     <Divider />
                     <UserReviews

@@ -66,13 +66,9 @@ export default function PostedBy({
                   <div>
                     {isMobile && title && <Text>{title}</Text>}
                     <Text type="subtitle">{user?.name}</Text>
-                    {!isMobile && userAvgRating && (
-                      <Rating averageRating={userAvgRating} />
-                    )}
+                    {!isMobile && <Rating averageRating={userAvgRating} />}
                   </div>
-                  {isMobile && userAvgRating && (
-                    <Rating averageRating={userAvgRating} />
-                  )}
+                  {isMobile && <Rating averageRating={userAvgRating} />}
                 </Stack>
               </ListItemButton>
             </ListItem>

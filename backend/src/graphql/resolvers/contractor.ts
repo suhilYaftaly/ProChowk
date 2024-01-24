@@ -7,7 +7,13 @@ import {
   ISkillInput,
 } from "../../types/commonTypes";
 import checkAuth, { canUserUpdate } from "../../middlewares/checkAuth";
-import { showInputError, gqlError, ifr, infr } from "../../utils/funcs";
+import {
+  showInputError,
+  gqlError,
+  ifr,
+  infr,
+  calculateAverageRating,
+} from "../../utils/funcs";
 import {
   ADDRESS_COLL,
   CONTRACTOR_COLL,
@@ -99,12 +105,20 @@ export default {
           address: infr(info, "users", "address"),
           image: infr(info, "users", "image"),
           contractor: { include: { skills: { select: { label: true } } } },
+          receivedReviews: { select: { rating: true } },
         },
       });
 
-      const orderedUsers = userIds.map((userId: string) =>
-        users.find((user) => user.id === userId)
-      );
+      const orderedUsers = userIds.map((userId: string) => {
+        const user = users.find((u) => u.id === userId);
+        if (user) {
+          const averageRating = calculateAverageRating(
+            user.receivedReviews as any
+          );
+          return { ...user, averageRating };
+        }
+        return undefined;
+      });
       return { users: orderedUsers, totalCount };
     },
     contractorsByText: async (
@@ -197,12 +211,20 @@ export default {
           address: infr(info, "users", "address"),
           image: infr(info, "users", "image"),
           contractor: { include: { skills: { select: { label: true } } } },
+          receivedReviews: { select: { rating: true } },
         },
       });
 
-      const orderedUsers = userIds.map((userId: string) =>
-        users.find((user) => user.id === userId)
-      );
+      const orderedUsers = userIds.map((userId: string) => {
+        const user = users.find((u) => u.id === userId);
+        if (user) {
+          const averageRating = calculateAverageRating(
+            user.receivedReviews as any
+          );
+          return { ...user, averageRating };
+        }
+        return undefined;
+      });
 
       return { users: orderedUsers, totalCount };
     },

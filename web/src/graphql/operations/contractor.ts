@@ -11,7 +11,7 @@ import { IUser } from "./user";
 import { LatLngInput } from "./address";
 import { contractorFields, licenseFields, skillFields } from "../gqlFrags";
 
-const searchContResp = `id name bio image {url} address {city lat lng} contractor {skills {label}}`;
+const searchContResp = `id name bio averageRating image {url} address {city lat lng} contractor {skills {label}}`;
 const contractorGqlResp = `${contractorFields} licenses {${licenseFields}} skills {${skillFields}}`;
 
 const contOps = {

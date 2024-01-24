@@ -8,7 +8,6 @@ import {
   Rating,
   Skeleton,
   Stack,
-  Tooltip,
   alpha,
   useTheme,
 } from "@mui/material";
@@ -79,15 +78,15 @@ const ContractorCard = ({ user, onClick }: IContractorCardProps) => {
         />
         <Stack>
           <Text type="subtitle">{user.name}</Text>
-          <Tooltip title="DUMMY, coming soon!">
+          {(user?.averageRating ?? 0) > 0 && (
             <Rating
-              defaultValue={4.4}
+              defaultValue={user.averageRating}
               precision={0.5}
               readOnly
               size="small"
               sx={{ color: primaryC }}
             />
-          </Tooltip>
+          )}
         </Stack>
       </Stack>
       {user?.bio && <Text type="body2">{trimText({ text: user.bio })}</Text>}

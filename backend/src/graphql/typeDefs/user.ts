@@ -46,6 +46,7 @@ export default gql`
     notifications: [Notification]
     writtenReviews: [Review]
     receivedReviews: [Review]
+    averageRating: Float
   }
   type UserImage {
     id: ID

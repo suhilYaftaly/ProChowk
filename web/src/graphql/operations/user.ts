@@ -145,6 +145,7 @@ export interface IUser {
   address?: IAddress;
   userTypes: UserType[];
   contractor?: IContractor;
+  averageRating?: number;
 }
 //inputs
 export interface IUpdateUserInput {

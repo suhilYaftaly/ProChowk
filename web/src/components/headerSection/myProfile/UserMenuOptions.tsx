@@ -23,7 +23,7 @@ import { useIsMobile } from "@/utils/hooks/hooks";
 interface Props {
   onItemClick?: () => void;
 }
-export default function ProfileList({ onItemClick }: Props) {
+export default function UserMenuOptions({ onItemClick }: Props) {
   const { user, userView } = useUserStates();
   const navigate = useNavigate();
   const theme = useTheme();
@@ -56,6 +56,10 @@ export default function ProfileList({ onItemClick }: Props) {
     navigate(paths.userJobTypes("Bidding"));
     onItemClick && onItemClick();
   };
+  const onCompletedJobs = () => {
+    navigate(paths.userJobTypes("Completed"));
+    onItemClick && onItemClick();
+  };
 
   return (
     <List component="nav">
@@ -85,6 +89,7 @@ export default function ProfileList({ onItemClick }: Props) {
       <Divider />
       <CListItem label="Active Jobs" onClick={onActiveJobs} />
       <CListItem label="Bidding Jobs" onClick={onBiddingJobs} />
+      <CListItem label="Completed Jobs" onClick={onCompletedJobs} />
       <CListItem label="Posted Jobs" onClick={onPostedJobs} />
       <CListItem label="Draft Jobs" onClick={onDraftJobs} />
     </List>
