@@ -4,11 +4,12 @@ import { toast } from "react-toastify";
 
 import { jobConfigs } from "@/config/configConst";
 import { useUserStates } from "@/redux/reduxStates";
-import { navigateToUserPage, removeServerMetadata } from "@/utils/utilFuncs";
+import { removeServerMetadata } from "@/utils/utilFuncs";
 import { JobInput, useCreateJob, useJob, useUpdateJob } from "@gqlOps/job";
 import JobForm from "@jobs/jobPost/forms/JobForm";
 import { CircularProgress } from "@mui/material";
 import AppContainer from "@reusable/AppContainer";
+import { paths } from "@/routes/Routes";
 
 export default function JobPost() {
   const [searchParams] = useSearchParams();
@@ -97,7 +98,7 @@ export default function JobPost() {
         onSuccess: () => {
           if (isLastStep) {
             toast.success("Job posted successfully.");
-            navigateToUserPage({ user, navigate });
+            navigate(paths.userJobTypes("Posted"));
           } else {
             onJobChange();
             toast.info("We saved a draft.", { position: "bottom-right" });

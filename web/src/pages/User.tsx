@@ -25,8 +25,6 @@ export default function User() {
     loading: contrLoading,
   } = useContractor();
   const { getUserReviewsAsync, data: reviewsData } = useGetUserReviews();
-  const reviews = reviewsData?.getUserReviews?.reviews;
-  const averageRating = reviewsData?.getUserReviews?.averageRating;
 
   //retrieve user & reviews
   useEffect(() => {
@@ -54,8 +52,7 @@ export default function User() {
       userLoading={loading}
       contractor={contrData?.contractor}
       contrLoading={contrLoading}
-      reviews={reviews}
-      averageRating={averageRating}
+      reviewsData={reviewsData?.getUserReviews}
     />
   );
 }

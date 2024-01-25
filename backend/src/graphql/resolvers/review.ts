@@ -10,22 +10,40 @@ export default {
   Query: {
     getUserReviews: async (
       _: any,
-      { userId }: { userId: string },
+      args: GetUserReviewsInput,
       { prisma }: GQLContext
     ): Promise<{
       reviews: Review[];
       averageRating: number;
       totalCount: number;
     }> => {
+      // Validate and parse input using Zod
+      const parsedInput = getUserReviewsInputSchema.safeParse(args);
+      if (!parsedInput.success) {
+        throw gqlError({ msg: parsedInput.error.message });
+      }
+
+      const { userId, page, pageSize } = parsedInput.data;
+
+      const skip = (page - 1) * pageSize;
+
+      // Fetch reviews with pagination
       const reviews = await prisma.review.findMany({
         where: { reviewedId: userId },
         orderBy: { createdAt: "desc" },
-        include: { reviewer: true },
+        include: { reviewer: { include: { image: true } } },
+        skip,
+        take: pageSize,
       });
 
       const averageRating = calculateAverageRating(reviews);
 
-      return { reviews, averageRating, totalCount: reviews.length };
+      // Fetch total count of reviews
+      const totalCount = await prisma.review.count({
+        where: { reviewedId: userId },
+      });
+
+      return { reviews, averageRating, totalCount };
     },
   },
   Mutation: {
@@ -72,7 +90,7 @@ export default {
           reviewer: { connect: { id: reviewerId } },
           reviewed: { connect: { id: reviewedId } },
         },
-        include: { reviewer: true },
+        include: { reviewer: { include: { image: true } } },
       });
 
       // Delete the authorization if it should be used only once
@@ -126,7 +144,7 @@ export default {
       const updatedReview = await prisma.review.update({
         where: { id: reviewId },
         data: { rating, comment },
-        include: { reviewer: true },
+        include: { reviewer: { include: { image: true } } },
       });
 
       return updatedReview;
@@ -148,3 +166,11 @@ const updateReviewSchema = z.object({
   comment: z.string().optional(),
 });
 type UpdateReviewInput = z.infer<typeof updateReviewSchema>;
+
+const getUserReviewsInputSchema = z.object({
+  userId: z.string().length(24),
+  page: z.number().min(1).default(1),
+  pageSize: z.number().min(1).default(10),
+});
+
+type GetUserReviewsInput = z.infer<typeof getUserReviewsInputSchema>;

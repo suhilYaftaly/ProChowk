@@ -81,28 +81,31 @@ export default function JobPreview({ job, topRightBtn }: Props) {
           />
         </FullScreenModal>
       )}
-      {"createdAt" in job || startDate || endDate}
-      <Divider sx={{ my: 2 }} />
-      <Stack direction={"row"} spacing={5}>
-        {"createdAt" in job && (
-          <Stack>
-            <Text type="subtitle">Posted Date</Text>
-            <Text>{readISODate(job?.createdAt)}</Text>
+      {("createdAt" in job || startDate || endDate) && (
+        <>
+          <Divider sx={{ my: 2 }} />
+          <Stack direction={"row"} spacing={5}>
+            {"createdAt" in job && (
+              <Stack>
+                <Text type="subtitle">Posted Date</Text>
+                <Text>{readISODate(job?.createdAt)}</Text>
+              </Stack>
+            )}
+            {startDate && (
+              <Stack>
+                <Text type="subtitle">Start Date</Text>
+                <Text>{readISODate(startDate)}</Text>
+              </Stack>
+            )}
+            {endDate && (
+              <Stack>
+                <Text type="subtitle">End Date</Text>
+                <Text>{readISODate(endDate)}</Text>
+              </Stack>
+            )}
           </Stack>
-        )}
-        {startDate && (
-          <Stack>
-            <Text type="subtitle">Start Date</Text>
-            <Text>{readISODate(startDate)}</Text>
-          </Stack>
-        )}
-        {endDate && (
-          <Stack>
-            <Text type="subtitle">End Date</Text>
-            <Text>{readISODate(endDate)}</Text>
-          </Stack>
-        )}
-      </Stack>
+        </>
+      )}
       <Divider sx={{ my: 2 }} />
       <Text type="subtitle" sx={{ mb: 1 }}>
         Skills Required
@@ -126,17 +129,21 @@ export const JobStatus = ({ job }: { job: IJob }) => {
       case "Completed":
         return "success";
       default:
-        "main";
+        "default";
     }
-    return "main";
+    return "default";
   };
 
   return (
     <>
-      <Text type="subtitle">Job Status</Text>
-      <Text cColor={getStatusColor()} sx={{ fontWeight: 500 }}>
-        {splitCamelCase(job.status)}
+      <Text type="subtitle" sx={{ mb: 1 }}>
+        Job Status
       </Text>
+      <Chip
+        variant="outlined"
+        color={getStatusColor()}
+        label={splitCamelCase(job.status)}
+      />
     </>
   );
 };

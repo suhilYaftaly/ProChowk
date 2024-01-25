@@ -3,7 +3,7 @@ import { reviewFields } from "../gqlFrags";
 import { IUser } from "./user";
 import { asyncOps } from "./gqlFuncs";
 
-const reviewGqlResp = `${reviewFields} reviewer {id name}`;
+const reviewGqlResp = `${reviewFields} reviewer {id name image {url}}`;
 
 const reviewOps = {
   Queries: {
@@ -38,8 +38,8 @@ export type TReview = {
   id: string;
   rating: number;
   comment?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
+  createdAt?: string;
+  updatedAt?: string;
   reviewerId?: string;
   reviewedId?: string;
   reviewer?: IUser;
@@ -48,17 +48,16 @@ export type TReview = {
 
 //OPERATIONS
 //getUserReviews OP
-type TGetUserReviewsData = {
-  getUserReviews: {
-    averageRating?: number;
-    reviews: TReview[];
-    totalCount?: number;
-  };
+export type TUserReviewsData = {
+  averageRating?: number;
+  reviews: TReview[];
+  totalCount?: number;
 };
+type TGetUserReviewsData = { getUserReviews: TUserReviewsData };
 type TGetUserReviewsInput = { userId: string };
 type TGetUserReviewsAsync = {
   variables: TGetUserReviewsInput;
-  onSuccess?: (data: TGetUserReviewsData["getUserReviews"]) => void;
+  onSuccess?: (data: TUserReviewsData) => void;
   onError?: (error?: any) => void;
 };
 export const useGetUserReviews = () => {

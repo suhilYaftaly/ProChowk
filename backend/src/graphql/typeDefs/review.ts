@@ -2,7 +2,7 @@ import gql from "graphql-tag";
 
 export default gql`
   type Query {
-    getUserReviews(userId: ID!): UserReviewsResponse!
+    getUserReviews(userId: ID!, page: Int, pageSize: Int): UserReviewsResponse!
   }
   type Mutation {
     submitReview(

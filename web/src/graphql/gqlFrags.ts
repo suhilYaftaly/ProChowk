@@ -21,4 +21,5 @@ export const jobBidFields = `id quote startDate endDate proposal rejectionReason
 
 export const notificationFields = `id title message read type readDate data createdAt updatedAt userId`;
 
-export const reviewFields = `id rating comment createdAt updatedAt reviewerId reviewedId`;
+//available fields: `id rating comment createdAt updatedAt reviewerId reviewedId`
+export const reviewFields = `id rating comment updatedAt`;

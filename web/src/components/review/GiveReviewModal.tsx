@@ -13,6 +13,7 @@ import CustomModal from "../reusable/CustomModal";
 import { useSubmitReview } from "@gqlOps/review";
 import { useUserStates } from "@/redux/reduxStates";
 import { charsCount } from "@/utils/utilFuncs";
+import Text from "../reusable/Text";
 
 type Props = {
   open: boolean;
@@ -23,12 +24,18 @@ export default function GiveReviewModal({ open, onClose, reviewedId }: Props) {
   const theme = useTheme();
   const primaryC = theme.palette.primary.main;
   const { userId } = useUserStates();
-  const [form, setForm] = useState({ rating: 5, comment: "" });
+  const [form, setForm] = useState({ rating: 0, comment: "" });
+  const [error, setError] = useState("");
   const { submitReviewAsync, loading } = useSubmitReview();
   const maxReview = 350;
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (form.rating < 1) {
+      setError("Please select a number of stars.");
+      return;
+    } else setError("");
+
     if (userId) {
       submitReviewAsync({
         variables: { reviewerId: userId, reviewedId, ...form },
@@ -59,6 +66,11 @@ export default function GiveReviewModal({ open, onClose, reviewedId }: Props) {
           sx={{ alignSelf: "center", color: primaryC }}
           size="large"
         />
+        {error && (
+          <Text sx={{ alignSelf: "center", mt: 1 }} cColor="error">
+            {error}
+          </Text>
+        )}
         <TextField
           label={`Comment ${charsCount(form.comment, maxReview)}`}
           variant="outlined"
