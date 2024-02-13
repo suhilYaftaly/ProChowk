@@ -8,21 +8,23 @@ generator client {
 }
 
 model User {
-    id                  String                @id @default(auto()) @map("_id") @db.ObjectId
-    name                String
-    email               String                @unique
-    emailVerified       Boolean               @default(false)
-    password            String?
-    phoneNum            String?
-    bio                 String?
-    createdAt           DateTime              @default(now())
-    updatedAt           DateTime              @updatedAt
-    provider            Provider              @default(Credentials)
-    roles               Role[]                @default([user])
-    userTypes           UserType[]
-    image               UserImage?
-    address             Address?              @relation(fields: [addressId], references: [id])
+    id            String     @id @default(auto()) @map("_id") @db.ObjectId
+    name          String
+    email         String     @unique
+    emailVerified Boolean    @default(false)
+    password      String?
+    phoneNum      String?
+    bio           String?
+    createdAt     DateTime   @default(now())
+    updatedAt     DateTime   @updatedAt
+    provider      Provider   @default(Credentials)
+    roles         Role[]     @default([user])
+    userTypes     UserType[]
+
+    image UserImage?
+
     addressId           String?               @db.ObjectId
+    address             Address?              @relation(fields: [addressId], references: [id])
     contractor          Contractor?
     jobs                Job[]
     refreshToken        RefreshToken[]
@@ -220,8 +222,9 @@ model ReviewAuthorization {
     validUntil  DateTime @default(now())
 
     reviewerId String @db.ObjectId
-    reviewedId String @db.ObjectId
     reviewer   User   @relation("reviewAuthBy", fields: [reviewerId], references: [id])
+
+    reviewedId String @db.ObjectId
     reviewed   User   @relation("reviewAuthTo", fields: [reviewedId], references: [id])
 
     @@unique([reviewerId, reviewedId])

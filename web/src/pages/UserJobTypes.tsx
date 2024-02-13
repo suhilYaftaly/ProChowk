@@ -144,24 +144,28 @@ export default function UserJobTypes() {
         />
       ),
     },
-    {
-      label: "Draft",
-      total: draftJobs?.length ?? 0,
-      comp: (
-        <JobsWrapper
-          length={draftJobs?.length}
-          children={
-            <JobsCards
-              jobs={draftJobs}
-              loading={userJobsLoading}
-              onJobClick={handleDraftClick}
-              allowDelete
-              showDraftExpiry
-            />
-          }
-        />
-      ),
-    },
+    ...(isUserContractor
+      ? [
+          {
+            label: "Draft",
+            total: draftJobs?.length ?? 0,
+            comp: (
+              <JobsWrapper
+                length={draftJobs?.length}
+                children={
+                  <JobsCards
+                    jobs={draftJobs}
+                    loading={userJobsLoading}
+                    onJobClick={handleDraftClick}
+                    allowDelete
+                    showDraftExpiry
+                  />
+                }
+              />
+            ),
+          },
+        ]
+      : []),
   ];
 
   return (

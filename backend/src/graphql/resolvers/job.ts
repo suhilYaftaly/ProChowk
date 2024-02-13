@@ -88,7 +88,12 @@ export default {
           },
         },
         { $unwind: "$assoJobs" },
-        { $match: { "assoJobs.isDraft": { $ne: true } } },
+        {
+          $match: {
+            "assoJobs.isDraft": { $ne: true },
+            "assoJobs.status": { $nin: ["InProgress", "Completed"] },
+          },
+        },
       ];
 
       const aggregation = await db
@@ -172,8 +177,10 @@ export default {
       // Combine job and skill IDs
       let combinedIds = [...jobIdsFromTextSearch, ...skillIds];
 
-      // Initialize additional match conditions
-      let addiConds: any = {};
+      // Initialize additional match conditions with status filter
+      let addiConds: any = {
+        "assoJobs.status": { $nin: ["InProgress", "Completed"] },
+      };
 
       // Add budget conditions if provided
       if (budget) {

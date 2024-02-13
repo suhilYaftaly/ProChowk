@@ -43,7 +43,7 @@ export default function CompleteBidBtn({ bidId, onSuccess }: Props) {
         {loading ? (
           <CircularProgress color="inherit" size={24} />
         ) : (
-          "Finish this bid"
+          "Finish this job"
         )}
       </Button>
       <FinishBidModal

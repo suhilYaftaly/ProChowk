@@ -31,8 +31,6 @@ export default function PostedBy({
   const navigateToUser = () => navigateToUserPage({ user, navigate });
   const isMobile = useIsMobile();
 
-  console.log(userAvgRating);
-
   return (
     <>
       {loading ? (

@@ -170,7 +170,7 @@ type UpdateReviewInput = z.infer<typeof updateReviewSchema>;
 const getUserReviewsInputSchema = z.object({
   userId: z.string().length(24),
   page: z.number().min(1).default(1),
-  pageSize: z.number().min(1).default(10),
+  pageSize: z.number().min(1).max(100).default(10),
 });
 
 type GetUserReviewsInput = z.infer<typeof getUserReviewsInputSchema>;

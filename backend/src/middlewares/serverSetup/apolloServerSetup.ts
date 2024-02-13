@@ -49,22 +49,13 @@ export const apolloServerSetup = async () => {
     {
       schema,
       context: async (ctx: SubsciptionContext): Promise<GQLContext> => {
-        if (ctx?.connectionParams?.session) {
-          const { session } = ctx.connectionParams;
-          return {
-            req: session,
-            prisma,
-            pubsub,
-            mongoClient,
-            userAgent: session?.headers?.["user-agent"] || "not found",
-          };
-        }
+        const session = ctx?.connectionParams?.session;
         return {
-          req: null as any,
+          req: session || (null as any),
           prisma,
           pubsub,
           mongoClient,
-          userAgent: null || "not found",
+          userAgent: session?.headers?.["user-agent"] || "not found",
         };
       },
     },

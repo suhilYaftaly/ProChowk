@@ -8,21 +8,13 @@ import {
   Tooltip,
   useTheme,
 } from "@mui/material";
-import {
-  QrCode,
-  LocalPhone,
-  LocationOn,
-  Settings,
-  Edit,
-  Email,
-} from "@mui/icons-material";
+import { QrCode, LocationOn, Settings, Edit } from "@mui/icons-material";
 import { useState } from "react";
 
 import Text from "@reusable/Text";
 import Rating from "@reusable/appComps/Rating";
 import QRCodeModal from "@reusable/QRCodeModal";
 import { userLink } from "@constants/links";
-import { formatPhoneNumber, openEmail, openPhone } from "@utils/utilFuncs";
 import { useIsMobile } from "@hooks/hooks";
 import { ISectionProps } from "../UserProfile";
 import { iconCircleSX } from "@/styles/sxStyles";
@@ -66,16 +58,6 @@ export default function UserProfileInfo({
               <Rating averageRating={averageRating} />
             </Stack>
             <Grid container sx={{ color: "grey" }} spacing={1}>
-              {user?.phoneNum && (
-                <Grid item onClick={() => openPhone(user?.phoneNum)}>
-                  <Stack direction={"row"} alignItems={"center"}>
-                    <LocalPhone sx={{ width: 20, height: 20 }} />
-                    <Text sx={{ color: "inherit", ml: 0.5, fontWeight: 450 }}>
-                      {formatPhoneNumber(user?.phoneNum)}
-                    </Text>
-                  </Stack>
-                </Grid>
-              )}
               {user?.address && (
                 <Grid item>
                   <Stack direction={"row"} alignItems={"center"}>
@@ -86,19 +68,6 @@ export default function UserProfileInfo({
                   </Stack>
                 </Grid>
               )}
-              <Grid
-                item
-                onClick={() =>
-                  isMobile && user?.email && openEmail({ email: user?.email })
-                }
-              >
-                <Stack direction={"row"} alignItems={"center"}>
-                  <Email sx={{ width: 20, height: 20 }} />
-                  <Text sx={{ color: "inherit", ml: 0.5, fontWeight: 450 }}>
-                    {user?.email}
-                  </Text>
-                </Stack>
-              </Grid>
             </Grid>
           </Stack>
           {!isMobile && (

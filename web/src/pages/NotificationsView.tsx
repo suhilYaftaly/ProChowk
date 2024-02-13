@@ -61,7 +61,7 @@ export default function NotificationsView() {
           direction={"row"}
           sx={{ alignItems: "center", justifyContent: "space-between" }}
         >
-          <Text type="subtitle">Notifications</Text>
+          <Text type="subtitle">Notifications ({notifications?.length})</Text>
           <Button disabled={markAllLoading} onClick={onMarkAllAsRead}>
             {markAllLoading ? (
               <CircularProgress color="inherit" size={24} />

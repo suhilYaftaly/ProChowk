@@ -15,7 +15,7 @@ import ColorThemeToggle from "../ColorThemeToggle";
 import Text from "@reusable/Text";
 import { useUserStates } from "@redux/reduxStates";
 import { paths } from "@routes/Routes";
-import { isDeveloper } from "@/utils/auth";
+import { isContractor, isDeveloper } from "@/utils/auth";
 import { ReactNode } from "react";
 import { navigateToUserPage } from "@utils/utilFuncs";
 import { useIsMobile } from "@/utils/hooks/hooks";
@@ -29,6 +29,7 @@ export default function UserMenuOptions({ onItemClick }: Props) {
   const theme = useTheme();
   const iconColor = theme.palette.text?.dark;
   const isMobile = useIsMobile();
+  const isUserContractor = isContractor(user?.userTypes);
 
   const openMyProfile = () => {
     navigateToUserPage({ user, navigate });
@@ -87,11 +88,17 @@ export default function UserMenuOptions({ onItemClick }: Props) {
       )}
       <LogOut ui="mobile" onLogout={onItemClick} />
       <Divider />
-      <CListItem label="Active Jobs" onClick={onActiveJobs} />
-      <CListItem label="Bidding Jobs" onClick={onBiddingJobs} />
-      <CListItem label="Completed Jobs" onClick={onCompletedJobs} />
+      {isUserContractor && (
+        <>
+          <CListItem label="Active Jobs" onClick={onActiveJobs} />
+          <CListItem label="Bidding Jobs" onClick={onBiddingJobs} />
+          <CListItem label="Completed Jobs" onClick={onCompletedJobs} />
+        </>
+      )}
       <CListItem label="Posted Jobs" onClick={onPostedJobs} />
-      <CListItem label="Draft Jobs" onClick={onDraftJobs} />
+      {isUserContractor && (
+        <CListItem label="Draft Jobs" onClick={onDraftJobs} />
+      )}
     </List>
   );
 }
