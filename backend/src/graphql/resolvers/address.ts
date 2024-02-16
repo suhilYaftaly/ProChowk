@@ -4,7 +4,6 @@ import { Address } from "@prisma/client";
 import checkAuth from "../../middlewares/checkAuth";
 import { gqlError } from "../../utils/funcs";
 import { GQLContext } from "../../types/commonTypes";
-import { MAP_QUEST_KEYS } from "../../constants/constants";
 
 export default {
   Query: {
@@ -36,13 +35,15 @@ export default {
   },
 };
 
+const mqKey = process.env.MAP_QUEST_KEY;
+
 const fetchMQGeocode = async ({
   value,
   lat,
   lng,
   limit,
 }: GeocodeInput): Promise<IGeocode[] | undefined> => {
-  const getResponse = async (key: string): Promise<IGeocode[] | undefined> => {
+  const getResponse = async (key: string): Promise<Array<any> | undefined> => {
     const getUrl = () => {
       let url = `https://www.mapquestapi.com/search/v3/prediction?key=${key}&limit=${limit}&collection=adminArea,poi,address,category,franchise,airport&q=${encodeURIComponent(
         value
@@ -57,34 +58,28 @@ const fetchMQGeocode = async ({
     return undefined;
   };
 
-  let response = [] as Array<any>;
-  for (let i = 0; i < MAP_QUEST_KEYS.length; i++) {
-    const key = MAP_QUEST_KEYS[i];
-    if (key) {
-      response = (await getResponse(key)) || [];
-      if (response) break;
+  if (mqKey) {
+    let response = await getResponse(mqKey);
+    if (response) {
+      return response?.map((res: any) => {
+        const props = res?.place?.properties;
+        return {
+          displayName: res.displayString,
+          street: props.street,
+          city: props.city,
+          county: props.county,
+          state: props.state,
+          stateCode: props.stateCode,
+          postalCode: props.postalCode,
+          country: props.country,
+          countryCode: props.countryCode,
+          lat: res?.place?.geometry?.coordinates?.[1],
+          lng: res?.place?.geometry?.coordinates?.[0],
+          source: { source: "MapQuest", ...res },
+          geometry: res?.place?.geometry,
+        } as IGeocode;
+      }) as [IGeocode];
     }
-  }
-
-  if (response) {
-    return response?.map((res) => {
-      const props = res?.place?.properties;
-      return {
-        displayName: res.displayString,
-        street: props.street,
-        city: props.city,
-        county: props.county,
-        state: props.state,
-        stateCode: props.stateCode,
-        postalCode: props.postalCode,
-        country: props.country,
-        countryCode: props.countryCode,
-        lat: res?.place?.geometry?.coordinates?.[1],
-        lng: res?.place?.geometry?.coordinates?.[0],
-        source: { source: "MapQuest", ...res },
-        geometry: res?.place?.geometry,
-      } as IGeocode;
-    }) as [IGeocode];
   } else return undefined;
 };
 
@@ -95,7 +90,7 @@ const fetchMQReverseGeocode = async ({
   lat: number;
   lng: number;
 }): Promise<IGeocode | undefined> => {
-  const getResponse = async (key: string): Promise<IGeocode | undefined> => {
+  const getResponse = async (key: string): Promise<any> => {
     const resp = await axios.get(
       `http://www.mapquestapi.com/geocoding/v1/reverse?key=${key}&location=${lat},${lng}`
     );
@@ -104,16 +99,8 @@ const fetchMQReverseGeocode = async ({
     return undefined;
   };
 
-  let response: any;
-  for (let i = 0; i < MAP_QUEST_KEYS.length; i++) {
-    const key = MAP_QUEST_KEYS[i];
-    if (key) {
-      response = await getResponse(key);
-      if (response) break;
-    }
-  }
-
-  if (response) {
+  if (mqKey) {
+    let response = await getResponse(mqKey);
     const props = response;
     const { lat, lng } = props.latLng;
     return {
