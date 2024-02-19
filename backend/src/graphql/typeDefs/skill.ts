@@ -2,7 +2,7 @@ import { gql } from "graphql-tag";
 
 export default gql`
   type Query {
-    skills: [Skill!]!
+    skills(search: String!, limit: Int): [Skill!]!
   }
   type Skill {
     id: ID

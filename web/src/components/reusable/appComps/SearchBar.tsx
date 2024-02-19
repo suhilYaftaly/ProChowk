@@ -11,7 +11,7 @@ import SearchIcon from "@mui/icons-material/Search";
 interface Props {
   acOptions: string[];
   acLoading: boolean;
-  acOnOpen: () => void;
+  acOnOpen?: () => void;
   onFilterClick: () => void;
   setSearchText: (text: string) => void;
   /**@default Search */

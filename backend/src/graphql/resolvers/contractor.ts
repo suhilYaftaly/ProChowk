@@ -37,6 +37,7 @@ export default {
           include: {
             licenses: ifr(info, "licenses"),
             skills: ifr(info, "skills"),
+            portfolios: ifr(info, "portfolios"),
           },
         });
         if (!eContr) throw gqlError({ msg: "Contractor not found" });
@@ -251,6 +252,7 @@ export default {
             include: {
               licenses: ifr(info, "licenses"),
               skills: ifr(info, "skills"),
+              portfolios: ifr(info, "portfolios"),
             },
           },
         },
@@ -277,6 +279,7 @@ export default {
         include: {
           licenses: ifr(info, "licenses"),
           skills: ifr(info, "skills"),
+          portfolios: ifr(info, "portfolios"),
         },
       });
     },
@@ -300,6 +303,7 @@ export default {
         include: {
           licenses: ifr(info, "licenses"),
           skills: ifr(info, "skills"),
+          portfolios: ifr(info, "portfolios"),
         },
       });
     },
@@ -343,6 +347,7 @@ export default {
         include: {
           licenses: ifr(info, "licenses"),
           skills: ifr(info, "skills"),
+          portfolios: ifr(info, "portfolios"),
         },
       });
     },

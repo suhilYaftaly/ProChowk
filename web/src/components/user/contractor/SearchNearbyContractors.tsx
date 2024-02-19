@@ -132,6 +132,11 @@ export default function SearchNearbyContractors() {
     else searchByLocation(value);
   };
 
+  const searchInputChange = (value: string) => {
+    setSearchText(value);
+    skillsAsync({ variables: { search: value } });
+  };
+
   return (
     <>
       <Stack
@@ -141,11 +146,10 @@ export default function SearchNearbyContractors() {
         sx={{ mb: 2 }}
       >
         <SearchBar
-          acOnOpen={() => skillsAsync({})}
           acLoading={allSkillsLoading}
           acOptions={allSkillsType?.skills?.map((skill) => skill.label) || []}
           onFilterClick={() => setOpenDrawer(!openDrawer)}
-          setSearchText={setSearchText}
+          setSearchText={searchInputChange}
           label="Search nearby contractors"
           placeholder="Search by user name, about or skill"
         />

@@ -81,15 +81,16 @@ model Address {
 }
 
 model Contractor {
-    id        String    @id @default(auto()) @map("_id") @db.ObjectId
-    createdAt DateTime  @default(now())
-    updatedAt DateTime  @updatedAt
-    userId    String    @unique @db.ObjectId
-    user      User      @relation(fields: [userId], references: [id])
-    skillIDs  String[]  @db.ObjectId
-    skills    Skill[]   @relation(fields: [skillIDs], references: [id])
-    licenses  License[]
-    bids      JobBid[]
+    id         String                @id @default(auto()) @map("_id") @db.ObjectId
+    createdAt  DateTime              @default(now())
+    updatedAt  DateTime              @updatedAt
+    userId     String                @unique @db.ObjectId
+    user       User                  @relation(fields: [userId], references: [id])
+    skillIDs   String[]              @db.ObjectId
+    skills     Skill[]               @relation(fields: [skillIDs], references: [id])
+    licenses   License[]
+    bids       JobBid[]
+    portfolios ContractorPortfolio[]
 }
 
 model License {
@@ -228,6 +229,28 @@ model ReviewAuthorization {
     reviewed   User   @relation("reviewAuthTo", fields: [reviewedId], references: [id])
 
     @@unique([reviewerId, reviewedId])
+}
+
+model ContractorPortfolio {
+    id           String           @id @default(auto()) @map("_id") @db.ObjectId
+    description  String
+    createdAt    DateTime         @default(now())
+    updatedAt    DateTime         @updatedAt
+    contractorId String           @db.ObjectId
+    contractor   Contractor       @relation(fields: [contractorId], references: [id])
+    images       PortfolioImage[]
+}
+
+model PortfolioImage {
+    id                    String              @id @default(auto()) @map("_id") @db.ObjectId
+    name                  String?
+    url                   String              @unique
+    type                  String?
+    size                  Float?
+    createdAt             DateTime            @default(now())
+    updatedAt             DateTime            @updatedAt
+    contractorPortfolioId String              @db.ObjectId
+    contractorPortfolio   ContractorPortfolio @relation(fields: [contractorPortfolioId], references: [id])
 }
 
 enum BudgetType {

@@ -84,9 +84,12 @@ export default function SkillsSelection({
     }
   };
 
-  const onInputChange = (_: any, val: string) => setInputValue(val);
-  const getAllSkills = () => {
-    skillsAsync({});
+  const onInputChange = (_: any, val: string) => {
+    setInputValue(val);
+    getAllSkills(val);
+  };
+  const getAllSkills = (search: string) => {
+    skillsAsync({ variables: { search } });
     setOpen(true);
   };
 
@@ -96,8 +99,6 @@ export default function SkillsSelection({
     <div>
       <Autocomplete
         open={open}
-        onFocus={getAllSkills}
-        onOpen={getAllSkills}
         onClose={handleClose}
         loading={allSkillsLoading}
         freeSolo

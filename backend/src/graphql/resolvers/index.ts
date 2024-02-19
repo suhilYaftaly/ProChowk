@@ -9,6 +9,7 @@ import log from "./log";
 import jobBid from "./jobBid";
 import notification from "./notification";
 import review from "./review";
+import contractorPortfolio from "./contractorPortfolio";
 
 export default merge(
   {},
@@ -21,5 +22,6 @@ export default merge(
   log,
   jobBid,
   notification,
-  review
+  review,
+  contractorPortfolio
 );

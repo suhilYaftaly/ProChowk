@@ -5,7 +5,7 @@ import { skillFields } from "../gqlFrags";
 const skillOps = {
   Queries: {
     skills: gql`
-      query Query {skills {${skillFields}}}
+      query Query($search: String!, $limit: Int) {skills(search: $search, limit: $limit) {${skillFields}}}
     `,
   },
 };
@@ -29,20 +29,27 @@ export interface SkillInput {
 interface ISkillsData {
   skills: ISkill[];
 }
+type TSkillsSearchInput = { search: string; limit?: number };
 interface ISkillsIAsync {
+  variables: TSkillsSearchInput;
   onSuccess?: (data: ISkill[]) => void;
   onError?: (error?: any) => void;
 }
 
 export const useSkills = () => {
   const client = useApolloClient();
-  const [skills, { data, loading, error }] = useLazyQuery<ISkillsData>(
-    skillOps.Queries.skills
-  );
+  const [skills, { data, loading, error }] = useLazyQuery<
+    ISkillsData,
+    TSkillsSearchInput
+  >(skillOps.Queries.skills);
 
-  const skillsAsync = async ({ onSuccess, onError }: ISkillsIAsync) =>
+  const skillsAsync = async ({
+    variables,
+    onSuccess,
+    onError,
+  }: ISkillsIAsync) =>
     asyncOps({
-      operation: () => skills(),
+      operation: () => skills({ variables }),
       onSuccess: (dt: ISkillsData) => onSuccess && onSuccess(dt.skills),
       onError,
     });

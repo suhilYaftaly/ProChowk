@@ -33,6 +33,7 @@ export default gql`
     userId: ID
     user: User
     bids: [JobBid!]
+    portfolios: [ContractorPortfolio]
   }
   type License {
     id: ID
