@@ -3,6 +3,6 @@
       "module": "commonjs",
       "esModuleInterop": true,
       "strict": true,
-      "outDir": "./dist",
+      "outDir": "./dest",
     }
   }

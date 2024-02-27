@@ -1,5 +1,5 @@
 {
     "version": 2,
-    "routes": [{"src": "/(.*)", "dest": "/dist/index.js"}]
+    "routes": [{"src": "/(.*)", "dest": "/dest/index.js"}]
   }
   
