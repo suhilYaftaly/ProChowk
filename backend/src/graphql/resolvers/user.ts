@@ -35,6 +35,9 @@ import { appName, appNamePascalCase } from "../../constants/constants";
 
 dotenv.config();
 
+const googleCliIdWeb = process.env.GOOGLE_CLIENT_ID;
+const googleCliIdAndroid = process.env.GOOGLE_CLIENT_ID_ANDROID;
+
 export default {
   Query: {
     user: async (
@@ -153,7 +156,10 @@ export default {
     },
     googleLogin: async (
       _: any,
-      { accessToken }: { accessToken: string },
+      {
+        accessToken,
+        client = "Web",
+      }: { accessToken: string; client: GoogleClientType },
       context: GQLContext
     ): Promise<User> => {
       const { prisma, userAgent } = context;
@@ -166,8 +172,7 @@ export default {
 
       if (tokenInfoResp.status === 200) {
         const { aud, email } = tokenInfoResp.data;
-        if (process.env.GOOGLE_CLIENT_ID !== aud)
-          throw gqlError({ msg: "Token not verified", code: "FORBIDDEN" });
+        validateGoogleClientId(client, aud);
 
         // get user info
         const userInfoResp = await axios.get(
@@ -203,7 +208,10 @@ export default {
     },
     googleOneTapLogin: async (
       _: any,
-      { credential }: { credential: string },
+      {
+        credential,
+        client = "Web",
+      }: { credential: string; client: GoogleClientType },
       context: GQLContext
     ): Promise<User> => {
       const { prisma, userAgent } = context;
@@ -218,8 +226,9 @@ export default {
           verified_email: emailVerified,
         } = decodedToken as jwt.JwtPayload;
 
-        if (process.env.GOOGLE_CLIENT_ID !== aud)
-          throw gqlError({ msg: "Token not verified", code: "FORBIDDEN" });
+        if (!aud || typeof aud !== "string")
+          throw gqlError({ msg: "Google Auth Failed" });
+        validateGoogleClientId(client, aud);
 
         return createOrLoginWithGoogle({
           prisma,
@@ -532,6 +541,17 @@ const createRefreshToken = async (
   return refreshToken;
 };
 
+const validateGoogleClientId = (client: GoogleClientType, aud: string) => {
+  switch (client) {
+    case "Android":
+      if (googleCliIdAndroid !== aud)
+        throw gqlError({ msg: "Token not verified", code: "FORBIDDEN" });
+    default:
+      if (googleCliIdWeb !== aud)
+        throw gqlError({ msg: "Token not verified", code: "FORBIDDEN" });
+  }
+};
+
 interface ICreateOrLoginWithG {
   prisma: GQLContext["prisma"];
   email: string;
@@ -608,6 +628,7 @@ interface IUpdateUserInput {
   userTypes?: UserType[];
   skills?: ISkillInput[];
 }
+type GoogleClientType = "Web" | "Android" | "IOS";
 
 /**
  * VALIDATORS

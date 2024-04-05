@@ -11,8 +11,9 @@ export default gql`
       @rateLimit(limit: 5, duration: 300)
     loginUser(email: String!, password: String!): User!
       @rateLimit(limit: 5, duration: 300)
-    googleLogin(accessToken: String!): User! @rateLimit(limit: 5, duration: 300)
-    googleOneTapLogin(credential: String!): User!
+    googleLogin(accessToken: String!, client: GoogleClientType): User!
+      @rateLimit(limit: 5, duration: 300)
+    googleOneTapLogin(credential: String!, client: GoogleClientType): User!
       @rateLimit(limit: 5, duration: 300)
     updateUser(id: ID!, edits: UpdateUserInput!): User!
     sendVerificationEmail(email: String!): Boolean!
@@ -91,5 +92,10 @@ export default gql`
   enum UserType {
     client
     contractor
+  }
+  enum GoogleClientType {
+    Web
+    Android
+    IOS
   }
 `;
