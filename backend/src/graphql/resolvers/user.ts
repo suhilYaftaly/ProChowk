@@ -544,11 +544,15 @@ const createRefreshToken = async (
 const validateGoogleClientId = (client: GoogleClientType, aud: string) => {
   switch (client) {
     case "Android":
-      if (googleCliIdAndroid !== aud)
+      if (googleCliIdAndroid !== aud) {
         throw gqlError({ msg: "Token not verified", code: "FORBIDDEN" });
+      }
+      break;
     default:
-      if (googleCliIdWeb !== aud)
+      if (googleCliIdWeb !== aud) {
         throw gqlError({ msg: "Token not verified", code: "FORBIDDEN" });
+      }
+      break;
   }
 };
 
