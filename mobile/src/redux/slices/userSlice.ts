@@ -1,10 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-/* import { googleLogout } from "@react-oauth/google"; */
 import { TOKENS_KEY, USER_PROFILE_KEY } from '@constants/localStorageKeys';
 import { IUser } from '@gqlOps/user';
 import { ILatLng } from '@gqlOps/address';
 import { ITokens } from '@/types/commonTypes';
 import { deleteFromLocalStorage, saveInLocalStorage } from '~/src/utils/secureStore';
+import { googleLogout } from '~/src/utils/utilFuncs';
+import { INearbyContFilters } from '~/src/components/user/drawer/FilterDrawerContent';
 /* import { TUserView } from "@user/SwitchUserViewButton";
  */
 interface UserState {
@@ -20,6 +21,7 @@ interface UserState {
     error: { message: string; [key: string]: any } | undefined;
   };
   userView: /* TUserView | */ null;
+  userFilters: INearbyContFilters | null;
 }
 
 const initialState: UserState = {
@@ -27,6 +29,7 @@ const initialState: UserState = {
   isLoggedOut: undefined,
   userLocation: { data: undefined, isLoading: false, error: undefined },
   userView: null,
+  userFilters: null,
 };
 
 const slice = createSlice({
@@ -68,6 +71,9 @@ const slice = createSlice({
     setUserView(state, action: PayloadAction<UserState['userView']>) {
       state.userView = action.payload;
     },
+    setUserFilters(state, action: PayloadAction<UserState['userFilters']>) {
+      state.userFilters = action.payload;
+    },
   },
 });
 
@@ -79,6 +85,7 @@ export const {
   userLocationError,
   setUserProfileInfo,
   setUserView,
+  setUserFilters,
 } = slice.actions;
 const { userProfileSuccess, setIsLoggedOut } = slice.actions;
 export default slice.reducer;
@@ -92,7 +99,7 @@ export const logIn = (payload: IUser) => (dispatch: any) => {
   if (token && refreshToken) dispatch(setTokens({ accessToken: token, refreshToken }));
 };
 export const logOut = () => (dispatch: any) => {
-  /*  googleLogout(); */
+  googleLogout();
   dispatch(userProfileSuccess(undefined));
   dispatch(setIsLoggedOut(true));
   deleteFromLocalStorage(USER_PROFILE_KEY);

@@ -8,12 +8,17 @@
       "distribution": "internal",
       "channel": "development",
       "ios": {
-        "simulator": true,
-        "device": true
+        "simulator": true
+      },
+      "android": {
+        "distribution": "internal"
       }
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://agile-woodland-98454-799359b7c001.herokuapp.com/graphql"
+      }
     },
     "production": {}
   },

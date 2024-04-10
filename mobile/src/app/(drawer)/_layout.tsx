@@ -1,49 +1,25 @@
-import { FontAwesome, Ionicons, MaterialIcons } from '@expo/vector-icons';
-import { Link } from 'expo-router';
+import React from 'react';
 import { Drawer } from 'expo-router/drawer';
-import { Pressable, StyleSheet } from 'react-native';
+import colors from '~/src/constants/colors';
+import AppHeader from '~/src/components/header/AppHeader';
+import AppDrawerContent from '~/src/components/user/drawer/AppDrawerContent';
 
-const DrawerLayout = () => (
-  <Drawer>
-    <Drawer.Screen
-      name="index"
-      options={{
-        headerTitle: 'Home',
-        drawerLabel: 'Home',
-        drawerIcon: ({ size, color }) => <Ionicons name="home-outline" size={size} color={color} />,
+const drawerLayout = () => {
+  return (
+    <Drawer
+      screenOptions={{
+        drawerPosition: 'right',
+        overlayColor: colors.secondary50,
+        header(props) {
+          return <AppHeader {...props} />;
+        },
+        drawerHideStatusBarOnOpen: true,
+        swipeEnabled: false,
       }}
-    />
-    <Drawer.Screen
-      name="(tabs)"
-      options={{
-        headerTitle: 'Tabs',
-        drawerLabel: 'Tabs',
-        drawerIcon: ({ size, color }) => (
-          <MaterialIcons name="border-bottom" size={size} color={color} />
-        ),
-        headerRight: () => (
-          <Link href="/modal" asChild>
-            <Pressable>
-              {({ pressed }) => (
-                <FontAwesome
-                  name="info-circle"
-                  size={25}
-                  color="gray"
-                  style={[styles.headerRight, { opacity: pressed ? 0.5 : 1 }]}
-                />
-              )}
-            </Pressable>
-          </Link>
-        ),
-      }}
-    />
-  </Drawer>
-);
+      drawerContent={(props) => <AppDrawerContent {...props} />}>
+      <Drawer.Screen name="(tabs)" />
+    </Drawer>
+  );
+};
 
-const styles = StyleSheet.create({
-  headerRight: {
-    marginRight: 15,
-  },
-});
-
-export default DrawerLayout;
+export default drawerLayout;

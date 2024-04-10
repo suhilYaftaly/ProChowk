@@ -1,7 +1,9 @@
 export default {
   primary: '#FF5E15',
+  primary20: '#FF5E1533',
   bg: '#EAF1FB',
   secondary: '#275775',
+  secondary50: '#27577580',
   silver: '#716A85',
   error: '#FF5050',
   info: '#3498db',

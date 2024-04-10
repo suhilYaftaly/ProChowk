@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
-import React, { useMemo } from 'react';
+import React from 'react';
 import colors from '~/src/constants/colors';
 import { FontAwesome } from '@expo/vector-icons';
 import { Dropdown } from 'react-native-element-dropdown';

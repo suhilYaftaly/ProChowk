@@ -1,8 +1,13 @@
 const Routes = {
-  login: 'logIn',
-  signup: 'signUp',
-  dashboard: 'dashboard',
-  profileSetup: 'profileSetup',
+  home: '',
+  signup: 'user/signUp',
+  login: 'user/logIn',
+  dashboard: 'user/dashboard',
+  profileSetup: 'user/profileSetup',
+  emailVerify: 'user/emailVerify',
+  forgotPassword: 'user/forgotPassword',
+  resetPassEmailVerify: 'user/resetPassEmailVerify',
+  contractor: 'user/contractor',
 };
 
 export default Routes;

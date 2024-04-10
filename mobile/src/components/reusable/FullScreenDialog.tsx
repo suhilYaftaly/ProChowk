@@ -1,7 +1,6 @@
-import { StyleSheet, Text, View } from 'react-native';
 import React, { ReactElement } from 'react';
-import { Button, Dialog } from 'tamagui';
-import { AntDesign } from '@expo/vector-icons';
+import { KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type Props = {
   triggerBtnCom?: ReactElement;
@@ -11,35 +10,34 @@ type Props = {
 };
 
 const FullScreenDialog = ({ triggerBtnCom, dialogCom, isOpen, setIsOpen }: Props) => {
+  const { top } = useSafeAreaInsets();
+  const os = Platform?.OS;
   return (
-    <Dialog modal open={isOpen} onOpenChange={setIsOpen}>
-      <Dialog.Trigger asChild>{triggerBtnCom}</Dialog.Trigger>
-      <Dialog.Portal>
-        <Dialog.Content
-          key="content"
-          animateOnly={['transform', 'opacity']}
-          animation={[
-            'quicker',
-            {
-              opacity: {
-                overshootClamping: true,
-              },
-            },
-          ]}
-          enterStyle={{ x: 0, y: -20, opacity: 0, scale: 0.9 }}
-          exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
-          gap="$4"
-          height={'100%'}
-          width={'100%'}
-          padding={20}
-          backgroundColor={'$white'}>
-          {dialogCom}
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog>
+    <View>
+      <Pressable onPress={() => setIsOpen(!isOpen)}>{triggerBtnCom}</Pressable>
+      <Modal
+        animationType="fade"
+        visible={isOpen}
+        onRequestClose={() => {
+          setIsOpen(!isOpen);
+        }}>
+        <KeyboardAvoidingView behavior={'padding'} style={{ flex: 1 }}>
+          <View style={os === 'ios' ? { paddingTop: top - 20 } : {}}>
+            <View style={[styles.modalView]}>{dialogCom}</View>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
+    </View>
   );
 };
 
 export default FullScreenDialog;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  modalView: {
+    gap: 10,
+    width: '100%',
+    height: '100%',
+    paddingHorizontal: 20,
+  },
+});

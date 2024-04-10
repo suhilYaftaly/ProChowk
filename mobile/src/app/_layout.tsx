@@ -45,9 +45,11 @@ export default function RootLayout() {
           <SafeAreaProvider>
             <GestureHandlerRootView style={{ flex: 1 }}>
               <Stack>
-                <Stack.Screen name="index" options={{ headerShown: false }} />
-                <Stack.Screen name="(user)" options={{ headerShown: false }} />
-                <Stack.Screen name="modal" options={{ title: 'Modal', presentation: 'modal' }} />
+                <Stack.Screen
+                  name="(drawer)"
+                  options={{ headerShown: false, gestureEnabled: false }}
+                />
+                <Stack.Screen name="user" options={{ headerShown: false }} />
               </Stack>
               <Toast config={toastConfig} />
             </GestureHandlerRootView>

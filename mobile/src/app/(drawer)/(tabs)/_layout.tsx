@@ -1,41 +1,55 @@
-import FontAwesome from '@expo/vector-icons/FontAwesome';
+import React from 'react';
 import { Tabs } from 'expo-router';
-import { StyleSheet } from 'react-native';
+import { AntDesign, FontAwesome, FontAwesome6, MaterialCommunityIcons } from '@expo/vector-icons';
+import colors from '~/src/constants/colors';
 
-function TabBarIcon(props: {
-  name: React.ComponentProps<typeof FontAwesome>['name'];
-  color: string;
-}) {
-  return <FontAwesome size={28} style={styles.tabBarIcon} {...props} />;
-}
-
-export default function TabLayout() {
+const tabsLayout = () => {
   return (
     <Tabs
       screenOptions={{
+        tabBarActiveTintColor: colors.textDark,
         headerShown: false,
-        tabBarActiveTintColor: 'black',
+        tabBarLabelPosition: 'below-icon',
       }}>
       <Tabs.Screen
-        name="index"
+        name="(contractor)"
         options={{
-          title: 'Tab One',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          title: 'Contractor',
+          tabBarIcon: ({ color }) => <FontAwesome6 name="suitcase" size={28} color={color} />,
         }}
       />
       <Tabs.Screen
-        name="two"
+        name="rated"
         options={{
-          title: 'Tab Two',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          title: 'Rated',
+          tabBarIcon: ({ color }) => <AntDesign name="star" size={28} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="postJob"
+        options={{
+          title: 'Post Job',
+          tabBarIcon: ({ color }) => <FontAwesome6 name="circle-plus" size={28} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="topSkill"
+        options={{
+          title: 'Top Skill',
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons name="puzzle" size={24} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="favorites"
+        options={{
+          title: 'Favorite',
+          tabBarIcon: ({ color }) => <FontAwesome size={28} name="heart" color={color} />,
         }}
       />
     </Tabs>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  tabBarIcon: {
-    marginBottom: -3,
-  },
-});
+export default tabsLayout;

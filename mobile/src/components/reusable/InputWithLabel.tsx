@@ -59,7 +59,7 @@ const InputWithLabel = ({
           onChangeText={(e) => onChange(e)}
         />
       )}
-      {!isError && <Text style={{ color: 'red' }}>*{errorText}</Text>}
+      {!isError && <Text style={{ color: colors.error }}>*{errorText}</Text>}
     </YStack>
   );
 };
@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
     paddingRight: 10,
   },
   inputText: {
-    color: 'black',
+    color: colors.black,
     fontFamily: 'Inter',
     backgroundColor: 'transparent',
   },

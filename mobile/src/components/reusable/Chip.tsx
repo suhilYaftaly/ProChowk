@@ -4,18 +4,29 @@ import { Ionicons } from '@expo/vector-icons';
 import colors from '~/src/constants/colors';
 interface Props {
   label: string;
-  onClose: (val: string) => void;
+  onClose?: (val: string) => void;
+  isDisplay?: boolean;
 }
 
-const Chip = ({ label, onClose }: Props) => {
+const Chip = ({ label, onClose, isDisplay = false }: Props) => {
   return (
-    <View style={styles.chipContainer}>
-      <Text style={{ textAlign: 'center', fontFamily: 'InterBold', fontSize: 13, marginRight: 10 }}>
+    <View
+      style={[styles.chipContainer, { justifyContent: isDisplay ? 'center' : 'space-between' }]}>
+      <Text
+        style={{
+          textAlign: 'center',
+          fontFamily: 'InterBold',
+          fontSize: 13,
+          marginRight: isDisplay ? 0 : 10,
+          color: colors.textDark,
+        }}>
         {label}
       </Text>
-      <Pressable onPress={() => onClose(label)}>
-        <Ionicons name="close" size={20} color="black" />
-      </Pressable>
+      {!isDisplay && (
+        <Pressable onPress={() => (onClose ? onClose(label) : {})}>
+          <Ionicons name="close" size={20} color={colors.textDark} />
+        </Pressable>
+      )}
     </View>
   );
 };
@@ -25,9 +36,7 @@ export default Chip;
 const styles = StyleSheet.create({
   chipContainer: {
     backgroundColor: colors.bg,
-    color: colors.textBlue,
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 5,

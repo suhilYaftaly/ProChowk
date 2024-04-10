@@ -3,7 +3,7 @@
     "name": "nexabind-mobile",
     "slug": "nexabind-mobile",
     "version": "1.0.0",
-    "scheme": "nexabind-mobile",
+    "scheme": "nexabind",
     "web": {
       "bundler": "metro",
       "output": "static",
@@ -15,7 +15,9 @@
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location."
+          "locationAlwaysAndWhenInUsePermission": "Allow NexaBind to use your location.",
+          "isAndroidBackgroundLocationEnabled": true,
+          "isAndroidForegroundServiceEnabled": true
         }
       ],
       [
@@ -34,20 +36,26 @@
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "resizeMode": "cover",
+      "backgroundColor": "#FF5E15"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "config": {
         "usesNonExemptEncryption": false
       },
-      "bundleIdentifier": "com.jaynit716.nexabindmobile"
+      "bundleIdentifier": "com.jaynit716.nexabindmobile",
+      "infoPlist": {
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": [""]
+          }
+        ]
+      }
     },
     "android": {
+      "package": "com.jaynit716.nexabindmobile",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"

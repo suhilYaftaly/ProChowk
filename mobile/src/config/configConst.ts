@@ -1,5 +1,6 @@
 /* import { ISearchFilters } from "@/components/jobs/searchJobs/NearbyJobsFilters"; */
 import { BudgetType, JobInput } from '@gqlOps/job';
+import { INearbyContFilters } from '../components/user/drawer/FilterDrawerContent';
 /* import { INearbyContFilters } from "@/components/user/contractor/NearbyContsFilters"; */
 
 /**whole page padding */
@@ -44,7 +45,7 @@ export const phoneCC = 'CA';
   } as ISearchFilters,
 }; */
 /**Dashboard search nearby contractors filter configs */
-/* export const nearbyContsFilterConfigs = {
+export const nearbyContsFilterConfigs = {
   minRadius: 5,
   maxRadius: 200,
   defaults: {
@@ -52,7 +53,7 @@ export const phoneCC = 'CA';
     address: undefined,
     latLng: undefined,
   } as INearbyContFilters,
-}; */
+};
 
 /**Job post configs */
 export const jobConfigs = {

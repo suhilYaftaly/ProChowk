@@ -27,13 +27,23 @@ const Home = () => {
                 {labels.bind}
               </Text>
             </XStack>
-            <Text fontWeight={'$5'} fontSize={'$5'} color={'white'}>
+            <Text
+              fontWeight={'$5'}
+              fontSize={'$5'}
+              color={'white'}
+              paddingHorizontal={'$3.5'}
+              paddingVertical={'$2'}
+              textAlign="center"
+              lineHeight={'$5'}>
               {labels.welcomeScreenSubText}
             </Text>
           </YStack>
           <YStack alignItems="center" jc={'center'} flex={1}>
-            <Link href={'/(user)/(signUp)/signUp'} asChild>
-              <Button style={styles.button} backgroundColor={'$primary'}>
+            <Link href={`/${Routes.signup}`} asChild>
+              <Button
+                style={styles.button}
+                backgroundColor={'$primary'}
+                borderBottomLeftRadius={50}>
                 {labels.signUp}
               </Button>
             </Link>
@@ -42,10 +52,12 @@ const Home = () => {
               variant="outlined"
               borderWidth={1}
               borderColor={'$white'}
-              onPress={() => router.push(`/${Routes.login}`)}>
+              onPress={() => router.navigate(`/${Routes.login}`)}>
               {labels.logIn}
             </Button>
-            <Pressable style={styles.skipLink} onPress={() => router.push(`/${Routes.dashboard}`)}>
+            <Pressable
+              style={styles.skipLink}
+              onPress={() => router.replace(`/${Routes.dashboard}`)}>
               <Text color={'white'}>{labels.skipButton}</Text>
             </Pressable>
           </YStack>
@@ -81,10 +93,14 @@ const styles = StyleSheet.create({
   button: {
     width: '80%',
     fontFamily: 'InterSemiBold',
-    borderRadius: 50,
+    borderBottomLeftRadius: 50,
+    borderTopRightRadius: 50,
+    borderTopLeftRadius: 50,
+    borderBottomRightRadius: 50,
     marginTop: 10,
     marginBottom: 10,
     justifyContent: 'center',
+    overflow: 'hidden',
   },
   skipLink: {
     width: '80%',

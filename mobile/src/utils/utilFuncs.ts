@@ -8,18 +8,11 @@ import {
   parseISO,
 } from 'date-fns';
 import * as Location from 'expo-location';
-/* import { toast } from "react-toastify"; */
-/* import parsePhoneNumberFromString, { CountryCode } from "libphonenumber-js"; */
 import 'core-js/stable/atob';
-
-import { IUser } from '@gqlOps/user';
-/* import { paths } from "@/routes/Routes"; */
 import { IAddress } from '@gqlOps/address';
-/* import NoUserLocationMsg from "@appComps/NoUserLocationMsg"; */
-import { phoneCC } from '@config/configConst';
 import { getValueFromLocalStorage } from './secureStore';
 import { jwtDecode } from 'jwt-decode';
-import Toast from 'react-native-toast-message';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 export function decodeJwtToken(token: string) {
   /* const base64Url = token.split('.')[1];
@@ -179,49 +172,23 @@ export const navigateToUserPage = ({ user, navigate }: INavigateToUserPage) => {
   }
 }; */
 
+export const googleLogout = async () => {
+  const isSignedIn = await GoogleSignin.isSignedIn();
+  console.log(isSignedIn);
+  if (!isSignedIn) {
+    await GoogleSignin.signOut();
+  }
+};
+
 interface IUserLocation {
   onSuccess: ({ lat, lng }: { lat: number; lng: number }) => void;
   onError?: (msg: any) => void;
 }
-/* export const getUserLocation = ({ onSuccess, onError }: IUserLocation) => {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude: lat, longitude: lng } = position.coords;
-        onSuccess({ lat, lng });
-      },
-      (error) => {
-        onError && onError(error);
-        toast.error(NoUserLocationMsg);
-        console.error('Location permission denied:', error);
-      }
-    );
-  } else {
-    onError && onError('Geolocation is not supported by this browser.');
-    toast.error(NoUserLocationMsg);
-    console.error('Geolocation is not supported by this browser.');
-  }
-};
- */
-export const getUserLocationPermissions = async ({ onSuccess, onError }: IUserLocation) => {
-  let { status } = await Location.getForegroundPermissionsAsync();
-  if (status === 'granted') {
-    let currentLocation = await Location.getCurrentPositionAsync({});
-    const { latitude: lat, longitude: lng } = currentLocation?.coords;
-    onSuccess({ lat, lng });
-    /*  const coords = {
-      latitude: currentLocation?.coords?.latitude,
-      longitude: currentLocation?.coords?.longitude,
-    };
-    return coords; */
-  } else {
-    Toast.show({
-      type: 'error',
-      text1: 'Location permission denied',
-      text2: 'Please enable location permission',
-      position: 'top',
-    });
-  }
+
+export const getUserLocation = async ({ onSuccess }: IUserLocation) => {
+  let currentLocation = await Location.getCurrentPositionAsync({});
+  const { latitude: lat, longitude: lng } = currentLocation?.coords;
+  onSuccess({ lat, lng });
 };
 
 export function formatBytes(bytes: number): string {

@@ -1,15 +1,10 @@
-import {
-  gql,
-  useApolloClient,
-  useLazyQuery,
-  useMutation,
-} from "@apollo/client";
+import { gql, useApolloClient, useLazyQuery, useMutation } from '@apollo/client';
 
-import { ISkill, SkillInput } from "./skill";
-import { asyncOps } from "./gqlFuncs";
-import { IUser } from "./user";
-import { LatLngInput } from "./address";
-import { contractorFields, licenseFields, skillFields } from "../gqlFrags";
+import { ISkill, SkillInput } from './skill';
+import { asyncOps } from './gqlFuncs';
+import { IUser } from './user';
+import { LatLngInput } from './address';
+import { contractorFields, licenseFields, skillFields } from '../gqlFrags';
 
 const searchContResp = `id name bio averageRating image {url} address {city lat lng} contractor {skills {label}}`;
 const contractorGqlResp = `${contractorFields} licenses {${licenseFields}} skills {${skillFields}}`;
@@ -79,7 +74,7 @@ const contOps = {
 /**
  * INTERFACES
  */
-interface ILicense {
+export interface ILicense {
   id: string;
   name: string;
   size: number;
@@ -137,7 +132,7 @@ export const useContractor = () => {
     asyncOps({
       onStart: () => {
         if (!variables.userId && !variables.id)
-          throw new Error("contractor id or userId is required");
+          throw new Error('contractor id or userId is required');
       },
       operation: () => contractor({ variables }),
       onSuccess: (dt: ICData) => onSuccess && onSuccess(dt.contractor),
@@ -195,8 +190,7 @@ export const useContractorsByLocation = () => {
   }: IContsByLocationIAsync) =>
     asyncOps({
       operation: () => contractorsByLocation({ variables }),
-      onSuccess: (dt: IContsByLocationData) =>
-        onSuccess && onSuccess(dt.contractorsByLocation),
+      onSuccess: (dt: IContsByLocationData) => onSuccess && onSuccess(dt.contractorsByLocation),
       onError,
     });
 
@@ -255,17 +249,12 @@ interface IACLIAsync {
   onError?: (error?: any) => void;
 }
 export const useAddContractorLicense = () => {
-  const [addContractorLicense, { data, error, loading }] = useMutation<
-    IACLData,
-    IACLInput
-  >(contOps.Mutations.addContractorLicense);
+  const [addContractorLicense, { data, error, loading }] = useMutation<IACLData, IACLInput>(
+    contOps.Mutations.addContractorLicense
+  );
   const { updateCache } = useContractor();
 
-  const addContLicAsync = async ({
-    variables,
-    onSuccess,
-    onError,
-  }: IACLIAsync) =>
+  const addContLicAsync = async ({ variables, onSuccess, onError }: IACLIAsync) =>
     asyncOps({
       operation: () => addContractorLicense({ variables }),
       onSuccess: (dt: IACLData) => {
@@ -296,17 +285,12 @@ interface IDCLIAsync {
   onError?: (error?: any) => void;
 }
 export const useDeleteContractorLicense = () => {
-  const [deleteContractorLicense, { data, error, loading }] = useMutation<
-    IDCLData,
-    IDCLInput
-  >(contOps.Mutations.deleteContractorLicense);
+  const [deleteContractorLicense, { data, error, loading }] = useMutation<IDCLData, IDCLInput>(
+    contOps.Mutations.deleteContractorLicense
+  );
   const { updateCache } = useContractor();
 
-  const deleteContLicAsync = async ({
-    variables,
-    onSuccess,
-    onError,
-  }: IDCLIAsync) =>
+  const deleteContLicAsync = async ({ variables, onSuccess, onError }: IDCLIAsync) =>
     asyncOps({
       operation: () => deleteContractorLicense({ variables }),
       onSuccess: (dt: IDCLData) => {
@@ -337,17 +321,12 @@ interface IUpdtCSAsync {
   onError?: (error?: any) => void;
 }
 export const useUpdateContSkills = () => {
-  const [updateContractorSkills, { data, error, loading }] = useMutation<
-    IUpdtCSData,
-    IUpdtCSInput
-  >(contOps.Mutations.updateContractorSkills);
+  const [updateContractorSkills, { data, error, loading }] = useMutation<IUpdtCSData, IUpdtCSInput>(
+    contOps.Mutations.updateContractorSkills
+  );
   const { updateCache, loading: contLoading } = useContractor();
 
-  const updateContSkillsAsync = async ({
-    variables,
-    onSuccess,
-    onError,
-  }: IUpdtCSAsync) =>
+  const updateContSkillsAsync = async ({ variables, onSuccess, onError }: IUpdtCSAsync) =>
     asyncOps({
       operation: () => updateContractorSkills({ variables }),
       onSuccess: (dt: IUpdtCSData) => {
