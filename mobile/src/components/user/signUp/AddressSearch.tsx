@@ -20,6 +20,7 @@ import LocationPermission from '../../reusable/LocationPermission';
 import { userLocationSuccess } from '~/src/redux/slices/userSlice';
 import { useAppDispatch } from '~/src/utils/hooks/hooks';
 import NoResultFound from '../../reusable/NoResultFound';
+import { defaultAddress } from '@config/configConst';
 
 type Props = {
   location: IAddress | undefined;
@@ -48,19 +49,28 @@ const AddressSearch = ({ location, setLocation, isError, errorText }: Props) => 
 
   const setUserLocation = () => {
     const userCorrds = getUserCoords(userLocation?.data);
-    if (userId && userCorrds && userCorrds?.lat && userCorrds?.lng) {
-      reverseGeocodeAsync({
-        variables: { lat: userCorrds?.lat, lng: userCorrds?.lng },
-        onSuccess: (data) => {
-          const cleanedAdr = removeServerMetadata(data);
-          setLocation(getAddressFormat(cleanedAdr));
-        },
-      });
-    } else {
+    if (userCorrds && userCorrds?.lat && userCorrds?.lng) {
+      const userAddress: IAddress = {
+        ...{ lat: userCorrds?.lat, lng: userCorrds?.lng },
+        ...defaultAddress,
+      };
+      setLocation(userAddress);
+      if (userId) {
+        reverseGeocodeAsync({
+          variables: { lat: userCorrds?.lat, lng: userCorrds?.lng },
+          onSuccess: (data) => {
+            const cleanedAdr = removeServerMetadata(data);
+            setLocation(getAddressFormat(cleanedAdr));
+          },
+        });
+      }
+    } else if (!userCorrds) {
       setProcessLoading(true);
       getUserLocation({
         onSuccess: (latLng) => {
           dispatch(userLocationSuccess(latLng));
+          const userAddress: IAddress = { ...latLng, ...defaultAddress };
+          setLocation(userAddress);
         },
       });
     }

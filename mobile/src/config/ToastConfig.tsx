@@ -1,5 +1,4 @@
 import { BaseToast, ErrorToast } from 'react-native-toast-message';
-import { getTokens } from 'tamagui';
 import colors from '../constants/colors';
 
 export const toastConfig = {

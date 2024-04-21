@@ -1,7 +1,7 @@
 import { KeyboardAvoidingView, StyleSheet, Text, View } from 'react-native';
 import React, { useState } from 'react';
 import colors from '~/src/constants/colors';
-import { Button, Form, Input, Spinner, TextArea, YStack } from 'tamagui';
+import { Button, Form, Spinner, TextArea, YStack } from 'tamagui';
 import CustomSelectMenu from '../../reusable/CustomSelectMenu';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useUserStates } from '~/src/redux/reduxStates';
@@ -9,7 +9,7 @@ import { UserType, useUpdateUser } from '~/src/graphql/operations/user';
 import SkillSelection from './SkillSelection';
 import { SkillInput } from '~/src/graphql/operations/skill';
 import AddressSearch from './AddressSearch';
-import { AddressInput, IAddress, IGeoAddress } from '~/src/graphql/operations/address';
+import { AddressInput, IAddress } from '~/src/graphql/operations/address';
 import labels from '~/src/constants/labels';
 import Routes from '~/src/routes/Routes';
 
@@ -31,9 +31,7 @@ const UserProfileSetup = () => {
   const [locationAvail, setLocationAvail] = useState<boolean>(true);
   const [disableSignUpBtn, setDisableSignUpBtn] = useState(false);
 
-  const params = useLocalSearchParams();
   const { updateUserAsync, loading } = useUpdateUser();
-  const userTypeQuery = params.userType as UserType | null;
   const userTypes: UserType[] = ['client', 'contractor'];
 
   const { firstName, user } = useUserStates();
@@ -47,6 +45,7 @@ const UserProfileSetup = () => {
     };
     if (validateUserProfile(profileData)) {
       if (user) {
+        setDisableSignUpBtn(true);
         updateUserAsync({
           variables: {
             id: user.id,
@@ -58,6 +57,7 @@ const UserProfileSetup = () => {
             },
           },
           onSuccess: (newUser) => {
+            setDisableSignUpBtn(false);
             if (newUser.userTypes.length > 0 && !newUser.emailVerified) {
               router.replace(`/${Routes.emailVerify}`);
             } else if (newUser.userTypes.length > 0) {
@@ -94,7 +94,7 @@ const UserProfileSetup = () => {
   };
 
   return (
-    <KeyboardAvoidingView behavior={'padding'} style={{ flex: 1 }}>
+    <KeyboardAvoidingView behavior="position">
       <View style={styles.formCont}>
         <View style={styles.formHeader}>
           <Text style={styles.headerText}>
@@ -144,13 +144,16 @@ const UserProfileSetup = () => {
             />
 
             <YStack space={'$1.5'}>
-              <Text style={styles.labelText}>{labels.aboutYou}</Text>
+              <Text style={styles.labelText}>
+                {labels.aboutYou} ({about?.length}/1000)
+              </Text>
               <TextArea
                 placeholder={labels.tellUsAboutYou}
                 size="$3"
                 borderWidth={1}
                 style={styles.inputText}
                 value={about}
+                maxLength={1000}
                 onChangeText={(e) => setAbout(e)}
               />
             </YStack>
@@ -162,7 +165,7 @@ const UserProfileSetup = () => {
               style={styles.button}
               disabled={disableSignUpBtn}
               icon={loading ? () => <Spinner /> : undefined}>
-              Get Start
+              {labels.getStart}
             </Button>
           </Form.Trigger>
         </Form>

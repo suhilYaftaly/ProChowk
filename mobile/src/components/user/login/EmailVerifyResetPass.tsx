@@ -3,7 +3,7 @@ import React from 'react';
 import { Separator, YStack } from 'tamagui';
 import colors from '~/src/constants/colors';
 import { useUserStates } from '~/src/redux/reduxStates';
-import CustomIcons from '../../reusable/CustomIcons';
+import { EmailVerify } from '../../reusable/CustomIcons';
 import { useRequestPasswordReset } from '~/src/graphql/operations/user';
 import Toast from 'react-native-toast-message';
 import labels from '~/src/constants/labels';
@@ -24,7 +24,7 @@ const EmailVerifyResetPass = ({ email }: Props) => {
         onSuccess: () => {
           Toast.show({
             type: 'success',
-            text1: `Password reset request sent to your email. Please check your email.`,
+            text1: `${labels.passResetMsg}`,
             position: 'top',
           });
         },
@@ -42,7 +42,7 @@ const EmailVerifyResetPass = ({ email }: Props) => {
 
   return (
     <YStack space={'$2'} style={styles.container}>
-      <CustomIcons name="emailVerify" size={100} />
+      <EmailVerify size={100} />
       <Text style={[styles.emailText, { fontSize: 22, fontFamily: 'InterBold' }]}>
         {labels.verificationSend}
       </Text>

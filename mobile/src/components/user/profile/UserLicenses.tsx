@@ -1,19 +1,23 @@
 import { Image, ListRenderItem, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import Card from '../../reusable/Card';
 import labels from '~/src/constants/labels';
-import { ILicense } from '~/src/graphql/operations/contractor';
+import { IContractor, ILicense } from '~/src/graphql/operations/contractor';
 import colors from '~/src/constants/colors';
 import CustomCarousel from '../../reusable/CustomCarousel';
-import { IUser } from '~/src/graphql/operations/user';
+import CustomModal from '../../reusable/CustomModal';
+import EditLicenses from './editModals/EditLicenses';
+import AddLicense from './editModals/AddLicense';
 type Props = {
-  user?: IUser;
+  contractorData?: IContractor;
   licenses?: ILicense[];
   isMyProfile: boolean;
 };
 
-const UserLicenses = ({ licenses, isMyProfile }: Props) => {
+const UserLicenses = ({ contractorData, licenses, isMyProfile }: Props) => {
   const { width } = useWindowDimensions();
+  const [addLicensesOpen, setAddLicensesOpen] = useState<boolean>(false);
+  const [licensesEditOpen, setLicensesEditOpen] = useState<boolean>(false);
   const renderListItem: ListRenderItem<any> = ({ item }) => (
     <View style={[styles.licensePage, { width: width * 0.8 }]}>
       <Image
@@ -30,21 +34,52 @@ const UserLicenses = ({ licenses, isMyProfile }: Props) => {
   );
 
   return (
-    <Card
-      isEditable={isMyProfile}
-      entityCount={licenses?.length}
-      cardLabel={labels.licenses}
-      cardBodyStyle={styles.cardBodyStyle}
-      children={
-        licenses && licenses?.length > 0 ? (
-          <View style={{ height: 200, width: width * 0.8 }}>
-            <CustomCarousel dataList={licenses} renderComp={renderListItem} />
-          </View>
-        ) : (
-          <></>
-        )
-      }
-    />
+    <>
+      <Card
+        isAddAvailable={isMyProfile}
+        onAddPress={() => setAddLicensesOpen(true)}
+        isEditable={isMyProfile && licenses && licenses?.length > 0}
+        onEditPress={() => setLicensesEditOpen(true)}
+        entityCount={licenses?.length}
+        cardLabel={labels.licenses}
+        cardBodyStyle={styles.cardBodyStyle}
+        children={
+          licenses && licenses?.length > 0 ? (
+            <View style={{ height: 200, width: width * 0.8 }}>
+              <CustomCarousel dataList={licenses} renderComp={renderListItem} />
+            </View>
+          ) : (
+            <></>
+          )
+        }
+      />
+      <CustomModal
+        headerText={labels.licensesLabel}
+        itemCount={licenses?.length}
+        isOpen={licensesEditOpen}
+        setIsOpen={setLicensesEditOpen}
+        width={'90%'}
+        dialogCom={
+          <EditLicenses
+            contractorData={contractorData}
+            licenses={licenses}
+            closeDialog={() => setLicensesEditOpen(false)}
+          />
+        }
+      />
+      <CustomModal
+        headerText={labels.addLicenseLabel}
+        isOpen={addLicensesOpen}
+        setIsOpen={setAddLicensesOpen}
+        width={'90%'}
+        dialogCom={
+          <AddLicense
+            contractorData={contractorData}
+            closeDialog={() => setAddLicensesOpen(false)}
+          />
+        }
+      />
+    </>
   );
 };
 

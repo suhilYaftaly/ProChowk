@@ -1,4 +1,4 @@
-import { FlatList, Linking, ListRenderItem, Pressable, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Linking, ListRenderItem, StyleSheet, Text, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import LocationPermission from '../../reusable/LocationPermission';
 import * as Location from 'expo-location';
@@ -8,16 +8,19 @@ import {
   useContractorsByText,
 } from '~/src/graphql/operations/contractor';
 import { IUser } from '~/src/graphql/operations/user';
-import { Button, Circle, Input, Separator, YStack } from 'tamagui';
+import { Button, Circle, YStack } from 'tamagui';
 import colors from '~/src/constants/colors';
-import { FontAwesome, FontAwesome6 } from '@expo/vector-icons';
+import { FontAwesome6 } from '@expo/vector-icons';
 import ContractorCard from '../contractor/ContractorCard';
-import { ILatLng } from '~/src/graphql/operations/address';
-import { getUserLocation } from '~/src/utils/utilFuncs';
-import { userLocationSuccess } from '~/src/redux/slices/userSlice';
+import { IAddress, ILatLng } from '~/src/graphql/operations/address';
+import { getUserLocation, isFiltersChanged } from '~/src/utils/utilFuncs';
+import { setUserFilters, userLocationSuccess } from '~/src/redux/slices/userSlice';
 import { useAppDispatch } from '~/src/utils/hooks/hooks';
 import CustomContentLoader from '../../reusable/CustomContentLoader';
 import labels from '~/src/constants/labels';
+import { nearbyContsFilterConfigs as CC, defaultAddress } from '@config/configConst';
+import NoResultFound from '../../reusable/NoResultFound';
+import { INearbyContFilters } from '../drawer/FilterDrawerContent';
 
 export interface INearbyContFilterErrors {
   radius: string;
@@ -30,6 +33,8 @@ const ClientHome = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
   const [page, setPage] = useState(1);
+  const [contsList, setContsList] = useState<IUser[]>([]);
+  const [prevFilters, setPrevFilters] = useState<INearbyContFilters>(CC?.defaults);
   const userLatLng = userLocation?.data;
   const pageSize = 20;
   const [locPermission, setLocPermission] = useState<Location.PermissionStatus | undefined>();
@@ -39,6 +44,9 @@ const ClientHome = () => {
     loading: cByLLoading,
   } = useContractorsByLocation();
   const { contractorsByTextAsync, data: cByTData, loading: cByTLoading } = useContractorsByText();
+  const contsLoading = cByLLoading || cByTLoading;
+  const contsTotalCount = contsList?.length;
+  const totalPages = contsTotalCount ? Math.ceil(contsTotalCount / pageSize) : 0;
 
   const searchNearByContractors = (currentPage = page, latLng: ILatLng) => {
     if (latLng) {
@@ -51,6 +59,22 @@ const ClientHome = () => {
         },
       });
     }
+  };
+
+  const searchNearByContractorByText = (
+    currentPage = page,
+    latLng: ILatLng,
+    searchText: string
+  ) => {
+    contractorsByTextAsync({
+      variables: {
+        input: searchText,
+        latLng: latLng,
+        radius: userFilters?.radius ? userFilters?.radius : CC.defaults?.radius,
+        page: 1,
+        pageSize: 20,
+      },
+    });
   };
 
   const enableLocation = async () => {
@@ -67,6 +91,16 @@ const ClientHome = () => {
     setLocPermission(status);
   };
 
+  const setDefaultFilters = (userAddress: IAddress) => {
+    dispatch(
+      setUserFilters({
+        radius: CC.defaults?.radius,
+        address: userAddress,
+        latLng: { lat: userAddress?.lat, lng: userAddress?.lng },
+      })
+    );
+  };
+
   const renderListItem: ListRenderItem<IUser> = ({ item }) => <ContractorCard user={item} />;
 
   useEffect(() => {
@@ -76,14 +110,14 @@ const ClientHome = () => {
   useEffect(() => {
     if (locPermission === 'granted') {
       if (userLatLng) {
-        searchNearByContractors(page, userLatLng);
+        setDefaultFilters({ ...userLatLng, ...defaultAddress });
       } else {
         setLocationLoading(true);
         getUserLocation({
           onSuccess: (latLng) => {
             setLocationLoading(false);
             dispatch(userLocationSuccess(latLng));
-            searchNearByContractors(page, latLng);
+            setDefaultFilters({ ...latLng, ...defaultAddress });
           },
         });
       }
@@ -96,10 +130,15 @@ const ClientHome = () => {
     if (
       userFilters &&
       userFilters?.latLng &&
-      userFilters?.latLng?.lat !== userLatLng?.lat &&
-      userFilters?.latLng?.lng !== userLatLng?.lng
+      userFilters?.latLng?.lat &&
+      userFilters?.latLng?.lng
     ) {
-      searchNearByContractors(page, userFilters?.latLng);
+      if (userFilters?.searchText) {
+        searchNearByContractorByText(page, userFilters?.latLng, userFilters?.searchText);
+      } else if (isFiltersChanged(userFilters, prevFilters)) {
+        searchNearByContractors(page, userFilters?.latLng);
+      } else if (cByLData) setContsList(cByLData?.contractorsByLocation?.users);
+      setPrevFilters(userFilters);
     }
   }, [userFilters]);
 
@@ -108,28 +147,43 @@ const ClientHome = () => {
     else setLocationLoading(false);
   }, [openDialog]);
 
+  useEffect(() => {
+    if (cByLData) setContsList(cByLData?.contractorsByLocation?.users);
+  }, [cByLData]);
+
+  useEffect(() => {
+    if (cByTData) setContsList(cByTData?.contractorsByText?.users);
+  }, [cByTData]);
+
   return (
     <>
-      <View style={{ padding: 20, backgroundColor: colors.bg }}>
-        {cByLLoading || locationLoading ? (
+      <View style={{ paddingHorizontal: 20, paddingVertical: 10, backgroundColor: colors.bg }}>
+        {contsLoading || locationLoading ? (
           <CustomContentLoader type="jobCard" size={18} repeat={6} gap={10} />
+        ) : contsList && contsList?.length > 0 ? (
+          <>
+            {contsList && contsTotalCount && contsTotalCount > 0 && (
+              <Text style={styles.contractorListLabel}>
+                {labels.contractorsFound}
+                <Text style={{ color: colors.primary }}> ({contsTotalCount})</Text>
+              </Text>
+            )}
+            <FlatList
+              data={contsList}
+              renderItem={renderListItem}
+              showsVerticalScrollIndicator={false}
+            />
+          </>
+        ) : contsList && contsList?.length === 0 ? (
+          <NoResultFound searchType={labels.contractor.toLowerCase()} />
         ) : (
-          cByLData?.contractorsByLocation?.users && (
-            <>
-              <FlatList
-                data={cByLData?.contractorsByLocation?.users}
-                renderItem={renderListItem}
-                showsVerticalScrollIndicator={false}
-              />
-            </>
-          )
+          <></>
         )}
         {locPermission !== 'granted' && (
           <View style={styles.locationCont}>
             <Circle backgroundColor={colors.primary} size={50}>
               <FontAwesome6 name="location-dot" size={26} color={colors.white} />
             </Circle>
-
             <Text style={styles.headerText}>We noticed you've denied location access.</Text>
             <YStack>
               <Text style={styles.subHeaderText}>
@@ -156,12 +210,14 @@ const ClientHome = () => {
             </Button>
           </View>
         )}
-        <LocationPermission
-          isOpen={openDialog}
-          setIsOpen={setOpenDialog}
-          locPermission={locPermission}
-          setLocPermission={setLocPermission}
-        />
+        {openDialog && (
+          <LocationPermission
+            isOpen={openDialog}
+            setIsOpen={setOpenDialog}
+            locPermission={locPermission}
+            setLocPermission={setLocPermission}
+          />
+        )}
       </View>
     </>
   );
@@ -224,5 +280,11 @@ const styles = StyleSheet.create({
     fontFamily: 'InterSemiBold',
     fontSize: 15,
     backgroundColor: 'transparent',
+  },
+  contractorListLabel: {
+    fontFamily: 'InterBold',
+    fontSize: 15,
+    color: colors.textDark,
+    marginBottom: 10,
   },
 });

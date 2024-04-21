@@ -92,7 +92,7 @@ const SkillSelection = ({
                 flex={1}
                 borderWidth={0}
                 style={styles.inputText}
-                placeholder="Search Skill"
+                placeholder={labels.searchSkills}
                 autoCorrect={false}
                 value={inputValue}
                 onChangeText={(e) => onInputChange(e)}

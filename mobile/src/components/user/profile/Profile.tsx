@@ -65,7 +65,7 @@ const Profile = ({ userId }: Props) => {
                   isMyProfile={isMyProfile}
                 />
                 <UserLicenses
-                  user={user}
+                  contractorData={contractorData}
                   licenses={contractorData?.licenses}
                   isMyProfile={isMyProfile}
                 />

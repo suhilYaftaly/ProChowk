@@ -9,12 +9,15 @@ import Chip from '../../reusable/Chip';
 import { IUser } from '~/src/graphql/operations/user';
 import { Link } from 'expo-router';
 import QrCodeModal from '../profile/QrCodeModal';
-import { userLink } from '~/src/constants/links';
+import { userWebLink } from '~/src/constants/links';
+import * as Linking from 'expo-linking';
 
 type Props = {
   user: IUser;
 };
 const ContractorCard = ({ user }: Props) => {
+  const userMobileQRLink = Linking.createURL(`/user/${user?.id}`);
+
   return (
     <View style={styles.contractorCardCont}>
       <Link href={`/user/${user?.id}`} asChild>
@@ -69,7 +72,8 @@ const ContractorCard = ({ user }: Props) => {
         </XStack>
         <XStack alignItems="center" space={'$2'}>
           <QrCodeModal
-            qrcodeUri={userLink(`${user?.name}-${user?.id}`)}
+            userName={user?.name}
+            qrcodeUri={userWebLink(`${user?.name}-${user?.id}`)}
             triggerButton={
               <Circle
                 backgroundColor={colors.bg}

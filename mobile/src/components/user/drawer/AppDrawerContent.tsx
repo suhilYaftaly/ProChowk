@@ -49,7 +49,7 @@ const AppDrawerContent = (props: any) => {
       <DrawerContentScrollView {...props} contentContainerStyle={{ paddingTop: 0 }}>
         <YStack>
           <XStack padding={20} jc={'space-between'}>
-            <Text style={styles.drawerOptionText}>DarkMode</Text>
+            <Text style={styles.drawerOptionText}>{labels.darkMode}</Text>
             <Switch
               size={'$3'}
               checked={true}
@@ -72,7 +72,7 @@ const AppDrawerContent = (props: any) => {
               color={colors.textDark}
               style={styles.drawerItemIcon}
             />
-            <Text style={styles.drawerOptionText}>Your Jobs</Text>
+            <Text style={styles.drawerOptionText}>{labels.yourJobs}</Text>
           </XStack>
           <Separator borderColor={colors.border} />
           <XStack padding={20} alignItems="center">
@@ -82,7 +82,7 @@ const AppDrawerContent = (props: any) => {
               color={colors.textDark}
               style={styles.drawerItemIcon}
             />
-            <Text style={styles.drawerOptionText}>Messages</Text>
+            <Text style={styles.drawerOptionText}>{labels.messages}</Text>
           </XStack>
           <Separator borderColor={colors.border} />
           <Pressable onPress={() => handleLogOut()}>
@@ -93,13 +93,13 @@ const AppDrawerContent = (props: any) => {
                 color={colors.textDark}
                 style={styles.drawerItemIcon}
               />
-              <Text style={styles.drawerOptionText}>Log Out</Text>
+              <Text style={styles.drawerOptionText}>{labels.logOut}</Text>
             </XStack>
           </Pressable>
           <Separator borderColor={colors.border} />
         </YStack>
       </DrawerContentScrollView>
-      <View style={[styles.drawerFooter, { paddingBottom: bottom + 10 }]}>
+      {/* <View style={[styles.drawerFooter, { paddingBottom: bottom + 10 }]}>
         <Button
           style={styles.switchBtn}
           borderColor={colors.primary}
@@ -108,7 +108,7 @@ const AppDrawerContent = (props: any) => {
           iconAfter={<FontAwesome6 name="circle-arrow-right" size={24} color={colors.primary} />}>
           Switch To Contractor
         </Button>
-      </View>
+      </View> */}
     </View>
   );
 };

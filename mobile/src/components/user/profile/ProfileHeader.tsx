@@ -1,5 +1,5 @@
-import { StyleSheet, Text, View } from 'react-native';
-import React from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import React, { useState } from 'react';
 import { Avatar, Circle, Separator, XStack } from 'tamagui';
 import {
   AntDesign,
@@ -12,13 +12,18 @@ import { IUser } from '~/src/graphql/operations/user';
 import { TUserReviewsData } from '~/src/graphql/operations/review';
 import colors from '~/src/constants/colors';
 import QrCodeModal from './QrCodeModal';
-import { userLink } from '~/src/constants/links';
+import { userWebLink } from '~/src/constants/links';
+import CustomModal from '../../reusable/CustomModal';
+import ProfileHeaderEdit from './editModals/ProfileHeaderEdit';
+import labels from '~/src/constants/labels';
 type Props = {
   userData?: IUser;
   reviewData?: TUserReviewsData;
   isMyProfile: boolean;
 };
 const ProfileHeader = ({ userData, reviewData, isMyProfile }: Props) => {
+  const [profileEditOpen, setProfileEditOpen] = useState(false);
+  const [settingsEditOpen, setSettingsEditOpen] = useState(false);
   return (
     <View style={styles.profileHeader}>
       <View style={{ justifyContent: 'space-between', flexDirection: 'row' }}>
@@ -56,12 +61,14 @@ const ProfileHeader = ({ userData, reviewData, isMyProfile }: Props) => {
                   <Text style={styles.normalText}>{userData?.phoneNum}</Text>
                 </XStack>
               )} */}
-              <XStack space={'$2'} alignItems="center">
-                <FontAwesome6 name="location-dot" size={20} color={colors.silver} />
-                <Text style={styles.normalText}>
-                  {userData?.address?.city}, {userData?.address?.stateCode}
-                </Text>
-              </XStack>
+              {userData?.address && (
+                <XStack space={'$2'} alignItems="center">
+                  <FontAwesome6 name="location-dot" size={20} color={colors.silver} />
+                  <Text style={styles.normalText}>
+                    {userData?.address?.city}, {userData?.address?.stateCode}
+                  </Text>
+                </XStack>
+              )}
             </View>
             {isMyProfile && (
               <XStack space={'$2'} alignItems="center">
@@ -72,20 +79,23 @@ const ProfileHeader = ({ userData, reviewData, isMyProfile }: Props) => {
           </View>
         </View>
         {isMyProfile && (
-          <Circle
-            size={30}
-            borderColor={colors.border}
-            borderWidth={1}
-            marginRight={10}
-            marginTop={15}>
-            <FontAwesome5 name="pen" size={13} color={colors.textDark} />
-          </Circle>
+          <Pressable onPress={() => setProfileEditOpen(!profileEditOpen)}>
+            <Circle
+              size={30}
+              borderColor={colors.border}
+              borderWidth={1}
+              marginRight={10}
+              marginTop={15}>
+              <FontAwesome5 name="pen" size={13} color={colors.textDark} />
+            </Circle>
+          </Pressable>
         )}
       </View>
       <Separator borderColor={colors.border} />
       <View style={[styles.contactDetails, { width: '100%', justifyContent: 'space-evenly' }]}>
         <QrCodeModal
-          qrcodeUri={userLink(`${userData?.name}-${userData?.id}`)}
+          userName={userData?.name}
+          qrcodeUri={userWebLink(`${userData?.name}-${userData?.id}`)}
           triggerButton={
             <XStack space={'$2'} alignItems="center" justifyContent="center" padding={10}>
               <Circle
@@ -95,12 +105,17 @@ const ProfileHeader = ({ userData, reviewData, isMyProfile }: Props) => {
                 size={35}>
                 <MaterialCommunityIcons name="qrcode-scan" size={20} color={colors.textDark} />
               </Circle>
-              <Text style={styles.userName}>Qr Code</Text>
+              <Text style={styles.userName}>{labels.qrCode}</Text>
             </XStack>
           }
         />
         {isMyProfile && (
-          <XStack space={'$2'} alignItems="center" justifyContent="center" padding={10}>
+          <XStack
+            space={'$2'}
+            alignItems="center"
+            justifyContent="center"
+            padding={10}
+            onPress={() => setSettingsEditOpen(!settingsEditOpen)}>
             <Circle
               borderColor={colors.border}
               borderWidth={1}
@@ -108,10 +123,26 @@ const ProfileHeader = ({ userData, reviewData, isMyProfile }: Props) => {
               size={35}>
               <Ionicons name="settings" size={20} color={colors.textDark} />
             </Circle>
-            <Text style={styles.userName}>Settings</Text>
+            <Text style={styles.userName}>{labels.settings}</Text>
           </XStack>
         )}
       </View>
+      <CustomModal
+        headerText="Profile Info"
+        isOpen={profileEditOpen}
+        setIsOpen={setProfileEditOpen}
+        width={'90%'}
+        dialogCom={
+          <ProfileHeaderEdit userData={userData} closeDialog={() => setProfileEditOpen(false)} />
+        }
+      />
+      <CustomModal
+        headerText="Settings"
+        isOpen={settingsEditOpen}
+        setIsOpen={setSettingsEditOpen}
+        width={'80%'}
+        dialogCom={<></>}
+      />
     </View>
   );
 };

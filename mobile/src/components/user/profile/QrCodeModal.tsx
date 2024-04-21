@@ -1,44 +1,118 @@
-import { Pressable, Share, StyleSheet, Text, View } from 'react-native';
-import React, { ReactElement, useState } from 'react';
+import { Platform, Share, StyleSheet, Text, View } from 'react-native';
+import React, { ReactElement, useEffect, useState } from 'react';
 import CustomModal from '../../reusable/CustomModal';
 import QRCode from 'react-native-qrcode-svg';
-import CustomIcons from '../../reusable/CustomIcons';
-import { Button } from 'tamagui';
+import { Button, Spinner } from 'tamagui';
 import { Feather, Octicons } from '@expo/vector-icons';
 import colors from '~/src/constants/colors';
+import * as FileSystem from 'expo-file-system';
+import * as MediaLibrary from 'expo-media-library';
+import Toast from 'react-native-toast-message';
+import labels from '~/src/constants/labels';
 
 type Props = {
+  userName?: string;
   qrcodeUri: string;
   triggerButton: ReactElement;
 };
 
-const QrCodeModal = ({ qrcodeUri, triggerButton }: Props) => {
+const QrCodeModal = ({ userName, qrcodeUri, triggerButton }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [qrSvgRef, setQrSvgRef] = useState<any>();
+  const [imageLoading, setImageLoding] = useState(false);
+  const [showMediaPerError, setShowMediaPerError] = useState(false);
+  const [imagePath, setImagePath] = useState<string>('');
 
-  const handleShare = async () => {
-    try {
-      const result = await Share.share({
-        message: 'Quick Link to the Contractor Profile',
-        title: 'Share QR Code',
-        url: qrcodeUri,
-      });
-      if (result.action === Share.sharedAction) {
-        if (result.activityType) {
-          // shared with activity type of result.activityType
-        } else {
-          // shared
-        }
-      } else if (result.action === Share.dismissedAction) {
-        // dismissed
+  const generateQRImage = async (actionType: string) => {
+    setImageLoding(true);
+    if (Platform.OS === 'android') {
+      const permissions =
+        await FileSystem?.StorageAccessFramework?.requestDirectoryPermissionsAsync();
+      if (!permissions.granted) {
+        setImageLoding(false);
+        setShowMediaPerError(true);
+        return;
       }
-    } catch (error: any) {}
+    }
+    if (qrSvgRef) {
+      qrSvgRef?.toDataURL((data: any) => {
+        let filePath = FileSystem?.cacheDirectory + `/${userName}.png`;
+        FileSystem.writeAsStringAsync(filePath, data, {
+          encoding: FileSystem.EncodingType.Base64,
+        })
+          .then(() => {
+            if (actionType === 'share') {
+              handleShare(filePath);
+            } else if (actionType === 'save') {
+              saveImageToLibrary(filePath);
+            }
+            setImageLoding(false);
+          })
+          .catch(() => {
+            setImageLoding(false);
+            Toast.show({
+              type: 'error',
+              text1: `${labels.qrGenerateFailed}`,
+              position: 'top',
+            });
+          });
+      });
+    }
   };
 
-  const handleSave = async () => {};
+  const saveImageToLibrary = async (qrImagePath: string) => {
+    if (qrImagePath && qrImagePath !== '') {
+      const mediaPer = await MediaLibrary?.requestPermissionsAsync();
+      if (mediaPer?.status === 'granted') {
+        MediaLibrary?.saveToLibraryAsync(qrImagePath)?.then((onSuccess) => {
+          setIsOpen(false);
+          Toast.show({
+            type: 'success',
+            text1: `${labels.qrSaveImageSuccess}`,
+            position: 'top',
+          });
+        });
+      } else {
+        setShowMediaPerError(true);
+      }
+    }
+  };
+
+  const handleShare = async (qrImagePath: string) => {
+    try {
+      if (qrImagePath && qrImagePath !== '') {
+        const result = await Share.share({
+          message: `${labels.quickLinkMessage}`,
+          title: `${labels.shareQR}`,
+          url: qrImagePath,
+        });
+      }
+    } catch (error: any) {
+      Toast.show({
+        type: 'error',
+        text1: 'Error!',
+        text2: `${error.message}`,
+        position: 'top',
+      });
+    }
+  };
+
+  const deleteCachedImage = async () => {
+    if (imagePath && imagePath !== '') {
+      await FileSystem.deleteAsync(imagePath, { idempotent: true });
+      setImagePath('');
+    }
+  };
+
+  useEffect(() => {
+    if (!isOpen && imagePath && imagePath !== '') {
+      deleteCachedImage();
+    }
+  }, [isOpen]);
 
   return (
     <CustomModal
-      headerText="Profile QR Code"
+      headerText={labels.profileQrCode}
       isOpen={isOpen}
       setIsOpen={setIsOpen}
       width={'90%'}
@@ -51,24 +125,44 @@ const QrCodeModal = ({ qrcodeUri, triggerButton }: Props) => {
             logo={require('@assets/images/logoWhiteOutline.png')}
             logoSize={30}
             logoBackgroundColor="transparent"
+            getRef={(c) => setQrSvgRef(c)}
           />
-          <Text style={styles.boldText}>Scan this QR code</Text>
-          <Text style={styles.normalText}>
-            Print and stick it in your truck, sign boards, shop window and etc.
-          </Text>
+          <Text style={styles.boldText}>{labels.scanQRCode}</Text>
+          <Text style={styles.normalText}>{labels.printQRCode}</Text>
           <Button
             style={styles.shareBtn}
-            onPress={() => handleShare()}
-            icon={<Octicons name="share-android" size={20} color={colors.white} />}>
-            Share With Others
+            onPress={() => {
+              generateQRImage('share');
+            }}
+            backgroundColor={imageLoading ? colors.bg : colors.primary}
+            disabled={imageLoading}
+            icon={
+              imageLoading ? (
+                <Spinner />
+              ) : (
+                <Octicons name="share-android" size={20} color={colors.white} />
+              )
+            }>
+            {labels.shareQR}
           </Button>
-          <Pressable>
-            <Button
-              style={styles.downLoadButton}
-              icon={<Feather name="download" size={24} color={colors.textDark} />}>
-              Save as Image
-            </Button>
-          </Pressable>
+          <Button
+            onPress={() => generateQRImage('save')}
+            style={styles.downLoadButton}
+            disabled={imageLoading}
+            backgroundColor={colors.white}
+            color={imageLoading ? colors.bg : colors.textDark}
+            icon={
+              imageLoading ? (
+                <Spinner />
+              ) : (
+                <Feather name="download" size={24} color={colors.textDark} />
+              )
+            }>
+            {labels.saveQR}
+          </Button>
+          {showMediaPerError && (
+            <Text style={{ color: colors.error }}>{labels.fileAccessDenied}</Text>
+          )}
         </View>
       }
     />
@@ -96,7 +190,6 @@ const styles = StyleSheet.create({
   },
   shareBtn: {
     color: colors.white,
-    backgroundColor: colors.primary,
     borderBottomLeftRadius: 50,
     borderTopRightRadius: 50,
     borderTopLeftRadius: 50,
@@ -107,8 +200,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   downLoadButton: {
-    color: colors.textDark,
-    backgroundColor: 'transparent',
     fontFamily: 'InterExtraBold',
     fontSize: 15,
   },

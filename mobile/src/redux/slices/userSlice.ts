@@ -110,7 +110,8 @@ export const setUserProfile = (payload: IUser) => (dispatch: any, getState: any)
   const eUser: IUser | undefined = getState().user.userProfile.data;
   const user = { ...eUser, ...pUser };
   dispatch(setUserProfileInfo(user));
-  saveInLocalStorage(USER_PROFILE_KEY, JSON.stringify(user));
+  const userId: string = user?.id;
+  saveInLocalStorage(USER_PROFILE_KEY, userId);
 };
 
 export const setTokens =

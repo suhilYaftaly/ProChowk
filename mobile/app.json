@@ -25,6 +25,14 @@
         {
           "launchModeExperimental": "most-recent"
         }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow $(PRODUCT_NAME) to access your photos.",
+          "savePhotosPermission": "Allow $(PRODUCT_NAME) to save photos.",
+          "isAccessMediaLocationEnabled": true
+        }
       ]
     ],
     "experiments": {
@@ -32,7 +40,7 @@
       "tsconfigPaths": true
     },
     "orientation": "default",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/images/logoWhiteOutline.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
@@ -56,8 +64,9 @@
     },
     "android": {
       "package": "com.jaynit716.nexabindmobile",
+      "softwareKeyboardLayoutMode": "pan",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/images/logoWhiteOutline.png",
         "backgroundColor": "#ffffff"
       },
       "permissions": [

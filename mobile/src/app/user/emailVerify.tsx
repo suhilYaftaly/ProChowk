@@ -1,4 +1,3 @@
-import { StyleSheet } from 'react-native';
 import React from 'react';
 import ScreenContainer from '~/src/components/reusable/ScreenContainer';
 import labels from '~/src/constants/labels';
@@ -13,5 +12,3 @@ const emailVerify = () => {
 };
 
 export default emailVerify;
-
-const styles = StyleSheet.create({});

@@ -1,0 +1,103 @@
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import React, { useState } from 'react';
+import {
+  IContractor,
+  ILicense,
+  useDeleteContractorLicense,
+} from '~/src/graphql/operations/contractor';
+import { Image, ScrollView, Spinner } from 'tamagui';
+import { MaterialIcons } from '@expo/vector-icons';
+import colors from '~/src/constants/colors';
+import { Circle } from 'tamagui';
+import Toast from 'react-native-toast-message';
+import labels from '~/src/constants/labels';
+
+type Props = {
+  contractorData?: IContractor;
+  licenses?: ILicense[];
+  closeDialog: () => void;
+};
+
+const EditLicenses = ({ contractorData, licenses, closeDialog }: Props) => {
+  const [userlicenses, setUSerLicenses] = useState<ILicense[]>(licenses ? licenses : []);
+  const { deleteContLicAsync, loading: deleteLoading } = useDeleteContractorLicense();
+
+  const handleDeleteLicense = (id: string) => {
+    if (id && contractorData?.id) {
+      deleteContLicAsync({
+        variables: { licId: id, contId: contractorData?.id },
+        onSuccess: () => {
+          closeDialog();
+          Toast.show({
+            type: 'success',
+            text1: `${labels.licenseDeleted}`,
+            position: 'top',
+          });
+        },
+      });
+    }
+  };
+
+  return (
+    <View>
+      <ScrollView>
+        {userlicenses && userlicenses?.length > 0 ? (
+          userlicenses?.map((license: ILicense) => {
+            return (
+              <View key={license?.id} style={styles.licenseCont}>
+                <View style={styles.licenseHeader}>
+                  <Text style={styles.licenseName}>{license?.name}</Text>
+                  <Pressable onPress={() => handleDeleteLicense(license?.id)}>
+                    <Circle size={30} borderColor={colors.border} borderWidth={1}>
+                      {deleteLoading ? (
+                        <Spinner />
+                      ) : (
+                        <MaterialIcons name="delete" size={20} color={colors.textDark} />
+                      )}
+                    </Circle>
+                  </Pressable>
+                </View>
+                <View style={styles.licenseImage}>
+                  <Image
+                    source={{
+                      uri: `${license?.url}`,
+                    }}
+                    style={{ height: 150 }}
+                    resizeMode="contain"
+                  />
+                </View>
+              </View>
+            );
+          })
+        ) : (
+          <></>
+        )}
+      </ScrollView>
+    </View>
+  );
+};
+
+export default EditLicenses;
+
+const styles = StyleSheet.create({
+  licenseCont: {
+    margin: 10,
+  },
+  licenseHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  licenseImage: {
+    borderColor: colors.border,
+    borderWidth: 1,
+    borderRadius: 7,
+  },
+  licenseName: {
+    fontFamily: 'InterBold',
+    fontSize: 15,
+    color: colors.textDark,
+    marginVertical: 10,
+  },
+});

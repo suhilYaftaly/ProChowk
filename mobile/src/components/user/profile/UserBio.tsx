@@ -1,12 +1,4 @@
-import {
-  KeyboardAvoidingView,
-  Modal,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import React, { useState } from 'react';
 import labels from '~/src/constants/labels';
 import Card from '../../reusable/Card';
@@ -45,7 +37,7 @@ const UserBio = ({ user, isMyProfile }: Props) => {
         onSuccess: () => {
           Toast.show({
             type: 'success',
-            text1: 'Profile updated successfully!',
+            text1: `${labels.profileUpdated}`,
             position: 'top',
           });
         },
@@ -72,16 +64,18 @@ const UserBio = ({ user, isMyProfile }: Props) => {
               ellipsizeMode={bioReadExpanded ? undefined : 'tail'}>
               {user?.bio?.trim()}
             </Text>
-            <Pressable onPress={() => setBioReadExpanded(!bioReadExpanded)}>
-              <Text style={{ fontFamily: 'InterBold', fontSize: 16, color: colors.primary }}>
-                {labels.read} {bioReadExpanded ? labels.less : labels.more}
-              </Text>
-            </Pressable>
+            {user?.bio && user?.bio?.trim()?.length > 150 && (
+              <Pressable onPress={() => setBioReadExpanded(!bioReadExpanded)}>
+                <Text style={{ fontFamily: 'InterBold', fontSize: 16, color: colors.primary }}>
+                  {labels.read} {bioReadExpanded ? labels.less : labels.more}
+                </Text>
+              </Pressable>
+            )}
           </>
         }
       />
       <CustomModal
-        headerText="About You"
+        headerText={labels.aboutYou}
         isOpen={bioEditOpen}
         setIsOpen={setBioEditOpen}
         width={'80%'}

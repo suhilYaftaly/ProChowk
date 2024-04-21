@@ -12,7 +12,10 @@ import 'core-js/stable/atob';
 import { IAddress } from '@gqlOps/address';
 import { getValueFromLocalStorage } from './secureStore';
 import { jwtDecode } from 'jwt-decode';
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { INearbyContFilters } from '../components/user/drawer/FilterDrawerContent';
+import * as ImagePicker from 'expo-image-picker';
+/* import { IImage } from '../types/commonTypes';
+import { GoogleSignin } from '@react-native-google-signin/google-signin'; */
 
 export function decodeJwtToken(token: string) {
   /* const base64Url = token.split('.')[1];
@@ -173,11 +176,11 @@ export const navigateToUserPage = ({ user, navigate }: INavigateToUserPage) => {
 }; */
 
 export const googleLogout = async () => {
-  const isSignedIn = await GoogleSignin.isSignedIn();
+  /* const isSignedIn = await GoogleSignin.isSignedIn();
   console.log(isSignedIn);
   if (!isSignedIn) {
     await GoogleSignin.signOut();
-  }
+  } */
 };
 
 interface IUserLocation {
@@ -407,3 +410,32 @@ export function splitCamelCase(input: string | undefined) {
       .replace(/^./, (str) => str.toUpperCase())
   );
 }
+
+export const isFiltersChanged = (
+  currFilters: INearbyContFilters,
+  prevFilters: INearbyContFilters
+) => {
+  if (
+    currFilters?.radius !== prevFilters?.radius ||
+    currFilters?.latLng?.lat !== prevFilters?.latLng?.lat ||
+    currFilters?.latLng?.lng !== prevFilters?.latLng?.lng
+  )
+    return true;
+  return false;
+};
+
+export const getImageFromAlbum = async () => {
+  const fileDictionaryPermission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+  if (fileDictionaryPermission?.accessPrivileges === 'all') {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      base64: true,
+      allowsEditing: true,
+      aspect: [4, 3],
+    });
+    if (!result.canceled) {
+      if (result?.assets?.[0]) return result?.assets?.[0];
+      else return null;
+    } else return '';
+  }
+};

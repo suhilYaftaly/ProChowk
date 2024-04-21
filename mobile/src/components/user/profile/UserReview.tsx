@@ -52,7 +52,6 @@ const UserReview = ({ userReviews, isMyProfile }: Props) => {
 
   return (
     <Card
-      isEditable={isMyProfile}
       cardLabel={labels.reviews}
       entityCount={userReviews?.reviews?.length}
       cardBodyStyle={styles.cardBodyStyle}

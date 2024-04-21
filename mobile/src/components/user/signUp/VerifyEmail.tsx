@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { Button, Separator, YStack } from 'tamagui';
 import colors from '~/src/constants/colors';
 import { useUserStates } from '~/src/redux/reduxStates';
-import CustomIcons from '../../reusable/CustomIcons';
+import { EmailVerify } from '../../reusable/CustomIcons';
 import { useAppDispatch } from '~/src/utils/hooks/hooks';
 import { useSendVerificationEmail, useVerifyEmail } from '~/src/graphql/operations/user';
 import { getLocalTokens } from '~/src/utils/auth';
@@ -81,7 +81,7 @@ const VerifyEmail = () => {
 
   return (
     <YStack space={'$2'} style={styles.container}>
-      <CustomIcons name="emailVerify" size={100} />
+      <EmailVerify size={100} />
       <Text style={[styles.emailText, { fontSize: 22, fontFamily: 'InterBold' }]}>
         {labels.verificationSend}
       </Text>

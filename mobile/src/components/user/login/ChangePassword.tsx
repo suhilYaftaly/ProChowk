@@ -33,7 +33,7 @@ const ChangePassword = () => {
           dispatch(logIn(dt));
           Toast.show({
             type: 'success',
-            text1: `Password reset successful.`,
+            text1: `${labels.passResetSuccess}`,
             position: 'top',
           });
           router.replace('/');
@@ -59,7 +59,7 @@ const ChangePassword = () => {
 
   return (
     <YStack space={'$4'} style={styles.container}>
-      <Text style={styles.headerText}>Set Your New Password</Text>
+      <Text style={styles.headerText}>{labels.setNewPass}</Text>
 
       <InputWithLabel
         labelText={labels.newPassword}

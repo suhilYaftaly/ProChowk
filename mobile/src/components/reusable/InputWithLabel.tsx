@@ -14,6 +14,7 @@ type Props = {
   errorText?: string;
   hidePass?: boolean;
   setHidePass?: any;
+  isDisabled?: boolean;
 };
 
 const InputWithLabel = ({
@@ -26,6 +27,7 @@ const InputWithLabel = ({
   isSecret,
   hidePass,
   setHidePass,
+  isDisabled,
 }: Props) => {
   return (
     <YStack space={'$1.5'}>
@@ -39,6 +41,7 @@ const InputWithLabel = ({
             flex={1}
             borderWidth={0}
             style={styles.inputText}
+            backgroundColor={isDisabled ? colors.bg : colors.white}
             placeholder={placeholder}
             secureTextEntry={hidePass}
             textContentType="newPassword"
@@ -55,6 +58,9 @@ const InputWithLabel = ({
           size={'$3'}
           placeholder={placeholder}
           style={styles.inputText}
+          backgroundColor={isDisabled ? colors.bg : colors.white}
+          borderColor={colors.border}
+          disabled={isDisabled}
           value={value}
           onChangeText={(e) => onChange(e)}
         />
@@ -79,6 +85,5 @@ const styles = StyleSheet.create({
   inputText: {
     color: colors.black,
     fontFamily: 'Inter',
-    backgroundColor: 'transparent',
   },
 });

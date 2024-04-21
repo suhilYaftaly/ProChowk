@@ -20,6 +20,7 @@ type Props = {
   setIsOpen: (isOpen: boolean) => void;
   height?: DimensionValue;
   width?: DimensionValue;
+  itemCount?: number;
 };
 
 const CustomModal = ({
@@ -30,6 +31,7 @@ const CustomModal = ({
   setIsOpen,
   height = '30%',
   width = '50%',
+  itemCount,
 }: Props) => {
   return (
     <View>
@@ -45,7 +47,12 @@ const CustomModal = ({
           <View style={styles.centeredView}>
             <View style={[styles.modalView, { minHeight: height, width: width }]}>
               <View style={styles.modalHeader}>
-                <Text style={styles.headerText}>{headerText}</Text>
+                <Text style={styles.headerText}>
+                  {headerText}{' '}
+                  {itemCount !== undefined && itemCount > 0 && (
+                    <Text style={styles.countText}>({itemCount})</Text>
+                  )}
+                </Text>
                 <Pressable onPress={() => setIsOpen(!isOpen)}>
                   <Ionicons name="close" size={25} color={colors.primary} />
                 </Pressable>
@@ -95,5 +102,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
+  },
+  countText: {
+    fontFamily: 'InterExtraBold',
+    fontSize: 15,
+    color: colors.primary,
   },
 });

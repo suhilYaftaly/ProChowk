@@ -6,13 +6,13 @@ import labels from '~/src/constants/labels';
 import colors from '~/src/constants/colors';
 import { Link, router } from 'expo-router';
 import { useGLogin, useLoginUser } from '~/src/graphql/operations/user';
-import CustomIcons from '../../reusable/CustomIcons';
+import { Google } from '../../reusable/CustomIcons';
 import Routes from '~/src/routes/Routes';
 import { useAppDispatch } from '~/src/utils/hooks/hooks';
 import { LoginSchema, LoginUser } from '~/src/types/zodTypes';
 import { logIn, userProfileBegin, userProfileError } from '~/src/redux/slices/userSlice';
-import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
-import Toast from 'react-native-toast-message';
+/* import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
+import Toast from 'react-native-toast-message'; */
 
 const UserLogIn = () => {
   const dispatch = useAppDispatch();
@@ -26,7 +26,7 @@ const UserLogIn = () => {
   const [disableSignInBtn, setDisableSignInBtn] = useState(false);
   const [userInfoGoogle, setUserInfoGoogle] = useState<any>();
   const [resp, setResp] = useState<string | null>('');
-  const configureGoogleLogIn = () => {
+  /* const configureGoogleLogIn = () => {
     GoogleSignin?.configure({
       webClientId: process.env.GOOGLE_CLIENT_ID,
     });
@@ -74,7 +74,7 @@ const UserLogIn = () => {
         });
       }
     }
-  };
+  }; */
 
   const signIn = async (): Promise<void> => {
     const logInDetails: LoginUser = {
@@ -121,27 +121,12 @@ const UserLogIn = () => {
     return true;
   };
 
-  /*   const googleLogin = useGoogleLogin({
-    onSuccess: async (token) => {
-      dispatch(userProfileBegin());
-      googleLoginAsync({
-        variables: { accessToken: token.access_token },
-        onSuccess: (d) => {
-          dispatch(logIn(d));
-          navigateToOnLogin({ user: d, navigate });
-        },
-        onError: (err) => dispatch(userProfileError({ message: err?.message })),
-      });
-    },
-    onError: (error) => dispatch(userProfileError({ message: error })),
-  });
- */
   return (
     <YStack space={'$1.5'} style={styles.logInCont}>
       <Text style={styles.welcomeNexaText}>
-        Welcome to <Text style={{ color: colors.primary }}>NexaBind</Text>.
+        {labels.welcomeTo} <Text style={{ color: colors.primary }}>{labels.appName}</Text>.
       </Text>
-      <Text style={styles.subHeaderText}>Enter your Credential to access your account</Text>
+      <Text style={styles.subHeaderText}>{labels.enterCredentials}</Text>
       <YStack space={'$2.5'} style={styles.formCont}>
         <InputWithLabel
           labelText={labels.email}
@@ -169,7 +154,7 @@ const UserLogIn = () => {
           setHidePass={(val: boolean) => setIsPassVisible(val)}
         />
         <Pressable onPress={() => router.navigate(`/${Routes.forgotPassword}`)}>
-          <Text style={styles.forgetPassText}>Forgot Password?</Text>
+          <Text style={styles.forgetPassText}>{labels.forgotPass}?</Text>
         </Pressable>
       </YStack>
       <YStack space={'$3'}>
@@ -183,10 +168,10 @@ const UserLogIn = () => {
           {labels.logIn}
         </Button>
         <Text style={styles.signUpText}>
-          New at Nexabind?{' '}
+          {labels.newAtNexaBind}?{' '}
           <Link href={`/${Routes.signup}`} replace asChild>
             <Text style={{ color: colors.primary, textDecorationLine: 'underline' }}>
-              Sign Up now
+              {labels.signUpNow}
             </Text>
           </Link>
         </Text>
@@ -197,9 +182,9 @@ const UserLogIn = () => {
           borderWidth={1}
           disabled={GoogleLoading}
           icon={GoogleLoading ? () => <Spinner /> : undefined}
-          onPress={() => googleSignIn()}>
-          <CustomIcons name="google" size={30} />
-          <Text style={styles.googleBtnText}>Sign in with Google</Text>
+          onPress={() => /* googleSignIn() */ {}}>
+          <Google size={30} />
+          <Text style={styles.googleBtnText}>{labels.signInWithGoogle}</Text>
         </Button>
       </YStack>
       <Text>{userInfoGoogle}</Text>

@@ -9,6 +9,7 @@ import { z } from 'zod';
 import Toast from 'react-native-toast-message';
 import { router } from 'expo-router';
 import Routes from '~/src/routes/Routes';
+import { ForgotPassword as FPSvg } from '../../reusable/CustomIcons';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState<string>('');
@@ -36,7 +37,7 @@ const ForgotPassword = () => {
         onSuccess: () => {
           Toast.show({
             type: 'success',
-            text1: `Password reset request sent to your email. Please check your email.`,
+            text1: `${labels.passResetMsg}`,
             position: 'top',
           });
           router.replace({ pathname: `/${Routes.resetPassEmailVerify}`, params: { email: email } });
@@ -56,8 +57,12 @@ const ForgotPassword = () => {
   };
   return (
     <YStack space={'$4'} style={styles.container}>
-      <Text style={styles.headerText}>Change Password</Text>
-
+      <View style={styles.textContainer}>
+        <FPSvg size={100} />
+        <Text style={styles.headerText}>{labels.forgotPassword}</Text>
+        <Text style={styles.normalText}>{labels.enterEmailBelow}</Text>
+        <Text style={styles.normalText}>{labels.googleEmailWarning}</Text>
+      </View>
       <InputWithLabel
         labelText={labels.enterEmail}
         placeholder={labels.placeEmail}
@@ -69,7 +74,6 @@ const ForgotPassword = () => {
         isError={isEmailValid}
         errorText={labels.emailError}
       />
-
       <Button
         onPress={() => sendVerificationEmail()}
         backgroundColor={disableProceed ? '$border' : '$primary'}
@@ -115,5 +119,16 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 10,
     justifyContent: 'center',
+  },
+  textContainer: {
+    alignItems: 'center',
+  },
+  normalText: {
+    fontFamily: 'InterSemiBold',
+    fontSize: 13,
+    textAlign: 'center',
+    color: colors.textDark,
+    marginBottom: 10,
+    marginTop: 10,
   },
 });

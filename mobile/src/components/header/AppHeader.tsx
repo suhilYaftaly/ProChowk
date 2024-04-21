@@ -3,11 +3,11 @@ import React from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useUserStates } from '~/src/redux/reduxStates';
 import colors from '~/src/constants/colors';
-import CustomIcons from '../reusable/CustomIcons';
 import { Button } from 'tamagui';
 import labels from '~/src/constants/labels';
 import { router } from 'expo-router';
 import Routes from '~/src/routes/Routes';
+import { Drawer } from '../reusable/CustomIcons';
 
 const AppHeader = (props: any) => {
   const { top } = useSafeAreaInsets();
@@ -20,7 +20,7 @@ const AppHeader = (props: any) => {
       </Text>
       {userId ? (
         <Pressable onPress={() => props.navigation.openDrawer()}>
-          <CustomIcons name="drawer" size={23} color={colors.white} />
+          <Drawer size={23} color={colors.white} />
         </Pressable>
       ) : (
         <Button

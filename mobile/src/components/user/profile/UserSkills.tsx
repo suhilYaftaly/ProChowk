@@ -1,4 +1,4 @@
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import React, { useState } from 'react';
 import labels from '~/src/constants/labels';
 import Card from '../../reusable/Card';
@@ -6,7 +6,6 @@ import { ISkill, SkillInput, useSkills } from '~/src/graphql/operations/skill';
 import Chip from '../../reusable/Chip';
 import CustomModal from '../../reusable/CustomModal';
 import { Button, Spinner } from 'tamagui';
-import { IUser, useUpdateUser } from '~/src/graphql/operations/user';
 import colors from '~/src/constants/colors';
 import SkillSelection, { getNewSkills } from '../signUp/SkillSelection';
 import { IContractor, useUpdateContSkills } from '~/src/graphql/operations/contractor';
@@ -45,7 +44,7 @@ const UserSkills = ({ contractor, userSkills, isMyProfile }: Props) => {
           }
           Toast.show({
             type: 'success',
-            text1: 'Profile updated successfully!',
+            text1: `${labels.profileUpdated}`,
             position: 'top',
           });
         },
@@ -80,7 +79,7 @@ const UserSkills = ({ contractor, userSkills, isMyProfile }: Props) => {
         }
       />
       <CustomModal
-        headerText="Skills"
+        headerText={labels.skills}
         isOpen={skillEditOpen}
         setIsOpen={setSkillEditOpen}
         width={'80%'}

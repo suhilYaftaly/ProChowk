@@ -44,17 +44,28 @@ export const phoneCC = 'CA';
     },
   } as ISearchFilters,
 }; */
+
 /**Dashboard search nearby contractors filter configs */
 export const nearbyContsFilterConfigs = {
   minRadius: 5,
   maxRadius: 200,
   defaults: {
+    searchText: '',
     radius: 50,
     address: undefined,
     latLng: undefined,
   } as INearbyContFilters,
 };
-
+export const defaultAddress = {
+  displayName: 'My Location',
+  city: '',
+  county: '',
+  state: '',
+  stateCode: '',
+  country: '',
+  countryCode: '',
+  geometry: { type: 'Point', coordinates: [0, 0] },
+};
 /**Job post configs */
 export const jobConfigs = {
   defaults: {

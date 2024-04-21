@@ -10,5 +10,5 @@ export function getValueFromLocalStorage(key: string) {
 }
 
 export async function deleteFromLocalStorage(key: string) {
-  SecureStore.deleteItemAsync(key);
+  await SecureStore.deleteItemAsync(key);
 }

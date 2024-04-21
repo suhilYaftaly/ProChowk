@@ -1,5 +1,5 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import colors from '~/src/constants/colors';
 import AddressSearch from '../signUp/AddressSearch';
@@ -12,8 +12,10 @@ import { nearbyContsFilterConfigs as CC } from '@/config/configConst';
 import { useAppDispatch } from '~/src/utils/hooks/hooks';
 import { setUserFilters } from '~/src/redux/slices/userSlice';
 import { useUserStates } from '~/src/redux/reduxStates';
+import { defaultAddress } from '@config/configConst';
 
 export interface INearbyContFilters {
+  searchText?: string;
   radius: number;
   address?: IAddress;
   latLng?: LatLngInput;
@@ -21,7 +23,7 @@ export interface INearbyContFilters {
 
 const FilterDrawerContent = (props: any) => {
   const dispatch = useAppDispatch();
-  const { user } = useUserStates();
+  const { user, userLocation, userFilters } = useUserStates();
   const [location, setLocation] = useState<AddressInput>();
   const [locationAvail, setLocationAvail] = useState<boolean>(true);
   const [areaRadius, setAreaRadius] = useState<number>(CC.defaults.radius);
@@ -50,11 +52,25 @@ const FilterDrawerContent = (props: any) => {
       props.navigation.closeDrawer();
     }
   };
+
   const handleResetFilters = () => {
     setAreaRadius(CC.defaults.radius);
     setLocationAvail(true);
-    setLocation(user?.address);
+    if (user?.address) setLocation(user?.address);
+    else if (userLocation?.data?.lat && userLocation?.data?.lng)
+      setLocation({
+        ...{ lat: userLocation?.data?.lat, lng: userLocation?.data?.lng },
+        ...defaultAddress,
+      });
   };
+
+  useEffect(() => {
+    if (userFilters && userFilters?.address && userFilters?.radius) {
+      setAreaRadius(userFilters?.radius);
+      setLocation(userFilters?.address);
+    }
+  }, [userFilters]);
+
   return (
     <View style={{ flex: 1 }}>
       <View style={styles.drawerHeader}>
@@ -68,7 +84,7 @@ const FilterDrawerContent = (props: any) => {
           <Text style={styles.headerLabel}>{labels.filters}</Text>
         </View>
         <Pressable onPress={() => handleResetFilters()}>
-          <MaterialIcons name="refresh" size={25} color="black" />
+          <MaterialIcons name="refresh" size={25} color={colors.black} />
         </Pressable>
       </View>
       <DrawerContentScrollView {...props} contentContainerStyle={{ paddingTop: 0 }}>
@@ -100,7 +116,7 @@ const FilterDrawerContent = (props: any) => {
                 onChangeText={(e) => handleAreaChange(e)}
                 textAlign="right"
               />
-              <Text style={styles.inputText}>Km</Text>
+              <Text style={styles.inputText}>{labels.km}</Text>
             </View>
             {areaError && (
               <Text style={{ color: colors.error }}>*{labels.areaRadiusErrorText}</Text>

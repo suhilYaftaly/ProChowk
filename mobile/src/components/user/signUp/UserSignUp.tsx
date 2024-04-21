@@ -31,7 +31,7 @@ const UserSignUp = () => {
       email,
       password,
     };
-    /*  if (validateUser(userDetails)) {
+    if (validateUser(userDetails)) {
       setDisableSignUpBtn(true);
       dispatch(userProfileBegin());
       registerUserAsync({
@@ -46,8 +46,8 @@ const UserSignUp = () => {
           setDisableSignUpBtn(false);
         },
       });
-    } */
-    router.replace(`/${Routes.profileSetup}`);
+    }
+    /*  router.replace(`/${Routes.profileSetup}`); */
   };
 
   const validateUser = (userData: User): boolean => {
