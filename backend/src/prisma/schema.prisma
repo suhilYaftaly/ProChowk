@@ -23,16 +23,18 @@ model User {
 
     image UserImage?
 
-    addressId           String?               @db.ObjectId
-    address             Address?              @relation(fields: [addressId], references: [id])
-    contractor          Contractor?
-    jobs                Job[]
-    refreshToken        RefreshToken[]
-    notifications       Notification[]
-    writtenReviews      Review[]              @relation("reviewedBy")
-    receivedReviews     Review[]              @relation("reviewsAbout")
-    reviewAuthsGiven    ReviewAuthorization[] @relation("reviewAuthBy")
-    reviewAuthsReceived ReviewAuthorization[] @relation("reviewAuthTo")
+    addressId                String?                    @db.ObjectId
+    address                  Address?                   @relation(fields: [addressId], references: [id])
+    contractor               Contractor?
+    jobs                     Job[]
+    refreshToken             RefreshToken[]
+    notifications            Notification[]
+    writtenReviews           Review[]                   @relation("reviewedBy")
+    receivedReviews          Review[]                   @relation("reviewsAbout")
+    reviewAuthsGiven         ReviewAuthorization[]      @relation("reviewAuthBy")
+    reviewAuthsReceived      ReviewAuthorization[]      @relation("reviewAuthTo")
+    conversationParticipants ConversationParticipants[]
+    messages                 Message[]
 }
 
 model RefreshToken {
@@ -253,6 +255,38 @@ model PortfolioImage {
     contractorPortfolio   ContractorPortfolio @relation(fields: [contractorPortfolioId], references: [id])
 }
 
+model Conversation {
+    id           String                     @id @default(auto()) @map("_id") @db.ObjectId
+    name         String?
+    type         ConversationType           @default(OneToOne)
+    participants ConversationParticipants[]
+    messages     Message[]
+    createdAt    DateTime                   @default(now())
+    updatedAt    DateTime                   @updatedAt
+}
+
+model ConversationParticipants {
+    id                    String       @id @default(auto()) @map("_id") @db.ObjectId
+    userId                String       @db.ObjectId
+    user                  User         @relation(fields: [userId], references: [id])
+    conversationId        String       @db.ObjectId
+    conversation          Conversation @relation(fields: [conversationId], references: [id])
+    hasSeenLatestMessages Boolean
+    createdAt             DateTime     @default(now())
+    updatedAt             DateTime     @updatedAt
+}
+
+model Message {
+    id             String       @id @default(auto()) @map("_id") @db.ObjectId
+    message        String
+    conversationId String       @db.ObjectId
+    conversation   Conversation @relation(fields: [conversationId], references: [id])
+    senderId       String       @db.ObjectId
+    sender         User         @relation(fields: [senderId], references: [id])
+    createdAt      DateTime     @default(now())
+    updatedAt      DateTime     @updatedAt
+}
+
 enum BudgetType {
     Hourly
     Project
@@ -309,4 +343,9 @@ enum NotificationType {
     BidCompleted
     JobFinished
     ReviewReceived
+}
+
+enum ConversationType {
+    OneToOne
+    Group
 }

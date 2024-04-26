@@ -10,3 +10,4 @@ export const USER_COLL = "User";
 export const JOB_BID_COLL = "JobBid";
 export const NOTIFICATION_COLL = "Notification";
 export const REVIEW_AUTH_COLL = "ReviewAuthorization";
+export const MESSAGE = "Message";
