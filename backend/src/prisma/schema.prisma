@@ -33,7 +33,7 @@ model User {
     receivedReviews          Review[]                   @relation("reviewsAbout")
     reviewAuthsGiven         ReviewAuthorization[]      @relation("reviewAuthBy")
     reviewAuthsReceived      ReviewAuthorization[]      @relation("reviewAuthTo")
-    conversationParticipants ConversationParticipants[]
+    conversationParticipants ConversationParticipant[]
     messages                 Message[]
 }
 
@@ -259,13 +259,13 @@ model Conversation {
     id           String                     @id @default(auto()) @map("_id") @db.ObjectId
     name         String?
     type         ConversationType           @default(OneToOne)
-    participants ConversationParticipants[]
+    participants ConversationParticipant[]
     messages     Message[]
     createdAt    DateTime                   @default(now())
     updatedAt    DateTime                   @updatedAt
 }
 
-model ConversationParticipants {
+model ConversationParticipant {
     id                    String       @id @default(auto()) @map("_id") @db.ObjectId
     userId                String       @db.ObjectId
     user                  User         @relation(fields: [userId], references: [id])
