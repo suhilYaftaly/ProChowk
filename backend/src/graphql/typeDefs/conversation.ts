@@ -1,43 +1,43 @@
 import { gql } from "graphql-tag";
 
 export default gql`
-  type Query {
-    conversations(userId: ID!, page: Int, pageSize: Int): [Conversation!]!
-    conversation(id: ID!): Conversation!
-  }
-
-  type Mutation {
-    createConversation(conversationInput: ConversationInput): Conversation!
-    updateConversation(
-      id: ID!
-      conversationInput: ConversationInput
-    ): Conversation!
-    deleteConversation(id: ID!): Conversation!
-  }
-
   type Conversation {
-    name: String!
-    type: ConversationType!
+    id: String!
     participants: [ConversationParticipant]!
     messages: [Message]!
   }
 
   type ConversationParticipant {
-    userId: String!
+    id: String!
     user: User!
-    conversationId: String!
-    conversation: Conversation!
     hasSeenLatestMessages: Boolean!
   }
 
-  input ConversationInput {
-    name: String!
-    type: ConversationType!
-    participantIds: [ID!]!
+  type CreateConversationResponse {
+    conversationId: String
   }
 
-  enum ConversationType {
-    OneToOne
-    Group
+  type ConversationDeletedResponse {
+    id: String
+  }
+
+  type Query {
+    conversations(page: Int, pageSize: Int): [Conversation]
+  }
+
+  type Mutation {
+    createConversation(participantIds: [String]): CreateConversationResponse
+    markConversationAsRead(userId: String!, conversationId: String!): Boolean
+    deleteConversation(conversationId: String!): Boolean
+    updateParticipants(
+      conversationId: String!
+      participantIds: [String]!
+    ): Boolean
+  }
+
+  type Subscription {
+    conversationCreated: Conversation
+    conversationUpdated: ConversationUpdatedSubscriptionPayload
+    conversationDeleted: ConversationDeletedResponse
   }
 `;
