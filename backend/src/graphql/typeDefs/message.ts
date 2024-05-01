@@ -8,17 +8,20 @@ const typeDefs = gql`
     createdAt: Date
   }
 
+  input SendMessageArguments {
+    id: String
+    conversationId: String
+    senderId: String
+    body: String
+    imageId: String
+  }
+
   type Query {
     messages(conversationId: String): [Message]
   }
 
   type Mutation {
-    sendMessage(
-      id: String
-      conversationId: String
-      senderId: String
-      body: String
-    ): Boolean
+    sendMessage(args: SendMessageArguments): Boolean
   }
 
   type Subscription {

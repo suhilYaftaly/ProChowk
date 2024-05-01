@@ -4,6 +4,7 @@ import {
   Job,
   JobImage,
   License,
+  Prisma,
   PrismaClient,
   Skill,
   UserImage,
@@ -12,6 +13,11 @@ import { Request } from "express";
 import { PubSub } from "graphql-subscriptions";
 import { Context } from "graphql-ws/lib/server";
 import { MongoClient } from "mongodb";
+import {
+  conversationPopulated,
+  participantPopulated,
+} from "../graphql/resolvers/conversation";
+import { messagePopulated } from "../graphql/resolvers/message";
 
 //server configs
 export interface GQLContext {
@@ -49,3 +55,46 @@ export type IJobInput = Pick<
   images: IImageInput[];
   budget: IBudgetInput;
 };
+
+export type ConversationPopulated = Prisma.ConversationGetPayload<{
+  include: typeof conversationPopulated;
+}>;
+
+export interface ConversationCreatedSubscriptionPayload {
+  conversationCreated: ConversationPopulated;
+}
+
+export type ParticipantPopulated = Prisma.ConversationParticipantGetPayload<{
+  include: typeof participantPopulated;
+}>;
+
+export interface ConversationUpdatedSubscriptionData {
+  conversationUpdated: {
+    conversation: ConversationPopulated;
+    addedUserIds: Array<string>;
+    removedUserIds: Array<string>;
+  };
+}
+
+export interface ConversationDeletedSubscriptionPayload {
+  conversationDeleted: ConversationPopulated;
+}
+
+/**
+ * Messages
+ */
+export interface SendMessageArguments {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  body: string;
+  imageId: string;
+}
+
+export interface SendMessageSubscriptionPayload {
+  messageSent: MessagePopulated;
+}
+
+export type MessagePopulated = Prisma.MessageGetPayload<{
+  include: typeof messagePopulated;
+}>;

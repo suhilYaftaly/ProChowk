@@ -21,12 +21,34 @@ export default gql`
     id: String
   }
 
+  type CreateConversationResponse {
+    conversationId: String
+  }
+
+  type ConversationDeletedResponse {
+    id: String
+  }
+
+  type ConversationUpdatedSubscriptionPayload {
+    conversation: Conversation
+    addedUserIds: [String]
+    removedUserIds: [String]
+  }
+
+  type ConversationsInput {
+    userId: String
+    name: String
+    participantIds: [String!]
+    page: Int
+    pageSize: Int
+  }
+
   type Query {
     conversations(page: Int, pageSize: Int): [Conversation]
   }
 
   type Mutation {
-    createConversation(participantIds: [String]): CreateConversationResponse
+    createConversation(participantIds: [String]): String
     markConversationAsRead(userId: String!, conversationId: String!): Boolean
     deleteConversation(conversationId: String!): Boolean
     updateParticipants(

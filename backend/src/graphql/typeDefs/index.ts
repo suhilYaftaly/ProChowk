@@ -10,6 +10,7 @@ import notification from "./notification";
 import review from "./review";
 import contractorPortfolio from "./contractorPortfolio";
 import message from "./message";
+import conversation from "./conversation";
 
 export default [
   user,
@@ -23,5 +24,6 @@ export default [
   notification,
   review,
   contractorPortfolio,
-  message
+  message,
+  conversation,
 ];
