@@ -35,6 +35,11 @@ export default gql`
     removedUserIds: [String]
   }
 
+  type ConversationResponse {
+    totalCount: Int
+    conversations: [Conversation]
+  }
+
   type ConversationsInput {
     userId: String
     name: String
@@ -44,7 +49,7 @@ export default gql`
   }
 
   type Query {
-    conversations(page: Int, pageSize: Int): [Conversation]
+    conversations(page: Int, pageSize: Int): ConversationResponse
   }
 
   type Mutation {

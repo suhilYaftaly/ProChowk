@@ -16,7 +16,7 @@ export default {
   Query: {
     conversations: async (
       _: any,
-      { page = 1, pageSize = 50, userId }: ConversationsInput,
+      { page = 1, pageSize = 50 }: ConversationsInput,
       context: GQLContext
     ): Promise<{
       totalCount: number;
@@ -25,13 +25,6 @@ export default {
       const { prisma, req } = context;
       const authUser = checkAuth(req);
 
-      const parsedProps = ConversationsInputSchema.safeParse({
-        page,
-        pageSize,
-      });
-      if (!parsedProps.success) {
-        throw gqlError({ msg: parsedProps?.error?.message });
-      }
       const skip = (page - 1) * pageSize;
       // const userId = authUser.id;
       const userConversations = await prisma.conversation.findMany({
@@ -357,8 +350,8 @@ const ConversationsInputSchema = z.object({
   userId: z.string().length(24),
   name: z.string(),
   participantIds: z.string().array(),
-  page: z.number().min(1),
-  pageSize: z.number().min(1).max(100),
+  page: z.number(),
+  pageSize: z.number(),
 });
 
 type ConversationsInput = z.infer<typeof ConversationsInputSchema>;
