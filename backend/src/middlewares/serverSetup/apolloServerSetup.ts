@@ -28,7 +28,7 @@ export const apolloServerSetup = async () => {
   const httpServer = http.createServer(app);
   const wsServer = new WebSocketServer({
     server: httpServer,
-    path: "/graphql/subscriptions",
+    path: "/graphql",
   });
 
   // Wrap all resolvers with the withCatch

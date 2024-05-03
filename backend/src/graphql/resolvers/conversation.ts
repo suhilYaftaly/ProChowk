@@ -235,7 +235,7 @@ export default {
         },
         (
           payload: ConversationCreatedSubscriptionPayload,
-          _,
+          _: any,
           context: GQLContext
         ) => {
           const { pubsub, req } = context;

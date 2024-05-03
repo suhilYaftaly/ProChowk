@@ -64,7 +64,13 @@ export default gql`
 
   type Subscription {
     conversationCreated: Conversation
+  }
+
+  type Subscription {
     conversationUpdated: ConversationUpdatedSubscriptionPayload
+  }
+
+  type Subscription {
     conversationDeleted: ConversationDeletedResponse
   }
 `;
