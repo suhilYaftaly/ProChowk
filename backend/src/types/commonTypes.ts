@@ -30,6 +30,7 @@ export interface GQLContext {
 export interface SubsciptionContext extends Context {
   connectionParams: {
     session?: Request<any, any, any, any, Record<string, any>>;
+    authorization: string;
   };
 }
 

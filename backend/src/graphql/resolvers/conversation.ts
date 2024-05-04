@@ -65,7 +65,7 @@ export default {
       _: any,
       { participantIds }: { participantIds: Array<string> },
       context: GQLContext
-    ): Promise<{ conversationId: string }> => {
+    ): Promise<string> => {
       const { prisma, pubsub, req } = context;
       const authUser = checkAuth(req);
 
@@ -87,7 +87,7 @@ export default {
         conversationCreated: conversation,
       });
 
-      return { conversationId: conversation.id };
+      return conversation.id;
     },
     markConversationAsRead: async (
       _: any,
@@ -231,7 +231,7 @@ export default {
         (_: any, __: any, context: GQLContext) => {
           const { pubsub } = context;
 
-          return pubsub.asyncIterator(["CONVERSATION_CREATED"]);
+          return pubsub.asyncIterator("CONVERSATION_CREATED");
         },
         (
           payload: ConversationCreatedSubscriptionPayload,

@@ -1,6 +1,6 @@
 import express from "express";
 import { PrismaClient } from "@prisma/client";
-import { WebSocketServer } from "ws";
+import { WebSocket, WebSocketServer } from "ws";
 import { useServer } from "graphql-ws/lib/use/ws";
 import { PubSub } from "graphql-subscriptions";
 import { ApolloServer } from "@apollo/server";
@@ -22,6 +22,7 @@ import {
   rateLimitDirectiveTransformer,
   rateLimitDirectiveTypeDefs,
 } from "./rateLimiter";
+import checkAuth from "../checkAuth";
 
 export const apolloServerSetup = async () => {
   const app = express();
@@ -37,7 +38,7 @@ export const apolloServerSetup = async () => {
   const schema = rateLimitDirectiveTransformer(
     makeExecutableSchema({
       typeDefs: [rateLimitDirectiveTypeDefs, ...typeDefs],
-      resolvers: wrappedResolvers,
+      resolvers: resolvers,
     })
   );
 
@@ -49,14 +50,31 @@ export const apolloServerSetup = async () => {
     {
       schema,
       context: async (ctx: SubsciptionContext): Promise<GQLContext> => {
-        const session = ctx?.connectionParams?.session;
+        const token = ctx?.connectionParams?.authorization;
+        const userAgent =
+          ctx.connectionParams.session?.headers?.["user-agent"] || "not found";
         return {
-          req: session || (null as any),
+          req: token ? { headers: { authorization: token } } : (null as any),
           prisma,
           pubsub,
           mongoClient,
-          userAgent: session?.headers?.["user-agent"] || "not found",
+          userAgent,
         };
+      },
+      onConnect: async (ctx) => {
+        // Extract the auth token from the request headers
+        const authToken = ctx.connectionParams?.authorization;
+
+        // Validate the auth token
+        try {
+          checkAuth(authToken);
+        } catch (err) {
+          // If the token is invalid, close the connection
+          // return ctx.extra.socket.close(CloseCode.Forbidden, "Forbidden");
+        }
+
+        // If the token is valid, proceed with the connection
+        // Optionally, you can add the token to the context here
       },
     },
     wsServer
