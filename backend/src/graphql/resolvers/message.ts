@@ -56,21 +56,21 @@ export default {
   Mutation: {
     sendMessage: async (
       _: any,
-      args: SendMessageArguments,
+      {
+        body,
+        conversationId,
+        imageId,
+      }: { body: string; conversationId: string; imageId: string },
       context: GQLContext
     ): Promise<boolean> => {
       const { prisma, pubsub, req } = context;
       const authUser = checkAuth(req);
-
-      const { id: messageId, senderId, conversationId, body, imageId } = args;
-
       /**
        * Create new message entity
        */
       const newMessage = await prisma.message.create({
         data: {
-          id: messageId,
-          senderId,
+          senderId: authUser.id,
           conversationId,
           body,
           imageId,
