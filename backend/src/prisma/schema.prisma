@@ -5,7 +5,6 @@ datasource db {
 
 generator client {
     provider = "prisma-client-js"
-    previewFeatures = ["mongodb"]
 }
 
 model User {
@@ -36,6 +35,7 @@ model User {
     reviewAuthsReceived      ReviewAuthorization[]     @relation("reviewAuthTo")
     conversationParticipants ConversationParticipant[]
     messages                 Message[]
+    conversations            Conversation[]
 }
 
 model RefreshToken {
@@ -262,6 +262,8 @@ model Conversation {
     messages        Message[]
     latestMessage   Message?                  @relation(name: "latestConversationMessage", fields: [latestMessageId], references: [id], onUpdate: NoAction, onDelete: NoAction)
     latestMessageId String?                   @unique @db.ObjectId
+    createdBy       User                      @relation(fields: [createdById], references: [id], onDelete: Cascade)
+    createdById     String                    @db.ObjectId
     createdAt       DateTime                  @default(now())
     updatedAt       DateTime                  @updatedAt
 }
@@ -271,7 +273,7 @@ model ConversationParticipant {
     userId                String       @db.ObjectId
     user                  User         @relation(fields: [userId], references: [id])
     conversationId        String       @db.ObjectId
-    conversation          Conversation @relation(fields: [conversationId], references: [id])
+    conversation          Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
     hasSeenLatestMessages Boolean
     createdAt             DateTime     @default(now())
     updatedAt             DateTime     @updatedAt
@@ -281,17 +283,17 @@ model Message {
     id             String        @id @default(auto()) @map("_id") @db.ObjectId
     body           String
     conversationId String        @db.ObjectId
-    conversation   Conversation  @relation(fields: [conversationId], references: [id])
+    conversation   Conversation  @relation(fields: [conversationId], references: [id], onDelete: Cascade)
     senderId       String        @db.ObjectId
     sender         User          @relation(fields: [senderId], references: [id])
     isLatestIn     Conversation? @relation("latestConversationMessage")
-    imageId        String        @db.ObjectId
-    image          Image?
+    attachmentId   String?       @db.ObjectId
+    attachment     Attachment?
     createdAt      DateTime      @default(now())
     updatedAt      DateTime      @updatedAt
 }
 
-model Image {
+model Attachment {
     id        String   @id @default(auto()) @map("_id") @db.ObjectId
     name      String?
     url       String   @unique
@@ -301,6 +303,8 @@ model Image {
     updatedAt DateTime @updatedAt
     messageId String   @unique @db.ObjectId
     message   Message  @relation(fields: [messageId], references: [id])
+
+    @@map("Attachment")
 }
 
 enum BudgetType {

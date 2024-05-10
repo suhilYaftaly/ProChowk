@@ -6,8 +6,9 @@ import jwt from "jsonwebtoken";
 import { ISignedProps } from "../middlewares/checkAuth";
 import { appName, appNamePascalCase } from "../constants/constants";
 import { logger } from "../middlewares/logger/logger";
-import { GQLContext, ParticipantPopulated } from "../types/commonTypes";
+import { GQLContext } from "../types/commonTypes";
 import { Review } from "@prisma/client";
+import { IParticipantResponse } from "../graphql/resolvers/conversation";
 
 dotenv.config();
 const baseUrl = process.env.CLIENT_ORIGIN;
@@ -287,7 +288,7 @@ export function calculateAverageRating(reviews: Review[]) {
 }
 
 export function userIsConversationParticipant(
-  participants: Array<ParticipantPopulated>,
+  participants: Array<IParticipantResponse>,
   userId: string
 ): boolean {
   return !!participants.find((participant) => participant.userId === userId);

@@ -8,10 +8,8 @@ const typeDefs = gql`
     createdAt: Date
   }
 
-  input SendMessageArguments {
-    id: String
+  input SendMessageInput {
     conversationId: String
-    senderId: String
     body: String
     imageId: String
   }
@@ -21,11 +19,13 @@ const typeDefs = gql`
   }
 
   type Mutation {
-    sendMessage(body: String, conversationId: String, imageId: String): Boolean
+    sendMessage(conversationInput: SendMessageInput): Boolean
+    deleteMessage(id: ID!): Boolean
   }
 
   type Subscription {
     messageSent(conversationId: String): Message
+    messageDeleted(conversationId: String): Message
   }
 `;
 

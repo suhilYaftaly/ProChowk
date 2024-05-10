@@ -1,14 +1,8 @@
-import { GraphQLResolveInfo } from "graphql";
-import {
-  GQLContext,
-  MessagePopulated,
-  SendMessageArguments,
-  SendMessageSubscriptionPayload,
-} from "../../types/commonTypes";
+import { GQLContext, ISendMessageInput } from "../../types/commonTypes";
 import { Prisma } from "@prisma/client";
 import { conversationPopulated } from "./conversation";
 import { gqlError, userIsConversationParticipant } from "../../utils/funcs";
-import checkAuth from "../../middlewares/checkAuth";
+import checkAuth, { canUserUpdate } from "../../middlewares/checkAuth";
 import { withFilter } from "graphql-subscriptions";
 
 export default {
@@ -17,7 +11,7 @@ export default {
       _: any,
       { conversationId }: { conversationId: string },
       context: GQLContext
-    ): Promise<Array<MessagePopulated>> => {
+    ): Promise<Array<IMessageResponse>> => {
       const { prisma, req } = context;
       const authUser = checkAuth(req);
       const conversation = await prisma.conversation.findUnique({
@@ -56,15 +50,13 @@ export default {
   Mutation: {
     sendMessage: async (
       _: any,
-      {
-        body,
-        conversationId,
-        imageId,
-      }: { body: string; conversationId: string; imageId: string },
+      input: ISendMessageInput,
       context: GQLContext
     ): Promise<boolean> => {
       const { prisma, pubsub, req } = context;
       const authUser = checkAuth(req);
+
+      const { conversationId, body, attachmentId } = input;
       /**
        * Create new message entity
        */
@@ -73,7 +65,7 @@ export default {
           senderId: authUser.id,
           conversationId,
           body,
-          imageId,
+          attachmentId,
         },
         include: messagePopulated,
       });
@@ -130,13 +122,40 @@ export default {
         include: conversationPopulated,
       });
 
-      pubsub.publish("MESSAGE_SENT", { messageSent: newMessage });
+      pubsub.publish("MESSAGE_SENT", { message: newMessage });
       pubsub.publish("CONVERSATION_UPDATED", {
         conversationUpdated: {
           conversation,
         },
       });
 
+      return true;
+    },
+    deleteMessage: async (
+      _: any,
+      { id }: { id: string },
+      context: GQLContext
+    ): Promise<boolean> => {
+      const { prisma, pubsub, req } = context;
+      const authUser = checkAuth(req);
+      /**
+       * Create new message entity
+       */
+      const message = await prisma.message.findFirst({
+        where: { id },
+      });
+
+      canUserUpdate({
+        id: message?.senderId!,
+        authUser,
+        message: "You can't delete someone else message",
+      });
+
+      await prisma.message.delete({
+        where: { id },
+      });
+
+      pubsub.publish("MESSAGE_DELETED", { message });
       return true;
     },
   },
@@ -149,22 +168,41 @@ export default {
           return pubsub.asyncIterator(["MESSAGE_SENT"]);
         },
         (
-          payload: SendMessageSubscriptionPayload,
+          payload: MessageSubscriptionPayload,
           args: { conversationId: string },
           context: GQLContext
         ) => {
-          return payload.messageSent.conversationId === args.conversationId;
+          return payload.message.conversationId === args.conversationId;
+        }
+      ),
+    },
+    messageDeleted: {
+      subscribe: withFilter(
+        (_: any, __: any, context: GQLContext) => {
+          const { pubsub } = context;
+
+          return pubsub.asyncIterator(["MESSAGE_DELETED"]);
+        },
+        (
+          payload: MessageSubscriptionPayload,
+          args: { conversationId: string },
+          context: GQLContext
+        ) => {
+          return payload.message.conversationId === args.conversationId;
         }
       ),
     },
   },
 };
 
-interface IMessageResponse {
-  id: number;
-  message: string;
-  user: string;
+export type IMessageResponse = Prisma.MessageGetPayload<{
+  include: typeof messagePopulated;
+}>;
+
+export interface MessageSubscriptionPayload {
+  message: IMessageResponse;
 }
+
 export const messagePopulated = Prisma.validator<Prisma.MessageInclude>()({
   sender: {
     select: {

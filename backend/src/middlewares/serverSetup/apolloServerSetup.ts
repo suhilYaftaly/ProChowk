@@ -1,6 +1,6 @@
 import express from "express";
 import { PrismaClient } from "@prisma/client";
-import { WebSocket, WebSocketServer } from "ws";
+import { WebSocketServer } from "ws";
 import { useServer } from "graphql-ws/lib/use/ws";
 import { PubSub } from "graphql-subscriptions";
 import { ApolloServer } from "@apollo/server";
@@ -23,6 +23,7 @@ import {
   rateLimitDirectiveTypeDefs,
 } from "./rateLimiter";
 import checkAuth from "../checkAuth";
+import { CloseCode } from "graphql-ws";
 
 export const apolloServerSetup = async () => {
   const app = express();
@@ -62,19 +63,17 @@ export const apolloServerSetup = async () => {
         };
       },
       onConnect: async (ctx) => {
-        // Extract the auth token from the request headers
         const authToken = ctx.connectionParams?.authorization;
-
         // Validate the auth token
         try {
           checkAuth(authToken);
         } catch (err) {
-          // If the token is invalid, close the connection
-          // return ctx.extra.socket.close(CloseCode.Forbidden, "Forbidden");
+          return ctx.extra.socket.close(CloseCode.Forbidden, "Forbidden");
         }
-
-        // If the token is valid, proceed with the connection
-        // Optionally, you can add the token to the context here
+      },
+      onSubscribe: async (ctx) => {
+        // Check on every subscription
+        // TODO to be discussed and implemented
       },
     },
     wsServer

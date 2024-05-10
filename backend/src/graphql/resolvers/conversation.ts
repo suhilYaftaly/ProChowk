@@ -1,13 +1,7 @@
-import { Conversation, Notification, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { z } from "zod";
 
-import {
-  ConversationCreatedSubscriptionPayload,
-  ConversationDeletedSubscriptionPayload,
-  ConversationPopulated,
-  ConversationUpdatedSubscriptionData,
-  GQLContext,
-} from "../../types/commonTypes";
+import { GQLContext } from "../../types/commonTypes";
 import checkAuth, { canUserUpdate } from "../../middlewares/checkAuth";
 import { gqlError, userIsConversationParticipant } from "../../utils/funcs";
 import { withFilter } from "graphql-subscriptions";
@@ -16,11 +10,11 @@ export default {
   Query: {
     conversations: async (
       _: any,
-      { page = 1, pageSize = 50 }: ConversationsInput,
+      { page = 1, pageSize = 10 }: ConversationsInput,
       context: GQLContext
     ): Promise<{
       totalCount: number;
-      conversations: ConversationPopulated[];
+      conversations: IConversationResponse[];
     }> => {
       const { prisma, req } = context;
       const authUser = checkAuth(req);
@@ -61,13 +55,16 @@ export default {
     },
   },
   Mutation: {
-    createConversation: async (
+    createGroupConversation: async (
       _: any,
       { participantIds }: { participantIds: Array<string> },
       context: GQLContext
     ): Promise<string> => {
       const { prisma, pubsub, req } = context;
       const authUser = checkAuth(req);
+
+      if (participantIds.indexOf(authUser.id) == -1)
+        participantIds.push(authUser.id);
 
       const conversation = await prisma.conversation.create({
         data: {
@@ -79,6 +76,38 @@ export default {
               })),
             },
           },
+          createdById: authUser.id,
+        },
+        include: conversationPopulated,
+      });
+
+      pubsub.publish("CONVERSATION_CREATED", {
+        conversationCreated: conversation,
+      });
+
+      return conversation.id;
+    },
+    createConversation: async (
+      _: any,
+      { participantId }: { participantId: string },
+      context: GQLContext
+    ): Promise<string> => {
+      const { prisma, pubsub, req } = context;
+      const authUser = checkAuth(req);
+
+      const participantIds: Array<string> = [participantId, authUser.id];
+
+      const conversation = await prisma.conversation.create({
+        data: {
+          participants: {
+            createMany: {
+              data: participantIds.map((id) => ({
+                userId: id,
+                hasSeenLatestMessages: id === authUser.id,
+              })),
+            },
+          },
+          createdById: authUser.id,
         },
         include: conversationPopulated,
       });
@@ -96,8 +125,8 @@ export default {
     ): Promise<boolean> => {
       const { prisma, req } = context;
       const authUser = checkAuth(req);
-      // Authorization check: ensure the user is allowed to perform this action
-      // canUserUpdate({ id: userId, authUser });
+
+      canUserUpdate({ id: userId, authUser });
 
       await prisma.conversationParticipant.updateMany({
         where: {
@@ -162,6 +191,12 @@ export default {
       const { conversationId, participantIds } = args;
 
       const authUser = checkAuth(req);
+      const conversation = await prisma.conversation.findFirst({
+        where: { id: conversationId },
+        select: { createdById: true },
+      });
+
+      canUserUpdate({ id: conversation?.createdById!, authUser });
 
       const participants = await prisma.conversationParticipant.findMany({
         where: {
@@ -276,7 +311,6 @@ export default {
           const {
             conversationUpdated: {
               conversation: { participants },
-              addedUserIds,
               removedUserIds,
             },
           } = payload;
@@ -292,7 +326,7 @@ export default {
 
           const userIsBeingRemoved =
             removedUserIds &&
-            Boolean(removedUserIds.find((id) => id === authUser.id));
+            Boolean(removedUserIds.find((id: string) => id === authUser.id));
 
           return (
             (userIsParticipant && !userSentLatestMessage) ||
@@ -327,6 +361,30 @@ export default {
     },
   },
 };
+
+export type IConversationResponse = Prisma.ConversationGetPayload<{
+  include: typeof conversationPopulated;
+}>;
+
+export interface ConversationCreatedSubscriptionPayload {
+  conversationCreated: IConversationResponse;
+}
+
+export type IParticipantResponse = Prisma.ConversationParticipantGetPayload<{
+  include: typeof participantPopulated;
+}>;
+
+export interface ConversationUpdatedSubscriptionData {
+  conversationUpdated: {
+    conversation: IConversationResponse;
+    addedUserIds: Array<string>;
+    removedUserIds: Array<string>;
+  };
+}
+
+export interface ConversationDeletedSubscriptionPayload {
+  conversationDeleted: IConversationResponse;
+}
 
 export const participantPopulated =
   Prisma.validator<Prisma.ConversationParticipantInclude>()({

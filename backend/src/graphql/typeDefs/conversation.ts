@@ -5,6 +5,7 @@ export default gql`
     id: String!
     participants: [ConversationParticipant]!
     messages: [Message]!
+    createdUserId: String!
   }
 
   type ConversationParticipant {
@@ -53,7 +54,8 @@ export default gql`
   }
 
   type Mutation {
-    createConversation(participantIds: [String]): String
+    createGroupConversation(participantIds: [String]): String
+    createConversation(participantId: String!): String
     markConversationAsRead(userId: String!, conversationId: String!): Boolean
     deleteConversation(conversationId: String!): Boolean
     updateParticipants(
