@@ -33,32 +33,35 @@ const AddLicense = ({ contractorData, closeDialog }: Props) => {
         addContLicAsync({
           variables: { license: licenseImage, contId: contractorData?.id },
           onSuccess: () => {
+            setDisableSaveBtn(false);
+            closeDialog();
             Toast.show({
               type: 'success',
               text1: `${labels.licenseAdded}`,
               position: 'top',
             });
           },
+          onError: () => {
+            setDisableSaveBtn(false);
+            Toast.show({
+              type: 'error',
+              text1: `${labels.licenseFailed}`,
+              position: 'top',
+            });
+          },
         });
-        setDisableSaveBtn(false);
-        closeDialog();
       }
     }
   };
 
   const handleUploadImage = async () => {
     const uploadedImage = await getImageFromAlbum();
-    if (
-      uploadedImage &&
-      uploadedImage?.fileSize &&
-      uploadedImage?.mimeType &&
-      uploadedImage?.base64
-    ) {
+    if (uploadedImage && !Array.isArray(uploadedImage) && uploadedImage?.base64) {
       const seleImage: IImage = {
         name: licenseName,
         url: 'data:' + uploadedImage?.mimeType + ';base64,' + uploadedImage?.base64,
-        type: uploadedImage?.mimeType,
-        size: uploadedImage?.fileSize,
+        type: uploadedImage?.mimeType ? uploadedImage?.mimeType : 'image/jpeg',
+        size: uploadedImage?.fileSize ? uploadedImage?.fileSize : 1000,
       };
       setLicenseImage(seleImage);
     } else if (uploadedImage === null) {

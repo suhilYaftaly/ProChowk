@@ -25,17 +25,12 @@ const ProfileHeaderEdit = ({ userData, closeDialog }: Props) => {
 
   const handleUploadImage = async () => {
     const uploadedImage = await getImageFromAlbum();
-    if (
-      uploadedImage &&
-      uploadedImage?.fileSize &&
-      uploadedImage?.mimeType &&
-      uploadedImage?.base64
-    ) {
+    if (uploadedImage && !Array.isArray(uploadedImage) && uploadedImage?.base64) {
       const seleImage: IImage = {
         name: userData?.name + '.jpg',
         url: 'data:' + uploadedImage?.mimeType + ';base64,' + uploadedImage?.base64,
-        type: uploadedImage?.mimeType,
-        size: uploadedImage?.fileSize,
+        type: uploadedImage?.mimeType ? uploadedImage?.mimeType : 'image/jpeg',
+        size: uploadedImage?.fileSize ? uploadedImage?.fileSize : 1000,
       };
       setUserImage(seleImage);
     } else if (uploadedImage === null) {
@@ -59,16 +54,24 @@ const ProfileHeaderEdit = ({ userData, closeDialog }: Props) => {
           updateUserAsync({
             variables: updateData,
             onSuccess: () => {
+              setDisableSaveBtn(false);
+              closeDialog();
               Toast.show({
                 type: 'success',
                 text1: `${labels.profileUpdated}`,
                 position: 'top',
               });
             },
+            onError: () => {
+              setDisableSaveBtn(false);
+              Toast.show({
+                type: 'error',
+                text1: `${labels.profileUpdateFailed}`,
+                position: 'top',
+              });
+            },
           });
         }
-        setDisableSaveBtn(false);
-        closeDialog();
       }
     }
   };

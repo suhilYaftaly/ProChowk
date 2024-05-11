@@ -9,7 +9,7 @@ import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
 import Toast from 'react-native-toast-message';
 import labels from '~/src/constants/labels';
-
+import { shareAsync } from 'expo-sharing';
 type Props = {
   userName?: string;
   qrcodeUri: string;
@@ -36,7 +36,7 @@ const QrCodeModal = ({ userName, qrcodeUri, triggerButton }: Props) => {
     }
     if (qrSvgRef) {
       qrSvgRef?.toDataURL((data: any) => {
-        let filePath = FileSystem?.cacheDirectory + `/${userName}.png`;
+        let filePath = FileSystem?.cacheDirectory + `${userName}.png`;
         FileSystem.writeAsStringAsync(filePath, data, {
           encoding: FileSystem.EncodingType.Base64,
         })
@@ -81,11 +81,7 @@ const QrCodeModal = ({ userName, qrcodeUri, triggerButton }: Props) => {
   const handleShare = async (qrImagePath: string) => {
     try {
       if (qrImagePath && qrImagePath !== '') {
-        const result = await Share.share({
-          message: `${labels.quickLinkMessage}`,
-          title: `${labels.shareQR}`,
-          url: qrImagePath,
-        });
+        shareAsync(qrImagePath, { dialogTitle: 'Share image', mimeType: 'image/png' });
       }
     } catch (error: any) {
       Toast.show({
@@ -119,7 +115,7 @@ const QrCodeModal = ({ userName, qrcodeUri, triggerButton }: Props) => {
       triggerBtnCom={triggerButton}
       dialogCom={
         <View style={styles.container}>
-          <QRCode
+           <QRCode
             size={150}
             value={qrcodeUri}
             logo={require('@assets/images/logoWhiteOutline.png')}

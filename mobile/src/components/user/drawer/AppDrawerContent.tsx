@@ -10,6 +10,7 @@ import { useUserStates } from '~/src/redux/reduxStates';
 import { logOut } from '~/src/redux/slices/userSlice';
 import Routes from '~/src/routes/Routes';
 import { useAppDispatch } from '~/src/utils/hooks/hooks';
+import SwitchUserViewBtn from './SwitchUserViewBtn';
 
 const AppDrawerContent = (props: any) => {
   const dispatch = useAppDispatch();
@@ -26,7 +27,7 @@ const AppDrawerContent = (props: any) => {
       <Link href={`/user/${user?.id}`} asChild>
         <Pressable>
           <View style={[styles.profileCont, { marginTop: top }]}>
-            <Avatar circular size="$7">
+            <Avatar circular size="$6">
               {user?.image ? (
                 <Avatar.Image accessibilityLabel={user?.name} src={user?.image?.url} />
               ) : (
@@ -36,7 +37,7 @@ const AppDrawerContent = (props: any) => {
                 />
               )}
             </Avatar>
-            <YStack space={'$2'} marginLeft={20}>
+            <YStack space={'$2'} marginLeft={10}>
               <Text style={styles.userName}>{user?.name}</Text>
               <Text style={{ color: colors.textDark, fontFamily: 'InterBold', fontSize: 15 }}>
                 {user?.contractor ? labels.contractor : labels.client}
@@ -99,16 +100,9 @@ const AppDrawerContent = (props: any) => {
           <Separator borderColor={colors.border} />
         </YStack>
       </DrawerContentScrollView>
-      {/* <View style={[styles.drawerFooter, { paddingBottom: bottom + 10 }]}>
-        <Button
-          style={styles.switchBtn}
-          borderColor={colors.primary}
-          borderWidth={1}
-          justifyContent="space-between"
-          iconAfter={<FontAwesome6 name="circle-arrow-right" size={24} color={colors.primary} />}>
-          Switch To Contractor
-        </Button>
-      </View> */}
+      <View style={[styles.drawerFooter, { paddingBottom: bottom + 10 }]}>
+        <SwitchUserViewBtn />
+      </View>
     </View>
   );
 };
@@ -121,7 +115,7 @@ const styles = StyleSheet.create({
   profileCont: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 20,
+    padding: 15,
   },
   userName: {
     fontFamily: 'InterBold',
@@ -139,17 +133,5 @@ const styles = StyleSheet.create({
   drawerFooter: {
     paddingLeft: 20,
     paddingRight: 20,
-  },
-  switchBtn: {
-    fontFamily: 'InterBold',
-    fontSize: 15,
-    color: colors.textDark,
-    backgroundColor: colors.white,
-    borderColor: colors.primary,
-    borderWidth: 1,
-    borderBottomLeftRadius: 50,
-    borderTopRightRadius: 50,
-    borderTopLeftRadius: 50,
-    borderBottomRightRadius: 50,
   },
 });

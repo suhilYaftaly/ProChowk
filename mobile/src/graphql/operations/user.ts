@@ -1,18 +1,13 @@
-import {
-  gql,
-  useApolloClient,
-  useLazyQuery,
-  useMutation,
-} from "@apollo/client";
+import { gql, useApolloClient, useLazyQuery, useMutation } from '@apollo/client';
 
-import { setUserProfile } from "@rSlices/userSlice";
-import { useAppDispatch } from "@/utils/hooks/hooks";
-import { IImage, ImageInput } from "@/types/commonTypes";
-import { AddressInput, IAddress } from "./address";
-import { IContractor } from "./contractor";
-import { store } from "@redux/store";
-import { asyncOps } from "./gqlFuncs";
-import { SkillInput } from "./skill";
+import { setUserProfile } from '@rSlices/userSlice';
+import { useAppDispatch } from '@/utils/hooks/hooks';
+import { IImage, ImageInput } from '@/types/commonTypes';
+import { AddressInput, IAddress } from './address';
+import { IContractor } from './contractor';
+import { store } from '@redux/store';
+import { asyncOps } from './gqlFuncs';
+import { SkillInput } from './skill';
 import {
   addressFields,
   contractorFields,
@@ -20,7 +15,7 @@ import {
   licenseFields,
   skillFields,
   userFields,
-} from "../gqlFrags";
+} from '../gqlFrags';
 
 const { dispatch } = store;
 
@@ -64,8 +59,8 @@ const userOps = {
       }
     `,
     googleLogin: gql`
-      mutation GoogleLogin($accessToken: String!) {
-        googleLogin(accessToken: $accessToken) {
+      mutation GoogleLogin($accessToken: String!, $client: GoogleClientType) {
+        googleLogin(accessToken: $accessToken, client: $client) {
           ${userGqlResp}
           token
           refreshToken
@@ -158,9 +153,9 @@ export interface IUpdateUserInput {
   skills?: SkillInput[];
 }
 //custom types
-export type Role = "user" | "dev" | "admin" | "superAdmin";
-type Provider = "Google" | "Credentials";
-export type UserType = "client" | "contractor";
+export type Role = 'user' | 'dev' | 'admin' | 'superAdmin';
+type Provider = 'Google' | 'Credentials';
+export type UserType = 'client' | 'contractor';
 
 /**
  * OPERATIONS
@@ -217,9 +212,7 @@ interface IUsersIAsync {
   onError?: (error?: any) => void;
 }
 export const useUsers = () => {
-  const [users, { data, loading, error }] = useLazyQuery<IUsersData>(
-    userOps.Queries.users
-  );
+  const [users, { data, loading, error }] = useLazyQuery<IUsersData>(userOps.Queries.users);
 
   const userAsync = async ({ onSuccess, onError }: IUsersIAsync = {}) =>
     asyncOps({
@@ -245,17 +238,12 @@ interface IUUUAsyncInput {
 }
 export const useUpdateUser = () => {
   const dispatch = useAppDispatch();
-  const [updateUser, { data, loading, error }] = useMutation<
-    IUpdateUserData,
-    IUpdateUserVars
-  >(userOps.Mutations.updateUser);
+  const [updateUser, { data, loading, error }] = useMutation<IUpdateUserData, IUpdateUserVars>(
+    userOps.Mutations.updateUser
+  );
   const { updateCache } = useUser();
 
-  const updateUserAsync = async ({
-    onSuccess,
-    onError,
-    variables,
-  }: IUUUAsyncInput) =>
+  const updateUserAsync = async ({ onSuccess, onError, variables }: IUUUAsyncInput) =>
     asyncOps({
       operation: () => updateUser({ variables }),
       onSuccess: (dt: IUpdateUserData) => {
@@ -282,16 +270,11 @@ interface IULUAsyncInput {
   onError?: (error?: any) => void;
 }
 export const useLoginUser = () => {
-  const [loginUser, { data, loading, error }] = useMutation<
-    ILoginUserData,
-    ILoginUserInput
-  >(userOps.Mutations.loginUser);
+  const [loginUser, { data, loading, error }] = useMutation<ILoginUserData, ILoginUserInput>(
+    userOps.Mutations.loginUser
+  );
 
-  const loginUserAsync = async ({
-    variables,
-    onSuccess,
-    onError,
-  }: IULUAsyncInput) =>
+  const loginUserAsync = async ({ variables, onSuccess, onError }: IULUAsyncInput) =>
     asyncOps({
       operation: () => loginUser({ variables }),
       onSuccess: (dt: ILoginUserData) => onSuccess && onSuccess(dt.loginUser),
@@ -303,6 +286,7 @@ export const useLoginUser = () => {
 
 interface IGoogleLoginInput {
   accessToken: string;
+  client: string;
 }
 interface IGoogleLoginData {
   googleLogin: IUser;
@@ -313,20 +297,14 @@ interface IGLAsyncInput {
   onError?: (error?: any) => void;
 }
 export const useGLogin = () => {
-  const [googleLogin, { data, loading, error }] = useMutation<
-    IGoogleLoginData,
-    IGoogleLoginInput
-  >(userOps.Mutations.googleLogin);
+  const [googleLogin, { data, loading, error }] = useMutation<IGoogleLoginData, IGoogleLoginInput>(
+    userOps.Mutations.googleLogin
+  );
 
-  const googleLoginAsync = async ({
-    variables,
-    onSuccess,
-    onError,
-  }: IGLAsyncInput) =>
+  const googleLoginAsync = async ({ variables, onSuccess, onError }: IGLAsyncInput) =>
     asyncOps({
       operation: () => googleLogin({ variables }),
-      onSuccess: (dt: IGoogleLoginData) =>
-        onSuccess && onSuccess(dt.googleLogin),
+      onSuccess: (dt: IGoogleLoginData) => onSuccess && onSuccess(dt.googleLogin),
       onError,
     });
 
@@ -350,15 +328,10 @@ export const useGOneTapLogin = () => {
     IGoogleOneTapLoginInput
   >(userOps.Mutations.googleOneTapLogin);
 
-  const gOneTapLoginAsync = async ({
-    variables,
-    onSuccess,
-    onError,
-  }: IGOTLAsyncInput) =>
+  const gOneTapLoginAsync = async ({ variables, onSuccess, onError }: IGOTLAsyncInput) =>
     asyncOps({
       operation: () => googleOneTapLogin({ variables }),
-      onSuccess: (dt: IGoogleOneTapLoginData) =>
-        onSuccess && onSuccess(dt.googleOneTapLogin),
+      onSuccess: (dt: IGoogleOneTapLoginData) => onSuccess && onSuccess(dt.googleOneTapLogin),
       onError,
     });
 
@@ -385,15 +358,10 @@ export const useRegisterUser = () => {
     IRegisterUserInput
   >(userOps.Mutations.registerUser);
 
-  const registerUserAsync = async ({
-    variables,
-    onSuccess,
-    onError,
-  }: IRUAsyncInput) =>
+  const registerUserAsync = async ({ variables, onSuccess, onError }: IRUAsyncInput) =>
     asyncOps({
       operation: () => registerUser({ variables }),
-      onSuccess: (dt: IRegisterUserData) =>
-        onSuccess && onSuccess(dt.registerUser),
+      onSuccess: (dt: IRegisterUserData) => onSuccess && onSuccess(dt.registerUser),
       onError,
     });
 
@@ -413,16 +381,11 @@ interface IVEmailAsyncInput {
   onError?: (error?: any) => void;
 }
 export const useSendVerificationEmail = () => {
-  const [sendVerificationEmail, { data, loading, error }] = useMutation<
-    ISendVEData,
-    ISendVEInput
-  >(userOps.Mutations.sendVerificationEmail);
+  const [sendVerificationEmail, { data, loading, error }] = useMutation<ISendVEData, ISendVEInput>(
+    userOps.Mutations.sendVerificationEmail
+  );
 
-  const sendVerificationEmailAsync = async ({
-    variables,
-    onSuccess,
-    onError,
-  }: IVEmailAsyncInput) =>
+  const sendVerificationEmailAsync = async ({ variables, onSuccess, onError }: IVEmailAsyncInput) =>
     asyncOps({
       operation: () => sendVerificationEmail({ variables }),
       onSuccess: () => onSuccess && onSuccess(),
@@ -445,16 +408,11 @@ interface IVEAsyncInput {
   onError?: (error?: any) => void;
 }
 export const useVerifyEmail = () => {
-  const [verifyEmail, { data, loading, error }] = useMutation<
-    IVerifyEmailData,
-    IVerifyEmailInput
-  >(userOps.Mutations.verifyEmail);
+  const [verifyEmail, { data, loading, error }] = useMutation<IVerifyEmailData, IVerifyEmailInput>(
+    userOps.Mutations.verifyEmail
+  );
 
-  const verifyEmailAsync = async ({
-    variables,
-    onSuccess,
-    onError,
-  }: IVEAsyncInput) =>
+  const verifyEmailAsync = async ({ variables, onSuccess, onError }: IVEAsyncInput) =>
     asyncOps({
       operation: () => verifyEmail({ variables }),
       onSuccess: () => onSuccess && onSuccess(),
@@ -477,16 +435,11 @@ interface IRPRAsyncInput {
   onError?: (error?: any) => void;
 }
 export const useRequestPasswordReset = () => {
-  const [requestPasswordReset, { data, loading, error }] = useMutation<
-    IRPRData,
-    IRPRInput
-  >(userOps.Mutations.requestPasswordReset);
+  const [requestPasswordReset, { data, loading, error }] = useMutation<IRPRData, IRPRInput>(
+    userOps.Mutations.requestPasswordReset
+  );
 
-  const requestPasswordResetAsync = async ({
-    variables,
-    onSuccess,
-    onError,
-  }: IRPRAsyncInput) =>
+  const requestPasswordResetAsync = async ({ variables, onSuccess, onError }: IRPRAsyncInput) =>
     asyncOps({
       operation: () => requestPasswordReset({ variables }),
       onSuccess: () => onSuccess && onSuccess(),
@@ -510,16 +463,11 @@ interface IRPAsyncInput {
   onError?: (error?: any) => void;
 }
 export const useResetPassword = () => {
-  const [resetPassword, { data, loading, error }] = useMutation<
-    IRPData,
-    IRPInput
-  >(userOps.Mutations.resetPassword);
+  const [resetPassword, { data, loading, error }] = useMutation<IRPData, IRPInput>(
+    userOps.Mutations.resetPassword
+  );
 
-  const resetPasswordAsync = async ({
-    variables,
-    onSuccess,
-    onError,
-  }: IRPAsyncInput) =>
+  const resetPasswordAsync = async ({ variables, onSuccess, onError }: IRPAsyncInput) =>
     asyncOps({
       operation: () => resetPassword({ variables }),
       onSuccess: (dt: IRPData) => onSuccess && onSuccess(dt.resetPassword),
@@ -538,7 +486,7 @@ export interface IRefreshTokenData {
 }
 interface IVRTAsyncInput {
   variables: IRefreshTokenInput;
-  onSuccess?: (data: IRefreshTokenData["validateRefreshToken"]) => void;
+  onSuccess?: (data: IRefreshTokenData['validateRefreshToken']) => void;
   onError?: (error?: any) => void;
 }
 export const useValidateRefreshToken = () => {
@@ -547,15 +495,10 @@ export const useValidateRefreshToken = () => {
     IRefreshTokenInput
   >(userOps.Mutations.validateRefreshToken);
 
-  const validateRefreshTokenAsync = async ({
-    variables,
-    onSuccess,
-    onError,
-  }: IVRTAsyncInput) =>
+  const validateRefreshTokenAsync = async ({ variables, onSuccess, onError }: IVRTAsyncInput) =>
     asyncOps({
       operation: () => validateRefreshToken({ variables }),
-      onSuccess: (dt: IRefreshTokenData) =>
-        onSuccess && onSuccess(dt.validateRefreshToken),
+      onSuccess: (dt: IRefreshTokenData) => onSuccess && onSuccess(dt.validateRefreshToken),
       onError,
     });
 

@@ -43,8 +43,8 @@ export const phoneCC = 'CA';
       to: 50000,
     },
   } as ISearchFilters,
-}; */
-
+};
+ */
 /**Dashboard search nearby contractors filter configs */
 export const nearbyContsFilterConfigs = {
   minRadius: 5,
@@ -83,7 +83,7 @@ export const jobConfigs = {
       },
       images: [],
       address: undefined as any,
-      startDate: undefined,
+      startDate: new Date().toISOString(),
       endDate: undefined,
       isDraft: true,
     } as JobInput,

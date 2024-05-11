@@ -50,6 +50,7 @@ export default function RootLayout() {
                   options={{ headerShown: false, gestureEnabled: false }}
                 />
                 <Stack.Screen name="user" options={{ headerShown: false }} />
+                <Stack.Screen name="job" options={{ headerShown: false }} />
               </Stack>
               <Toast config={toastConfig} />
             </GestureHandlerRootView>

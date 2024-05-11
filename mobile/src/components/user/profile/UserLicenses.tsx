@@ -1,4 +1,12 @@
-import { Image, ListRenderItem, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import {
+  Image,
+  ListRenderItem,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  useWindowDimensions,
+} from 'react-native';
 import React, { useState } from 'react';
 import Card from '../../reusable/Card';
 import labels from '~/src/constants/labels';
@@ -8,6 +16,7 @@ import CustomCarousel from '../../reusable/CustomCarousel';
 import CustomModal from '../../reusable/CustomModal';
 import EditLicenses from './editModals/EditLicenses';
 import AddLicense from './editModals/AddLicense';
+import ImageViewCont from '../../reusable/ImageViewCont';
 type Props = {
   contractorData?: IContractor;
   licenses?: ILicense[];
@@ -18,15 +27,23 @@ const UserLicenses = ({ contractorData, licenses, isMyProfile }: Props) => {
   const { width } = useWindowDimensions();
   const [addLicensesOpen, setAddLicensesOpen] = useState<boolean>(false);
   const [licensesEditOpen, setLicensesEditOpen] = useState<boolean>(false);
+  const [imageViewOpen, setImageViewOpen] = useState<boolean>(false);
+  const [seleImageUrl, setSeleImageUrl] = useState<string>();
   const renderListItem: ListRenderItem<any> = ({ item }) => (
     <View style={[styles.licensePage, { width: width * 0.8 }]}>
-      <Image
-        style={styles.licenseImage}
-        source={{
-          uri: `${item?.url}`,
-        }}
-        resizeMode="contain"
-      />
+      <Pressable
+        onPress={() => {
+          setSeleImageUrl(item?.url);
+          setImageViewOpen(true);
+        }}>
+        <Image
+          style={styles.licenseImage}
+          source={{
+            uri: `${item?.url}`,
+          }}
+          resizeMode="contain"
+        />
+      </Pressable>
       <Text style={styles.licenseName} numberOfLines={2} ellipsizeMode={'tail'}>
         {item?.name}
       </Text>
@@ -59,6 +76,7 @@ const UserLicenses = ({ contractorData, licenses, isMyProfile }: Props) => {
         isOpen={licensesEditOpen}
         setIsOpen={setLicensesEditOpen}
         width={'90%'}
+        maxHeight={'70%'}
         dialogCom={
           <EditLicenses
             contractorData={contractorData}
@@ -79,6 +97,13 @@ const UserLicenses = ({ contractorData, licenses, isMyProfile }: Props) => {
           />
         }
       />
+      {seleImageUrl && imageViewOpen && (
+        <ImageViewCont
+          isOpen={imageViewOpen}
+          setIsOpen={(open: boolean) => setImageViewOpen(open)}
+          imageUrl={seleImageUrl}
+        />
+      )}
     </>
   );
 };

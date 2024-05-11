@@ -8,6 +8,7 @@ const Routes = {
   forgotPassword: 'user/forgotPassword',
   resetPassEmailVerify: 'user/resetPassEmailVerify',
   contractor: 'user/contractor',
+  postJob: '/postJob',
 };
 
 export default Routes;

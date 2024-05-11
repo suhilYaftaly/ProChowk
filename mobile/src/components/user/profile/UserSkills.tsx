@@ -35,6 +35,8 @@ const UserSkills = ({ contractor, userSkills, isMyProfile }: Props) => {
       updateContSkillsAsync({
         variables: { skills: skills, contId: contractor.id },
         onSuccess: (dt) => {
+          setDisableSaveBtn(false);
+          setSkillEditOpen(false);
           const newSkills = getNewSkills({
             newList: dt.skills,
             oldList: userSkills ? userSkills : [],
@@ -48,10 +50,16 @@ const UserSkills = ({ contractor, userSkills, isMyProfile }: Props) => {
             position: 'top',
           });
         },
+        onError: () => {
+          setDisableSaveBtn(false);
+          Toast.show({
+            type: 'error',
+            text1: `${labels.profileUpdateFailed}`,
+            position: 'top',
+          });
+        },
       });
     }
-    setDisableSaveBtn(false);
-    setSkillEditOpen(false);
   };
 
   return (
