@@ -4,7 +4,10 @@ export default gql`
   type Conversation {
     id: String!
     participants: [ConversationParticipant]!
-    messages: [Message]!
+    messages: [Message]
+    latestMessage: Message
+    createdAt: Date
+    updatedAt: Date
     createdById: String!
   }
 
@@ -51,6 +54,7 @@ export default gql`
 
   type Query {
     conversations(page: Int, pageSize: Int): ConversationResponse
+    latestConversations: ConversationResponse
   }
 
   type Mutation {

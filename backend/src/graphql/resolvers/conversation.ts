@@ -10,7 +10,7 @@ export default {
   Query: {
     conversations: async (
       _: any,
-      { page = 1, pageSize = 10 }: ConversationsInput,
+      { page = 1, pageSize = 50 }: ConversationsInput,
       context: GQLContext
     ): Promise<{
       totalCount: number;
@@ -42,6 +42,51 @@ export default {
             some: {
               userId: {
                 equals: authUser.id,
+              },
+            },
+          },
+        },
+      });
+
+      return {
+        conversations: userConversations,
+        totalCount,
+      };
+    },
+    latestConversations: async (
+      _: any,
+      __: any,
+      context: GQLContext
+    ): Promise<{
+      totalCount: number;
+      conversations: IConversationResponse[];
+    }> => {
+      const { prisma, req } = context;
+      const authUser = checkAuth(req);
+
+      // const userId = authUser.id;
+      const userConversations = await prisma.conversation.findMany({
+        where: {
+          participants: {
+            some: {
+              userId: {
+                equals: authUser.id,
+              },
+            },
+          },
+        },
+        include: conversationPopulated,
+      });
+
+      const totalCount = await prisma.conversation.count({
+        where: {
+          participants: {
+            some: {
+              userId: {
+                equals: authUser.id,
+              },
+              hasSeenLatestMessages: {
+                equals: false,
               },
             },
           },

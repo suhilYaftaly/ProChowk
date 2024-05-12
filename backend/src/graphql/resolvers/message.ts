@@ -54,9 +54,9 @@ export default {
       context: GQLContext
     ): Promise<boolean> => {
       const { prisma, pubsub, req } = context;
+      const { conversationId, body, attachmentId } = input;
       const authUser = checkAuth(req);
 
-      const { conversationId, body, attachmentId } = input;
       /**
        * Create new message entity
        */
