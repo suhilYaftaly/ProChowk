@@ -5,7 +5,7 @@ export default gql`
     id: String!
     participants: [ConversationParticipant]!
     messages: [Message]!
-    createdUserId: String!
+    createdById: String!
   }
 
   type ConversationParticipant {
