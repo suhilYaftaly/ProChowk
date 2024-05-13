@@ -51,11 +51,14 @@ export default {
   Mutation: {
     sendMessage: async (
       _: any,
-      input: ISendMessageInput,
+      {
+        conversationId,
+        body,
+        attachmentId,
+      }: { conversationId: string; body: string; attachmentId: string },
       context: GQLContext
     ): Promise<boolean> => {
       const { prisma, pubsub, req } = context;
-      const { conversationId, body, attachmentId } = input;
       const authUser = checkAuth(req);
 
       /**

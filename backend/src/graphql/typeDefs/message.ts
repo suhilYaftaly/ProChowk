@@ -11,7 +11,7 @@ const typeDefs = gql`
   input SendMessageInput {
     conversationId: String
     body: String
-    imageId: String
+    attachmentId: String
   }
 
   type Query {
@@ -19,7 +19,11 @@ const typeDefs = gql`
   }
 
   type Mutation {
-    sendMessage(conversationInput: SendMessageInput): Boolean
+    sendMessage(
+      conversationId: String!
+      body: String!
+      attachmentId: String
+    ): Boolean
     deleteMessage(id: ID!): Boolean
   }
 
