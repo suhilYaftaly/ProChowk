@@ -1,10 +1,10 @@
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
+import { withFilter } from "graphql-subscriptions";
 
 import { GQLContext } from "../../types/commonTypes";
 import checkAuth, { canUserUpdate } from "../../middlewares/checkAuth";
 import { gqlError, userIsConversationParticipant } from "../../utils/funcs";
-import { withFilter } from "graphql-subscriptions";
 
 export default {
   Query: {
@@ -20,7 +20,6 @@ export default {
       const authUser = checkAuth(req);
 
       const skip = (page - 1) * pageSize;
-      // const userId = authUser.id;
       const userConversations = await prisma.conversation.findMany({
         where: {
           participants: {
@@ -64,7 +63,6 @@ export default {
       const { prisma, req } = context;
       const authUser = checkAuth(req);
 
-      // const userId = authUser.id;
       const userConversations = await prisma.conversation.findMany({
         where: {
           participants: {

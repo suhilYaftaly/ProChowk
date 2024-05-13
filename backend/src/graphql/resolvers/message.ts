@@ -1,9 +1,10 @@
-import { GQLContext, ISendMessageInput } from "../../types/commonTypes";
 import { Prisma } from "@prisma/client";
+import { withFilter } from "graphql-subscriptions";
+
+import { GQLContext, ISendMessageInput } from "../../types/commonTypes";
 import { conversationPopulated } from "./conversation";
 import { gqlError, userIsConversationParticipant } from "../../utils/funcs";
 import checkAuth, { canUserUpdate } from "../../middlewares/checkAuth";
-import { withFilter } from "graphql-subscriptions";
 
 export default {
   Query: {
