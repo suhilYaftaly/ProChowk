@@ -19,6 +19,8 @@ import JobPost from "@/pages/JobPost";
 import UserJobTypes, { JobType } from "@/pages/UserJobTypes";
 import { UserType } from "@gqlOps/user";
 import NotificationsView from "@/pages/NotificationsView";
+import ConversationsView from "@/pages/conversationsView";
+import ConversationView from "@/pages/conversationView";
 
 export const paths = {
   login: "/login",
@@ -54,6 +56,11 @@ const router = createBrowserRouter(
       <Route path={paths.jobPost()} element={<JobPost />} />
       <Route path={paths.userJobTypes()} element={<UserJobTypes />} />
       <Route path={paths.notificationsView} element={<NotificationsView />} />
+      <Route path={paths.conversationsView} element={<ConversationsView />} />
+      <Route
+        path={paths.conversationView(":conversationId")}
+        element={<ConversationView />}
+      />
     </Route>
   )
 );

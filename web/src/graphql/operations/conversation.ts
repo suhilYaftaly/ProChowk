@@ -1,5 +1,5 @@
 import { gql, useLazyQuery, useMutation } from "@apollo/client";
-import { conversationFields } from "../gqlFrags";
+import { conversationFields, messageFields } from "../gqlFrags";
 import { asyncOps } from "./gqlFuncs";
 import { TMessage } from "./message";
 

@@ -1,21 +1,14 @@
-import { gql, useLazyQuery, useMutation } from "@apollo/client";
-import { conversationFields } from "../gqlFrags";
+import { gql, useLazyQuery } from "@apollo/client";
+import { messageFields } from "../gqlFrags";
 import { asyncOps } from "./gqlFuncs";
-import { TConversation } from "./conversation";
 
-const conversationOps = {
+const messageOps = {
   Queries: {
-    userConversations: gql`query UserConversations($page: Int, $pageSize: Int) {
-      conversations(page: $page, pageSize: $pageSize) {
-        totalCount 
-        conversations {${conversationFields}}
+    conversationMessages: gql`query UserConversations($conversationId: String) {
+      messages(conversationId: $conversationId) {
+        ${messageFields}
       }
     }`,
-  },
-  Mutations: {
-    markConversationAsRead: gql`mutation MarkConversationAsRead($conversationId: ID!) {
-        markConversationAsRead(conversationId: $conversationId) {${conversationFields}}
-      }`,
   },
 };
 
@@ -33,72 +26,41 @@ export type TMessage = {
 
 //OPERATIONS
 //conversations OP
-type TUserConversationsData = {
-  conversations: { totalCount?: number; conversations: TConversation[] };
+type TConversationMessagesData = {
+  messages: { totalCount?: number; messages: TMessage[] };
 };
-type TUserConversationsInput = {
-  page?: number;
-  pageSize?: number;
+type TConversationMessagesInput = {
+  conversationId: string;
 };
-type TUserConversationsAsync = {
-  variables: TUserConversationsInput;
-  onSuccess?: (data: TUserConversationsData["conversations"]) => void;
+type TConversationMessageAsync = {
+  variables: TConversationMessagesInput;
+  onSuccess?: (data: TConversationMessagesData["messages"]) => void;
   onError?: (error?: any) => void;
 };
-export const useUserConversations = () => {
-  const [userConversations, { data, loading, error }] = useLazyQuery<
-    TUserConversationsData,
-    TUserConversationsInput
-  >(conversationOps.Queries.userConversations, {
+export const useConversationMessages = () => {
+  const [conversationMessages, { data, loading, error }] = useLazyQuery<
+    TConversationMessagesData,
+    TConversationMessagesInput
+  >(messageOps.Queries.conversationMessages, {
     fetchPolicy: "network-only",
   });
 
-  const userConversationsAsync = async ({
+  const conversationMessagesAsync = async ({
     variables,
     onSuccess,
     onError,
-  }: TUserConversationsAsync) =>
+  }: TConversationMessageAsync) =>
     asyncOps({
-      operation: () => userConversations({ variables }),
-      onSuccess: (dt: TUserConversationsData) =>
-        onSuccess && onSuccess(dt.conversations),
+      operation: () => conversationMessages({ variables }),
+      onSuccess: (dt: TConversationMessagesData) =>
+        onSuccess && onSuccess(dt.messages),
       onError,
     });
 
   return {
-    userConversationsAsync,
+    conversationMessagesAsync,
     data,
     loading,
     error,
   };
-};
-
-//markConversationAsRead OP
-type TMNARData = { markConversationAsRead: TConversation };
-type TMNARInput = { conversationId: string };
-type TMNARAsunc = {
-  variables: TMNARInput;
-  onSuccess?: (data: TMNARData["markConversationAsRead"]) => void;
-  onError?: (error?: any) => void;
-};
-export const useMarkConversationAsRead = () => {
-  const [markConversationAsRead, { data, loading, error }] = useMutation<
-    TMNARData,
-    TMNARInput
-  >(conversationOps.Mutations.markConversationAsRead);
-
-  const markConversationAsReadAsync = async ({
-    variables,
-    onSuccess,
-    onError,
-  }: TMNARAsunc) =>
-    asyncOps({
-      operation: () => markConversationAsRead({ variables }),
-      onSuccess: (dt: TMNARData) => {
-        onSuccess && onSuccess(dt.markConversationAsRead);
-      },
-      onError,
-    });
-
-  return { markConversationAsReadAsync, data, loading, error };
 };
