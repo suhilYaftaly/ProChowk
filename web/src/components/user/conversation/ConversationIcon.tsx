@@ -18,11 +18,11 @@ export default function ConversationIcon() {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
   const { userConversationsAsync, data } = useUserConversations();
-  const conversations = data?.conversations?.conversations;
+  const conversations = data?.latestConversations?.conversations;
+  console.log(data);
   const count = conversations?.filter(
-    (conversation) => !conversation.name // TODO to be changed to hasSeen
+    (conversation) => !conversation.id // TODO to be changed to hasSeen
   ).length;
-  console.log(conversations);
 
   useEffect(() => getUserConversations(), [userId]);
 

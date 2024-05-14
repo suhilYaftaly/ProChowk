@@ -25,13 +25,16 @@ const tabsLayout = () => {
           tabBarIcon: ({ color }) => <AntDesign name="star" size={28} color={color} />,
         }}
       />
+
       <Tabs.Screen
         name="postJob"
+        initialParams={{ isOpen: true }}
         options={{
           title: 'Post Job',
           tabBarIcon: ({ color }) => <FontAwesome6 name="circle-plus" size={28} color={color} />,
         }}
       />
+
       <Tabs.Screen
         name="topSkill"
         options={{

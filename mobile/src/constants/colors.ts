@@ -6,7 +6,7 @@ export default {
   secondary50: '#27577580',
   silver: '#716A85',
   error: '#FF5050',
-  info: '#3498db',
+  info: '#25B3EC',
   warning: '#f1c40f',
   success: '#00BD40',
   white: '#fff',

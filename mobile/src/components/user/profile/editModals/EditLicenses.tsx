@@ -39,41 +39,39 @@ const EditLicenses = ({ contractorData, licenses, closeDialog }: Props) => {
   };
 
   return (
-    <View>
-      <ScrollView>
-        {userlicenses && userlicenses?.length > 0 ? (
-          userlicenses?.map((license: ILicense) => {
-            return (
-              <View key={license?.id} style={styles.licenseCont}>
-                <View style={styles.licenseHeader}>
-                  <Text style={styles.licenseName}>{license?.name}</Text>
-                  <Pressable onPress={() => handleDeleteLicense(license?.id)}>
-                    <Circle size={30} borderColor={colors.border} borderWidth={1}>
-                      {deleteLoading ? (
-                        <Spinner />
-                      ) : (
-                        <MaterialIcons name="delete" size={20} color={colors.textDark} />
-                      )}
-                    </Circle>
-                  </Pressable>
-                </View>
-                <View style={styles.licenseImage}>
-                  <Image
-                    source={{
-                      uri: `${license?.url}`,
-                    }}
-                    style={{ height: 150 }}
-                    resizeMode="contain"
-                  />
-                </View>
+    <ScrollView height={'90%'}>
+      {userlicenses && userlicenses?.length > 0 ? (
+        userlicenses?.map((license: ILicense) => {
+          return (
+            <View key={license?.id} style={styles.licenseCont}>
+              <View style={styles.licenseHeader}>
+                <Text style={styles.licenseName}>{license?.name}</Text>
+                <Pressable onPress={() => handleDeleteLicense(license?.id)}>
+                  <Circle size={30} borderColor={colors.border} borderWidth={1}>
+                    {deleteLoading ? (
+                      <Spinner />
+                    ) : (
+                      <MaterialIcons name="delete" size={20} color={colors.textDark} />
+                    )}
+                  </Circle>
+                </Pressable>
               </View>
-            );
-          })
-        ) : (
-          <></>
-        )}
-      </ScrollView>
-    </View>
+              <View style={styles.licenseImage}>
+                <Image
+                  source={{
+                    uri: `${license?.url}`,
+                  }}
+                  style={{ height: 150 }}
+                  resizeMode="contain"
+                />
+              </View>
+            </View>
+          );
+        })
+      ) : (
+        <></>
+      )}
+    </ScrollView>
   );
 };
 

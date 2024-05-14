@@ -34,7 +34,7 @@ export type TConversation = {
 //OPERATIONS
 //conversations OP
 type TUserConversationsData = {
-  conversations: { totalCount?: number; conversations: TConversation[] };
+  latestConversations: { totalCount?: number; conversations: TConversation[] };
 };
 type TUserConversationsInput = {
   page?: number;
@@ -42,7 +42,7 @@ type TUserConversationsInput = {
 };
 type TUserConversationsAsync = {
   variables: TUserConversationsInput;
-  onSuccess?: (data: TUserConversationsData["conversations"]) => void;
+  onSuccess?: (data: TUserConversationsData["latestConversations"]) => void;
   onError?: (error?: any) => void;
 };
 export const useUserConversations = () => {
@@ -61,7 +61,7 @@ export const useUserConversations = () => {
     asyncOps({
       operation: () => userConversations({ variables }),
       onSuccess: (dt: TUserConversationsData) =>
-        onSuccess && onSuccess(dt.conversations),
+        onSuccess && onSuccess(dt.latestConversations),
       onError,
     });
 

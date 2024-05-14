@@ -133,7 +133,7 @@ const ClientHome = () => {
       userFilters?.latLng?.lat &&
       userFilters?.latLng?.lng
     ) {
-      if (userFilters?.searchText) {
+      if (userFilters?.searchText && userFilters?.searchText !== '') {
         searchNearByContractorByText(page, userFilters?.latLng, userFilters?.searchText);
       } else if (isFiltersChanged(userFilters, prevFilters)) {
         searchNearByContractors(page, userFilters?.latLng);
@@ -174,7 +174,7 @@ const ClientHome = () => {
               showsVerticalScrollIndicator={false}
             />
           </>
-        ) : contsList && contsList?.length === 0 ? (
+        ) : contsList && contsList?.length === 0 && locPermission === 'granted' ? (
           <NoResultFound searchType={labels.contractor.toLowerCase()} />
         ) : (
           <></>

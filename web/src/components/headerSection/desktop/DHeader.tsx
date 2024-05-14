@@ -25,6 +25,7 @@ export default function DHeader() {
           <>
             <LineDivider />
             <NotificationIcon />
+            <LineDivider />
             <ConversationIcon />
           </>
         )}
