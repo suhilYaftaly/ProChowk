@@ -7,6 +7,7 @@ import AppLogo from "@reusable/AppLogo";
 import SwitchUserViewButton from "@user/SwitchUserViewButton";
 import NotificationIcon from "@user/notification/NotificationIcon";
 import { useUserStates } from "@/redux/reduxStates";
+import ConversationIcon from "@/components/user/conversation/ConversationIcon";
 
 export default function DHeader() {
   const { user } = useUserStates();
@@ -24,6 +25,8 @@ export default function DHeader() {
           <>
             <LineDivider />
             <NotificationIcon />
+            <LineDivider />
+            <ConversationIcon />
           </>
         )}
         <LineDivider />

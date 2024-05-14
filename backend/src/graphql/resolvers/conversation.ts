@@ -83,9 +83,9 @@ export default {
               userId: {
                 equals: authUser.id,
               },
-              hasSeenLatestMessages: {
-                equals: false,
-              },
+              // hasSeenLatestMessages: {
+              //   equals: false,
+              // },
             },
           },
         },
