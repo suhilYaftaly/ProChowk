@@ -21,5 +21,8 @@ export const jobBidFields = `id quote startDate endDate proposal rejectionReason
 
 export const notificationFields = `id title message read type readDate data createdAt updatedAt userId`;
 
+// Chat
+export const conversationFields = `id participants {id} messages {id body} latestMessage {id body} createdAt updatedAt`;
+
 //available fields: `id rating comment createdAt updatedAt reviewerId reviewedId`
 export const reviewFields = `id rating comment updatedAt`;
