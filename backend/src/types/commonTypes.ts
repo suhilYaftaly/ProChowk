@@ -4,6 +4,8 @@ import {
   Job,
   JobImage,
   License,
+  Message,
+  Prisma,
   PrismaClient,
   Skill,
   UserImage,
@@ -12,6 +14,10 @@ import { Request } from "express";
 import { PubSub } from "graphql-subscriptions";
 import { Context } from "graphql-ws/lib/server";
 import { MongoClient } from "mongodb";
+import {
+  conversationPopulated,
+  participantPopulated,
+} from "../graphql/resolvers/conversation";
 
 //server configs
 export interface GQLContext {
@@ -24,6 +30,7 @@ export interface GQLContext {
 export interface SubsciptionContext extends Context {
   connectionParams: {
     session?: Request<any, any, any, any, Record<string, any>>;
+    authorization: string;
   };
 }
 
@@ -49,3 +56,8 @@ export type IJobInput = Pick<
   images: IImageInput[];
   budget: IBudgetInput;
 };
+
+/**
+ * Messages
+ */
+export type ISendMessageInput = Omit<Message, "id" | "createdAt" | "updatedAt">;

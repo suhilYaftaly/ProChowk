@@ -8,6 +8,7 @@ import { appName, appNamePascalCase } from "../constants/constants";
 import { logger } from "../middlewares/logger/logger";
 import { GQLContext } from "../types/commonTypes";
 import { Review } from "@prisma/client";
+import { IParticipantResponse } from "../graphql/resolvers/conversation";
 
 dotenv.config();
 const baseUrl = process.env.CLIENT_ORIGIN;
@@ -284,4 +285,11 @@ export function calculateAverageRating(reviews: Review[]) {
   if (reviews.length === 0) return 0;
   const totalRating = reviews.reduce((acc, review) => acc + review.rating, 0);
   return Number((totalRating / reviews.length).toFixed(2));
+}
+
+export function userIsConversationParticipant(
+  participants: Array<IParticipantResponse>,
+  userId: string
+): boolean {
+  return !!participants.find((participant) => participant.userId === userId);
 }

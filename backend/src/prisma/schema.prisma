@@ -23,16 +23,19 @@ model User {
 
     image UserImage?
 
-    addressId           String?               @db.ObjectId
-    address             Address?              @relation(fields: [addressId], references: [id])
-    contractor          Contractor?
-    jobs                Job[]
-    refreshToken        RefreshToken[]
-    notifications       Notification[]
-    writtenReviews      Review[]              @relation("reviewedBy")
-    receivedReviews     Review[]              @relation("reviewsAbout")
-    reviewAuthsGiven    ReviewAuthorization[] @relation("reviewAuthBy")
-    reviewAuthsReceived ReviewAuthorization[] @relation("reviewAuthTo")
+    addressId                String?                   @db.ObjectId
+    address                  Address?                  @relation(fields: [addressId], references: [id])
+    contractor               Contractor?
+    jobs                     Job[]
+    refreshToken             RefreshToken[]
+    notifications            Notification[]
+    writtenReviews           Review[]                  @relation("reviewedBy")
+    receivedReviews          Review[]                  @relation("reviewsAbout")
+    reviewAuthsGiven         ReviewAuthorization[]     @relation("reviewAuthBy")
+    reviewAuthsReceived      ReviewAuthorization[]     @relation("reviewAuthTo")
+    conversationParticipants ConversationParticipant[]
+    messages                 Message[]
+    conversations            Conversation[]
 }
 
 model RefreshToken {
@@ -251,6 +254,57 @@ model PortfolioImage {
     updatedAt             DateTime            @updatedAt
     contractorPortfolioId String              @db.ObjectId
     contractorPortfolio   ContractorPortfolio @relation(fields: [contractorPortfolioId], references: [id])
+}
+
+model Conversation {
+    id              String                    @id @default(auto()) @map("_id") @db.ObjectId
+    participants    ConversationParticipant[]
+    messages        Message[]
+    latestMessage   Message?                  @relation(name: "latestConversationMessage", fields: [latestMessageId], references: [id], onUpdate: NoAction, onDelete: NoAction)
+    latestMessageId String?                   @unique @db.ObjectId
+    createdBy       User                      @relation(fields: [createdById], references: [id], onDelete: Cascade)
+    createdById     String                    @db.ObjectId
+    createdAt       DateTime                  @default(now())
+    updatedAt       DateTime                  @updatedAt
+}
+
+model ConversationParticipant {
+    id                    String       @id @default(auto()) @map("_id") @db.ObjectId
+    userId                String       @db.ObjectId
+    user                  User         @relation(fields: [userId], references: [id])
+    conversationId        String       @db.ObjectId
+    conversation          Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+    hasSeenLatestMessages Boolean
+    createdAt             DateTime     @default(now())
+    updatedAt             DateTime     @updatedAt
+}
+
+model Message {
+    id             String        @id @default(auto()) @map("_id") @db.ObjectId
+    body           String
+    conversationId String        @db.ObjectId
+    conversation   Conversation  @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+    senderId       String        @db.ObjectId
+    sender         User          @relation(fields: [senderId], references: [id])
+    isLatestIn     Conversation? @relation("latestConversationMessage")
+    attachmentId   String?       @db.ObjectId
+    attachment     Attachment?
+    createdAt      DateTime      @default(now())
+    updatedAt      DateTime      @updatedAt
+}
+
+model Attachment {
+    id        String   @id @default(auto()) @map("_id") @db.ObjectId
+    name      String?
+    url       String   @unique
+    type      String?
+    size      Float?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    messageId String   @unique @db.ObjectId
+    message   Message  @relation(fields: [messageId], references: [id])
+
+    @@map("Attachment")
 }
 
 enum BudgetType {

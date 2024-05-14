@@ -18,7 +18,7 @@ export interface ISignedProps {
 
 dotenv.config();
 export default (req: any): ISignedProps => {
-  const authHeader = req?.headers?.authorization;
+  const authHeader = req?.headers?.authorization || req; // TODO to be discussed
   if (authHeader) {
     const token = authHeader.split("Bearer ")?.[1];
     if (token) {

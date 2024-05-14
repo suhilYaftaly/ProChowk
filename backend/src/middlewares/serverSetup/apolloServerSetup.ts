@@ -22,13 +22,15 @@ import {
   rateLimitDirectiveTransformer,
   rateLimitDirectiveTypeDefs,
 } from "./rateLimiter";
+import checkAuth from "../checkAuth";
+import { CloseCode } from "graphql-ws";
 
 export const apolloServerSetup = async () => {
   const app = express();
   const httpServer = http.createServer(app);
   const wsServer = new WebSocketServer({
     server: httpServer,
-    path: "/graphql/subscriptions",
+    path: "/graphql",
   });
 
   // Wrap all resolvers with the withCatch
@@ -37,7 +39,7 @@ export const apolloServerSetup = async () => {
   const schema = rateLimitDirectiveTransformer(
     makeExecutableSchema({
       typeDefs: [rateLimitDirectiveTypeDefs, ...typeDefs],
-      resolvers: wrappedResolvers,
+      resolvers: resolvers,
     })
   );
 
@@ -49,14 +51,29 @@ export const apolloServerSetup = async () => {
     {
       schema,
       context: async (ctx: SubsciptionContext): Promise<GQLContext> => {
-        const session = ctx?.connectionParams?.session;
+        const token = ctx?.connectionParams?.authorization;
+        const userAgent =
+          ctx.connectionParams.session?.headers?.["user-agent"] || "not found";
         return {
-          req: session || (null as any),
+          req: token ? { headers: { authorization: token } } : (null as any),
           prisma,
           pubsub,
           mongoClient,
-          userAgent: session?.headers?.["user-agent"] || "not found",
+          userAgent,
         };
+      },
+      onConnect: async (ctx) => {
+        const authToken = ctx.connectionParams?.authorization;
+        // Validate the auth token
+        try {
+          checkAuth(authToken);
+        } catch (err) {
+          return ctx.extra.socket.close(CloseCode.Forbidden, "Forbidden");
+        }
+      },
+      onSubscribe: async (ctx) => {
+        // Check on every subscription
+        // TODO to be discussed and implemented
       },
     },
     wsServer
