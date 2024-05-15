@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { Button, Spinner, YStack } from 'tamagui';
 import InputWithLabel from '../../reusable/InputWithLabel';
@@ -11,8 +11,8 @@ import Routes from '~/src/routes/Routes';
 import { useAppDispatch } from '~/src/utils/hooks/hooks';
 import { LoginSchema, LoginUser } from '~/src/types/zodTypes';
 import { logIn, userProfileBegin, userProfileError } from '~/src/redux/slices/userSlice';
-/* import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
-import Toast from 'react-native-toast-message'; */
+import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
+import Toast from 'react-native-toast-message';
 
 const UserLogIn = () => {
   const dispatch = useAppDispatch();
@@ -24,9 +24,7 @@ const UserLogIn = () => {
   const { loginUserAsync, loading, error } = useLoginUser();
   const { googleLoginAsync, loading: GoogleLoading, error: GoogleError } = useGLogin();
   const [disableSignInBtn, setDisableSignInBtn] = useState(false);
-  const [userInfoGoogle, setUserInfoGoogle] = useState<any>();
-  const [resp, setResp] = useState<string | null>('');
-  /* const configureGoogleLogIn = () => {
+  const configureGoogleLogIn = () => {
     GoogleSignin?.configure({
       webClientId: process.env.GOOGLE_CLIENT_ID,
     });
@@ -45,11 +43,10 @@ const UserLogIn = () => {
         if (userTokens?.accessToken) {
           dispatch(userProfileBegin());
           googleLoginAsync({
-            variables: { accessToken: userTokens?.accessToken },
+            variables: { accessToken: userTokens?.accessToken, client: Platform?.OS },
             onSuccess: (d) => {
-              setResp(JSON.stringify(d));
               dispatch(logIn(d));
-              router.replace(`/${Routes.dashboard}`);
+              router.replace(`/`);
             },
             onError: (err) => dispatch(userProfileError({ message: err?.message })),
           });
@@ -74,7 +71,7 @@ const UserLogIn = () => {
         });
       }
     }
-  }; */
+  };
 
   const signIn = async (): Promise<void> => {
     const logInDetails: LoginUser = {
@@ -182,13 +179,11 @@ const UserLogIn = () => {
           borderWidth={1}
           disabled={GoogleLoading}
           icon={GoogleLoading ? () => <Spinner /> : undefined}
-          onPress={() => /* googleSignIn() */ {}}>
+          onPress={() => googleSignIn()}>
           <Google size={30} />
           <Text style={styles.googleBtnText}>{labels.signInWithGoogle}</Text>
         </Button>
       </YStack>
-      <Text>{userInfoGoogle}</Text>
-      <Text>{resp}</Text>
     </YStack>
   );
 };

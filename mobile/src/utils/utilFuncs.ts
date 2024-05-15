@@ -14,8 +14,9 @@ import { getValueFromLocalStorage } from './secureStore';
 import { jwtDecode } from 'jwt-decode';
 import { INearbyContFilters } from '../components/user/drawer/FilterDrawerContent';
 import * as ImagePicker from 'expo-image-picker';
-/* import { IImage } from '../types/commonTypes';
-import { GoogleSignin } from '@react-native-google-signin/google-signin'; */
+import { Linking } from 'react-native';
+import { IImage } from '../types/commonTypes';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 export function decodeJwtToken(token: string) {
   /* const base64Url = token.split('.')[1];
@@ -176,11 +177,11 @@ export const navigateToUserPage = ({ user, navigate }: INavigateToUserPage) => {
 }; */
 
 export const googleLogout = async () => {
-  /* const isSignedIn = await GoogleSignin.isSignedIn();
-  console.log(isSignedIn);
+  const isSignedIn = await GoogleSignin.isSignedIn();
+
   if (!isSignedIn) {
     await GoogleSignin.signOut();
-  } */
+  }
 };
 
 interface IUserLocation {
@@ -424,18 +425,34 @@ export const isFiltersChanged = (
   return false;
 };
 
-export const getImageFromAlbum = async () => {
-  const fileDictionaryPermission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-  if (fileDictionaryPermission?.accessPrivileges === 'all') {
+export const getImageFromAlbum = async (isMultiple: boolean = false) => {
+  let filePemission = await ImagePicker.getMediaLibraryPermissionsAsync();
+  if (!filePemission.granted && filePemission?.canAskAgain) {
+    filePemission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+  } else if (!filePemission.granted && !filePemission?.canAskAgain) {
+    Linking.openSettings();
+  }
+  if (filePemission?.accessPrivileges === 'all' || filePemission?.granted) {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsMultipleSelection: isMultiple,
       base64: true,
-      allowsEditing: true,
+      allowsEditing: !isMultiple,
       aspect: [4, 3],
     });
     if (!result.canceled) {
-      if (result?.assets?.[0]) return result?.assets?.[0];
+      if (!isMultiple && result?.assets?.[0]) return result?.assets?.[0];
+      else if (isMultiple && result?.assets?.length > 0) return result?.assets;
       else return null;
     } else return '';
   }
+};
+
+export const getRandomString = (length: number = 5) => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
 };

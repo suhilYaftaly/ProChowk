@@ -35,15 +35,23 @@ const UserBio = ({ user, isMyProfile }: Props) => {
       updateUserAsync({
         variables: updateData,
         onSuccess: () => {
+          setDisableSaveBtn(false);
+          setBioEditOpen(false);
           Toast.show({
             type: 'success',
             text1: `${labels.profileUpdated}`,
             position: 'top',
           });
         },
+        onError: () => {
+          setDisableSaveBtn(false);
+          Toast.show({
+            type: 'error',
+            text1: `${labels.profileUpdateFailed}`,
+            position: 'top',
+          });
+        },
       });
-      setDisableSaveBtn(false);
-      setBioEditOpen(false);
     }
   };
 

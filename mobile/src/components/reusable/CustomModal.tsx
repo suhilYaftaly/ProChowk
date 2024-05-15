@@ -20,6 +20,7 @@ type Props = {
   setIsOpen: (isOpen: boolean) => void;
   height?: DimensionValue;
   width?: DimensionValue;
+  maxHeight?: DimensionValue;
   itemCount?: number;
 };
 
@@ -31,6 +32,7 @@ const CustomModal = ({
   setIsOpen,
   height = '30%',
   width = '50%',
+  maxHeight = '100%',
   itemCount,
 }: Props) => {
   return (
@@ -45,7 +47,11 @@ const CustomModal = ({
         transparent={true}>
         <KeyboardAvoidingView behavior={'padding'} style={{ flex: 1 }}>
           <View style={styles.centeredView}>
-            <View style={[styles.modalView, { minHeight: height, width: width }]}>
+            <View
+              style={[
+                styles.modalView,
+                { minHeight: height, maxHeight: maxHeight, width: width, overflow: 'hidden' },
+              ]}>
               <View style={styles.modalHeader}>
                 <Text style={styles.headerText}>
                   {headerText}{' '}

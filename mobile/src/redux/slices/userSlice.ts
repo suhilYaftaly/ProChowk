@@ -6,6 +6,7 @@ import { ITokens } from '@/types/commonTypes';
 import { deleteFromLocalStorage, saveInLocalStorage } from '~/src/utils/secureStore';
 import { googleLogout } from '~/src/utils/utilFuncs';
 import { INearbyContFilters } from '~/src/components/user/drawer/FilterDrawerContent';
+import { TUserView } from '~/src/components/user/drawer/SwitchUserViewBtn';
 /* import { TUserView } from "@user/SwitchUserViewButton";
  */
 interface UserState {
@@ -20,7 +21,7 @@ interface UserState {
     isLoading: boolean;
     error: { message: string; [key: string]: any } | undefined;
   };
-  userView: /* TUserView | */ null;
+  userView: TUserView | null;
   userFilters: INearbyContFilters | null;
 }
 
@@ -94,7 +95,7 @@ export const logIn = (payload: IUser) => (dispatch: any) => {
   const { token, refreshToken, ...user } = payload;
   dispatch(userProfileSuccess(user));
   dispatch(setIsLoggedOut(false));
-  saveInLocalStorage(USER_PROFILE_KEY, JSON.stringify(user));
+  saveInLocalStorage(USER_PROFILE_KEY, JSON.stringify(user?.id));
 
   if (token && refreshToken) dispatch(setTokens({ accessToken: token, refreshToken }));
 };

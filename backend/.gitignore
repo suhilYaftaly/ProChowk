@@ -2,3 +2,6 @@
 .env*
 .vercel
 *audit.json
+
+.vscode/*
+package-lock.json

@@ -40,14 +40,14 @@ const ProfileHeader = ({ userData, reviewData, isMyProfile }: Props) => {
           </Avatar>
           <View style={styles.userDetails}>
             <View style={[styles.contactDetails, { marginBottom: 10 }]}>
-              <Text style={[styles.userName, { marginRight: 10 }]}>{userData?.name}</Text>
+              <Text style={styles.userName}>{userData?.name}</Text>
               {reviewData?.averageRating ? (
-                <>
+                <View style={{ marginLeft: 10, flexDirection: 'row' }}>
                   <AntDesign name="star" size={20} color={colors.primary} />
                   <Text style={[styles.userName, { color: colors.primary, marginLeft: 5 }]}>
                     {reviewData?.averageRating}
                   </Text>
-                </>
+                </View>
               ) : (
                 <></>
               )}

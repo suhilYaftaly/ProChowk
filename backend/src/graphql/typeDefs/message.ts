@@ -6,6 +6,11 @@ const typeDefs = gql`
     sender: User
     body: String
     createdAt: Date
+    conversationId: String
+    senderId: String
+    isLatestIn: String
+    attachmentId: String
+    updatedAt: Date
   }
 
   input SendMessageInput {

@@ -44,9 +44,12 @@ const FilterDrawerContent = (props: any) => {
     if (location && areaRadius) {
       dispatch(
         setUserFilters({
-          radius: areaRadius,
-          address: location,
-          latLng: { lat: location?.lat, lng: location?.lng },
+          ...userFilters,
+          ...{
+            radius: areaRadius,
+            address: location,
+            latLng: { lat: location?.lat, lng: location?.lng },
+          },
         })
       );
       props.navigation.closeDrawer();

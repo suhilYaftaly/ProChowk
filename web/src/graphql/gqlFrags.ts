@@ -23,6 +23,7 @@ export const notificationFields = `id title message read type readDate data crea
 
 // Chat
 export const conversationFields = `id participants {id} messages {id body} latestMessage {id body} createdAt updatedAt`;
+export const messageFields = `id conversationId body senderId isLatestIn attachmentId createdAt updatedAt`;
 
 //available fields: `id rating comment createdAt updatedAt reviewerId reviewedId`
 export const reviewFields = `id rating comment updatedAt`;

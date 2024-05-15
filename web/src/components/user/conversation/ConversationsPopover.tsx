@@ -34,7 +34,6 @@ export default function ConversationsPopover({
 
   const open = Boolean(anchorEl);
   const id = open ? "conversations-popover" : undefined;
-  console.log(conversations);
 
   return (
     <Popover
@@ -52,7 +51,7 @@ export default function ConversationsPopover({
       }}
     >
       <List sx={{ maxWidth: 600 }}>
-        {conversations?.slice(0, 5).map((conversation) => (
+        {conversations?.map((conversation) => (
           <ConversationListItem
             key={conversation.id}
             conversation={conversation}
