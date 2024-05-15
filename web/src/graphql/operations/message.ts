@@ -1,6 +1,7 @@
 import { gql, useLazyQuery } from "@apollo/client";
 import { messageFields } from "../gqlFrags";
 import { asyncOps } from "./gqlFuncs";
+import { IUser } from "./user";
 
 const messageOps = {
   Queries: {
@@ -18,6 +19,7 @@ export type TMessage = {
   body: string;
   conversationId: string;
   senderId: string;
+  sender: IUser;
   isLatestIn: boolean;
   imageId: string;
   createdAt: Date;

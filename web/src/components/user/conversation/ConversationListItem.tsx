@@ -28,6 +28,7 @@ export default function ConversationListItem({
   const primaryC = theme.palette.primary.light;
   const iconColor = theme.palette.text?.dark;
   const primaryC10 = alpha(primaryC, 0.1);
+  console.log(conversation);
   const { id, name, latestMessage } = conversation;
 
   const { markConversationAsReadAsync, loading } = useMarkConversationAsRead();
@@ -73,7 +74,7 @@ export default function ConversationListItem({
         >
           <div>
             <Text type="subtitle" sx={{ fontSize: 16 }}>
-              {latestMessage.body.substring(0, 20)}
+              {latestMessage.sender.name}
             </Text>
             {latestMessage.body && <Text>{latestMessage.body}</Text>}
           </div>

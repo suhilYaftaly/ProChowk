@@ -27,6 +27,7 @@ export default function ConversationView() {
         variables: { conversationId },
       });
     }
+    console.log(data);
   };
 
   const handlePageChange = (_: any, value: number) => {
