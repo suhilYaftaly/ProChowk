@@ -34,6 +34,8 @@ export const paths = {
   userJobTypes: (jobType?: JobType) =>
     `/user-job-type${jobType ? `?jobType=${jobType}` : ""}`,
   notificationsView: "/notifications-view",
+  conversationsView: "/conversation-view",
+  conversationView: (id?: string) => `/conversation-view?id=${id}}`,
 };
 
 const router = createBrowserRouter(
