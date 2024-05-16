@@ -5,8 +5,14 @@ import { TMessage } from "./message";
 
 const conversationOps = {
   Queries: {
-    userConversations: gql`query UserConversations {
+    userLatestConversations: gql`query UserConversations {
       latestConversations {
+        totalCount 
+        conversations {${conversationFields}}
+      }
+    }`,
+    userConversations: gql`query UserConversations {
+      conversations {
         totalCount 
         conversations {${conversationFields}}
       }
