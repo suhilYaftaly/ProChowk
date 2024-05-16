@@ -1,7 +1,11 @@
 import { Prisma } from "@prisma/client";
 import { withFilter } from "graphql-subscriptions";
 
-import { GQLContext, ISendMessageInput } from "../../types/commonTypes";
+import {
+  GQLContext,
+  IMessageResponse,
+  ISendMessageInput,
+} from "../../types/commonTypes";
 import { conversationPopulated } from "./conversation";
 import { gqlError, userIsConversationParticipant } from "../../utils/funcs";
 import checkAuth, { canUserUpdate } from "../../middlewares/checkAuth";
@@ -198,10 +202,6 @@ export default {
     },
   },
 };
-
-export type IMessageResponse = Prisma.MessageGetPayload<{
-  include: typeof messagePopulated;
-}>;
 
 export interface MessageSubscriptionPayload {
   message: IMessageResponse;

@@ -22,8 +22,8 @@ export const jobBidFields = `id quote startDate endDate proposal rejectionReason
 export const notificationFields = `id title message read type readDate data createdAt updatedAt userId`;
 
 // Chat
-export const conversationFields = `id participants {id hasSeenLatestMessage} messages {id body} latestMessage {id body sender { id name } createdAt} createdAt updatedAt`;
-export const messageFields = `id conversationId body senderId isLatestIn attachmentId createdAt updatedAt`;
+export const conversationFields = `id participants {id hasSeenLatestMessages user {id name}} messages {id body} latestMessage {id body sender { id name } createdAt} createdAt updatedAt`;
+export const messageFields = `id conversationId body senderId sender {id name} isLatestIn attachmentId createdAt updatedAt`;
 
 //available fields: `id rating comment createdAt updatedAt reviewerId reviewedId`
 export const reviewFields = `id rating comment updatedAt`;

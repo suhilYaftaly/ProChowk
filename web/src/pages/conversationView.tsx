@@ -1,13 +1,12 @@
-import { Divider, List, Pagination, Skeleton, Stack } from "@mui/material";
+import { Divider, Grid, Skeleton, Stack } from "@mui/material";
 import { useEffect, useState } from "react";
 
 import AppContainer from "@reusable/AppContainer";
-import ConversationListItem from "@user/conversation/ConversationListItem";
-import { TConversation, useUserConversations } from "@gqlOps/conversation";
-import { useUserStates } from "@/redux/reduxStates";
 import Text from "@reusable/Text";
 import { useParams } from "react-router-dom";
 import { useConversationMessages } from "@/graphql/operations/message";
+import ConversationWrapper from "@/components/user/conversation/ConversationWrapper";
+import ConversationsWrapper from "@/components/user/conversation/ConversationsWrapper";
 
 export default function ConversationView() {
   const [page, setPage] = useState(1);
@@ -17,7 +16,6 @@ export default function ConversationView() {
     useConversationMessages();
   const messages = data?.messages?.messages;
   const totalCount = data?.messages?.totalCount;
-  console.log(data);
 
   useEffect(() => getUserConversation(), [conversationId]);
 
@@ -47,28 +45,10 @@ export default function ConversationView() {
         {loading ? (
           <NotiSkeleton />
         ) : (
-          <>
-            {/* <List>
-              {conversations?.map((conversation: TConversation) => (
-                <Stack key={conversation.id}>
-                  <Divider />
-                  <ConversationListItem
-                    conversation={conversation}
-                    onMarkSuccess={() => getUserConversation()}
-                  />
-                </Stack>
-              ))}
-            </List> */}
-            {/* {totalCount && totalCount > pageSize && (
-              <Pagination
-                count={totalPages}
-                page={page}
-                onChange={handlePageChange}
-                color="primary"
-                sx={{ display: "flex", justifyContent: "center", mt: 2 }}
-              />
-            )} */}
-          </>
+          <Grid flex="row">
+            <ConversationsWrapper />
+            <ConversationWrapper />
+          </Grid>
         )}
       </>
     </AppContainer>

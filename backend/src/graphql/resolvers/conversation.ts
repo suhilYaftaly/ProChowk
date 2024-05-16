@@ -413,10 +413,6 @@ export interface ConversationCreatedSubscriptionPayload {
   conversationCreated: IConversationResponse;
 }
 
-export type IParticipantResponse = Prisma.ConversationParticipantGetPayload<{
-  include: typeof participantPopulated;
-}>;
-
 export interface ConversationUpdatedSubscriptionData {
   conversationUpdated: {
     conversation: IConversationResponse;

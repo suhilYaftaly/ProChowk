@@ -1,6 +1,6 @@
 import { formatRelative } from "date-fns";
 import enUS from "date-fns/locale/en-US";
-import { IMessageResponse } from "../../../../backend/src/graphql/resolvers/message";
+import { IMessageResponse } from "../../../../backend/src/types/commonTypes";
 import { Avatar, Box, Grid, Stack } from "@mui/material";
 import Text from "../reusable/Text";
 
@@ -17,6 +17,7 @@ const formatRelativeLocale = {
 };
 
 export default function MessageItem({ message, sentByMe }: Props) {
+  console.log(message);
   return (
     <Stack
       direction="row"
@@ -43,19 +44,23 @@ export default function MessageItem({ message, sentByMe }: Props) {
             </Text>
           )}
           <Text fontSize={14} color="whiteAlpha.700">
-            {formatRelative(message.createdAt, new Date(), {
-              locale: {
-                ...enUS,
-                formatRelative: (token) =>
-                  formatRelativeLocale[
-                    token as keyof typeof formatRelativeLocale
-                  ],
-              },
-            })}
+            {formatRelative(
+              new Date(message.createdAt).getTime(),
+              new Date(message.createdAt),
+              {
+                locale: {
+                  ...enUS,
+                  formatRelative: (token) =>
+                    formatRelativeLocale[
+                      token as keyof typeof formatRelativeLocale
+                    ],
+                },
+              }
+            )}
           </Text>
         </Stack>
         <Grid
-          direction="row"
+          // direction="row"
           justifyContent={sentByMe ? "flex-end" : "flex-start"}
         >
           <Box

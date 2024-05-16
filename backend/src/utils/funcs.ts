@@ -6,9 +6,8 @@ import jwt from "jsonwebtoken";
 import { ISignedProps } from "../middlewares/checkAuth";
 import { appName, appNamePascalCase } from "../constants/constants";
 import { logger } from "../middlewares/logger/logger";
-import { GQLContext } from "../types/commonTypes";
+import { GQLContext, IParticipantResponse } from "../types/commonTypes";
 import { Review } from "@prisma/client";
-import { IParticipantResponse } from "../graphql/resolvers/conversation";
 
 dotenv.config();
 const baseUrl = process.env.CLIENT_ORIGIN;

@@ -11,6 +11,7 @@ import ConversationListItem from "./ConversationListItem";
 import Text from "@reusable/Text";
 import { TConversation } from "@gqlOps/conversation";
 import { paths } from "@/routes/Routes";
+import { useUserStates } from "@/redux/reduxStates";
 
 type Props = {
   conversations: TConversation[] | undefined;
@@ -26,6 +27,7 @@ export default function ConversationsPopover({
 }: Props) {
   const navigate = useNavigate();
   const closePopover = () => setAnchorEl(null);
+  const { userId } = useUserStates();
 
   const handleSeeAllConversations = () => {
     navigate(paths.conversationsView);
@@ -55,6 +57,7 @@ export default function ConversationsPopover({
           <ConversationListItem
             key={conversation.id}
             conversation={conversation}
+            userId={userId as string}
             onClick={closePopover}
             onMarkSuccess={onMarkSuccess}
           />

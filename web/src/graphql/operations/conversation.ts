@@ -1,9 +1,9 @@
 import { gql, useLazyQuery, useMutation } from "@apollo/client";
-import { conversationFields, messageFields } from "../gqlFrags";
+import { conversationFields } from "../gqlFrags";
 import { asyncOps } from "./gqlFuncs";
 import { TMessage } from "./message";
 
-const conversationOps = {
+export const conversationOps = {
   Queries: {
     userLatestConversations: gql`query UserConversations {
       latestConversations {
@@ -22,6 +22,40 @@ const conversationOps = {
     markConversationAsRead: gql`mutation MarkConversationAsRead($conversationId: ID!) {
         markConversationAsRead(conversationId: $conversationId) {${conversationFields}}
       }`,
+    deleteConversation: gql`
+      mutation DeleteConversation($conversationId: ID!) {
+        deleteConversation(conversationId: $conversationId) {
+          id
+        }
+      }
+    `,
+  },
+  Subscriptions: {
+    conversationCreated: gql`
+      subscription ConversationCreated {
+        conversationCreated {
+          ${conversationFields}
+        }
+      }
+    `,
+    conversationUpdated: gql`
+      subscription ConversationUpdated {
+        conversationUpdated {
+          conversation {
+            ${conversationFields}
+          }
+          addedUserIds
+          removedUserIds
+        }
+      }
+    `,
+    conversationDeleted: gql`
+      subscription ConversationDeleted {
+        conversationDeleted {
+          id
+        }
+      }
+    `,
   },
 };
 
@@ -55,7 +89,7 @@ export const useUserConversations = () => {
   const [userConversations, { data, loading, error }] = useLazyQuery<
     TUserConversationsData,
     TUserConversationsInput
-  >(conversationOps.Queries.userConversations, {
+  >(conversationOps.Queries.userLatestConversations, {
     fetchPolicy: "network-only",
   });
 
@@ -87,6 +121,13 @@ type TMNARAsunc = {
   onSuccess?: (data: TMNARData["markConversationAsRead"]) => void;
   onError?: (error?: any) => void;
 };
+
+type DCAsync = {
+  variables: TMNARInput;
+  onSuccess?: (data: boolean) => void;
+  onError?: (error?: any) => void;
+};
+
 export const useMarkConversationAsRead = () => {
   const [markConversationAsRead, { data, loading, error }] = useMutation<
     TMNARData,
@@ -107,4 +148,26 @@ export const useMarkConversationAsRead = () => {
     });
 
   return { markConversationAsReadAsync, data, loading, error };
+};
+
+export const useDeleteConversation = () => {
+  const [deleteConversation, { data, loading, error }] = useMutation<
+    boolean,
+    TMNARInput
+  >(conversationOps.Mutations.deleteConversation);
+
+  const deleteConversationAsync = async ({
+    variables,
+    onSuccess,
+    onError,
+  }: DCAsync) =>
+    asyncOps({
+      operation: () => deleteConversation({ variables }),
+      onSuccess: (dt: boolean) => {
+        onSuccess && onSuccess(dt);
+      },
+      onError,
+    });
+
+  return { deleteConversationAsync, data, loading, error };
 };

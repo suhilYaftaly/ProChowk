@@ -18,6 +18,7 @@ import {
   conversationPopulated,
   participantPopulated,
 } from "../graphql/resolvers/conversation";
+import { messagePopulated } from "../graphql/resolvers/message";
 
 //server configs
 export interface GQLContext {
@@ -56,6 +57,18 @@ export type IJobInput = Pick<
   images: IImageInput[];
   budget: IBudgetInput;
 };
+
+export type IConversationResponse = Prisma.ConversationGetPayload<{
+  include: typeof conversationPopulated;
+}>;
+
+export type IMessageResponse = Prisma.MessageGetPayload<{
+  include: typeof messagePopulated;
+}>;
+
+export type IParticipantResponse = Prisma.ConversationParticipantGetPayload<{
+  include: typeof participantPopulated;
+}>;
 
 /**
  * Messages

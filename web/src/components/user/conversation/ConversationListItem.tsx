@@ -12,11 +12,16 @@ import { useNavigate } from "react-router-dom";
 import { TConversation, useMarkConversationAsRead } from "@gqlOps/conversation";
 import Text from "@reusable/Text";
 import { paths } from "@/routes/Routes";
+import { IConversationResponse } from "../../../../../backend/src/types/commonTypes";
 
 type Props = {
-  conversation: TConversation;
-  onClick?: (id: string) => void;
+  conversation: TConversation; // IConversationResponse;
+  userId: string;
+  hasSeenLatestMessages?: boolean;
+  selectedConversationId?: string;
+  onClick: (id: string) => void;
   onMarkSuccess?: (data: TConversation) => void;
+  onDeleteConversation?: (conversationId: string) => void;
 };
 export default function ConversationListItem({
   conversation,
@@ -29,12 +34,12 @@ export default function ConversationListItem({
   const iconColor = theme.palette.text?.dark;
   const primaryC10 = alpha(primaryC, 0.1);
   console.log(conversation);
-  const { id, name, latestMessage } = conversation;
+  const { id, latestMessage } = conversation;
 
   const { markConversationAsReadAsync, loading } = useMarkConversationAsRead();
 
   const onMarkAsRead = (conversationId: string) => {
-    if (!name) {
+    if (!id) {
       // TODO to be changed
       markConversationAsReadAsync({
         variables: { conversationId },
@@ -59,7 +64,7 @@ export default function ConversationListItem({
         sx={{
           gap: 2,
           color: iconColor,
-          backgroundColor: name ? "transparent" : primaryC10, // TODO to be changed
+          backgroundColor: id ? "transparent" : primaryC10, // TODO to be changed
           alignItems: "center",
         }}
       >
@@ -74,11 +79,11 @@ export default function ConversationListItem({
         >
           <div>
             <Text type="subtitle" sx={{ fontSize: 16 }}>
-              {latestMessage.sender.name}
+              {latestMessage?.sender.name}
             </Text>
-            {latestMessage.body && <Text>{latestMessage.body}</Text>}
+            {latestMessage?.body && <Text>{latestMessage.body}</Text>}
           </div>
-          {!name && ( // TODO to be changed
+          {!id && ( // TODO to be changed
             <Circle color="primary" sx={{ width: 12, height: 12, ml: 2 }} />
           )}
         </Stack>
