@@ -20,13 +20,13 @@ const MessageInput: React.FC<Props> = ({ conversationId }) => {
 
   const onSendMessage = async (event: React.FormEvent) => {
     event.preventDefault();
-
     try {
       const newMessage: SendMessageVariables = {
         senderId: senderId as string,
         conversationId,
         body: messageBody,
       };
+
       const { data, errors } = await sendMessage({
         variables: {
           body: messageBody,
@@ -46,29 +46,31 @@ const MessageInput: React.FC<Props> = ({ conversationId }) => {
             variables: { conversationId },
           }) as MessagesData;
 
-          // cache.writeQuery<MessagesData, { conversationId: string }>({
-          //   query: messageOps.Queries.conversationMessages,
-          //   variables: { conversationId },
-          //   data: {
-          //     ...existing,
-          //     messages: [
-          //       {
-          //         id: "",
-          //         attachmentId: "",
-          //         body: messageBody,
-          //         senderId: senderId as string,
-          //         conversationId,
-          //         sender: {
-          //           id: senderId as string,
-          //           name: firstName as string,
-          //         },
-          //         createdAt: new Date(Date.now()),
-          //         updatedAt: new Date(Date.now()),
-          //       },
-          //       ...existing.messages,
-          //     ],
-          //   },
-          // });
+          console.log(existing);
+
+          cache.writeQuery<MessagesData, { conversationId: string }>({
+            query: messageOps.Queries.conversationMessages,
+            variables: { conversationId },
+            data: {
+              ...existing,
+              messages: [
+                {
+                  id: "",
+                  attachmentId: "",
+                  body: messageBody,
+                  senderId: senderId as string,
+                  conversationId,
+                  sender: {
+                    id: senderId as string,
+                    name: firstName as string,
+                  },
+                  createdAt: new Date(Date.now()),
+                  updatedAt: new Date(Date.now()),
+                },
+                ...existing.messages,
+              ],
+            },
+          });
         },
       });
 

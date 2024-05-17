@@ -45,7 +45,7 @@ export default {
         },
         include: messagePopulated,
         orderBy: {
-          createdAt: "desc",
+          createdAt: "asc",
         },
       });
 

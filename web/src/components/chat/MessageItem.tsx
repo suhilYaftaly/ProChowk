@@ -17,7 +17,9 @@ const formatRelativeLocale = {
   other: "MM/dd/yy",
 };
 
-const deleteMessage = (e: MouseEvent) => {};
+const deleteMessage = () => {
+  console.log("Message Deleted");
+};
 
 export default function MessageItem({ message, sentByMe }: Props) {
   return (
@@ -46,7 +48,7 @@ export default function MessageItem({ message, sentByMe }: Props) {
           )}
           <Stack direction="row" spacing={1}>
             {sentByMe && (
-              <Button>
+              <Button onClick={deleteMessage}>
                 <Delete />
               </Button>
             )}

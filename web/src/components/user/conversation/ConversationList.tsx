@@ -90,16 +90,6 @@ const ConversationList: React.FC<ConversationListProps> = ({
           />
         );
       })}
-      <Box
-        position="absolute"
-        bottom={0}
-        left={0}
-        width="100%"
-        bgcolor="#313131"
-        px={8}
-        py={6}
-        zIndex={1}
-      ></Box>
     </Box>
   );
 };

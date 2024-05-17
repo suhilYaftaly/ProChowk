@@ -7,6 +7,8 @@ import { useParams } from "react-router-dom";
 import { useConversationMessages } from "@/graphql/operations/message";
 import ConversationWrapper from "@/components/user/conversation/ConversationWrapper";
 import ConversationsWrapper from "@/components/user/conversation/ConversationsWrapper";
+import { useDispatch } from "react-redux";
+import { setUnreadConsCount } from "@/redux/slices/conversationSlice";
 
 export default function ConversationView() {
   const [page, setPage] = useState(1);
@@ -15,7 +17,12 @@ export default function ConversationView() {
   const { conversationMessagesAsync, data, loading } =
     useConversationMessages();
   const messages = data?.messages?.messages;
-  const totalCount = data?.messages?.totalCount;
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(setUnreadConsCount(data?.messages?.totalCount));
+    console.log(data?.messages.totalCount);
+  }, [data]);
 
   useEffect(() => getUserConversation(), [conversationId]);
 

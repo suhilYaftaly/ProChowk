@@ -13,18 +13,8 @@ export const messageOps = {
   },
   Mutations: {
     sendMessage: gql`
-      mutation SendMessage(
-        $id: String!
-        $conversationId: String!
-        $senderId: String!
-        $body: String!
-      ) {
-        sendMessage(
-          id: $id
-          conversationId: $conversationId
-          senderId: $senderId
-          body: $body
-        )
+      mutation SendMessage($conversationId: String!, $body: String!) {
+        sendMessage(conversationId: $conversationId, body: $body)
       }
     `,
   },

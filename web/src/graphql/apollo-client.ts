@@ -15,6 +15,8 @@ import { navigate } from "@routes/navigationService";
 import userOps, { IRefreshTokenData, IRefreshTokenInput } from "@gqlOps/user";
 import { decodeJwtToken } from "@/utils/utilFuncs";
 import { getLocalTokens } from "@/utils/auth";
+import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
+import { createClient } from "graphql-ws";
 
 const { dispatch } = store;
 
@@ -22,6 +24,16 @@ const httpLink = new HttpLink({
   uri: import.meta.env.VITE_API_URL,
   credentials: "include",
 });
+
+const wsLink = new GraphQLWsLink(
+  createClient({
+    url: "ws://localhost:9001/graphql",
+
+    connectionParams: {
+      authentication: getLocalTokens()?.accessToken,
+    },
+  })
+);
 
 let isRefreshingToken = false;
 let tokenRefreshPromise: Promise<string> | undefined = undefined;
@@ -108,7 +120,7 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
   if (networkError) console.log(`[Network error]: ${networkError}`);
 });
 
-const link = ApolloLink.from([authLink, errorLink, httpLink]);
+const link = ApolloLink.from([authLink, errorLink, httpLink, wsLink]);
 
 export const client = new ApolloClient({
   link,

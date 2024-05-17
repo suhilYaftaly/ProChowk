@@ -4,9 +4,10 @@ import user from "./slices/userSlice";
 import configs from "./slices/configsSlice";
 import globalModals from "./slices/globalModalsSlice";
 import bid from "./slices/bidSlice";
+import conversation from "./slices/conversationSlice";
 
 export const store = configureStore({
-  reducer: { settings, user, configs, globalModals, bid },
+  reducer: { settings, user, configs, globalModals, bid, conversation },
 });
 
 export type AppDispatch = typeof store.dispatch;

@@ -8,7 +8,7 @@ import {
   MessagesSubscriptionData,
   MessagesVariables,
 } from "@/types/types";
-import { Grid, Stack } from "@mui/material";
+import { Stack } from "@mui/material";
 import AppContainer from "../reusable/AppContainer";
 
 interface MessagesProps {
@@ -68,7 +68,7 @@ const Messages: React.FC<MessagesProps> = ({ userId, conversationId }) => {
   }
 
   return (
-    <AppContainer>
+    <AppContainer sx={{ height: "100%" }}>
       {loading && (
         <Stack spacing={4} px={4} justifyContent="flex-end" overflow="hidden">
           {/* <Loade count={4} height="60px" width="100%" /> */}
