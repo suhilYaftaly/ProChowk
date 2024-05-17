@@ -1,8 +1,9 @@
 import { formatRelative } from "date-fns";
 import enUS from "date-fns/locale/en-US";
 import { IMessageResponse } from "../../../../backend/src/types/commonTypes";
-import { Avatar, Box, Grid, Stack } from "@mui/material";
+import { Avatar, Box, Button, Grid, Stack } from "@mui/material";
 import Text from "../reusable/Text";
+import { Delete } from "@mui/icons-material";
 
 interface Props {
   message: IMessageResponse;
@@ -16,8 +17,9 @@ const formatRelativeLocale = {
   other: "MM/dd/yy",
 };
 
+const deleteMessage = (e: MouseEvent) => {};
+
 export default function MessageItem({ message, sentByMe }: Props) {
-  console.log(message);
   return (
     <Stack
       direction="row"
@@ -32,10 +34,9 @@ export default function MessageItem({ message, sentByMe }: Props) {
           <Avatar sizes="sm" />
         </Grid>
       )}
-      <Stack spacing={1} width="100%">
+      <Stack spacing={3}>
         <Stack
           direction="row"
-          alignContent="center"
           justifyContent={sentByMe ? "flex-end" : "flex-start"}
         >
           {!sentByMe && (
@@ -43,36 +44,32 @@ export default function MessageItem({ message, sentByMe }: Props) {
               {message.sender.name}
             </Text>
           )}
-          <Text fontSize={14} color="whiteAlpha.700">
-            {formatRelative(
-              new Date(message.createdAt).getTime(),
-              new Date(message.createdAt),
-              {
-                locale: {
-                  ...enUS,
-                  formatRelative: (token) =>
-                    formatRelativeLocale[
-                      token as keyof typeof formatRelativeLocale
-                    ],
-                },
-              }
+          <Stack direction="row" spacing={1}>
+            {sentByMe && (
+              <Button>
+                <Delete />
+              </Button>
             )}
-          </Text>
+            <Grid sx={{ p: "3" }}>
+              <Text fontSize={10} color="whiteAlpha.700">
+                {formatRelative(
+                  new Date(message.createdAt).getTime(),
+                  new Date(message.createdAt),
+                  {
+                    locale: {
+                      ...enUS,
+                      formatRelative: (token) =>
+                        formatRelativeLocale[
+                          token as keyof typeof formatRelativeLocale
+                        ],
+                    },
+                  }
+                )}
+              </Text>
+              <Text fontSize="1em">{message.body}</Text>
+            </Grid>
+          </Stack>
         </Stack>
-        <Grid
-          // direction="row"
-          justifyContent={sentByMe ? "flex-end" : "flex-start"}
-        >
-          <Box
-            bgcolor={sentByMe ? "brand.100" : "whiteAlpha.300"}
-            px={2}
-            py={1}
-            borderRadius={12}
-            maxWidth="65%"
-          >
-            <Text>{message.body}</Text>
-          </Box>
-        </Grid>
       </Stack>
     </Stack>
   );

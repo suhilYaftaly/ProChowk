@@ -34,23 +34,23 @@ export default function ConversationView() {
   };
 
   return (
-    <AppContainer addCard>
-      <>
+    <AppContainer>
+      {loading ? (
+        <NotiSkeleton />
+      ) : (
         <Stack
           direction={"row"}
           sx={{ alignItems: "center", justifyContent: "space-between" }}
         >
-          <Text type="subtitle">Conversations ({messages?.length})</Text>
-        </Stack>
-        {loading ? (
-          <NotiSkeleton />
-        ) : (
-          <Grid flex="row">
+          <AppContainer addCard sx={{ pr: 5, width: "25%" }}>
+            <Text type="subtitle">Conversations ({messages?.length ?? 0})</Text>
             <ConversationsWrapper />
+          </AppContainer>
+          <AppContainer addCard sx={{ m: 0, width: "75%" }}>
             <ConversationWrapper />
-          </Grid>
-        )}
-      </>
+          </AppContainer>
+        </Stack>
+      )}
     </AppContainer>
   );
 }

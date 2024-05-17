@@ -2,7 +2,7 @@ import { messageOps } from "@/graphql/operations/message";
 import { useUserStates } from "@/redux/reduxStates";
 import { MessagesData, SendMessageVariables } from "@/types/types";
 import { useMutation } from "@apollo/client";
-import { Box, Button, Input } from "@mui/material";
+import { Box, Button, Grid, Input, Stack, TextField } from "@mui/material";
 import React, { useState } from "react";
 
 interface Props {
@@ -81,26 +81,35 @@ const MessageInput: React.FC<Props> = ({ conversationId }) => {
   };
 
   return (
-    <Box px={4} py={6} width="100%">
+    <Stack p={1} width="100%">
       <form onSubmit={onSendMessage}>
-        <Input
-          value={messageBody}
-          onChange={(event) => setMessageBody(event.target.value)}
-          size="medium"
-          placeholder="New message"
-          color="success"
-          // _focus={{
-          //   boxShadow: "none",
-          //   border: "1px solid",
-          //   borderColor: "whiteAlpha.300",
-          // }}
-          // _hover={{
-          //   borderColor: "whiteAlpha.300",
-          // }}
-        />
-        <Button type="submit">asdf</Button>
+        <Stack direction="row">
+          <Grid sx={{ width: "90%" }}>
+            <TextField
+              value={messageBody}
+              onChange={(event) => setMessageBody(event.target.value)}
+              size="small"
+              placeholder="New message"
+              color="success"
+              fullWidth
+              // _focus={{
+              //   boxShadow: "none",
+              //   border: "1px solid",
+              //   borderColor: "whiteAlpha.300",
+              // }}
+              // _hover={{
+              //   borderColor: "whiteAlpha.300",
+              // }}
+            />
+          </Grid>
+          <Grid>
+            <Button type="submit" sx={{ pl: "2" }}>
+              Send
+            </Button>
+          </Grid>
+        </Stack>
       </form>
-    </Box>
+    </Stack>
   );
 };
 export default MessageInput;

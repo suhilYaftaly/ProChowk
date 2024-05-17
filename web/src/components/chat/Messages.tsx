@@ -9,6 +9,7 @@ import {
   MessagesVariables,
 } from "@/types/types";
 import { Grid, Stack } from "@mui/material";
+import AppContainer from "../reusable/AppContainer";
 
 interface MessagesProps {
   userId: string;
@@ -67,14 +68,14 @@ const Messages: React.FC<MessagesProps> = ({ userId, conversationId }) => {
   }
 
   return (
-    <Grid justifyContent="flex-end" overflow="hidden">
+    <AppContainer>
       {loading && (
-        <Stack spacing={4} px={4}>
+        <Stack spacing={4} px={4} justifyContent="flex-end" overflow="hidden">
           {/* <Loade count={4} height="60px" width="100%" /> */}
         </Stack>
       )}
       {data?.messages && (
-        <Grid height="100%">
+        <>
           {data.messages.map((message) => (
             <MessageItem
               key={message.id}
@@ -82,9 +83,9 @@ const Messages: React.FC<MessagesProps> = ({ userId, conversationId }) => {
               sentByMe={message.sender.id === userId}
             />
           ))}
-        </Grid>
+        </>
       )}
-    </Grid>
+    </AppContainer>
   );
 };
 export default Messages;
