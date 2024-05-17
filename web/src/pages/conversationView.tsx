@@ -1,14 +1,13 @@
-import { Divider, Grid, Skeleton, Stack } from "@mui/material";
+import { Divider, Skeleton, Stack } from "@mui/material";
 import { useEffect, useState } from "react";
 
 import AppContainer from "@reusable/AppContainer";
 import Text from "@reusable/Text";
 import { useParams } from "react-router-dom";
 import { useConversationMessages } from "@/graphql/operations/message";
-import ConversationWrapper from "@/components/user/conversation/ConversationWrapper";
+import FeedWrapper from "@/components/user/conversation/ConversationWrapper";
 import ConversationsWrapper from "@/components/user/conversation/ConversationsWrapper";
-import { useDispatch } from "react-redux";
-import { setUnreadConsCount } from "@/redux/slices/conversationSlice";
+import { useAppSelector } from "@/utils/hooks/hooks";
 
 export default function ConversationView() {
   const [page, setPage] = useState(1);
@@ -17,14 +16,9 @@ export default function ConversationView() {
   const { conversationMessagesAsync, data, loading } =
     useConversationMessages();
   const messages = data?.messages?.messages;
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(setUnreadConsCount(data?.messages?.totalCount));
-    console.log(data?.messages.totalCount);
-  }, [data]);
 
   useEffect(() => getUserConversation(), [conversationId]);
+  const { unreadConsCount } = useAppSelector((state) => state.conversation);
 
   const getUserConversation = (currentPage = page) => {
     if (conversationId) {
@@ -50,11 +44,11 @@ export default function ConversationView() {
           sx={{ alignItems: "center", justifyContent: "space-between" }}
         >
           <AppContainer addCard sx={{ pr: 5, width: "25%" }}>
-            <Text type="subtitle">Conversations ({messages?.length ?? 0})</Text>
+            <Text type="subtitle">Conversations ({unreadConsCount ?? 0})</Text>
             <ConversationsWrapper />
           </AppContainer>
           <AppContainer addCard sx={{ m: 0, width: "75%" }}>
-            <ConversationWrapper />
+            <FeedWrapper />
           </AppContainer>
         </Stack>
       )}

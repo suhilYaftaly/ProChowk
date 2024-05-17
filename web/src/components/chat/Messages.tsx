@@ -68,7 +68,7 @@ const Messages: React.FC<MessagesProps> = ({ userId, conversationId }) => {
   }
 
   return (
-    <AppContainer sx={{ height: "100%" }}>
+    <AppContainer>
       {loading && (
         <Stack spacing={4} px={4} justifyContent="flex-end" overflow="hidden">
           {/* <Loade count={4} height="60px" width="100%" /> */}

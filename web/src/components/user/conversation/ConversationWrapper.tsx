@@ -7,7 +7,7 @@ import Messages from "@/components/chat/Messages";
 import MessageInput from "@/components/chat/Input";
 import AppContainer from "@/components/reusable/AppContainer";
 
-const ConversationWrapper: React.FC = () => {
+const FeedWrapper: React.FC = () => {
   const { userId } = useUserStates();
   const { conversationId } = useParams();
 
@@ -16,7 +16,7 @@ const ConversationWrapper: React.FC = () => {
       {conversationId && typeof conversationId === "string" ? (
         <>
           <AppContainer
-            sx={{ m: 0, width: "100%", overflow: "scroll", height: "70vh" }}
+            sx={{ m: 0, width: "100%", overflow: "auto", height: "70vh" }}
           >
             <Messages
               userId={userId as string}
@@ -37,4 +37,4 @@ const ConversationWrapper: React.FC = () => {
     </Stack>
   );
 };
-export default ConversationWrapper;
+export default FeedWrapper;

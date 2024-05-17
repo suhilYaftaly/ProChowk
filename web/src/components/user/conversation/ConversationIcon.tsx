@@ -5,9 +5,14 @@ import { useNavigate } from "react-router-dom";
 
 import { useUserStates } from "@/redux/reduxStates";
 import ConversationsPopover from "./ConversationsPopover";
-import { useIsMobile } from "@/utils/hooks/hooks";
+import {
+  useAppDispatch,
+  useAppSelector,
+  useIsMobile,
+} from "@/utils/hooks/hooks";
 import { paths } from "@/routes/Routes";
 import { useUserConversations } from "@/graphql/operations/conversation";
+import { setUnreadConsCount } from "@/redux/slices/conversationSlice";
 
 export default function ConversationIcon() {
   const navigate = useNavigate();
@@ -16,15 +21,19 @@ export default function ConversationIcon() {
   const whiteC = theme.palette.common.white;
   const isMobile = useIsMobile();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+  const dispatch = useAppDispatch();
 
   const { userConversationsAsync, data } = useUserConversations();
   const conversations = data?.latestConversations?.conversations;
   console.log(data);
-  const count = conversations?.filter(
-    (conversation) => !conversation.id // TODO to be changed to hasSeen
-  ).length;
+  const { unreadConsCount } = useAppSelector((state) => state.conversation);
 
   useEffect(() => getUserConversations(), [userId]);
+
+  useEffect(() => {
+    dispatch(setUnreadConsCount(data?.latestConversations?.totalCount));
+    console.log(data?.latestConversations.totalCount);
+  }, [data]);
 
   const getUserConversations = () => {
     if (userId) {
@@ -44,7 +53,7 @@ export default function ConversationIcon() {
   return (
     <>
       <IconButton size="small" sx={{ color: whiteC }} onClick={onIconClick}>
-        <Badge badgeContent={count} color="error" overlap="circular">
+        <Badge badgeContent={unreadConsCount} color="error" overlap="circular">
           <Message />
         </Badge>
       </IconButton>

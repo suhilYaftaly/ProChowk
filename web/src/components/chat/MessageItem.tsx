@@ -4,6 +4,7 @@ import { IMessageResponse } from "../../../../backend/src/types/commonTypes";
 import { Avatar, Box, Button, Grid, Stack } from "@mui/material";
 import Text from "../reusable/Text";
 import { Delete } from "@mui/icons-material";
+import { useState } from "react";
 
 interface Props {
   message: IMessageResponse;
@@ -22,6 +23,7 @@ const deleteMessage = () => {
 };
 
 export default function MessageItem({ message, sentByMe }: Props) {
+  const [showDelete, setShowDelete] = useState<boolean>();
   return (
     <Stack
       direction="row"
@@ -46,13 +48,23 @@ export default function MessageItem({ message, sentByMe }: Props) {
               {message.sender.name}
             </Text>
           )}
-          <Stack direction="row" spacing={1}>
-            {sentByMe && (
-              <Button onClick={deleteMessage}>
-                <Delete />
-              </Button>
+          <Stack
+            direction="row"
+            onMouseOver={(e) => setShowDelete(true)}
+            onMouseOut={(e) => setShowDelete(false)}
+            spacing={1}
+          >
+            {sentByMe && showDelete && (
+              <Delete onClick={deleteMessage} color="error" />
             )}
-            <Grid sx={{ p: "3" }}>
+            <Grid
+              sx={{
+                p: "10",
+                m: 20,
+                borderRadius: 10,
+                backgroundColor: "steelblue",
+              }}
+            >
               <Text fontSize={10} color="whiteAlpha.700">
                 {formatRelative(
                   new Date(message.createdAt).getTime(),
