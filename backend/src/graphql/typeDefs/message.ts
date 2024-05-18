@@ -8,7 +8,6 @@ const typeDefs = gql`
     createdAt: Date
     conversationId: String
     senderId: String
-    isLatestIn: String
     attachmentId: String
     updatedAt: Date
   }
@@ -25,6 +24,7 @@ const typeDefs = gql`
 
   type Mutation {
     sendMessage(
+      id: String!
       conversationId: String!
       body: String!
       attachmentId: String

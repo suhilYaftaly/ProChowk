@@ -67,6 +67,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
       {sortedConversations.map((conversation) => {
         const { hasSeenLatestMessages } =
           getUserParticipantObject(conversation);
+
         return (
           <ConversationItem
             key={conversation.id}

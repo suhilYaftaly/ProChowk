@@ -1,9 +1,10 @@
 import { messageOps } from "@/graphql/operations/message";
 import { useUserStates } from "@/redux/reduxStates";
-import { MessagesData, SendMessageVariables } from "@/types/types";
+import { MessagesData } from "@/types/types";
 import { useMutation } from "@apollo/client";
-import { Box, Button, Grid, Input, Stack, TextField } from "@mui/material";
+import { Button, Grid, Stack, TextField } from "@mui/material";
 import React, { useState } from "react";
+import { ObjectId } from "bson";
 
 interface Props {
   conversationId: string;
@@ -14,21 +15,17 @@ const MessageInput: React.FC<Props> = ({ conversationId }) => {
 
   const [sendMessage] = useMutation<
     { sendMessage: boolean },
-    { senderId: string; conversationId: string; body: string }
+    { id: string; senderId: string; conversationId: string; body: string }
   >(messageOps.Mutations.sendMessage);
   const { userId: senderId, firstName } = useUserStates();
 
   const onSendMessage = async (event: React.FormEvent) => {
     event.preventDefault();
     try {
-      const newMessage: SendMessageVariables = {
-        senderId: senderId as string,
-        conversationId,
-        body: messageBody,
-      };
-
+      const newId = new ObjectId().toString();
       const { data, errors } = await sendMessage({
         variables: {
+          id: newId,
           body: messageBody,
           conversationId,
           senderId: senderId as string,
@@ -55,8 +52,8 @@ const MessageInput: React.FC<Props> = ({ conversationId }) => {
               ...existing,
               messages: [
                 {
-                  id: "",
-                  attachmentId: "",
+                  id: newId,
+                  attachmentId: null,
                   body: messageBody,
                   senderId: senderId as string,
                   conversationId,
@@ -94,14 +91,6 @@ const MessageInput: React.FC<Props> = ({ conversationId }) => {
               placeholder="New message"
               color="success"
               fullWidth
-              // _focus={{
-              //   boxShadow: "none",
-              //   border: "1px solid",
-              //   borderColor: "whiteAlpha.300",
-              // }}
-              // _hover={{
-              //   borderColor: "whiteAlpha.300",
-              // }}
             />
           </Grid>
           <Grid>

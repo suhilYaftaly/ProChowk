@@ -4,6 +4,7 @@ import {
   HttpLink,
   ApolloLink,
   Observable,
+  split,
 } from "@apollo/client";
 import { onError } from "@apollo/client/link/error";
 import { isPast } from "date-fns";
@@ -17,6 +18,7 @@ import { decodeJwtToken } from "@/utils/utilFuncs";
 import { getLocalTokens } from "@/utils/auth";
 import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
 import { createClient } from "graphql-ws";
+import { getMainDefinition } from "@apollo/client/utilities";
 
 const { dispatch } = store;
 
@@ -30,7 +32,7 @@ const wsLink = new GraphQLWsLink(
     url: "ws://localhost:9001/graphql",
 
     connectionParams: {
-      authentication: getLocalTokens()?.accessToken,
+      authorization: `Bearer ${getLocalTokens()?.accessToken}`,
     },
   })
 );
@@ -120,7 +122,20 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
   if (networkError) console.log(`[Network error]: ${networkError}`);
 });
 
-const link = ApolloLink.from([authLink, errorLink, httpLink, wsLink]);
+// Split links, so we can send data to each link
+const splitLink = split(
+  ({ query }) => {
+    const definition = getMainDefinition(query);
+    return (
+      definition.kind === "OperationDefinition" &&
+      definition.operation === "subscription"
+    );
+  },
+  wsLink,
+  httpLink
+);
+
+const link = ApolloLink.from([authLink, errorLink, splitLink]);
 
 export const client = new ApolloClient({
   link,

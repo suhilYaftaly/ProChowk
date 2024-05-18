@@ -8,7 +8,7 @@ import {
   MessagesSubscriptionData,
   MessagesVariables,
 } from "@/types/types";
-import { Stack } from "@mui/material";
+import { Skeleton, Stack } from "@mui/material";
 import AppContainer from "../reusable/AppContainer";
 
 interface MessagesProps {
@@ -41,7 +41,7 @@ const Messages: React.FC<MessagesProps> = ({ userId, conversationId }) => {
         if (!subscriptionData.data) return prev;
 
         const newMessage = subscriptionData.data.messageSent;
-
+        console.log(subscriptionData);
         return Object.assign({}, prev, {
           messages:
             newMessage.sender.id === userId
@@ -66,24 +66,26 @@ const Messages: React.FC<MessagesProps> = ({ userId, conversationId }) => {
   if (error) {
     return null;
   }
+  console.log(data);
 
   return (
     <AppContainer>
-      {loading && (
+      {loading ? (
         <Stack spacing={4} px={4} justifyContent="flex-end" overflow="hidden">
-          {/* <Loade count={4} height="60px" width="100%" /> */}
+          <Skeleton />
         </Stack>
-      )}
-      {data?.messages && (
-        <>
-          {data.messages.map((message) => (
-            <MessageItem
-              key={message.id}
-              message={message}
-              sentByMe={message.sender.id === userId}
-            />
-          ))}
-        </>
+      ) : (
+        data?.messages && (
+          <>
+            {data.messages.toReversed().map((message) => (
+              <MessageItem
+                key={message.id}
+                message={message}
+                sentByMe={message.sender.id === userId}
+              />
+            ))}
+          </>
+        )
       )}
     </AppContainer>
   );

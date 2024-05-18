@@ -2,6 +2,7 @@ import { gql, useLazyQuery, useMutation } from "@apollo/client";
 import { conversationFields } from "../gqlFrags";
 import { asyncOps } from "./gqlFuncs";
 import { TMessage } from "./message";
+import { IUser } from "./user";
 
 export const conversationOps = {
   Queries: {
@@ -19,9 +20,14 @@ export const conversationOps = {
     }`,
   },
   Mutations: {
-    markConversationAsRead: gql`mutation MarkConversationAsRead($conversationId: ID!) {
-        markConversationAsRead(conversationId: $conversationId) {${conversationFields}}
-      }`,
+    markConversationAsRead: gql`
+      mutation MarkConversationAsRead(
+        $userId: String!
+        $conversationId: String!
+      ) {
+        markConversationAsRead(userId: $userId, conversationId: $conversationId)
+      }
+    `,
     deleteConversation: gql`
       mutation DeleteConversation($conversationId: ID!) {
         deleteConversation(conversationId: $conversationId) {

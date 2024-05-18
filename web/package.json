@@ -19,6 +19,7 @@
     "@react-oauth/google": "^0.11.0",
     "@reduxjs/toolkit": "^1.9.5",
     "axios": "^1.4.0",
+    "bson": "^6.7.0",
     "date-fns": "^2.30.0",
     "graphql": "^16.8.1",
     "graphql-ws": "^5.16.0",

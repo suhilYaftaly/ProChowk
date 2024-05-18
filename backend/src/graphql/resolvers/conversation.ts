@@ -42,6 +42,9 @@ export default {
               userId: {
                 equals: authUser.id,
               },
+              hasSeenLatestMessages: {
+                equals: false,
+              },
             },
           },
         },
@@ -83,9 +86,9 @@ export default {
               userId: {
                 equals: authUser.id,
               },
-              // hasSeenLatestMessages: {
-              //   equals: false,
-              // },
+              hasSeenLatestMessages: {
+                equals: false,
+              },
             },
           },
         },
@@ -166,12 +169,12 @@ export default {
       { userId, conversationId }: { userId: string; conversationId: string },
       context: GQLContext
     ): Promise<boolean> => {
-      const { prisma, req } = context;
+      const { prisma, req, pubsub } = context;
       const authUser = checkAuth(req);
 
       canUserUpdate({ id: userId, authUser });
 
-      await prisma.conversationParticipant.updateMany({
+      const conversation = await prisma.conversationParticipant.updateMany({
         where: {
           userId,
           conversationId,
@@ -180,6 +183,12 @@ export default {
           hasSeenLatestMessages: true,
         },
       });
+
+      // pubsub.publish("CONVERSATION_UPDATED", {
+      //   conversationUpdated: {
+      //     conversation,
+      //   },
+      // });
 
       return true;
     },
@@ -363,19 +372,7 @@ export default {
             authUser.id
           );
 
-          const userSentLatestMessage =
-            payload.conversationUpdated.conversation.latestMessage?.senderId ===
-            authUser.id;
-
-          const userIsBeingRemoved =
-            removedUserIds &&
-            Boolean(removedUserIds.find((id: string) => id === authUser.id));
-
-          return (
-            (userIsParticipant && !userSentLatestMessage) ||
-            userSentLatestMessage ||
-            userIsBeingRemoved
-          );
+          return userIsParticipant;
         }
       ),
     },

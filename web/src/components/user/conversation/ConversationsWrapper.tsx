@@ -1,8 +1,7 @@
-import { useQuery, useSubscription } from "@apollo/client";
+import { gql, useMutation, useQuery, useSubscription } from "@apollo/client";
 import { useEffect } from "react";
 import {
   ConversationCreatedSubscriptionData,
-  ConversationDeletedData,
   ConversationsData,
   ConversationUpdatedData,
   MessagesData,
@@ -12,92 +11,32 @@ import { conversationOps } from "@/graphql/operations/conversation";
 import { messageOps } from "@/graphql/operations/message";
 import { useUserStates } from "@/redux/reduxStates";
 import ConversationList from "./ConversationList";
+import { IParticipantResponse } from "../../../../../backend/src/types/commonTypes";
 
 const ConversationsWrapper = () => {
   const { conversationId } = useParams();
   const { userId } = useUserStates();
+
+  const [markConversationAsRead] = useMutation<
+    { markConversationAsRead: true },
+    { userId: string; conversationId: string }
+  >(conversationOps.Mutations.markConversationAsRead);
 
   useSubscription<ConversationUpdatedData>(
     conversationOps.Subscriptions.conversationUpdated,
     {
       onData: ({ client, data }) => {
         const { data: subscriptionData } = data;
+        console.log(data);
 
         if (!subscriptionData || !subscriptionData.conversationUpdated) return;
 
         const {
-          conversationUpdated: {
-            conversation: updatedConversation,
-            addedUserIds,
-            removedUserIds,
-          },
+          conversationUpdated: { conversation: updatedConversation },
         } = subscriptionData;
 
         const { id: updatedConversationId, latestMessage } =
           updatedConversation;
-
-        /**
-         * Check if user is being removed
-         */
-
-        if (removedUserIds && removedUserIds.length) {
-          const isBeingRemoved = removedUserIds.find((id) => id === userId);
-
-          if (isBeingRemoved) {
-            const conversationsData = client.readQuery<ConversationsData>({
-              query: conversationOps.Queries.userConversations,
-            });
-
-            if (!conversationsData) return;
-
-            client.writeQuery<ConversationsData>({
-              query: conversationOps.Queries.userConversations,
-              data: {
-                conversations: conversationsData.conversations.filter(
-                  (c) => c.id !== updatedConversationId
-                ),
-              },
-            });
-
-            // if (conversationId === updatedConversationId) {
-            //   router.replace(
-            //     typeof process.env.NEXT_PUBLIC_BASE_URL === "string"
-            //       ? process.env.NEXT_PUBLIC_BASE_URL
-            //       : ""
-            //   );
-            // }
-
-            /**
-             * Early return - no more updates required
-             */
-            return;
-          }
-        }
-
-        /**
-         * Check if user is being added to conversation
-         */
-        if (addedUserIds && addedUserIds.length) {
-          const isBeingAdded = addedUserIds.find((id) => id === userId);
-
-          if (isBeingAdded) {
-            const conversationsData = client.readQuery<ConversationsData>({
-              query: conversationOps.Queries.userConversations,
-            });
-
-            if (!conversationsData) return;
-
-            client.writeQuery<ConversationsData>({
-              query: conversationOps.Queries.userConversations,
-              data: {
-                conversations: [
-                  ...(conversationsData.conversations || []),
-                  updatedConversation,
-                ],
-              },
-            });
-          }
-        }
 
         /**
          * Already viewing conversation where
@@ -105,8 +44,10 @@ const ConversationsWrapper = () => {
          * to manually update cache due to
          * message subscription
          */
+        console.log("Message read");
         if (updatedConversationId === conversationId) {
           onViewConversation(conversationId, false);
+          // dispatch(setUnreadConsToRead());
           return;
         }
 
@@ -156,6 +97,81 @@ const ConversationsWrapper = () => {
     if (hasSeenLatestMessage) return;
 
     try {
+      if (!userId) return;
+      await markConversationAsRead({
+        variables: {
+          userId,
+          conversationId,
+        },
+        optimisticResponse: {
+          markConversationAsRead: true,
+        },
+        update: (cache) => {
+          /**
+           * Get conversation participants
+           * from cache
+           */
+          const participantsFragment = cache.readFragment<{
+            participants: Array<IParticipantResponse>;
+          }>({
+            id: `Conversation:${conversationId}`,
+            fragment: gql`
+              fragment Participants on Conversation {
+                participants {
+                  user {
+                    id
+                    name
+                  }
+                  hasSeenLatestMessages
+                }
+              }
+            `,
+          });
+
+          if (!participantsFragment) return;
+
+          /**
+           * Create copy to
+           * allow mutation
+           */
+          const participants = [...participantsFragment.participants];
+
+          const userParticipantIdx = participants.findIndex(
+            (p) => p.user.id === userId
+          );
+
+          /**
+           * Should always be found
+           * but just in case
+           */
+          if (userParticipantIdx === -1) return;
+
+          const userParticipant = participants[userParticipantIdx];
+          /**
+           * Update user to show latest
+           * message as read
+           */
+          participants[userParticipantIdx] = {
+            ...userParticipant,
+            hasSeenLatestMessages: true,
+          };
+
+          /**
+           * Update cache
+           */
+          cache.writeFragment({
+            id: `Conversation:${conversationId}`,
+            fragment: gql`
+              fragment UpdatedParticipants on Conversation {
+                participants
+              }
+            `,
+            data: {
+              participants,
+            },
+          });
+        },
+      });
     } catch (error) {
       console.log("onViewConversation error", error);
     }
@@ -172,36 +188,36 @@ const ConversationsWrapper = () => {
     },
   });
 
-  useSubscription<ConversationDeletedData>(
-    conversationOps.Subscriptions.conversationDeleted,
-    {
-      onData: ({ client, data }) => {
-        const { data: subscriptionData } = data;
+  // useSubscription<ConversationDeletedData>(
+  //   conversationOps.Subscriptions.conversationDeleted,
+  //   {
+  //     onData: ({ client, data }) => {
+  //       const { data: subscriptionData } = data;
 
-        if (!subscriptionData) return;
+  //       if (!subscriptionData) return;
 
-        const existing = client.readQuery<ConversationsData>({
-          query: conversationOps.Queries.userConversations,
-        });
+  //       const existing = client.readQuery<ConversationsData>({
+  //         query: conversationOps.Queries.userConversations,
+  //       });
 
-        if (!existing) return;
+  //       if (!existing) return;
 
-        const { conversations } = existing;
-        const {
-          conversationDeleted: { id: deletedConversationId },
-        } = subscriptionData;
+  //       const { conversations } = existing;
+  //       const {
+  //         conversationDeleted: { id: deletedConversationId },
+  //       } = subscriptionData;
 
-        client.writeQuery<ConversationsData>({
-          query: conversationOps.Queries.userConversations,
-          data: {
-            conversations: conversations.filter(
-              (conversation) => conversation.id !== deletedConversationId
-            ),
-          },
-        });
-      },
-    }
-  );
+  //       client.writeQuery<ConversationsData>({
+  //         query: conversationOps.Queries.userConversations,
+  //         data: {
+  //           conversations: conversations.filter(
+  //             (conversation) => conversation.id !== deletedConversationId
+  //           ),
+  //         },
+  //       });
+  //     },
+  //   }
+  // );
 
   const subscribeToNewConversations = () => {
     subscribeToMore({

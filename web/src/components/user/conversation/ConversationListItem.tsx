@@ -1,12 +1,13 @@
 import {
   CircularProgress,
+  Grid,
   ListItem,
   ListItemButton,
   Stack,
   alpha,
   useTheme,
 } from "@mui/material";
-import { Circle, MessageTwoTone } from "@mui/icons-material";
+import { Circle, DockTwoTone, MessageTwoTone } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
 import { TConversation, useMarkConversationAsRead } from "@gqlOps/conversation";
@@ -25,6 +26,7 @@ type Props = {
 };
 export default function ConversationListItem({
   conversation,
+  hasSeenLatestMessages,
   onClick,
   onMarkSuccess,
 }: Props) {
@@ -39,7 +41,8 @@ export default function ConversationListItem({
   const { markConversationAsReadAsync, loading } = useMarkConversationAsRead();
 
   const onMarkAsRead = (conversationId: string) => {
-    if (!id) {
+    if (!conversationId) {
+      console.log(conversationId);
       // TODO to be changed
       markConversationAsReadAsync({
         variables: { conversationId },

@@ -45,7 +45,7 @@ export default {
         },
         include: messagePopulated,
         orderBy: {
-          createdAt: "asc",
+          createdAt: "desc",
         },
       });
 
@@ -56,10 +56,16 @@ export default {
     sendMessage: async (
       _: any,
       {
+        id,
         conversationId,
         body,
         attachmentId,
-      }: { conversationId: string; body: string; attachmentId: string },
+      }: {
+        id: string;
+        conversationId: string;
+        body: string;
+        attachmentId: string;
+      },
       context: GQLContext
     ): Promise<boolean> => {
       const { prisma, pubsub, req } = context;
@@ -70,6 +76,7 @@ export default {
        */
       const newMessage = await prisma.message.create({
         data: {
+          id,
           senderId: authUser.id,
           conversationId,
           body,
@@ -130,7 +137,7 @@ export default {
         include: conversationPopulated,
       });
 
-      pubsub.publish("MESSAGE_SENT", { message: newMessage });
+      pubsub.publish("MESSAGE_SENT", { messageSent: newMessage });
       pubsub.publish("CONVERSATION_UPDATED", {
         conversationUpdated: {
           conversation,
@@ -180,7 +187,7 @@ export default {
           args: { conversationId: string },
           context: GQLContext
         ) => {
-          return payload.message.conversationId === args.conversationId;
+          return payload.messageSent.conversationId === args.conversationId;
         }
       ),
     },
@@ -196,7 +203,7 @@ export default {
           args: { conversationId: string },
           context: GQLContext
         ) => {
-          return payload.message.conversationId === args.conversationId;
+          return payload.messageSent.conversationId === args.conversationId;
         }
       ),
     },
@@ -204,7 +211,7 @@ export default {
 };
 
 export interface MessageSubscriptionPayload {
-  message: IMessageResponse;
+  messageSent: IMessageResponse;
 }
 
 export const messagePopulated = Prisma.validator<Prisma.MessageInclude>()({

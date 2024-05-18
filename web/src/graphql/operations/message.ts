@@ -13,8 +13,12 @@ export const messageOps = {
   },
   Mutations: {
     sendMessage: gql`
-      mutation SendMessage($conversationId: String!, $body: String!) {
-        sendMessage(conversationId: $conversationId, body: $body)
+      mutation SendMessage(
+        $id: String!
+        $conversationId: String!
+        $body: String!
+      ) {
+        sendMessage(id: $id, conversationId: $conversationId, body: $body)
       }
     `,
   },
@@ -36,7 +40,6 @@ export type TMessage = {
   conversationId: string;
   senderId: string;
   sender: IUser;
-  isLatestIn: boolean;
   imageId: string;
   createdAt: Date;
   updatedAt: Date;

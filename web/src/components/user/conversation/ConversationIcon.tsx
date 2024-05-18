@@ -31,9 +31,16 @@ export default function ConversationIcon() {
   useEffect(() => getUserConversations(), [userId]);
 
   useEffect(() => {
-    dispatch(setUnreadConsCount(data?.latestConversations?.totalCount));
-    console.log(data?.latestConversations.totalCount);
-  }, [data]);
+    const unReadCount =
+      data?.latestConversations?.conversations.filter((x) =>
+        x.participants.filter(
+          (x) => !x.hasSeenLatestMessages && x.user.id == userId
+        )
+      ).length ?? 0;
+    dispatch(setUnreadConsCount(unReadCount));
+    console.log(unReadCount);
+    console.log(data?.latestConversations);
+  }, [data?.latestConversations]);
 
   const getUserConversations = () => {
     if (userId) {

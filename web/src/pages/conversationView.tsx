@@ -15,7 +15,6 @@ export default function ConversationView() {
 
   const { conversationMessagesAsync, data, loading } =
     useConversationMessages();
-  const messages = data?.messages?.messages;
 
   useEffect(() => getUserConversation(), [conversationId]);
   const { unreadConsCount } = useAppSelector((state) => state.conversation);
