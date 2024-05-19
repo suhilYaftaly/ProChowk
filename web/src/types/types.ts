@@ -59,9 +59,7 @@ export interface MessagesSubscriptionData {
  * Conversations
  */
 export interface CreateConversationData {
-  createConversation: {
-    conversationId: string;
-  };
+  createConversation: string;
 }
 
 export interface ConversationsData {

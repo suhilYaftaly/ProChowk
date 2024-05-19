@@ -19,10 +19,8 @@ export const conversationOps = {
   },
   Mutations: {
     createConversation: gql`
-      mutation CreateConversation($participantIds: [String]!) {
-        createConversation(participantIds: $participantIds) {
-          conversationId
-        }
+      mutation CreateConversation($participantId: String!) {
+        createConversation(participantId: $participantId)
       }
     `,
     markConversationAsRead: gql`
