@@ -1,4 +1,4 @@
-import { Divider, Skeleton, Stack } from "@mui/material";
+import { Divider, Grid, Skeleton, Stack } from "@mui/material";
 import { useEffect, useState } from "react";
 
 import AppContainer from "@reusable/AppContainer";
@@ -8,6 +8,7 @@ import { useConversationMessages } from "@/graphql/operations/message";
 import FeedWrapper from "@/components/user/conversation/ConversationWrapper";
 import ConversationsWrapper from "@/components/user/conversation/ConversationsWrapper";
 import { useAppSelector } from "@/utils/hooks/hooks";
+import { useRespVal } from "@/utils/hooks/hooks";
 
 export default function ConversationView() {
   const [page, setPage] = useState(1);
@@ -34,25 +35,51 @@ export default function ConversationView() {
   };
 
   return (
-    <AppContainer>
-      {loading ? (
-        <NotiSkeleton />
-      ) : (
-        <Stack
-          direction={"row"}
-          sx={{ alignItems: "center", justifyContent: "space-between" }}
-        >
-          <AppContainer addCard sx={{ pr: 5, width: "25%" }}>
-            <Text type="subtitle">Conversations ({unreadConsCount ?? 0})</Text>
-            <ConversationsWrapper />
-          </AppContainer>
-          <AppContainer addCard sx={{ m: 0, width: "75%" }}>
-            <FeedWrapper />
-          </AppContainer>
-        </Stack>
-      )}
-    </AppContainer>
+    <>
+      <AppContainer>
+        <Grid container spacing={2} sx={{ mb: useRespVal(2, undefined) }}>
+          <Grid item xs={12} md={3}>
+            <AppContainer addCard sx={{ m: 0 }}>
+              <Text type="subtitle">
+                Conversations ({unreadConsCount ?? 0})
+              </Text>
+              <ConversationsWrapper />
+            </AppContainer>
+          </Grid>
+          <Grid item xs={12} md={9}>
+            <AppContainer addCard sx={{ m: 0 }} cardSX={{ p: 0 }}>
+              <FeedWrapper />
+            </AppContainer>
+          </Grid>
+        </Grid>
+      </AppContainer>
+    </>
   );
+
+  // <AppContainer>
+  //     {loading ? (
+  //       <NotiSkeleton />
+  //     ) : (
+  //       <Stack
+  //         direction={"row"}
+  //         sx={{ alignItems: "center", justifyContent: "space-between" }}
+  //       >
+  //         <Grid container spacing={2} sx={{}}>
+  //           <Grid item xs={12} md={10}>
+  //             <AppContainer addCard sx={{ m: 1 }} cardSX={{ p: 1 }}>
+  //               <Text type="subtitle">
+  //                 Conversations ({unreadConsCount ?? 0})
+  //               </Text>
+  //               <ConversationsWrapper />
+  //             </AppContainer>
+  //           </Grid>
+  //           <AppContainer addCard sx={{ m: 0, width: "75%" }}>
+  //             <FeedWrapper />
+  //           </AppContainer>
+  //         </Grid>
+  //       </Stack>
+  //     )}
+  //   </AppContainer>
 }
 
 const NotiSkeleton = () => (

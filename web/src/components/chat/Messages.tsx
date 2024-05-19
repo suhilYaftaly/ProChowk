@@ -66,7 +66,11 @@ const Messages: React.FC<MessagesProps> = ({ userId, conversationId }) => {
   if (error) {
     return null;
   }
-  console.log(data);
+
+  const bottomRef = useRef(null);
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [data?.messages]);
 
   return (
     <AppContainer>
@@ -84,6 +88,7 @@ const Messages: React.FC<MessagesProps> = ({ userId, conversationId }) => {
                 sentByMe={message.sender.id === userId}
               />
             ))}
+            <div ref={bottomRef} />
           </>
         )
       )}

@@ -3,17 +3,21 @@ import { useEffect, useState } from "react";
 
 import AppContainer from "@reusable/AppContainer";
 import ConversationListItem from "@user/conversation/ConversationListItem";
-import { TConversation, useUserConversations } from "@gqlOps/conversation";
+import {
+  getUserParticipantObject,
+  useUserConversations,
+} from "@gqlOps/conversation";
 import { useUserStates } from "@/redux/reduxStates";
 import Text from "@reusable/Text";
+import { useAppSelector } from "@/utils/hooks/hooks";
 
 export default function ConversationsView() {
   const { userId } = useUserStates();
   const [page, setPage] = useState(1);
 
   const { userConversationsAsync, data, loading } = useUserConversations();
-  const conversations = data?.latestConversations?.conversations;
-  const totalCount = data?.latestConversations?.totalCount;
+  const conversations = data?.conversations?.conversations;
+  const totalCount = data?.conversations?.totalCount;
   const pageSize = 50;
 
   const totalPages = totalCount ? Math.ceil(totalCount / pageSize) : 0;
@@ -28,6 +32,8 @@ export default function ConversationsView() {
     }
   };
 
+  const { unreadConsCount } = useAppSelector((x) => x.conversation);
+
   const handlePageChange = (_: any, value: number) => {
     setPage(value);
     getUserConversations(value);
@@ -40,22 +46,29 @@ export default function ConversationsView() {
           direction={"row"}
           sx={{ alignItems: "center", justifyContent: "space-between" }}
         >
-          <Text type="subtitle">Conversations ({conversations?.length})</Text>
+          <Text type="subtitle">Conversations ({unreadConsCount})</Text>
         </Stack>
         {loading ? (
           <NotiSkeleton />
         ) : (
           <>
             <List>
-              {conversations?.map((conversation: TConversation) => (
-                <Stack key={conversation.id}>
-                  <Divider />
-                  <ConversationListItem
-                    conversation={conversation}
-                    onMarkSuccess={() => getUserConversations()}
-                  />
-                </Stack>
-              ))}
+              {conversations?.map((conversation) => {
+                const { hasSeenLatestMessages } = getUserParticipantObject(
+                  conversation,
+                  userId
+                );
+                return (
+                  <Stack key={conversation.id}>
+                    <Divider />
+                    <ConversationListItem
+                      conversation={conversation}
+                      onMarkSuccess={() => getUserConversations()}
+                      hasSeenLatestMessages={hasSeenLatestMessages}
+                    />
+                  </Stack>
+                );
+              })}
             </List>
             {totalCount && totalCount > pageSize && (
               <Pagination

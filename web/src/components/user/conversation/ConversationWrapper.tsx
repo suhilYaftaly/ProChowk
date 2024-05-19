@@ -6,29 +6,29 @@ import { useParams } from "react-router-dom";
 import Messages from "@/components/chat/Messages";
 import MessageInput from "@/components/chat/Input";
 import AppContainer from "@/components/reusable/AppContainer";
+import MessagesHeader from "@/components/chat/MessagesHeader";
 
 const FeedWrapper: React.FC = () => {
   const { userId } = useUserStates();
   const { conversationId } = useParams();
 
   return (
-    <Stack sx={{ justifyContent: "stretch" }}>
+    <Stack sx={{ justifyContent: "flex-start" }}>
       {conversationId && typeof conversationId === "string" ? (
         <>
-          <AppContainer
-            sx={{ m: 0, width: "100%", overflow: "auto", height: "70vh" }}
-          >
+          <MessagesHeader
+            userId={userId as string}
+            conversationId={conversationId}
+          />
+          <AppContainer sx={{ m: 0, overflow: "auto", height: "75vh" }}>
             <Messages
               userId={userId as string}
               conversationId={conversationId}
             />
           </AppContainer>
-          <AppContainer
-            sx={{ m: 0, width: "100%", overflow: "scroll", height: "70vh" }}
-          >
+          <AppContainer sx={{ m: 0, width: "100%", overflow: "auto" }}>
             <MessageInput conversationId={conversationId} />
           </AppContainer>
-          {/* <MessagesHeader userId={userId} conversationId={conversationId} /> */}
         </>
       ) : (
         // <NoConversationSelected />

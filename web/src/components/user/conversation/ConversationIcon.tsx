@@ -24,23 +24,26 @@ export default function ConversationIcon() {
   const dispatch = useAppDispatch();
 
   const { userConversationsAsync, data } = useUserConversations();
-  const conversations = data?.latestConversations?.conversations;
+  const conversations = data?.conversations?.conversations;
   console.log(data);
   const { unreadConsCount } = useAppSelector((state) => state.conversation);
 
   useEffect(() => getUserConversations(), [userId]);
 
   useEffect(() => {
-    const unReadCount =
-      data?.latestConversations?.conversations.filter((x) =>
-        x.participants.filter(
-          (x) => !x.hasSeenLatestMessages && x.user.id == userId
-        )
-      ).length ?? 0;
+    let unReadCount = 0;
+    data?.conversations?.conversations.forEach((x) =>
+      x.participants.forEach((p) => {
+        if (!p.hasSeenLatestMessages && p.user.id == userId) {
+          console.log(p.hasSeenLatestMessages, p.user.name);
+          unReadCount++;
+        }
+      })
+    );
     dispatch(setUnreadConsCount(unReadCount));
     console.log(unReadCount);
-    console.log(data?.latestConversations);
-  }, [data?.latestConversations]);
+    console.log(data?.conversations);
+  }, [data?.conversations]);
 
   const getUserConversations = () => {
     if (userId) {

@@ -6,6 +6,7 @@ import {
 import ConversationItem from "./ConversationListItem";
 import {
   TConversation,
+  getUserParticipantObject,
   useDeleteConversation,
 } from "@/graphql/operations/conversation";
 import { Box } from "@mui/material";
@@ -23,17 +24,8 @@ const ConversationList: React.FC<ConversationListProps> = ({
   conversations,
   onViewConversation,
 }) => {
-  const [editingConversation, setEditingConversation] =
-    useState<IConversationResponse | null>(null);
   const { userId } = useUserStates();
 
-  const { conversationId } = { conversationId: "12" };
-  const getUserParticipantObject = (conversation: IConversationResponse) => {
-    console.log(conversation.participants);
-    return conversation.participants.find(
-      (p) => p.user.id === userId
-    ) as IParticipantResponse;
-  };
   /**
    * Mutations
    */
@@ -65,25 +57,16 @@ const ConversationList: React.FC<ConversationListProps> = ({
   return (
     <Box width="100%" overflow="hidden">
       {sortedConversations.map((conversation) => {
-        const { hasSeenLatestMessages } =
-          getUserParticipantObject(conversation);
-
+        const { hasSeenLatestMessages } = getUserParticipantObject(
+          conversation,
+          userId
+        );
         return (
           <ConversationItem
             key={conversation.id}
             userId={userId as string}
-            conversation={
-              {
-                id: conversation.id,
-                createdAt: conversation.createdAt,
-                latestMessage: conversation.latestMessage,
-                latestMessageId: conversation.latestMessageId,
-                userId: userId,
-                messages: [],
-              } as unknown as TConversation
-            }
+            conversation={conversation}
             hasSeenLatestMessages={hasSeenLatestMessages}
-            selectedConversationId={conversationId}
             onClick={() =>
               onViewConversation(conversation.id, hasSeenLatestMessages)
             }

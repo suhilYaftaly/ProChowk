@@ -27,60 +27,50 @@ export default function MessageItem({ message, sentByMe }: Props) {
   return (
     <Stack
       direction="row"
-      p={4}
+      p={2}
       spacing={4}
       // _hover={{ bg: "whiteAlpha.200" }}
       justifyContent={sentByMe ? "flex-end" : "flex-start"}
       // wordBreak="break-word"
     >
-      {!sentByMe && (
-        <Grid alignContent="flex-end">
-          <Avatar sizes="sm" />
-        </Grid>
-      )}
       <Stack spacing={3}>
         <Stack
           direction="row"
           justifyContent={sentByMe ? "flex-end" : "flex-start"}
         >
-          {!sentByMe && (
-            <Text fontWeight={500} textAlign={sentByMe ? "right" : "left"}>
-              {message.sender.name}
-            </Text>
-          )}
           <Stack
             direction="row"
             onMouseOver={(e) => setShowDelete(true)}
             onMouseOut={(e) => setShowDelete(false)}
             spacing={1}
           >
-            {sentByMe && showDelete && (
-              <Delete onClick={deleteMessage} color="error" />
-            )}
+            <Grid sx={{ margin: 2, paddingTop: 3.2, paddingRight: 3 }}>
+              {sentByMe && showDelete && (
+                <Delete onClick={deleteMessage} color="error" />
+              )}
+            </Grid>
             <Grid
               sx={{
-                p: "10",
-                m: 20,
-                borderRadius: 10,
-                backgroundColor: "steelblue",
+                textJustify: "inter-word",
               }}
             >
               <Text fontSize={10} color="whiteAlpha.700">
-                {formatRelative(
-                  new Date(message.createdAt).getTime(),
-                  new Date(message.createdAt),
-                  {
-                    locale: {
-                      ...enUS,
-                      formatRelative: (token) =>
-                        formatRelativeLocale[
-                          token as keyof typeof formatRelativeLocale
-                        ],
-                    },
-                  }
-                )}
+                {`${new Date(message.createdAt).toDateString()} / ${new Date(
+                  message.createdAt
+                ).toLocaleTimeString()}`}
               </Text>
-              <Text fontSize="1em">{message.body}</Text>
+              <Text
+                sx={{
+                  marginTop: 1,
+                  paddingX: 3,
+                  paddingY: 1,
+                  backgroundColor: !sentByMe ? "Highlight" : "slategray",
+                  borderRadius: "10px",
+                }}
+                fontSize="1em"
+              >
+                {message.body}
+              </Text>
             </Grid>
           </Stack>
         </Stack>

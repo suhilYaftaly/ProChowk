@@ -2,16 +2,14 @@ import { gql, useLazyQuery, useMutation } from "@apollo/client";
 import { conversationFields } from "../gqlFrags";
 import { asyncOps } from "./gqlFuncs";
 import { TMessage } from "./message";
-import { IUser } from "./user";
+import { ConversationsData } from "@/types/types";
+import {
+  IConversationResponse,
+  IParticipantResponse,
+} from "../../../../backend/src/types/commonTypes";
 
 export const conversationOps = {
   Queries: {
-    userLatestConversations: gql`query UserConversations {
-      latestConversations {
-        totalCount 
-        conversations {${conversationFields}}
-      }
-    }`,
     userConversations: gql`query UserConversations {
       conversations {
         totalCount 
@@ -20,6 +18,13 @@ export const conversationOps = {
     }`,
   },
   Mutations: {
+    createConversation: gql`
+      mutation CreateConversation($participantIds: [String]!) {
+        createConversation(participantIds: $participantIds) {
+          conversationId
+        }
+      }
+    `,
     markConversationAsRead: gql`
       mutation MarkConversationAsRead(
         $userId: String!
@@ -79,25 +84,24 @@ export type TConversation = {
 
 //OPERATIONS
 //conversations OP
-type TUserConversationsData = {
-  latestConversations: { totalCount?: number; conversations: TConversation[] };
-};
+
 type TUserConversationsInput = {
   page?: number;
   pageSize?: number;
 };
 type TUserConversationsAsync = {
   variables: TUserConversationsInput;
-  onSuccess?: (data: TUserConversationsData["latestConversations"]) => void;
+  onSuccess?: (data: ConversationsData["conversations"]) => void;
   onError?: (error?: any) => void;
 };
 export const useUserConversations = () => {
-  const [userConversations, { data, loading, error }] = useLazyQuery<
-    TUserConversationsData,
-    TUserConversationsInput
-  >(conversationOps.Queries.userLatestConversations, {
-    fetchPolicy: "network-only",
-  });
+  const [userConversations, { data, loading, error, subscribeToMore }] =
+    useLazyQuery<ConversationsData, TUserConversationsInput>(
+      conversationOps.Queries.userConversations,
+      {
+        fetchPolicy: "network-only",
+      }
+    );
 
   const userConversationsAsync = async ({
     variables,
@@ -106,8 +110,8 @@ export const useUserConversations = () => {
   }: TUserConversationsAsync) =>
     asyncOps({
       operation: () => userConversations({ variables }),
-      onSuccess: (dt: TUserConversationsData) =>
-        onSuccess && onSuccess(dt.latestConversations),
+      onSuccess: (dt: ConversationsData) =>
+        onSuccess && onSuccess(dt.conversations),
       onError,
     });
 
@@ -116,6 +120,7 @@ export const useUserConversations = () => {
     data,
     loading,
     error,
+    subscribeToMore,
   };
 };
 
@@ -176,4 +181,13 @@ export const useDeleteConversation = () => {
     });
 
   return { deleteConversationAsync, data, loading, error };
+};
+
+export const getUserParticipantObject = (
+  conversation: IConversationResponse,
+  userId: string | undefined
+) => {
+  return conversation.participants.find(
+    (p) => p.user.id === userId
+  ) as IParticipantResponse;
 };

@@ -14,6 +14,12 @@ import { useNavigate } from "react-router-dom";
 import { IUser } from "@gqlOps/user";
 import Text from "../reusable/Text";
 import { navigateToUserPage } from "@/utils/utilFuncs";
+import { useMutation } from "@apollo/client";
+import { CreateConversationData } from "@/types/types";
+import { conversationOps } from "@/graphql/operations/conversation";
+import { IConversationResponse } from "../../../../backend/src/types/commonTypes";
+import { client } from "@/graphql/apollo-client";
+import { paths } from "@/routes/Routes";
 
 type Props = { user: IUser; onClick?: () => void };
 export default function ChatWithUserCard({ user, onClick }: Props) {
@@ -23,14 +29,48 @@ export default function ChatWithUserCard({ user, onClick }: Props) {
   const primaryC = theme.palette.primary.main;
   const iconColor = theme.palette.secondary.dark;
 
-  //TODO: implement chatting
+  const [createConversation, { loading: createConversationLoading }] =
+    useMutation<CreateConversationData, { participantIds: Array<string> }>(
+      conversationOps.Mutations.createConversation
+    );
+
   const onPosterClick = () => {
-    navigateToUserPage({ user, navigate });
+    console.log(user);
+    if (user) {
+      const conversationId = findExistingConversation();
+      console.log(conversationId);
+      if (conversationId) {
+        navigate(paths.conversationView(conversationId));
+        return;
+      }
+    }
     onClick && onClick();
   };
 
+  const findExistingConversation = (): string | null => {
+    const data = client.readQuery<IConversationResponse[]>({
+      query: conversationOps.Queries.userConversations,
+    });
+
+    console.log(data);
+    if (data) {
+      for (const conversation of data.conversations.conversations) {
+        console.log(conversation);
+        const participantChat = conversation.participants.filter(
+          (p) => p.user.id === user.id
+        );
+
+        if (participantChat) {
+          return conversation.id;
+        }
+      }
+    }
+
+    return null;
+  };
+
   return (
-    <Tooltip title="DUMMY, chatting coming soon!">
+    <Tooltip title={`Chat with ${user.name}`}>
       <Card variant="outlined" sx={{ backgroundColor: userCardBGC }}>
         <CardActionArea sx={{ p: 2 }} onClick={onPosterClick}>
           <Stack

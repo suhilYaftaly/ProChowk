@@ -5,6 +5,13 @@ import { useMutation } from "@apollo/client";
 import { Button, Grid, Stack, TextField } from "@mui/material";
 import React, { useState } from "react";
 import { ObjectId } from "bson";
+import {
+  AttachEmail,
+  AttachFile,
+  PlusOne,
+  Send,
+  Upload,
+} from "@mui/icons-material";
 
 interface Props {
   conversationId: string;
@@ -42,8 +49,6 @@ const MessageInput: React.FC<Props> = ({ conversationId }) => {
             query: messageOps.Queries.conversationMessages,
             variables: { conversationId },
           }) as MessagesData;
-
-          console.log(existing);
 
           cache.writeQuery<MessagesData, { conversationId: string }>({
             query: messageOps.Queries.conversationMessages,
@@ -83,6 +88,11 @@ const MessageInput: React.FC<Props> = ({ conversationId }) => {
     <Stack p={1} width="100%">
       <form onSubmit={onSendMessage}>
         <Stack direction="row">
+          <Grid>
+            <Button type="submit" sx={{ pl: "2" }}>
+              <AttachFile />
+            </Button>
+          </Grid>
           <Grid sx={{ width: "90%" }}>
             <TextField
               value={messageBody}
@@ -95,7 +105,7 @@ const MessageInput: React.FC<Props> = ({ conversationId }) => {
           </Grid>
           <Grid>
             <Button type="submit" sx={{ pl: "2" }}>
-              Send
+              <Send />
             </Button>
           </Grid>
         </Stack>

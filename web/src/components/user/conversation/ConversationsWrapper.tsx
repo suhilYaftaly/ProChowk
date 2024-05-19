@@ -1,13 +1,15 @@
-import { gql, useMutation, useQuery, useSubscription } from "@apollo/client";
+import { gql, useMutation, useSubscription } from "@apollo/client";
 import { useEffect } from "react";
 import {
   ConversationCreatedSubscriptionData,
-  ConversationsData,
   ConversationUpdatedData,
   MessagesData,
 } from "../../../types/types";
 import { useParams } from "react-router-dom";
-import { conversationOps } from "@/graphql/operations/conversation";
+import {
+  conversationOps,
+  useUserConversations,
+} from "@/graphql/operations/conversation";
 import { messageOps } from "@/graphql/operations/message";
 import { useUserStates } from "@/redux/reduxStates";
 import ConversationList from "./ConversationList";
@@ -27,7 +29,6 @@ const ConversationsWrapper = () => {
     {
       onData: ({ client, data }) => {
         const { data: subscriptionData } = data;
-        console.log(data);
 
         if (!subscriptionData || !subscriptionData.conversationUpdated) return;
 
@@ -177,16 +178,32 @@ const ConversationsWrapper = () => {
     }
   };
 
-  const {
-    data: conversationsData,
-    loading: conversationsLoading,
-    error: conversationsError,
-    subscribeToMore,
-  } = useQuery<ConversationsData>(conversationOps.Queries.userConversations, {
-    onError: ({ message }) => {
-      console.log(message);
-    },
-  });
+  // const {
+  //   data: conversationsData,
+  //   loading: conversationsLoading,
+  //   error: conversationsError,
+  //   subscribeToMore,
+  // } = useQuery<ConversationsData>(conversationOps.Queries.userConversations, {
+  //   onError: ({ message }) => {
+  //     console.log(message);
+  //   },
+  // });
+
+  const { userConversationsAsync, data, subscribeToMore, error } =
+    useUserConversations();
+
+  const getUserConversations = () => {
+    console.log(userId);
+    if (userId) {
+      userConversationsAsync({ variables: {} });
+    }
+  };
+
+  // const data = client.readQuery({
+  //   query: conversationOps.Queries.userConversations,
+  // });
+
+  useEffect(() => getUserConversations(), [userId]);
 
   // useSubscription<ConversationDeletedData>(
   //   conversationOps.Subscriptions.conversationDeleted,
@@ -245,14 +262,14 @@ const ConversationsWrapper = () => {
     subscribeToNewConversations();
   }, []);
 
-  if (conversationsError) {
+  if (error) {
     console.log("There was an error fetching conversations");
     return null;
   }
-  console.log(conversationsData);
+  console.log(data);
   return (
     <ConversationList
-      conversations={conversationsData?.conversations.conversations || []}
+      conversations={data?.conversations?.conversations || []}
       onViewConversation={onViewConversation}
     />
   );
