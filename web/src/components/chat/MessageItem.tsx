@@ -1,10 +1,9 @@
-import { formatRelative } from "date-fns";
-import enUS from "date-fns/locale/en-US";
 import { IMessageResponse } from "../../../../backend/src/types/commonTypes";
-import { Avatar, Box, Button, Grid, Stack } from "@mui/material";
+import { Grid, Stack } from "@mui/material";
 import Text from "../reusable/Text";
 import { Delete } from "@mui/icons-material";
 import { useState } from "react";
+import useConversation from "@/hooks/useConversation";
 
 interface Props {
   message: IMessageResponse;
@@ -18,12 +17,16 @@ const formatRelativeLocale = {
   other: "MM/dd/yy",
 };
 
-const deleteMessage = () => {
-  console.log("Message Deleted");
-};
-
 export default function MessageItem({ message, sentByMe }: Props) {
   const [showDelete, setShowDelete] = useState<boolean>();
+
+  const { onDeleteMessage, dmData, dmError } = useConversation();
+  const deleteMessage = async () => {
+    if (confirm("Are you sure?")) {
+      await onDeleteMessage(message.id);
+    }
+  };
+
   return (
     <Stack
       direction="row"
@@ -46,7 +49,11 @@ export default function MessageItem({ message, sentByMe }: Props) {
           >
             <Grid sx={{ margin: 2, paddingTop: 3.2, paddingRight: 3 }}>
               {sentByMe && showDelete && (
-                <Delete onClick={deleteMessage} color="error" />
+                <Delete
+                  onClick={deleteMessage}
+                  sx={{ cursor: "pointer" }}
+                  color="error"
+                />
               )}
             </Grid>
             <Grid

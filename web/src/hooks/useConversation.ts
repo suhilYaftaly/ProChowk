@@ -6,6 +6,7 @@ import {
 import {
   messageOps,
   useConversationMessages,
+  useDeleteMessage,
 } from "@/graphql/operations/message";
 import { useUserStates } from "@/redux/reduxStates";
 import {
@@ -29,6 +30,11 @@ const useConversation = () => {
   >(conversationOps.Mutations.markConversationAsRead);
 
   const { deleteConversationAsync } = useDeleteConversation();
+  const {
+    deleteMessageAsync,
+    data: dmData,
+    error: dmError,
+  } = useDeleteMessage();
 
   const {
     conversationMessagesAsync,
@@ -41,7 +47,7 @@ const useConversation = () => {
     { sendMessage: boolean },
     {
       id: string;
-      attachment: File;
+      attachment?: File;
       senderId: string;
       conversationId: string;
       body: string;
@@ -301,6 +307,18 @@ const useConversation = () => {
     }
   };
 
+  const onDeleteMessage = async (messageId: string) => {
+    try {
+      await deleteMessageAsync({
+        variables: {
+          id: messageId,
+        },
+      });
+    } catch (error) {
+      console.log("Delete message error", error);
+    }
+  };
+
   const getUserConversation = (conversationId: string, currentPage: number) => {
     try {
       if (conversationId) {
@@ -412,6 +430,9 @@ const useConversation = () => {
     getUserConversation,
     messagesError,
     onSendMessage,
+    onDeleteMessage,
+    dmData,
+    dmError,
   };
 };
 

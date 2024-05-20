@@ -1,4 +1,4 @@
-import { gql, useLazyQuery } from "@apollo/client";
+import { gql, useLazyQuery, useMutation } from "@apollo/client";
 import { messageFields } from "../gqlFrags";
 import { asyncOps } from "./gqlFuncs";
 import { IUser } from "./user";
@@ -21,11 +21,23 @@ export const messageOps = {
         sendMessage(id: $id, conversationId: $conversationId, body: $body)
       }
     `,
+    deleteMessage: gql`
+      mutation DeleteMessage($id: ID!) {
+        deleteMessage(id: $id)
+      }
+    `,
   },
   Subscriptions: {
     messageSent: gql`
       subscription MessageSent($conversationId: String!) {
         messageSent(conversationId: $conversationId) {
+          ${messageFields}
+        }
+      }
+    `,
+    messageDeleted: gql`
+      subscription MessageDeleted($conversationId: String!) {
+        messageDeleted(conversationId: $conversationId) {
           ${messageFields}
         }
       }
@@ -84,4 +96,32 @@ export const useConversationMessages = () => {
     loading,
     error,
   };
+};
+
+export const useDeleteMessage = () => {
+  const [deleteMessage, { data, loading, error }] = useMutation<
+    boolean,
+    { id: string }
+  >(messageOps.Mutations.deleteMessage);
+
+  const deleteMessageAsync = async ({
+    variables,
+    onSuccess,
+    onError,
+  }: DMAsync) =>
+    asyncOps({
+      operation: () => deleteMessage({ variables }),
+      onSuccess: (dt: boolean) => {
+        onSuccess && onSuccess(dt);
+      },
+      onError,
+    });
+
+  return { deleteMessageAsync, data, loading, error };
+};
+
+type DMAsync = {
+  variables: { id: string };
+  onSuccess?: (data: boolean) => void;
+  onError?: (error?: any) => void;
 };

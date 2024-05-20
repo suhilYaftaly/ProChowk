@@ -41,7 +41,7 @@ const Messages: React.FC<MessagesProps> = ({ userId, conversationId }) => {
         if (!subscriptionData.data) return prev;
 
         const newMessage = subscriptionData.data.messageSent;
-        console.log(subscriptionData);
+        console.log(userId);
         return Object.assign({}, prev, {
           messages:
             newMessage.sender.id === userId
@@ -52,10 +52,33 @@ const Messages: React.FC<MessagesProps> = ({ userId, conversationId }) => {
     });
   };
 
+  const subscribeToDeletedMessages = (conversationId: string) => {
+    return subscribeToMore({
+      document: messageOps.Subscriptions.messageDeleted,
+      variables: {
+        conversationId,
+      },
+      updateQuery: (prev, { subscriptionData }: any) => {
+        console.log(subscriptionData);
+        if (!subscriptionData.data) return prev;
+        const deletedMessage = subscriptionData.data.messageSent;
+        console.log(deletedMessage);
+        console.log(subscriptionData);
+        return Object.assign({}, prev, {
+          messages: prev.messages.filter((x) => x.id !== deletedMessage.id),
+        });
+      },
+    });
+  };
+
   useEffect(() => {
     const unsubscribe = subscribeToMoreMessages(conversationId);
+    const unsubscribe2 = subscribeToDeletedMessages(conversationId);
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+      unsubscribe2();
+    };
   }, [conversationId]);
 
   useEffect(() => {
