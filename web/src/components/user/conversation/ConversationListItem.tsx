@@ -7,18 +7,19 @@ import {
   alpha,
   useTheme,
 } from "@mui/material";
-import { Circle, MessageTwoTone } from "@mui/icons-material";
+import { Circle } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
-import { TConversation, useMarkConversationAsRead } from "@gqlOps/conversation";
+import { TConversation } from "@gqlOps/conversation";
 import Text from "@reusable/Text";
 import { paths } from "@/routes/Routes";
 import { IConversationResponse } from "../../../../../backend/src/types/commonTypes";
+import useConversation from "@/hooks/useConversation";
 
 type Props = {
   conversation: IConversationResponse;
   userId?: string;
-  hasSeenLatestMessages?: boolean;
+  hasSeenLatestMessages: boolean;
   selectedConversationId?: string;
   onClick?: (id: string) => void;
   onMarkSuccess?: (data: TConversation) => void;
@@ -28,32 +29,19 @@ export default function ConversationListItem({
   conversation,
   hasSeenLatestMessages,
   onClick,
-  onMarkSuccess,
 }: Props) {
   const navigate = useNavigate();
   const theme = useTheme();
   const primaryC = theme.palette.primary.light;
   const iconColor = theme.palette.text?.dark;
   const primaryC10 = alpha(primaryC, 0.1);
-  console.log(hasSeenLatestMessages);
   const { id, latestMessage } = conversation;
 
-  const { markConversationAsReadAsync, loading } = useMarkConversationAsRead();
+  const { onViewConversation, markAsReadLoading } = useConversation();
 
-  const onMarkAsRead = (conversationId: string) => {
-    if (!conversationId) {
-      console.log(conversationId);
-      // TODO to be changed
-      markConversationAsReadAsync({
-        variables: { conversationId },
-        onSuccess: onMarkSuccess,
-      });
-    }
-    onClick && onClick(conversationId);
-  };
-
-  const markAndNavigateToConversation = () => {
-    onMarkAsRead(id);
+  const markAndNavigateToConversation = async () => {
+    onClick && onClick(id);
+    await onViewConversation(conversation.id, hasSeenLatestMessages);
     navigate(paths.conversationView(id));
   };
 
@@ -69,7 +57,7 @@ export default function ConversationListItem({
     <ListItem disableGutters>
       <ListItemButton
         onClick={markAndNavigateToConversation}
-        disabled={loading}
+        disabled={markAsReadLoading}
         sx={{
           gap: 2,
           color: iconColor,
@@ -77,7 +65,11 @@ export default function ConversationListItem({
           alignItems: "center",
         }}
       >
-        {loading ? <CircularProgress color="inherit" size={24} /> : icon}
+        {markAsReadLoading ? (
+          <CircularProgress color="inherit" size={24} />
+        ) : (
+          icon
+        )}
         <Stack
           direction={"row"}
           sx={{

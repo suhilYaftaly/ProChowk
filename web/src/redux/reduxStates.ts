@@ -17,3 +17,5 @@ export const useGlobalModalsStates = () =>
   useAppSelector((state) => state.globalModals);
 
 export const useBidStates = () => useAppSelector((state) => state.bid);
+export const useConversationStates = () =>
+  useAppSelector((state) => state.conversation);

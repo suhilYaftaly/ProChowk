@@ -3,19 +3,21 @@ import { useEffect, useState } from "react";
 
 import AppContainer from "@reusable/AppContainer";
 import ConversationListItem from "@user/conversation/ConversationListItem";
-import {
-  getUserParticipantObject,
-  useUserConversations,
-} from "@gqlOps/conversation";
 import { useUserStates } from "@/redux/reduxStates";
 import Text from "@reusable/Text";
 import { useAppSelector } from "@/utils/hooks/hooks";
+import useConversation from "@/hooks/useConversation";
 
 export default function ConversationsView() {
   const { userId } = useUserStates();
   const [page, setPage] = useState(1);
 
-  const { userConversationsAsync, data, loading } = useUserConversations();
+  const {
+    getUserConversations,
+    data,
+    conversationLoading,
+    getUserParticipantObject,
+  } = useConversation();
   const conversations = data?.conversations?.conversations;
   const totalCount = data?.conversations?.totalCount;
   const pageSize = 50;
@@ -24,19 +26,11 @@ export default function ConversationsView() {
 
   useEffect(() => getUserConversations(), [userId]);
 
-  const getUserConversations = (currentPage = page) => {
-    if (userId) {
-      userConversationsAsync({
-        variables: { page: currentPage, pageSize },
-      });
-    }
-  };
-
   const { unreadConsCount } = useAppSelector((x) => x.conversation);
 
   const handlePageChange = (_: any, value: number) => {
     setPage(value);
-    getUserConversations(value);
+    // getUserConversations(value);
   };
 
   return (
@@ -48,7 +42,7 @@ export default function ConversationsView() {
         >
           <Text type="subtitle">Conversations ({unreadConsCount})</Text>
         </Stack>
-        {loading ? (
+        {conversationLoading ? (
           <NotiSkeleton />
         ) : (
           <>

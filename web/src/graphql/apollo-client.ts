@@ -30,7 +30,7 @@ const httpLink = new HttpLink({
 const wsLink = new GraphQLWsLink(
   createClient({
     url: "ws://localhost:9001/graphql",
-
+    shouldRetry: () => true,
     connectionParams: {
       authorization: `Bearer ${getLocalTokens()?.accessToken}`,
     },

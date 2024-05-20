@@ -3,16 +3,12 @@ import { IconButton, Badge, useTheme } from "@mui/material";
 import Message from "@mui/icons-material/Message";
 import { useNavigate } from "react-router-dom";
 
-import { useUserStates } from "@/redux/reduxStates";
+import { useConversationStates, useUserStates } from "@/redux/reduxStates";
 import ConversationsPopover from "./ConversationsPopover";
-import {
-  useAppDispatch,
-  useAppSelector,
-  useIsMobile,
-} from "@/utils/hooks/hooks";
+import { useAppDispatch, useIsMobile } from "@/utils/hooks/hooks";
 import { paths } from "@/routes/Routes";
-import { useUserConversations } from "@/graphql/operations/conversation";
 import { setUnreadConsCount } from "@/redux/slices/conversationSlice";
+import useConversation from "@/hooks/useConversation";
 
 export default function ConversationIcon() {
   const navigate = useNavigate();
@@ -22,12 +18,11 @@ export default function ConversationIcon() {
   const isMobile = useIsMobile();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const dispatch = useAppDispatch();
+  const { getUserConversations, data } = useConversation();
 
-  const { userConversationsAsync, data } = useUserConversations();
+  const { unreadConsCount } = useConversationStates();
+
   const conversations = data?.conversations?.conversations;
-  console.log(data);
-  const { unreadConsCount } = useAppSelector((state) => state.conversation);
-
   useEffect(() => getUserConversations(), [userId]);
 
   useEffect(() => {
@@ -41,15 +36,7 @@ export default function ConversationIcon() {
       })
     );
     dispatch(setUnreadConsCount(unReadCount));
-    console.log(unReadCount);
-    console.log(data?.conversations);
   }, [data?.conversations]);
-
-  const getUserConversations = () => {
-    if (userId) {
-      userConversationsAsync({ variables: {} });
-    }
-  };
 
   const openPopover = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);

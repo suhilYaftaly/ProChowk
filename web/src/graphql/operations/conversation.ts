@@ -3,10 +3,6 @@ import { conversationFields } from "../gqlFrags";
 import { asyncOps } from "./gqlFuncs";
 import { TMessage } from "./message";
 import { ConversationsData } from "@/types/types";
-import {
-  IConversationResponse,
-  IParticipantResponse,
-} from "../../../../backend/src/types/commonTypes";
 
 export const conversationOps = {
   Queries: {
@@ -179,13 +175,4 @@ export const useDeleteConversation = () => {
     });
 
   return { deleteConversationAsync, data, loading, error };
-};
-
-export const getUserParticipantObject = (
-  conversation: IConversationResponse,
-  userId: string | undefined
-) => {
-  return conversation.participants.find(
-    (p) => p.user.id === userId
-  ) as IParticipantResponse;
 };

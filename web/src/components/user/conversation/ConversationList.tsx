@@ -1,55 +1,20 @@
-import React, { useState } from "react";
-import {
-  IConversationResponse,
-  IParticipantResponse,
-} from "../../../../../backend/src/types/commonTypes";
+import React from "react";
+import { IConversationResponse } from "../../../../../backend/src/types/commonTypes";
 import ConversationItem from "./ConversationListItem";
-import {
-  TConversation,
-  getUserParticipantObject,
-  useDeleteConversation,
-} from "@/graphql/operations/conversation";
 import { Box } from "@mui/material";
 import { useUserStates } from "@/redux/reduxStates";
+import useConversation from "@/hooks/useConversation";
 
 interface ConversationListProps {
   conversations: Array<IConversationResponse>;
-  onViewConversation: (
-    conversationId: string,
-    hasSeenLatestMessage: boolean
-  ) => void;
 }
 
 const ConversationList: React.FC<ConversationListProps> = ({
   conversations,
-  onViewConversation,
 }) => {
   const { userId } = useUserStates();
+  const { onDeleteConversation, getUserParticipantObject } = useConversation();
 
-  /**
-   * Mutations
-   */
-
-  const { deleteConversationAsync, loading } = useDeleteConversation();
-
-  const onDeleteConversation = async (conversationId: string) => {
-    try {
-      deleteConversationAsync({
-        variables: {
-          conversationId,
-        },
-      });
-      // ,
-      //   {
-      //     loading: "Deleting conversation",
-      //     success: "Conversation deleted",
-      //     error: "Failed to delete conversation",
-      //   };
-    } catch (error) {
-      console.log("onDeleteConversation error", error);
-    }
-  };
-  console.log("error", conversations);
   const sortedConversations = [...conversations].sort(
     (a, b) => b.updatedAt.valueOf() - a.updatedAt.valueOf()
   );
@@ -67,9 +32,6 @@ const ConversationList: React.FC<ConversationListProps> = ({
             userId={userId as string}
             conversation={conversation}
             hasSeenLatestMessages={hasSeenLatestMessages}
-            onClick={() =>
-              onViewConversation(conversation.id, hasSeenLatestMessages)
-            }
             onDeleteConversation={onDeleteConversation}
           />
         );

@@ -4,35 +4,30 @@ import { useEffect, useState } from "react";
 import AppContainer from "@reusable/AppContainer";
 import Text from "@reusable/Text";
 import { useParams } from "react-router-dom";
-import { useConversationMessages } from "@/graphql/operations/message";
 import FeedWrapper from "@/components/user/conversation/ConversationWrapper";
 import ConversationsWrapper from "@/components/user/conversation/ConversationsWrapper";
-import { useAppSelector } from "@/utils/hooks/hooks";
 import { useRespVal } from "@/utils/hooks/hooks";
+import useConversation from "@/hooks/useConversation";
+import { useConversationStates } from "@/redux/reduxStates";
 
 export default function ConversationView() {
   const [page, setPage] = useState(1);
   const { conversationId } = useParams();
 
-  const { conversationMessagesAsync, data, loading } =
-    useConversationMessages();
+  const { getUserConversation, messagesError, messagesLoading } =
+    useConversation();
 
-  useEffect(() => getUserConversation(), [conversationId]);
-  const { unreadConsCount } = useAppSelector((state) => state.conversation);
-
-  const getUserConversation = (currentPage = page) => {
-    if (conversationId) {
-      conversationMessagesAsync({
-        variables: { conversationId },
-      });
-    }
-    console.log(data);
-  };
+  useEffect(
+    () => getUserConversation(conversationId as string, page),
+    [conversationId]
+  );
+  const { unreadConsCount } = useConversationStates();
 
   const handlePageChange = (_: any, value: number) => {
     setPage(value);
-    getUserConversation(value);
+    getUserConversation(conversationId as string, page);
   };
+  if (messagesError) return <Text>{messagesError.message}</Text>;
 
   return (
     <>
@@ -55,31 +50,6 @@ export default function ConversationView() {
       </AppContainer>
     </>
   );
-
-  // <AppContainer>
-  //     {loading ? (
-  //       <NotiSkeleton />
-  //     ) : (
-  //       <Stack
-  //         direction={"row"}
-  //         sx={{ alignItems: "center", justifyContent: "space-between" }}
-  //       >
-  //         <Grid container spacing={2} sx={{}}>
-  //           <Grid item xs={12} md={10}>
-  //             <AppContainer addCard sx={{ m: 1 }} cardSX={{ p: 1 }}>
-  //               <Text type="subtitle">
-  //                 Conversations ({unreadConsCount ?? 0})
-  //               </Text>
-  //               <ConversationsWrapper />
-  //             </AppContainer>
-  //           </Grid>
-  //           <AppContainer addCard sx={{ m: 0, width: "75%" }}>
-  //             <FeedWrapper />
-  //           </AppContainer>
-  //         </Grid>
-  //       </Stack>
-  //     )}
-  //   </AppContainer>
 }
 
 const NotiSkeleton = () => (

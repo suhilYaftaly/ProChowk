@@ -12,17 +12,13 @@ import Text from "@reusable/Text";
 import { paths } from "@/routes/Routes";
 import { useUserStates } from "@/redux/reduxStates";
 import { IConversationResponse } from "../../../../../backend/src/types/commonTypes";
-import { getUserParticipantObject } from "@/graphql/operations/conversation";
+import useConversation from "@/hooks/useConversation";
 
 type Props = {
   conversations: IConversationResponse[];
   anchorEl: HTMLButtonElement | null;
   setAnchorEl: React.Dispatch<React.SetStateAction<HTMLButtonElement | null>>;
   onMarkSuccess: () => void;
-  // onViewConversation: (
-  //   conversationId: string,
-  //   hasSeenLatestMessage: boolean
-  // ) => void;
 };
 export default function ConversationsPopover({
   conversations,
@@ -33,6 +29,7 @@ export default function ConversationsPopover({
   const navigate = useNavigate();
   const closePopover = () => setAnchorEl(null);
   const { userId } = useUserStates();
+  const { getUserParticipantObject } = useConversation();
 
   const handleSeeAllConversations = () => {
     navigate(paths.conversationsView);
