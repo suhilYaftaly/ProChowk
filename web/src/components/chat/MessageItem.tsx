@@ -8,6 +8,7 @@ import useConversation from "@/hooks/useConversation";
 interface Props {
   message: IMessageResponse;
   sentByMe: boolean;
+  sysGenerated: boolean;
 }
 
 const formatRelativeLocale = {
@@ -17,7 +18,11 @@ const formatRelativeLocale = {
   other: "MM/dd/yy",
 };
 
-export default function MessageItem({ message, sentByMe }: Props) {
+export default function MessageItem({
+  message,
+  sentByMe,
+  sysGenerated,
+}: Props) {
   const [showDelete, setShowDelete] = useState<boolean>();
 
   const { onDeleteMessage, dmData, dmError } = useConversation();
@@ -39,7 +44,9 @@ export default function MessageItem({ message, sentByMe }: Props) {
       <Stack spacing={3}>
         <Stack
           direction="row"
-          justifyContent={sentByMe ? "flex-end" : "flex-start"}
+          justifyContent={
+            sysGenerated ? "stretch" : sentByMe ? "flex-end" : "flex-start"
+          }
         >
           <Stack
             direction="row"

@@ -353,7 +353,7 @@ const useConversation = () => {
     attachment?: File;
     conversationId: string;
     senderId: string;
-    setMessageBody: React.Dispatch<React.SetStateAction<string>>;
+    setMessageBody?: React.Dispatch<React.SetStateAction<string>>;
     firstName: string;
   }) => {
     try {
@@ -372,7 +372,7 @@ const useConversation = () => {
           sendMessage: true,
         },
         update: (cache) => {
-          setMessageBody("");
+          if (setMessageBody) setMessageBody("");
           const existing = cache.readQuery<MessagesData>({
             query: messageOps.Queries.conversationMessages,
             variables: { conversationId },

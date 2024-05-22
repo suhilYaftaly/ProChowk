@@ -19,6 +19,9 @@ import { conversationOps } from "@/graphql/operations/conversation";
 import { IConversationResponse } from "../../../../backend/src/types/commonTypes";
 import { client } from "@/graphql/apollo-client";
 import { paths } from "@/routes/Routes";
+import useConversation from "@/hooks/useConversation";
+import { NEW_CONVERSATION_MESSAGE } from "@/constants/sysGeneratedMessage";
+import { useUserStates } from "@/redux/reduxStates";
 
 type Props = { user: IUser; onClick?: () => void };
 export default function ChatWithUserCard({ user, onClick }: Props) {
@@ -33,6 +36,8 @@ export default function ChatWithUserCard({ user, onClick }: Props) {
     { participantId: string }
   >(conversationOps.Mutations.createConversation);
 
+  const { onSendMessage } = useConversation();
+  const { userId, firstName } = useUserStates();
   const onPosterClick = async () => {
     console.log(user);
     if (user) {
@@ -83,6 +88,14 @@ export default function ChatWithUserCard({ user, onClick }: Props) {
         throw new Error("Failed to create conversation");
       }
       console.log(data);
+
+      onSendMessage({
+        messageBody: NEW_CONVERSATION_MESSAGE,
+        conversationId: data.createConversation,
+        senderId: userId as string,
+        firstName: firstName as string,
+      });
+
       navigate(paths.conversationView(data.createConversation));
       return;
     } catch (error: any) {

@@ -28,6 +28,7 @@ const typeDefs = gql`
       conversationId: String!
       body: String!
       attachmentId: String
+      isSysGen: Boolean
     ): Boolean
     deleteMessage(id: ID!): Boolean
   }

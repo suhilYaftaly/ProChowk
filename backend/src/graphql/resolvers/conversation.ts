@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Message, Prisma } from "@prisma/client";
 import { z } from "zod";
 import { withFilter } from "graphql-subscriptions";
 

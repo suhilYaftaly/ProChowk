@@ -17,8 +17,14 @@ export const messageOps = {
         $id: String!
         $conversationId: String!
         $body: String!
+        $isSysGen: Boolean
       ) {
-        sendMessage(id: $id, conversationId: $conversationId, body: $body)
+        sendMessage(
+          id: $id
+          conversationId: $conversationId
+          body: $body
+          isSysGen: $isSysGen
+        )
       }
     `,
     deleteMessage: gql`
@@ -55,6 +61,7 @@ export type TMessage = {
   imageId: string;
   createdAt: Date;
   updatedAt: Date;
+  isSystemGenerated: boolean;
 };
 
 //OPERATIONS

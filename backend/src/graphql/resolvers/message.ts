@@ -60,11 +60,13 @@ export default {
         conversationId,
         body,
         attachmentId,
+        isSysGen,
       }: {
         id: string;
         conversationId: string;
         body: string;
         attachmentId: string;
+        isSysGen: boolean;
       },
       context: GQLContext
     ): Promise<boolean> => {
@@ -81,6 +83,7 @@ export default {
           conversationId,
           body,
           attachmentId,
+          isSystemGenerated: isSysGen,
         },
         include: messagePopulated,
       });
