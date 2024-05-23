@@ -94,6 +94,7 @@ export default function ChatWithUserCard({ user, onClick }: Props) {
         conversationId: data.createConversation,
         senderId: userId as string,
         firstName: firstName as string,
+        systemGenMessage: true,
       });
 
       navigate(paths.conversationView(data.createConversation));

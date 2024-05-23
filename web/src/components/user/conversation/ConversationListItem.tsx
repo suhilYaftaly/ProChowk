@@ -15,6 +15,7 @@ import Text from "@reusable/Text";
 import { paths } from "@/routes/Routes";
 import { IConversationResponse } from "../../../../../backend/src/types/commonTypes";
 import useConversation from "@/hooks/useConversation";
+import { useUserStates } from "@/redux/reduxStates";
 
 type Props = {
   conversation: IConversationResponse;
@@ -36,6 +37,7 @@ export default function ConversationListItem({
   const iconColor = theme.palette.text?.dark;
   const primaryC10 = alpha(primaryC, 0.1);
   const { id, latestMessage } = conversation;
+  const { userId } = useUserStates();
 
   const { onViewConversation, markAsReadLoading } = useConversation();
 
@@ -47,7 +49,10 @@ export default function ConversationListItem({
 
   const icon = (
     <Avatar
-      alt={conversation.latestMessage?.sender?.name}
+      alt={
+        conversation.participants.filter((x) => x.id !== userId).at(0)?.user
+          .name
+      }
       // src={conversation.latestMessage?.sender?.image?.url}
       sx={{ width: 45, height: 45, mr: 1 }}
     />
@@ -79,8 +84,11 @@ export default function ConversationListItem({
           }}
         >
           <div>
-            <Text type="subtitle" sx={{ fontSize: 18, fontWeight: "bold" }}>
-              {latestMessage?.sender.name}
+            <Text type="subtitle" sx={{ fontSize: 14, fontWeight: "bold" }}>
+              {
+                conversation.participants.filter((x) => x.id !== userId).at(0)
+                  ?.user.name
+              }
             </Text>
             {latestMessage?.body && (
               <Text>

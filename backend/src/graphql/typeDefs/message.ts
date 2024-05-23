@@ -9,6 +9,7 @@ const typeDefs = gql`
     conversationId: String
     senderId: String
     attachmentId: String
+    isSystemGenerated: Boolean
     updatedAt: Date
   }
 

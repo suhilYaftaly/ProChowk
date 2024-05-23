@@ -1,5 +1,5 @@
 import { IMessageResponse } from "../../../../backend/src/types/commonTypes";
-import { Grid, Stack } from "@mui/material";
+import { Card, Grid, Stack, alpha, useTheme } from "@mui/material";
 import Text from "../reusable/Text";
 import { Delete } from "@mui/icons-material";
 import { useState } from "react";
@@ -10,13 +10,6 @@ interface Props {
   sentByMe: boolean;
   sysGenerated: boolean;
 }
-
-const formatRelativeLocale = {
-  lastWeek: "eeee 'at' p",
-  yesterday: "'Yesterday at' p",
-  today: "p",
-  other: "MM/dd/yy",
-};
 
 export default function MessageItem({
   message,
@@ -32,20 +25,28 @@ export default function MessageItem({
     }
   };
 
+  const theme = useTheme();
+  const primaryC = theme.palette.primary.main;
+  const secondaryC = theme.palette.info;
+  const backC = theme.palette.primary.light;
+  const error10 = alpha(theme.palette.error.light, 0.1);
+
   return (
     <Stack
       direction="row"
       p={2}
       spacing={4}
       // _hover={{ bg: "whiteAlpha.200" }}
-      justifyContent={sentByMe ? "flex-end" : "flex-start"}
+      justifyContent={
+        sysGenerated ? "center" : sentByMe ? "flex-end" : "flex-start"
+      }
       // wordBreak="break-word"
     >
       <Stack spacing={3}>
         <Stack
           direction="row"
           justifyContent={
-            sysGenerated ? "stretch" : sentByMe ? "flex-end" : "flex-start"
+            sysGenerated ? "center" : sentByMe ? "flex-end" : "flex-start"
           }
         >
           <Stack
@@ -55,7 +56,7 @@ export default function MessageItem({
             spacing={1}
           >
             <Grid sx={{ margin: 2, paddingTop: 3.2, paddingRight: 3 }}>
-              {sentByMe && showDelete && (
+              {sentByMe && !sysGenerated && showDelete && (
                 <Delete
                   onClick={deleteMessage}
                   sx={{ cursor: "pointer" }}
@@ -73,18 +74,22 @@ export default function MessageItem({
                   message.createdAt
                 ).toLocaleTimeString()}`}
               </Text>
-              <Text
-                sx={{
-                  marginTop: 1,
-                  paddingX: 3,
-                  paddingY: 1,
-                  backgroundColor: !sentByMe ? "Highlight" : "slategray",
-                  borderRadius: "10px",
-                }}
-                fontSize="1em"
+              <Card
+                variant="outlined"
+                sx={{ borderColor: sentByMe ? primaryC : secondaryC }}
               >
-                {message.body}
-              </Text>
+                <Text
+                  sx={{
+                    paddingX: 3,
+                    paddingY: 1,
+                    backgroundColor: !sentByMe ? secondaryC : "",
+                    color: primaryC,
+                  }}
+                  fontSize="1em"
+                >
+                  {message.body}
+                </Text>
+              </Card>
             </Grid>
           </Stack>
         </Stack>

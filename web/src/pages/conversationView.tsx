@@ -1,4 +1,4 @@
-import { Divider, Grid, Skeleton, Stack } from "@mui/material";
+import { Card, Divider, Grid, Skeleton, Stack } from "@mui/material";
 import { useEffect, useState } from "react";
 
 import AppContainer from "@reusable/AppContainer";
@@ -34,12 +34,14 @@ export default function ConversationView() {
       <AppContainer>
         <Grid container spacing={2} sx={{ mb: useRespVal(2, undefined) }}>
           <Grid item xs={12} md={3}>
-            <AppContainer addCard sx={{ m: 0 }}>
-              <Text type="subtitle">
-                Conversations ({unreadConsCount ?? 0})
-              </Text>
-              <ConversationsWrapper />
-            </AppContainer>
+            <Card variant="outlined">
+              <AppContainer addCard sx={{ m: 0 }}>
+                <Text type="subtitle">
+                  Conversations ({unreadConsCount ?? 0})
+                </Text>
+                <ConversationsWrapper />
+              </AppContainer>
+            </Card>
           </Grid>
           <Grid item xs={12} md={9}>
             <AppContainer addCard sx={{ m: 0 }} cardSX={{ p: 0 }}>

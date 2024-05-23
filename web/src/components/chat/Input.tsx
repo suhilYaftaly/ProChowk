@@ -1,5 +1,5 @@
 import { useUserStates } from "@/redux/reduxStates";
-import { Button, Grid, Stack, TextField } from "@mui/material";
+import { Button, Divider, Grid, Stack, TextField } from "@mui/material";
 import React, { FormEvent, useEffect, useState } from "react";
 import { AttachFile, Send } from "@mui/icons-material";
 import useConversation from "@/hooks/useConversation";
@@ -26,6 +26,7 @@ const MessageInput: React.FC<Props> = ({ conversationId }) => {
       senderId: senderId as string,
       setMessageBody,
       firstName: firstName as string,
+      systemGenMessage: false,
     });
   };
 
@@ -46,6 +47,16 @@ const MessageInput: React.FC<Props> = ({ conversationId }) => {
               <AttachFile color="primary" sx={{ m: 1 }} />
             </label>
           </Grid>
+          <Divider
+            sx={{
+              height: 22,
+              m: 1,
+              borderColor: "gray",
+              borderWidth: 1,
+              mx: 0.5,
+            }}
+            orientation="vertical"
+          />
           <Grid sx={{ width: "90%" }}>
             <TextField
               value={messageBody}
@@ -54,10 +65,12 @@ const MessageInput: React.FC<Props> = ({ conversationId }) => {
               placeholder="New message"
               color="success"
               fullWidth
+              variant="standard"
+              sx={{ mx: 2 }}
             />
           </Grid>
           <Grid>
-            <Button type="submit" sx={{ pl: "2" }}>
+            <Button type="submit" sx={{ pl: "2", mx: 1 }}>
               <Send />
             </Button>
           </Grid>

@@ -44,7 +44,7 @@ const Messages: React.FC<MessagesProps> = ({ userId, conversationId }) => {
         console.log(userId);
         return Object.assign({}, prev, {
           messages:
-            newMessage.sender.id === userId
+            newMessage.sender.id === userId || newMessage.isSystemGenerated
               ? prev.messages
               : [newMessage, ...prev.messages],
         });
@@ -104,7 +104,7 @@ const Messages: React.FC<MessagesProps> = ({ userId, conversationId }) => {
                 key={message.id}
                 message={message}
                 sentByMe={message.sender.id === userId}
-                sysGenerated={message.isSystemGenerated}
+                sysGenerated={message.isSystemGenerated as boolean}
               />
             ))}
             <div ref={messagesEndRef} />

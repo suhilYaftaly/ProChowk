@@ -51,6 +51,7 @@ const useConversation = () => {
       senderId: string;
       conversationId: string;
       body: string;
+      isSysGen?: boolean;
     }
   >(messageOps.Mutations.sendMessage);
 
@@ -347,6 +348,7 @@ const useConversation = () => {
     conversationId,
     senderId,
     setMessageBody,
+    systemGenMessage = false,
     firstName,
   }: {
     messageBody: string;
@@ -355,6 +357,7 @@ const useConversation = () => {
     senderId: string;
     setMessageBody?: React.Dispatch<React.SetStateAction<string>>;
     firstName: string;
+    systemGenMessage: boolean;
   }) => {
     try {
       const newId = new ObjectId().toString();
@@ -364,6 +367,7 @@ const useConversation = () => {
           body: messageBody,
           conversationId,
           senderId: senderId as string,
+          isSysGen: systemGenMessage,
         },
         /**
          * Optimistically update UI
@@ -389,6 +393,7 @@ const useConversation = () => {
                   attachmentId: null,
                   body: messageBody,
                   senderId: senderId as string,
+                  isSystemGenerated: systemGenMessage,
                   conversationId,
                   sender: {
                     id: senderId as string,

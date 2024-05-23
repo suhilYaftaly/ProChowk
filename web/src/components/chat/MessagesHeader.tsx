@@ -1,7 +1,7 @@
 import { client } from "@/graphql/apollo-client";
 import { conversationOps } from "@/graphql/operations/conversation";
 import { ConversationsData } from "@/types/types";
-import { Stack } from "@mui/material";
+import { Stack, useTheme } from "@mui/material";
 import { useEffect, useState } from "react";
 import Text from "../reusable/Text";
 
@@ -15,6 +15,7 @@ const MessagesHeader: React.FC<MessagesHeaderProps> = ({
   conversationId,
 }) => {
   const [username, setUsername] = useState("");
+  const theme = useTheme();
 
   const data = client.readQuery<ConversationsData>({
     query: conversationOps.Queries.userConversations,
@@ -45,7 +46,15 @@ const MessagesHeader: React.FC<MessagesHeaderProps> = ({
       borderBottom="1px solid"
       borderColor="whiteAlpha.200"
     >
-      <Text sx={{ fontSize: 20 }}>{username}</Text>
+      <Text
+        sx={{
+          fontSize: 20,
+          color: theme.palette.text.light,
+          textAlign: "center",
+        }}
+      >
+        {username}
+      </Text>
     </Stack>
   );
 };
