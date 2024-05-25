@@ -1,12 +1,12 @@
 import { View, Text } from 'react-native';
 import React from 'react';
 
-const topSkill = () => {
+const notifications = () => {
   return (
     <View>
-      <Text>topSkill</Text>
+      <Text>notifications</Text>
     </View>
   );
 };
 
-export default topSkill;
+export default notifications;

@@ -1,12 +1,14 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { TOKENS_KEY, USER_PROFILE_KEY } from '@constants/localStorageKeys';
+import { TOKENS_KEY, USER_PROFILE } from '@constants/localStorageKeys';
 import { IUser } from '@gqlOps/user';
 import { ILatLng } from '@gqlOps/address';
 import { ITokens } from '@/types/commonTypes';
 import { deleteFromLocalStorage, saveInLocalStorage } from '~/src/utils/secureStore';
 import { googleLogout } from '~/src/utils/utilFuncs';
-import { INearbyContFilters } from '~/src/components/user/drawer/FilterDrawerContent';
+import { INearbyContFilters } from '~/src/components/user/drawer/ContrFilterDrawer';
 import { TUserView } from '~/src/components/user/drawer/SwitchUserViewBtn';
+import { removeDataFromAsyncStore, saveDataInAsyncStore } from '~/src/utils/asyncStorage';
+import { INearByJobFilters } from '~/src/components/user/contractor/ContractorHome';
 /* import { TUserView } from "@user/SwitchUserViewButton";
  */
 interface UserState {
@@ -22,7 +24,8 @@ interface UserState {
     error: { message: string; [key: string]: any } | undefined;
   };
   userView: TUserView | null;
-  userFilters: INearbyContFilters | null;
+  contFilters: INearbyContFilters | null;
+  projectFilters: INearByJobFilters | null;
 }
 
 const initialState: UserState = {
@@ -30,7 +33,8 @@ const initialState: UserState = {
   isLoggedOut: undefined,
   userLocation: { data: undefined, isLoading: false, error: undefined },
   userView: null,
-  userFilters: null,
+  contFilters: null,
+  projectFilters: null,
 };
 
 const slice = createSlice({
@@ -72,8 +76,11 @@ const slice = createSlice({
     setUserView(state, action: PayloadAction<UserState['userView']>) {
       state.userView = action.payload;
     },
-    setUserFilters(state, action: PayloadAction<UserState['userFilters']>) {
-      state.userFilters = action.payload;
+    setContFilters(state, action: PayloadAction<UserState['contFilters']>) {
+      state.contFilters = action.payload;
+    },
+    setProjectsFilters(state, action: PayloadAction<UserState['projectFilters']>) {
+      state.projectFilters = action.payload;
     },
   },
 });
@@ -86,7 +93,8 @@ export const {
   userLocationError,
   setUserProfileInfo,
   setUserView,
-  setUserFilters,
+  setContFilters,
+  setProjectsFilters,
 } = slice.actions;
 const { userProfileSuccess, setIsLoggedOut } = slice.actions;
 export default slice.reducer;
@@ -95,7 +103,7 @@ export const logIn = (payload: IUser) => (dispatch: any) => {
   const { token, refreshToken, ...user } = payload;
   dispatch(userProfileSuccess(user));
   dispatch(setIsLoggedOut(false));
-  saveInLocalStorage(USER_PROFILE_KEY, JSON.stringify(user?.id));
+  saveDataInAsyncStore(USER_PROFILE, user);
 
   if (token && refreshToken) dispatch(setTokens({ accessToken: token, refreshToken }));
 };
@@ -103,16 +111,14 @@ export const logOut = () => (dispatch: any) => {
   googleLogout();
   dispatch(userProfileSuccess(undefined));
   dispatch(setIsLoggedOut(true));
-  deleteFromLocalStorage(USER_PROFILE_KEY);
+  removeDataFromAsyncStore(USER_PROFILE);
   deleteFromLocalStorage(TOKENS_KEY);
 };
-export const setUserProfile = (payload: IUser) => (dispatch: any, getState: any) => {
-  const { token, refreshToken, ...pUser } = payload;
+export const setUserProfile = (pUser: IUser) => (dispatch: any, getState: any) => {
   const eUser: IUser | undefined = getState().user.userProfile.data;
-  const user = { ...eUser, ...pUser };
+  const user = eUser ? { ...eUser, ...pUser } : pUser;
   dispatch(setUserProfileInfo(user));
-  const userId: string = user?.id;
-  saveInLocalStorage(USER_PROFILE_KEY, userId);
+  saveDataInAsyncStore(USER_PROFILE, user);
 };
 
 export const setTokens =

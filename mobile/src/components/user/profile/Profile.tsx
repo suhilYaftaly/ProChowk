@@ -1,12 +1,10 @@
 import { StyleSheet, View } from 'react-native';
 import React, { useEffect } from 'react';
 import { ScrollView } from 'tamagui';
-import { useAppDispatch } from '~/src/utils/hooks/hooks';
 import { useSettingsStates, useUserStates } from '~/src/redux/reduxStates';
 import { useUser } from '~/src/graphql/operations/user';
 import { useContractor } from '~/src/graphql/operations/contractor';
 import { useGetUserReviews } from '~/src/graphql/operations/review';
-import { setUserProfile } from '~/src/redux/slices/userSlice';
 import { isContractor } from '~/src/utils/auth';
 import colors from '~/src/constants/colors';
 import ProfileHeader from './ProfileHeader';
@@ -15,13 +13,14 @@ import UserBio from './UserBio';
 import UserSkills from './UserSkills';
 import UserLicenses from './UserLicenses';
 import UserReview from './UserReview';
+import { USER_PROFILE } from '~/src/constants/localStorageKeys';
+import { saveDataInAsyncStore } from '~/src/utils/asyncStorage';
 
 type Props = {
-  userId: string | string[];
+  userId?: string | string[];
 };
 
 const Profile = ({ userId }: Props) => {
-  const dispatch = useAppDispatch();
   const { user: loggedInUser } = useUserStates();
   const { isAppLoaded } = useSettingsStates();
   const isMyProfile = userId === loggedInUser?.id;
@@ -31,12 +30,15 @@ const Profile = ({ userId }: Props) => {
   const user = userData?.user;
   const userReviews = reviewsData?.getUserReviews;
   const contractorData = contrData?.contractor;
+
   //retrieve user & reviews
   useEffect(() => {
     if (userId && typeof userId === 'string' && isAppLoaded) {
       userAsync({
         variables: { id: userId },
-        onSuccess: (d) => isMyProfile && dispatch(setUserProfile(d)),
+        onSuccess: (d) => {
+          saveDataInAsyncStore(USER_PROFILE, d);
+        },
       });
       getUserReviewsAsync({ variables: { userId } });
     }
@@ -44,8 +46,9 @@ const Profile = ({ userId }: Props) => {
 
   //retrieve contractor
   useEffect(() => {
-    if (userId && typeof userId === 'string' && isContractor(user?.userTypes))
+    if (userId && typeof userId === 'string' && isContractor(user?.userTypes)) {
       contractorAsync({ variables: { userId } });
+    }
   }, [userId, user]);
 
   return (

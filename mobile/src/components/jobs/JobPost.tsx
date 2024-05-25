@@ -44,6 +44,11 @@ const JobPost = ({ onCancel }: Props) => {
           });
           setStepIndex(1);
           onJobChange();
+          Toast.show({
+            type: 'success',
+            text1: `${labels.draftLoaded}`,
+            position: 'top',
+          });
           /* if (!hasShownToast.current) {
             toast.success(
               "Draft loaded, continue editing to complete this draft.",

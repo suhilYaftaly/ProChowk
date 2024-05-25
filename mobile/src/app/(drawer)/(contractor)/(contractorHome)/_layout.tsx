@@ -1,23 +1,25 @@
+import { View, Text } from 'react-native';
+import React from 'react';
 import { Drawer } from 'expo-router/drawer';
 import colors from '~/src/constants/colors';
-import FilterDrawerContent from '~/src/components/user/drawer/FilterDrawerContent';
+import ProjectFilterDrawer from '~/src/components/user/drawer/ProjectFilterDrawer';
 import SearchContractor from '~/src/components/user/contractor/SearchContractor';
+import SearchProjects from '~/src/components/user/client/SearchProjects';
 
-const contractorLayout = () => {
+const searchProjectLayout = () => {
   return (
     <Drawer
       screenOptions={{
         drawerPosition: 'right',
         overlayColor: colors.secondary50,
       }}
-      drawerContent={(props) => <FilterDrawerContent {...props} />}>
+      drawerContent={(props) => <ProjectFilterDrawer {...props} />}>
       <Drawer.Screen
-        name="index"
+        name="contractorHomePage"
         options={{
           swipeEnabled: false,
-
           header(props) {
-            return <SearchContractor {...props} />;
+            return <SearchProjects {...props} />;
           },
         }}
       />
@@ -25,4 +27,4 @@ const contractorLayout = () => {
   );
 };
 
-export default contractorLayout;
+export default searchProjectLayout;

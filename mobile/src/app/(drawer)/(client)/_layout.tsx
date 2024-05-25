@@ -1,9 +1,16 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { AntDesign, FontAwesome, FontAwesome6, MaterialCommunityIcons } from '@expo/vector-icons';
+import {
+  AntDesign,
+  FontAwesome,
+  FontAwesome6,
+  Fontisto,
+  Ionicons,
+  MaterialCommunityIcons,
+} from '@expo/vector-icons';
 import colors from '~/src/constants/colors';
 
-const tabsLayout = () => {
+const clientLayout = () => {
   return (
     <Tabs
       screenOptions={{
@@ -12,17 +19,19 @@ const tabsLayout = () => {
         tabBarLabelPosition: 'below-icon',
       }}>
       <Tabs.Screen
-        name="(contractor)"
+        name="(clientHome)"
         options={{
           title: 'Contractor',
           tabBarIcon: ({ color }) => <FontAwesome6 name="suitcase" size={28} color={color} />,
         }}
       />
       <Tabs.Screen
-        name="rated"
+        name="message"
         options={{
-          title: 'Rated',
-          tabBarIcon: ({ color }) => <AntDesign name="star" size={28} color={color} />,
+          title: 'Message',
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="chatbubble-ellipses" size={28} color={color} />
+          ),
         }}
       />
 
@@ -36,12 +45,10 @@ const tabsLayout = () => {
       />
 
       <Tabs.Screen
-        name="topSkill"
+        name="notifications"
         options={{
-          title: 'Top Skill',
-          tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="puzzle" size={24} color={color} />
-          ),
+          title: 'Notifications',
+          tabBarIcon: ({ color }) => <Fontisto name="bell-alt" size={26} color={color} />,
         }}
       />
       <Tabs.Screen
@@ -55,4 +62,4 @@ const tabsLayout = () => {
   );
 };
 
-export default tabsLayout;
+export default clientLayout;

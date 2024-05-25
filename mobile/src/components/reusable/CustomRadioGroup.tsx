@@ -2,6 +2,7 @@ import { StyleSheet, View } from 'react-native';
 import React from 'react';
 import { Label, RadioGroup, XStack } from 'tamagui';
 import colors from '~/src/constants/colors';
+import { getRandomString } from '~/src/utils/utilFuncs';
 
 type radioProps = {
   items: string[];
@@ -25,17 +26,18 @@ const CustomRadioGroup = ({
             { flexDirection: `${orientation === 'horizontal' ? 'row' : 'column'}` },
           ]}>
           {items?.map((item: string, index: number) => {
+            const radioId = getRandomString(5);
             return (
               <XStack alignItems="center" space="$2" key={index}>
                 <RadioGroup.Item
                   value={item}
-                  id={index + '-radio'}
+                  id={radioId}
                   backgroundColor={colors.white}
                   borderColor={colors.border}
                   size={'$3'}>
                   <RadioGroup.Indicator backgroundColor={colors.primary} />
                 </RadioGroup.Item>
-                <Label color={colors.silver} style={styles.labelText} htmlFor={index + '-radio'}>
+                <Label color={colors.silver} style={styles.labelText} htmlFor={radioId}>
                   {item}
                 </Label>
               </XStack>

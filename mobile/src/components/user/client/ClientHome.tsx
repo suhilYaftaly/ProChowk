@@ -14,13 +14,14 @@ import { FontAwesome6 } from '@expo/vector-icons';
 import ContractorCard from '../contractor/ContractorCard';
 import { IAddress, ILatLng } from '~/src/graphql/operations/address';
 import { getUserLocation, isFiltersChanged } from '~/src/utils/utilFuncs';
-import { setUserFilters, userLocationSuccess } from '~/src/redux/slices/userSlice';
+import { setContFilters, userLocationSuccess } from '~/src/redux/slices/userSlice';
 import { useAppDispatch } from '~/src/utils/hooks/hooks';
 import CustomContentLoader from '../../reusable/CustomContentLoader';
 import labels from '~/src/constants/labels';
 import { nearbyContsFilterConfigs as CC, defaultAddress } from '@config/configConst';
 import NoResultFound from '../../reusable/NoResultFound';
-import { INearbyContFilters } from '../drawer/FilterDrawerContent';
+import { INearbyContFilters } from '../drawer/ContrFilterDrawer';
+import LocDeniedSec from '../../reusable/LocDeniedSec';
 
 export interface INearbyContFilterErrors {
   radius: string;
@@ -29,7 +30,7 @@ export interface INearbyContFilterErrors {
 
 const ClientHome = () => {
   const dispatch = useAppDispatch();
-  const { userLocation, userFilters } = useUserStates();
+  const { userLocation, contFilters: userFilters } = useUserStates();
   const [openDialog, setOpenDialog] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -77,23 +78,9 @@ const ClientHome = () => {
     });
   };
 
-  const enableLocation = async () => {
-    if (locPermission && locPermission === 'denied') {
-      Linking.openSettings();
-    } else if (locPermission && locPermission === 'undetermined') {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      setLocPermission(status);
-    }
-  };
-
-  const checkPer = async () => {
-    let { status } = await Location.getForegroundPermissionsAsync();
-    setLocPermission(status);
-  };
-
   const setDefaultFilters = (userAddress: IAddress) => {
     dispatch(
-      setUserFilters({
+      setContFilters({
         radius: CC.defaults?.radius,
         address: userAddress,
         latLng: { lat: userAddress?.lat, lng: userAddress?.lng },
@@ -102,29 +89,6 @@ const ClientHome = () => {
   };
 
   const renderListItem: ListRenderItem<IUser> = ({ item }) => <ContractorCard user={item} />;
-
-  useEffect(() => {
-    checkPer();
-  }, []);
-
-  useEffect(() => {
-    if (locPermission === 'granted') {
-      if (userLatLng) {
-        setDefaultFilters({ ...userLatLng, ...defaultAddress });
-      } else {
-        setLocationLoading(true);
-        getUserLocation({
-          onSuccess: (latLng) => {
-            setLocationLoading(false);
-            dispatch(userLocationSuccess(latLng));
-            setDefaultFilters({ ...latLng, ...defaultAddress });
-          },
-        });
-      }
-    } else if (locPermission === 'undetermined') {
-      setOpenDialog(true);
-    }
-  }, [locPermission]);
 
   useEffect(() => {
     if (
@@ -174,50 +138,20 @@ const ClientHome = () => {
               showsVerticalScrollIndicator={false}
             />
           </>
-        ) : contsList && contsList?.length === 0 && locPermission === 'granted' ? (
-          <NoResultFound searchType={labels.contractor.toLowerCase()} />
         ) : (
-          <></>
+          contsList &&
+          contsList?.length === 0 &&
+          locPermission === 'granted' && (
+            <NoResultFound searchType={labels.contractor.toLowerCase()} />
+          )
         )}
-        {locPermission !== 'granted' && (
-          <View style={styles.locationCont}>
-            <Circle backgroundColor={colors.primary} size={50}>
-              <FontAwesome6 name="location-dot" size={26} color={colors.white} />
-            </Circle>
-            <Text style={styles.headerText}>We noticed you've denied location access.</Text>
-            <YStack>
-              <Text style={styles.subHeaderText}>
-                While you can still use our app, enabling location helps us:
-              </Text>
-              <Text style={styles.normalText}>- Customize content and services for you</Text>
-              <Text style={styles.normalText}>- Provide location-specific recommendations</Text>
-              <Text style={styles.normalText}>- Enhance user experience</Text>
-              <Text style={styles.subHeaderText}>
-                To enable location services later, you can do so from the phone settings.
-                <Text style={{ color: colors.primary }}> Learn More</Text>
-              </Text>
-              <Text style={styles.normalText}>
-                Your privacy matters to us. Your location data is secure and will never be shared
-                without your consent.
-              </Text>
-              <Text style={styles.normalText}>Enable your location to see tailored results!</Text>
-            </YStack>
-            <Button
-              style={styles.button}
-              backgroundColor={colors.primary}
-              onPress={() => enableLocation()}>
-              {labels.enableLocation}
-            </Button>
-          </View>
-        )}
-        {openDialog && (
-          <LocationPermission
-            isOpen={openDialog}
-            setIsOpen={setOpenDialog}
-            locPermission={locPermission}
-            setLocPermission={setLocPermission}
-          />
-        )}
+        <LocDeniedSec
+          locPermission={locPermission}
+          setLocPermission={setLocPermission}
+          setDefaultFilters={setDefaultFilters}
+          setLocationLoading={setLocationLoading}
+          userLatLng={userLatLng}
+        />
       </View>
     </>
   );
@@ -226,61 +160,6 @@ const ClientHome = () => {
 export default ClientHome;
 
 const styles = StyleSheet.create({
-  locationCont: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    width: '100%',
-    height: '100%',
-  },
-  headerText: {
-    fontFamily: 'InterExtraBold',
-    fontSize: 18,
-    color: colors.textDark,
-    textAlign: 'center',
-    lineHeight: 25,
-    marginBottom: 10,
-    marginTop: 10,
-  },
-  subHeaderText: {
-    fontSize: 15,
-    fontFamily: 'InterExtraBold',
-    color: colors.textDark,
-    textAlign: 'center',
-    lineHeight: 25,
-    marginTop: 15,
-  },
-  normalText: {
-    fontSize: 15,
-    fontFamily: 'InterMedium',
-    color: colors.textDark,
-    textAlign: 'center',
-    lineHeight: 25,
-  },
-  button: {
-    fontFamily: 'InterBold',
-    fontSize: 15,
-    borderBottomLeftRadius: 50,
-    borderTopRightRadius: 50,
-    borderTopLeftRadius: 50,
-    borderBottomRightRadius: 50,
-    marginTop: 20,
-    marginBottom: 10,
-    justifyContent: 'center',
-    color: colors.white,
-    width: '90%',
-  },
-  searchContainer: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    padding: 10,
-    backgroundColor: colors.white,
-  },
-  inputText: {
-    color: colors.textDark,
-    fontFamily: 'InterSemiBold',
-    fontSize: 15,
-    backgroundColor: 'transparent',
-  },
   contractorListLabel: {
     fontFamily: 'InterBold',
     fontSize: 15,

@@ -3,14 +3,15 @@ import React from 'react';
 import { Button } from 'tamagui';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import colors from '~/src/constants/colors';
+import { IImageInfo } from 'react-native-image-zoom-viewer/built/image-viewer.type';
 
 type Props = {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  imageUrl: string;
+  imageUrls: IImageInfo[];
 };
 
-const ImageViewCont = ({ isOpen, setIsOpen, imageUrl }: Props) => {
+const ImageViewCont = ({ isOpen, setIsOpen, imageUrls }: Props) => {
   return (
     <Modal
       animationType="fade"
@@ -20,7 +21,7 @@ const ImageViewCont = ({ isOpen, setIsOpen, imageUrl }: Props) => {
       }}
       transparent={true}>
       <ImageViewer
-        imageUrls={[{ url: imageUrl }]}
+        imageUrls={imageUrls}
         enableSwipeDown={true}
         maxScale={2}
         onSwipeDown={() => setIsOpen(false)}

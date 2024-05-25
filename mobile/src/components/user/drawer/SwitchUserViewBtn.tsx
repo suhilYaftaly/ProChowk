@@ -11,10 +11,15 @@ import { useAppDispatch } from '~/src/utils/hooks/hooks';
 import { setUserView } from '~/src/redux/slices/userSlice';
 import { router } from 'expo-router';
 import Routes from '~/src/routes/Routes';
+import labels from '~/src/constants/labels';
 
 export type TUserView = 'Client' | 'Contractor';
 
-const SwitchUserViewBtn = () => {
+interface Props {
+  closeDrawer: () => void;
+}
+
+const SwitchUserViewBtn = ({ closeDrawer }: Props) => {
   const dispatch = useAppDispatch();
   const savedView = getValueFromLocalStorage(USER_VIEW) as TUserView | null;
   const { user, userView } = useUserStates();
@@ -34,6 +39,9 @@ const SwitchUserViewBtn = () => {
 
   const switchView = (newView: TUserView) => {
     saveInLocalStorage(USER_VIEW, newView);
+    closeDrawer();
+    if (newView === 'Contractor') router.navigate(`/${Routes.contractorHome}`);
+    else if (newView === 'Client') router.navigate(`/${Routes.clientHome}`);
     dispatch(setUserView(newView));
   };
 
@@ -47,23 +55,29 @@ const SwitchUserViewBtn = () => {
   const getBtnProps = () => {
     if (isVerifyEmail) {
       return {
-        text: 'Verify Email',
+        text: labels.verifyEmail,
         action: onVerifyEmail,
       };
     } else if (isBecomeContractor) {
       return {
-        text: 'Become Contractor',
+        text: labels.becomeContractor,
         action: onBecomeContractor,
       };
     } else if (isSwitchToCont) {
       return {
-        text: 'Switch to Contractor',
-        action: () => switchView('Contractor'),
+        text: labels.switchToContractor,
+        action: () => {
+          router.replace(`/${Routes.contractorHome}`);
+          switchView('Contractor');
+        },
       };
     } else if (isSwitchToClient) {
       return {
-        text: 'Switch to Client',
-        action: () => switchView('Client'),
+        text: labels.switchToClient,
+        action: () => {
+          router.replace(`/${Routes.clientHome}`);
+          switchView('Client');
+        },
       };
     }
   };

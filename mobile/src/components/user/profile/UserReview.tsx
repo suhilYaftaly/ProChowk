@@ -12,7 +12,7 @@ import { IUser } from '~/src/graphql/operations/user';
 type Props = {
   user?: IUser;
   userReviews?: TUserReviewsData;
-  isMyProfile: boolean;
+  isMyProfile?: boolean;
 };
 const UserReview = ({ userReviews, isMyProfile }: Props) => {
   const { width } = useWindowDimensions();

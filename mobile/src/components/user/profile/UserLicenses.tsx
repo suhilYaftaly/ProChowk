@@ -17,6 +17,7 @@ import CustomModal from '../../reusable/CustomModal';
 import EditLicenses from './editModals/EditLicenses';
 import AddLicense from './editModals/AddLicense';
 import ImageViewCont from '../../reusable/ImageViewCont';
+import { IImageInfo } from 'react-native-image-zoom-viewer/built/image-viewer.type';
 type Props = {
   contractorData?: IContractor;
   licenses?: ILicense[];
@@ -28,12 +29,14 @@ const UserLicenses = ({ contractorData, licenses, isMyProfile }: Props) => {
   const [addLicensesOpen, setAddLicensesOpen] = useState<boolean>(false);
   const [licensesEditOpen, setLicensesEditOpen] = useState<boolean>(false);
   const [imageViewOpen, setImageViewOpen] = useState<boolean>(false);
-  const [seleImageUrl, setSeleImageUrl] = useState<string>();
+  const imageUrls: IImageInfo[] | undefined = licenses?.map((license) => {
+    return { url: license?.url, id: license?.id, name: license?.name };
+  });
   const renderListItem: ListRenderItem<any> = ({ item }) => (
     <View style={[styles.licensePage, { width: width * 0.8 }]}>
       <Pressable
         onPress={() => {
-          setSeleImageUrl(item?.url);
+          /*  setSeleImageUrl(item?.url); */
           setImageViewOpen(true);
         }}>
         <Image
@@ -97,11 +100,11 @@ const UserLicenses = ({ contractorData, licenses, isMyProfile }: Props) => {
           />
         }
       />
-      {seleImageUrl && imageViewOpen && (
+      {imageUrls && imageUrls?.length > 0 && imageViewOpen && (
         <ImageViewCont
           isOpen={imageViewOpen}
           setIsOpen={(open: boolean) => setImageViewOpen(open)}
-          imageUrl={seleImageUrl}
+          imageUrls={imageUrls}
         />
       )}
     </>

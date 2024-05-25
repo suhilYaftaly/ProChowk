@@ -34,7 +34,7 @@ const AppHeader = (props: any) => {
   );
 };
 
-export default AppHeader;
+export default React.memo(AppHeader);
 
 const styles = StyleSheet.create({
   headerBar: {

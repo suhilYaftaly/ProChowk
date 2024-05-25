@@ -2,20 +2,20 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import colors from '~/src/constants/colors';
 import { AntDesign, FontAwesome, FontAwesome6 } from '@expo/vector-icons';
-import { Input, ScrollView, Separator, useWindowDimensions } from 'tamagui';
-import labels from '~/src/constants/labels';
 import FullScreenDialog from '../../reusable/FullScreenDialog';
+import { Input, ScrollView, Separator, useWindowDimensions } from 'tamagui';
 import CustomContentLoader from '../../reusable/CustomContentLoader';
 import NoResultFound from '../../reusable/NoResultFound';
-import { ISkill, useSkills } from '~/src/graphql/operations/skill';
+import labels from '~/src/constants/labels';
 import { useAppDispatch } from '~/src/utils/hooks/hooks';
-import { setContFilters } from '~/src/redux/slices/userSlice';
 import { useUserStates } from '~/src/redux/reduxStates';
+import { ISkill, useSkills } from '~/src/graphql/operations/skill';
+import { setProjectsFilters } from '~/src/redux/slices/userSlice';
 
-const SearchContractor = (props: any) => {
+const SearchProjects = (props: any) => {
   const { width } = useWindowDimensions();
   const dispatch = useAppDispatch();
-  const { contFilters } = useUserStates();
+  const { projectFilters } = useUserStates();
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const [displayValue, setDisplayValue] = useState<string>('');
@@ -24,18 +24,18 @@ const SearchContractor = (props: any) => {
   const allSkillsData = allSkillsType?.skills;
 
   const handleSearchItemClick = (value: string) => {
-    searchContractor(value);
+    searchProjects(value);
   };
 
-  const searchContractor = (searchText: string) => {
+  const searchProjects = (searchText: string) => {
     setIsOpen(false);
     setInputValue(searchText);
     setDisplayValue(searchText);
-    if (searchText && contFilters) {
+    if (searchText && projectFilters) {
       dispatch(
-        setContFilters({
+        setProjectsFilters({
           ...{ searchText: searchText },
-          ...contFilters,
+          ...projectFilters,
         })
       );
     }
@@ -57,14 +57,15 @@ const SearchContractor = (props: any) => {
   useEffect(() => {
     if (allSkillsData) setSearchedSkills(allSkillsData);
   }, [allSkillsData]);
+
   useEffect(() => {
-    if (contFilters) {
+    if (projectFilters) {
       dispatch(
-        setContFilters({
-          searchText: displayValue ? displayValue : '',
-          radius: contFilters?.radius,
-          latLng: contFilters?.latLng,
-          address: contFilters?.address,
+        setProjectsFilters({
+          ...projectFilters,
+          ...{
+            searchText: displayValue ? displayValue : undefined,
+          },
         })
       );
     }
@@ -85,7 +86,7 @@ const SearchContractor = (props: any) => {
           triggerBtnCom={
             <View style={[styles.menuButton, { width: width * 0.6 }]}>
               <Text>
-                {displayValue && displayValue !== '' ? displayValue : labels?.searchForContractors}
+                {displayValue && displayValue !== '' ? displayValue : labels?.searchForProjects}
               </Text>
             </View>
           }
@@ -111,7 +112,7 @@ const SearchContractor = (props: any) => {
                   onChangeText={(e) => onInputChange(e)}
                 />
                 {inputValue && inputValue !== '' && (
-                  <Pressable onPress={() => searchContractor(inputValue)} style={styles.addBtn}>
+                  <Pressable onPress={() => searchProjects(inputValue)} style={styles.addBtn}>
                     <FontAwesome name="search" size={20} color={colors.textBlue} />
                   </Pressable>
                 )}
@@ -161,7 +162,7 @@ const SearchContractor = (props: any) => {
   );
 };
 
-export default SearchContractor;
+export default SearchProjects;
 
 const styles = StyleSheet.create({
   searchBarCont: {

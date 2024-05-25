@@ -140,6 +140,22 @@ export const ForgotPassword = (iconConfig: IconInterface) => {
   );
 };
 
+export const BidJob = (iconConfig: IconInterface) => {
+  const { width, height } = calculateImageDiamentions(iconConfig);
+  return (
+    <Svg width={width} height={height} viewBox="0 0 26 16" fill="none">
+      <Path
+        d="M7.75 8.895h-1v.895h1c.276 0 .5-.2.5-.447s-.224-.448-.5-.448m10.5-2.684h-1V9.79h1c.551 0 1-.402 1-.895v-1.79c0-.493-.449-.894-1-.894m-10.5.447c0-.247-.224-.447-.5-.447h-.5v.895h.5c.276 0 .5-.2.5-.448"
+        fill="#023047"
+      />
+      <Path
+        d="M25 .736H1c-.552 0-1 .4-1 .895v12.737c0 .494.448.895 1 .895h24c.552 0 1-.401 1-.895V1.63c0-.494-.448-.895-1-.895M7.75 11.578h-2c-.552 0-1-.4-1-.894V5.315c0-.494.448-.894 1-.894h1.5c1.378 0 2.5 1.003 2.5 2.236 0 .38-.106.738-.293 1.052.487.408.793.99.793 1.633 0 1.233-1.122 2.236-2.5 2.236m6-.894c0 .494-.448.894-1 .894s-1-.4-1-.894V5.315c0-.494.448-.894 1-.894s1 .4 1 .894zm7.5-1.79c0 1.48-1.346 2.684-3 2.684h-2c-.552 0-1-.4-1-.894V5.315c0-.494.448-.894 1-.894h2c1.654 0 3 1.204 3 2.684z"
+        fill="#023047"
+      />
+    </Svg>
+  );
+};
+
 const calculateImageDiamentions = (iconConfig: IconInterface) => {
   const iconColor = iconConfig?.color ? iconConfig?.color : colors.black;
   const iconWidth = iconConfig?.width

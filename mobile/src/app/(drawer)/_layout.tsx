@@ -7,6 +7,7 @@ import AppDrawerContent from '~/src/components/user/drawer/AppDrawerContent';
 const drawerLayout = () => {
   return (
     <Drawer
+      backBehavior="none"
       screenOptions={{
         drawerPosition: 'right',
         overlayColor: colors.secondary50,
@@ -17,9 +18,10 @@ const drawerLayout = () => {
         swipeEnabled: false,
       }}
       drawerContent={(props) => <AppDrawerContent {...props} />}>
-      <Drawer.Screen name="(tabs)" />
+      <Drawer.Screen name="(client)" />
+      <Drawer.Screen name="(contractor)" />
     </Drawer>
   );
 };
 
-export default drawerLayout;
+export default React.memo(drawerLayout);

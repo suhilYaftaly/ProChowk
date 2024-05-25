@@ -6,12 +6,29 @@ interface Props {
   label: string;
   onClose?: (val: string) => void;
   isDisplay?: boolean;
+  bgColor?: string;
+  borderColor?: string;
+  textColor?: string;
 }
 
-const Chip = ({ label, onClose, isDisplay = false }: Props) => {
+const Chip = ({
+  label,
+  onClose,
+  isDisplay = false,
+  bgColor = colors.bg,
+  textColor = colors.textDark,
+  borderColor = colors.border,
+}: Props) => {
   return (
     <View
-      style={[styles.chipContainer, { justifyContent: isDisplay ? 'center' : 'space-between' }]}>
+      style={[
+        styles.chipContainer,
+        {
+          justifyContent: isDisplay ? 'center' : 'space-between',
+          backgroundColor: bgColor,
+          borderColor: borderColor,
+        },
+      ]}>
       <Text
         style={{
           textAlign: 'center',
@@ -24,7 +41,7 @@ const Chip = ({ label, onClose, isDisplay = false }: Props) => {
       </Text>
       {!isDisplay && (
         <Pressable onPress={() => (onClose ? onClose(label) : {})}>
-          <Ionicons name="close" size={20} color={colors.textDark} />
+          <Ionicons name="close" size={20} color={textColor} />
         </Pressable>
       )}
     </View>
@@ -35,7 +52,6 @@ export default Chip;
 
 const styles = StyleSheet.create({
   chipContainer: {
-    backgroundColor: colors.bg,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,
@@ -43,6 +59,5 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     margin: 3,
     borderWidth: 1,
-    borderColor: colors.border,
   },
 });

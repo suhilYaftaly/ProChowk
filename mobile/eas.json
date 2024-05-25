@@ -18,9 +18,12 @@
       "distribution": "internal",
       "env": {
         "EXPO_PUBLIC_API_URL": "https://agile-woodland-98454-799359b7c001.herokuapp.com/graphql"
-      }
+      },
+      "channel": "preview"
     },
-    "production": {}
+    "production": {
+      "channel": "production"
+    }
   },
   "submit": {
     "production": {}

@@ -1,33 +1,40 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
+import { AddressInput, IAddress, LatLngInput } from '~/src/graphql/operations/address';
+import labels from '~/src/constants/labels';
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import colors from '~/src/constants/colors';
-import AddressSearch from '../signUp/AddressSearch';
-import labels from '~/src/constants/labels';
-import { AddressInput, IAddress, LatLngInput } from '~/src/graphql/operations/address';
 import { Button, Input, YStack } from 'tamagui';
 import Slider from '@react-native-community/slider';
+import AddressSearch from '../signUp/AddressSearch';
+import { searchNearbyJobsFilterConfigs as CC } from '@/config/configConst';
 import { DrawerContentScrollView } from '@react-navigation/drawer';
-import { nearbyContsFilterConfigs as CC } from '@/config/configConst';
-import { useAppDispatch } from '~/src/utils/hooks/hooks';
-import { setUserFilters } from '~/src/redux/slices/userSlice';
+import { defaultAddress } from '~/src/config/configConst';
+import { setProjectsFilters } from '~/src/redux/slices/userSlice';
 import { useUserStates } from '~/src/redux/reduxStates';
-import { defaultAddress } from '@config/configConst';
+import { useAppDispatch } from '~/src/utils/hooks/hooks';
+import DayPostedSele, { IDateRange } from './DayPostedSele';
+import ProjectTypeSele from './ProjectTypeSele';
+import PriceRangeSele from './PriceRangeSele';
+import { BudgetType } from '~/src/graphql/operations/job';
+import Toast from 'react-native-toast-message';
 
-export interface INearbyContFilters {
-  searchText?: string;
-  radius: number;
-  address?: IAddress;
-  latLng?: LatLngInput;
-}
+export type TTypeOption = 'All' | 'Hourly' | 'Project';
 
-const FilterDrawerContent = (props: any) => {
+const ProjectFilterDrawer = (props: any) => {
   const dispatch = useAppDispatch();
-  const { user, userLocation, userFilters } = useUserStates();
+  const { user, userLocation, projectFilters } = useUserStates();
   const [location, setLocation] = useState<AddressInput>();
   const [locationAvail, setLocationAvail] = useState<boolean>(true);
   const [areaRadius, setAreaRadius] = useState<number>(CC.defaults.radius);
   const [areaError, setAreaError] = useState(false);
+  const [projectTypes, setProjectTypes] = useState<BudgetType[]>([]);
+  const [startDate, setStartDate] = useState<string>();
+  const [endDate, setEndDate] = useState<string>();
+  const [fromVal, setFromVal] = useState<string>(CC.defaults.budget.from?.toString());
+  const [toVal, setToVal] = useState<string>(CC.defaults.budget.to?.toString());
+  const [seleDayPosted, setSeleDayPosted] = useState<string>('24 Hr');
+  const [seleProjectType, setSeleProjectType] = useState<string>('All');
 
   const handleAreaChange = (val: string) => {
     const aRadius = Number(val);
@@ -41,14 +48,22 @@ const FilterDrawerContent = (props: any) => {
   };
 
   const handleApplyFilter = () => {
-    if (location && areaRadius) {
+    if (location && areaRadius && fromVal && toVal) {
+      if (!projectFilters?.searchText) {
+        Toast.show({ type: 'warning', text1: labels.searchTextEmpty });
+      }
       dispatch(
-        setUserFilters({
-          ...userFilters,
+        setProjectsFilters({
+          ...projectFilters,
           ...{
             radius: areaRadius,
             address: location,
             latLng: { lat: location?.lat, lng: location?.lng },
+            budget: { types: projectTypes, from: fromVal, to: toVal },
+            startDate: startDate,
+            endDate: endDate,
+            seleDayPosted: seleDayPosted,
+            seleProjectType: seleProjectType,
           },
         })
       );
@@ -58,6 +73,11 @@ const FilterDrawerContent = (props: any) => {
 
   const handleResetFilters = () => {
     setAreaRadius(CC.defaults.radius);
+    setSeleProjectType(CC.defaults.seleProjectType);
+    setProjectTypes(CC.defaults?.budget?.types);
+    setSeleDayPosted(CC.defaults.seleDayPosted);
+    setFromVal(CC.defaults.budget.from?.toString());
+    setToVal(CC.defaults.budget.to?.toString());
     setLocationAvail(true);
     if (user?.address) setLocation(user?.address);
     else if (userLocation?.data?.lat && userLocation?.data?.lng)
@@ -66,13 +86,47 @@ const FilterDrawerContent = (props: any) => {
         ...defaultAddress,
       });
   };
+  const handleProTypeChange = (val: string) => {
+    setSeleProjectType(val);
+    switch (val) {
+      case 'All':
+        setProjectTypes(['Hourly', 'Project']);
+        break;
+      case 'Hourly':
+        setProjectTypes(['Hourly']);
+        break;
+      case 'Project':
+        setProjectTypes(['Project']);
+        break;
+    }
+  };
+  const onDateChange = ({ startDate, endDate }: IDateRange) => {
+    setStartDate(startDate);
+    setEndDate(endDate);
+  };
 
   useEffect(() => {
-    if (userFilters && userFilters?.address && userFilters?.radius) {
-      setAreaRadius(userFilters?.radius);
-      setLocation(userFilters?.address);
+    if (
+      projectFilters &&
+      projectFilters?.address &&
+      projectFilters?.radius &&
+      projectFilters?.seleProjectType &&
+      projectFilters?.seleDayPosted &&
+      projectFilters?.budget?.from &&
+      projectFilters?.budget?.to &&
+      projectFilters?.budget?.types
+    ) {
+      setAreaRadius(projectFilters?.radius);
+      setLocation(projectFilters?.address);
+      setStartDate(projectFilters?.startDate);
+      setEndDate(projectFilters?.endDate);
+      setFromVal(projectFilters?.budget?.from?.toString());
+      setToVal(projectFilters?.budget?.to?.toString());
+      setProjectTypes(projectFilters?.budget?.types);
+      setSeleProjectType(projectFilters?.seleProjectType);
+      setSeleDayPosted(projectFilters?.seleDayPosted);
     }
-  }, [userFilters]);
+  }, [projectFilters]);
 
   return (
     <View style={{ flex: 1 }}>
@@ -105,7 +159,7 @@ const FilterDrawerContent = (props: any) => {
         <View style={{ padding: 15, borderBottomColor: colors.border, borderBottomWidth: 1 }}>
           <YStack space={'$1.5'}>
             <Text style={{ fontFamily: 'InterBold' }}>
-              {labels.area}
+              {labels.radius}
               <Text style={{ color: colors.primary }}>*</Text>
             </Text>
             <View style={styles.areaInputCont}>
@@ -139,6 +193,27 @@ const FilterDrawerContent = (props: any) => {
             />
           </YStack>
         </View>
+        <View style={{ padding: 15, borderBottomColor: colors.border, borderBottomWidth: 1 }}>
+          <ProjectTypeSele
+            seleProjectType={seleProjectType}
+            handleProTypeChange={handleProTypeChange}
+          />
+        </View>
+        <View style={{ padding: 15, borderBottomColor: colors.border, borderBottomWidth: 1 }}>
+          <DayPostedSele
+            onDateChange={onDateChange}
+            seleOption={seleDayPosted}
+            setSeleOption={setSeleDayPosted}
+          />
+        </View>
+        <View style={{ padding: 15, borderBottomColor: colors.border, borderBottomWidth: 1 }}>
+          <PriceRangeSele
+            fromVal={fromVal}
+            toVal={toVal}
+            setFromVal={setFromVal}
+            setToVal={setToVal}
+          />
+        </View>
       </DrawerContentScrollView>
       <View style={styles.drawerFooter}>
         <Button
@@ -153,7 +228,7 @@ const FilterDrawerContent = (props: any) => {
           backgroundColor={!location || !areaRadius ? colors.silver : colors.primary}
           alignItems="center"
           onPress={() => handleApplyFilter()}
-          disabled={!location || !areaRadius}
+          disabled={!location || !areaRadius || Number(fromVal) < 10 || Number(toVal) > 50000}
           iconAfter={<FontAwesome name="chevron-right" size={15} color={colors.white} />}>
           {labels.apply}
         </Button>
@@ -162,7 +237,7 @@ const FilterDrawerContent = (props: any) => {
   );
 };
 
-export default FilterDrawerContent;
+export default ProjectFilterDrawer;
 
 const styles = StyleSheet.create({
   drawerHeader: {

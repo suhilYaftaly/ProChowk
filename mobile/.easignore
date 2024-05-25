@@ -1,0 +1,22 @@
+# Ignore build artifacts
+/build/
+/dist/
+
+# Ignore node_modules
+/node_modules/
+
+# Ignore IDE-specific files
+.idea/
+.vscode/
+
+# Ignore platform-specific files
+ios/build/
+android/build/
+
+# Ignore temporary files
+.tmp/
+*.log
+
+# Ignore configuration files with secrets (for security)
+.env
+.env.local

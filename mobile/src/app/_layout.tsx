@@ -13,7 +13,6 @@ import Toast from 'react-native-toast-message';
 import { toastConfig } from '../config/ToastConfig';
 
 SplashScreen.preventAutoHideAsync();
-
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
   initialRouteName: 'index',
@@ -45,6 +44,10 @@ export default function RootLayout() {
           <SafeAreaProvider>
             <GestureHandlerRootView style={{ flex: 1 }}>
               <Stack>
+                <Stack.Screen
+                  name="index"
+                  options={{ headerShown: false, gestureEnabled: false }}
+                />
                 <Stack.Screen
                   name="(drawer)"
                   options={{ headerShown: false, gestureEnabled: false }}

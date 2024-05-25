@@ -1,5 +1,5 @@
-import { Pressable, StyleSheet, Text, View, Linking, AppState, AppStateStatus } from 'react-native';
-import React, { useEffect, useRef, useState } from 'react';
+import { Pressable, StyleSheet, Text, View, Linking } from 'react-native';
+import React, { useState } from 'react';
 import { Circle, Dialog, Button, ScrollView, Spinner } from 'tamagui';
 import { FontAwesome6 } from '@expo/vector-icons';
 import colors from '~/src/constants/colors';
@@ -39,25 +39,6 @@ const LocationPermission = ({ isOpen, setIsOpen, locPermission, setLocPermission
     setProcessLoading(false);
     setIsOpen(false);
   };
-
-  /* this is a appState EventHandler code to get latest location Permissions */
-  const appState = useRef(AppState.currentState);
-  const [, setAppStateVisible] = useState(appState.current);
-  const handleAppStateChange = async (nextAppState: AppStateStatus) => {
-    if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      setLocPermission(status);
-    }
-    appState.current = nextAppState;
-    setAppStateVisible(appState.current);
-  };
-
-  useEffect(() => {
-    const subscription = AppState.addEventListener('change', handleAppStateChange);
-    return () => {
-      subscription.remove();
-    };
-  }, []);
 
   return (
     <Dialog modal open={isOpen} onOpenChange={setIsOpen}>

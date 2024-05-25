@@ -8,14 +8,18 @@ import Chip from '../reusable/Chip';
 import { SkillInput } from '~/src/graphql/operations/skill';
 import colors from '~/src/constants/colors';
 import labels from '~/src/constants/labels';
+import ImageViewCont from '../reusable/ImageViewCont';
 interface Props {
   job: IJob | JobInput;
-  topRightBtn?: React.ReactNode;
 }
 
-const JobPreview = ({ job, topRightBtn }: Props) => {
+const JobPreview = ({ job }: Props) => {
   const { title, desc, address, budget, skills, images, startDate, endDate } = job;
   const isHourly = budget?.type === 'Hourly';
+  const [imageViewOpen, setImageViewOpen] = useState<boolean>(false);
+  const imageUrls = images?.map((image) => {
+    return { url: image?.url, name: image?.name };
+  });
   const [descReadExpanded, setDescReadExpanded] = useState(false);
   return (
     <View style={styles.jobDetailsCont}>
@@ -24,18 +28,19 @@ const JobPreview = ({ job, topRightBtn }: Props) => {
       </Text>
       <Text style={styles.boldText}>
         {budget?.type}:{' '}
-        <Text style={styles.normalText}>
+        <Text style={[styles.normalText, { color: colors.primary }]}>
           {isHourly && `$${budget?.from}-`}${budget?.to}
         </Text>
         {isHourly && (
           <>
             {' '}
-            | Max Hours: <Text style={styles.normalText}>{budget?.maxHours}hr</Text>
+            |{labels.maxHours}:{' '}
+            <Text style={[styles.normalText, { color: colors.primary }]}>{budget?.maxHours}hr</Text>
           </>
         )}
       </Text>
       <View style={styles.descCont}>
-        <Text style={styles.boldText}>Job Description</Text>
+        <Text style={styles.boldText}>{labels.jobDesc}</Text>
         <Text
           style={styles.normalText}
           numberOfLines={descReadExpanded ? undefined : 10}
@@ -54,14 +59,23 @@ const JobPreview = ({ job, topRightBtn }: Props) => {
         <>
           <Separator borderColor={colors.border} />
           <YStack gap={'$2.5'} marginVertical={10}>
-            <Text style={styles.boldText}>Job Images</Text>
+            <Text style={styles.boldText}>{labels.jobImages}</Text>
             <View style={styles.seleImagesCont}>
               {images?.map((image) => {
                 return (
-                  <ImagePreview key={image?.name} imgHeight={70} imgWidth={70} image={image} />
+                  <Pressable key={image?.name} onPress={() => setImageViewOpen(true)}>
+                    <ImagePreview imgHeight={70} imgWidth={70} image={image} />
+                  </Pressable>
                 );
               })}
             </View>
+            {imageUrls && imageUrls?.length > 0 && imageViewOpen && (
+              <ImageViewCont
+                isOpen={imageViewOpen}
+                setIsOpen={(open: boolean) => setImageViewOpen(open)}
+                imageUrls={imageUrls}
+              />
+            )}
           </YStack>
         </>
       )}
@@ -71,19 +85,19 @@ const JobPreview = ({ job, topRightBtn }: Props) => {
           <XStack gap={'$2.5'} marginVertical={10}>
             {'createdAt' in job && (
               <YStack gap={'$2.5'}>
-                <Text style={styles.boldText}>Posted Date</Text>
+                <Text style={styles.boldText}>{labels.jobPosted}</Text>
                 <Text>{readISODate(job?.createdAt)}</Text>
               </YStack>
             )}
             {startDate && (
               <YStack gap={'$2.5'}>
-                <Text style={styles.boldText}>Start Date</Text>
+                <Text style={styles.boldText}>{labels.startDate}</Text>
                 <Text>{readISODate(startDate)}</Text>
               </YStack>
             )}
             {endDate && (
               <YStack gap={'$2.5'}>
-                <Text style={styles.boldText}>End Date</Text>
+                <Text style={styles.boldText}>{labels.endDate}</Text>
                 <Text>{readISODate(endDate)}</Text>
               </YStack>
             )}
@@ -92,7 +106,7 @@ const JobPreview = ({ job, topRightBtn }: Props) => {
       )}
       <Separator borderColor={colors.border} />
       <YStack gap={'$2.5'} marginVertical={10}>
-        <Text style={styles.boldText}>Skills Required</Text>
+        <Text style={styles.boldText}>{labels.skillsRequired}</Text>
         <View style={styles.chipsCont}>
           {skills?.map((skill: SkillInput, index: number) => {
             return <Chip key={index} label={skill?.label} isDisplay={true} />;

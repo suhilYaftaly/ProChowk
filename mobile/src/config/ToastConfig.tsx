@@ -86,4 +86,29 @@ export const toastConfig = {
       }}
     />
   ),
+  warning: (props: any) => (
+    <InfoToast
+      {...props}
+      style={{
+        borderLeftColor: colors.warning,
+        backgroundColor: colors.warning,
+        alignItems: 'center',
+        paddingLeft: 10,
+      }}
+      contentContainerStyle={{ paddingHorizontal: 15 }}
+      renderLeadingIcon={() => <AntDesign name="warning" size={24} color={colors.white} />}
+      text1Style={{
+        fontSize: 18,
+        fontWeight: '700',
+        color: colors.white,
+        fontFamily: 'InterBold',
+      }}
+      text2Style={{
+        fontSize: 16,
+        fontWeight: '600',
+        color: colors.white,
+        fontFamily: 'InterSemiBold',
+      }}
+    />
+  ),
 };

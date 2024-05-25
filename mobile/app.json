@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "nexabind-mobile",
+    "name": "NexaBind",
     "slug": "nexabind-mobile",
     "version": "1.0.0",
     "scheme": "nexabind",
@@ -13,6 +13,19 @@
       "expo-router",
       "expo-secure-store",
       [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 34,
+            "targetSdkVersion": 34,
+            "buildToolsVersion": "34.0.0"
+          },
+          "ios": {
+            "deploymentTarget": "14.0"
+          }
+        }
+      ],
+      [
         "expo-location",
         {
           "locationAlwaysAndWhenInUsePermission": "Allow NexaBind to use your location.",
@@ -23,7 +36,7 @@
       [
         "expo-dev-launcher",
         {
-          "launchModeExperimental": "most-recent"
+          "launchMode": "most-recent"
         }
       ],
       [
@@ -39,14 +52,15 @@
         {
           "photosPermission": "The app accesses your photos to let you share them with your friends."
         }
-      ]
+      ],
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true,
       "tsconfigPaths": true
     },
     "orientation": "default",
-    "icon": "./assets/images/logoWhiteOutline.png",
+    "icon": "./assets/images/appLogo.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
@@ -72,7 +86,7 @@
       "package": "com.jaynit716.nexabindmobile",
       "softwareKeyboardLayoutMode": "pan",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/logoWhiteOutline.png",
+        "foregroundImage": "./assets/images/appLogo.png",
         "backgroundColor": "#ffffff"
       },
       "permissions": [

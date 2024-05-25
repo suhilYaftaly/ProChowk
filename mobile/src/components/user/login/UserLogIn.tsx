@@ -11,7 +11,7 @@ import Routes from '~/src/routes/Routes';
 import { useAppDispatch } from '~/src/utils/hooks/hooks';
 import { LoginSchema, LoginUser } from '~/src/types/zodTypes';
 import { logIn, userProfileBegin, userProfileError } from '~/src/redux/slices/userSlice';
-import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
+/* import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin'; */
 import Toast from 'react-native-toast-message';
 
 const UserLogIn = () => {
@@ -24,7 +24,7 @@ const UserLogIn = () => {
   const { loginUserAsync, loading, error } = useLoginUser();
   const { googleLoginAsync, loading: GoogleLoading, error: GoogleError } = useGLogin();
   const [disableSignInBtn, setDisableSignInBtn] = useState(false);
-  const configureGoogleLogIn = () => {
+  /* const configureGoogleLogIn = () => {
     GoogleSignin?.configure({
       webClientId: process.env.GOOGLE_CLIENT_ID,
     });
@@ -72,7 +72,7 @@ const UserLogIn = () => {
       }
     }
   };
-
+ */
   const signIn = async (): Promise<void> => {
     const logInDetails: LoginUser = {
       email,
@@ -179,7 +179,7 @@ const UserLogIn = () => {
           borderWidth={1}
           disabled={GoogleLoading}
           icon={GoogleLoading ? () => <Spinner /> : undefined}
-          onPress={() => googleSignIn()}>
+          onPress={() => /* googleSignIn()} */ {}}>
           <Google size={30} />
           <Text style={styles.googleBtnText}>{labels.signInWithGoogle}</Text>
         </Button>

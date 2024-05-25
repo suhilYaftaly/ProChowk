@@ -1,5 +1,7 @@
 const Routes = {
   home: '',
+  contractorHome: 'contractorHomePage',
+  clientHome: 'clientHomePage',
   signup: 'user/signUp',
   login: 'user/logIn',
   dashboard: 'user/dashboard',
@@ -9,6 +11,7 @@ const Routes = {
   resetPassEmailVerify: 'user/resetPassEmailVerify',
   contractor: 'user/contractor',
   postJob: '/postJob',
+  jobList: 'job/jobList',
 };
 
 export default Routes;

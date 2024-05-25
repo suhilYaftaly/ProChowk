@@ -1,6 +1,7 @@
 /* import { ISearchFilters } from "@/components/jobs/searchJobs/NearbyJobsFilters"; */
 import { BudgetType, JobInput } from '@gqlOps/job';
-import { INearbyContFilters } from '../components/user/drawer/FilterDrawerContent';
+import { INearbyContFilters } from '../components/user/drawer/ContrFilterDrawer';
+import { INearByJobFilters } from '../components/user/contractor/ContractorHome';
 /* import { INearbyContFilters } from "@/components/user/contractor/NearbyContsFilters"; */
 
 /**whole page padding */
@@ -18,7 +19,7 @@ const minimumWage = 14;
 export const phoneCC = 'CA';
 
 /**Dashboard search nearby jobs filter configs */
-/* export const searchNearbyJobsFilterConfigs = {
+export const searchNearbyJobsFilterConfigs = {
   minRadius: 5,
   maxRadius: 200,
   budget: {
@@ -29,8 +30,6 @@ export const phoneCC = 'CA';
     toMin: 10,
     toMax: 100000,
   },
-  dayPostedIndex: 3,
-  projectTypeIndex: 0,
   defaults: {
     radius: 50,
     address: undefined,
@@ -38,13 +37,15 @@ export const phoneCC = 'CA';
     startDate: undefined,
     endDate: undefined,
     budget: {
-      types: ["Hourly", "Project"] as BudgetType[],
-      from: 10,
-      to: 50000,
+      types: ['Hourly', 'Project'] as BudgetType[],
+      from: '10',
+      to: '50000',
     },
-  } as ISearchFilters,
+    seleDayPosted: 'More than 1 month',
+    seleProjectType: 'All',
+  } as INearByJobFilters,
 };
- */
+
 /**Dashboard search nearby contractors filter configs */
 export const nearbyContsFilterConfigs = {
   minRadius: 5,

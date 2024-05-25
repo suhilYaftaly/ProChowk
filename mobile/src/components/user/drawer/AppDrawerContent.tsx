@@ -11,10 +11,12 @@ import { logOut } from '~/src/redux/slices/userSlice';
 import Routes from '~/src/routes/Routes';
 import { useAppDispatch } from '~/src/utils/hooks/hooks';
 import SwitchUserViewBtn from './SwitchUserViewBtn';
+import React from 'react';
+import { BidJob } from '../../reusable/CustomIcons';
 
 const AppDrawerContent = (props: any) => {
   const dispatch = useAppDispatch();
-  const { user } = useUserStates();
+  const { user, userView } = useUserStates();
   const { top, bottom } = useSafeAreaInsets();
 
   const handleLogOut = async () => {
@@ -37,10 +39,10 @@ const AppDrawerContent = (props: any) => {
                 />
               )}
             </Avatar>
-            <YStack space={'$2'} marginLeft={10}>
+            <YStack space={'$2'} marginLeft={10} style={{ width: '75%' }}>
               <Text style={styles.userName}>{user?.name}</Text>
               <Text style={{ color: colors.textDark, fontFamily: 'InterBold', fontSize: 15 }}>
-                {user?.contractor ? labels.contractor : labels.client}
+                {userView}
               </Text>
             </YStack>
           </View>
@@ -66,24 +68,23 @@ const AppDrawerContent = (props: any) => {
             </Switch>
           </XStack>
           <Separator borderColor={colors.border} />
-          <XStack padding={20} alignItems="center">
-            <FontAwesome6
-              name="suitcase"
-              size={28}
-              color={colors.textDark}
-              style={styles.drawerItemIcon}
-            />
-            <Text style={styles.drawerOptionText}>{labels.yourJobs}</Text>
-          </XStack>
+          <Pressable onPress={() => router.navigate(`/${Routes.jobList}`)}>
+            <XStack padding={20} alignItems="center">
+              <FontAwesome6
+                name="suitcase"
+                size={28}
+                color={colors.textDark}
+                style={styles.drawerItemIcon}
+              />
+              <Text style={styles.drawerOptionText}>{labels.yourJobs}</Text>
+            </XStack>
+          </Pressable>
           <Separator borderColor={colors.border} />
           <XStack padding={20} alignItems="center">
-            <Ionicons
-              name="chatbubble-ellipses"
-              size={30}
-              color={colors.textDark}
-              style={styles.drawerItemIcon}
-            />
-            <Text style={styles.drawerOptionText}>{labels.messages}</Text>
+            <View style={{ marginRight: 15 }}>
+              <BidJob size={35} />
+            </View>
+            <Text style={styles.drawerOptionText}>{labels.yourBids}</Text>
           </XStack>
           <Separator borderColor={colors.border} />
           <Pressable onPress={() => handleLogOut()}>
@@ -101,12 +102,12 @@ const AppDrawerContent = (props: any) => {
         </YStack>
       </DrawerContentScrollView>
       <View style={[styles.drawerFooter, { paddingBottom: bottom + 10 }]}>
-        <SwitchUserViewBtn />
+        <SwitchUserViewBtn closeDrawer={() => props.navigation.closeDrawer()} />
       </View>
     </View>
   );
 };
-export default AppDrawerContent;
+export default React.memo(AppDrawerContent);
 
 const styles = StyleSheet.create({
   drawerCont: {

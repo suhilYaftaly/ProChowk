@@ -12,11 +12,12 @@ import 'core-js/stable/atob';
 import { IAddress } from '@gqlOps/address';
 import { getValueFromLocalStorage } from './secureStore';
 import { jwtDecode } from 'jwt-decode';
-import { INearbyContFilters } from '../components/user/drawer/FilterDrawerContent';
+import { INearbyContFilters } from '../components/user/drawer/ContrFilterDrawer';
 import * as ImagePicker from 'expo-image-picker';
 import { Linking } from 'react-native';
 import { IImage } from '../types/commonTypes';
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
+/* import { GoogleSignin } from '@react-native-google-signin/google-signin'; */
+import { INearByJobFilters } from '../components/user/contractor/ContractorHome';
 
 export function decodeJwtToken(token: string) {
   /* const base64Url = token.split('.')[1];
@@ -177,11 +178,11 @@ export const navigateToUserPage = ({ user, navigate }: INavigateToUserPage) => {
 }; */
 
 export const googleLogout = async () => {
-  const isSignedIn = await GoogleSignin.isSignedIn();
+  /* const isSignedIn = await GoogleSignin.isSignedIn();
 
   if (!isSignedIn) {
     await GoogleSignin.signOut();
-  }
+  } */
 };
 
 interface IUserLocation {
@@ -420,6 +421,23 @@ export const isFiltersChanged = (
     currFilters?.radius !== prevFilters?.radius ||
     currFilters?.latLng?.lat !== prevFilters?.latLng?.lat ||
     currFilters?.latLng?.lng !== prevFilters?.latLng?.lng
+  )
+    return true;
+  return false;
+};
+
+export const isProjectFiltersChanged = (
+  currFilters: INearByJobFilters,
+  prevFilters: INearByJobFilters
+) => {
+  if (
+    currFilters?.radius !== prevFilters?.radius ||
+    currFilters?.latLng?.lat !== prevFilters?.latLng?.lat ||
+    currFilters?.latLng?.lng !== prevFilters?.latLng?.lng ||
+    currFilters?.seleDayPosted !== prevFilters?.seleDayPosted ||
+    currFilters?.seleProjectType !== prevFilters?.seleProjectType ||
+    currFilters?.budget?.from !== prevFilters?.budget?.from ||
+    currFilters?.budget?.to !== prevFilters?.budget?.to
   )
     return true;
   return false;
