@@ -4,5 +4,6 @@
       "esModuleInterop": true,
       "strict": true,
       "outDir": "./dest",
+      "target": "ESNext"
     }
   }
