@@ -1,4 +1,4 @@
-import { Message, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { withFilter } from "graphql-subscriptions";
 
@@ -363,7 +363,6 @@ export default {
           const {
             conversationUpdated: {
               conversation: { participants },
-              removedUserIds,
             },
           } = payload;
 
