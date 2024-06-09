@@ -236,7 +236,8 @@ model ReviewAuthorization {
 
 model ContractorPortfolio {
     id           String           @id @default(auto()) @map("_id") @db.ObjectId
-    description  String
+    title        String
+    description  String?
     createdAt    DateTime         @default(now())
     updatedAt    DateTime         @updatedAt
     contractorId String           @db.ObjectId
@@ -280,18 +281,18 @@ model ConversationParticipant {
 }
 
 model Message {
-    id             String        @id @default(auto()) @map("_id") @db.ObjectId
-    body           String
-    conversationId String        @db.ObjectId
-    conversation   Conversation  @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-    senderId       String        @db.ObjectId
-    sender         User          @relation(fields: [senderId], references: [id])
-    isLatestIn     Conversation? @relation("latestConversationMessage")
-    attachmentId   String?       @db.ObjectId
-    attachment     Attachment?
+    id                String        @id @default(auto()) @map("_id") @db.ObjectId
+    body              String
+    conversationId    String        @db.ObjectId
+    conversation      Conversation  @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+    senderId          String        @db.ObjectId
+    sender            User          @relation(fields: [senderId], references: [id])
+    isLatestIn        Conversation? @relation("latestConversationMessage")
+    attachmentId      String?       @db.ObjectId
+    attachment        Attachment?
     isSystemGenerated Boolean?
-    createdAt      DateTime      @default(now())
-    updatedAt      DateTime      @updatedAt
+    createdAt         DateTime      @default(now())
+    updatedAt         DateTime      @updatedAt
 }
 
 model Attachment {

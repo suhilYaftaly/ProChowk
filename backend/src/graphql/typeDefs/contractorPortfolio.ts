@@ -1,46 +1,36 @@
 import gql from "graphql-tag";
 
 export default gql`
+  type Query {
+    getContractorPortfolios(contractorId: ID!): [ContractorPortfolio!]!
+  }
+
   type Mutation {
     addContractorPortfolio(
       contractorId: ID!
-      description: String!
-      images: [PortfolioImageInput]
+      title: String!
+      description: String
+      images: [ImageInput!]!
     ): ContractorPortfolio!
 
     updateContractorPortfolio(
       id: ID!
-      description: String!
-      images: [PortfolioImageInput]
+      title: String!
+      description: String
+      images: [ImageInput!]
     ): ContractorPortfolio!
 
     deleteContractorPortfolio(id: ID!): Boolean!
   }
 
-  input PortfolioImageInput {
-    url: String!
-    name: String
-    type: String
-    size: Float
-  }
-
   type ContractorPortfolio {
-    id: ID
-    description: String!
-    images: [PortfolioImage!]
+    id: ID!
+    title: String!
+    description: String
+    images: [Image!]
     createdAt: Date
     updatedAt: Date
     contractorId: ID
     contractor: Contractor
-  }
-
-  type PortfolioImage {
-    id: ID
-    url: String!
-    name: String
-    type: String
-    size: Float
-    createdAt: Date
-    updatedAt: Date
   }
 `;

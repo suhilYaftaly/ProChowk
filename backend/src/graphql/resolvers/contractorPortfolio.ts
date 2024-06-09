@@ -1,11 +1,29 @@
 import { ContractorPortfolio } from "@prisma/client";
 import { z } from "zod";
+import { GraphQLResolveInfo } from "graphql";
 
 import { GQLContext } from "../../types/commonTypes";
 import checkAuth, { canUserUpdate } from "../../middlewares/checkAuth";
-import { gqlError } from "../../utils/funcs";
+import { gqlError, ifr } from "../../utils/funcs";
 
 export default {
+  Query: {
+    getContractorPortfolios: async (
+      _: any,
+      { contractorId }: { contractorId: string },
+      context: GQLContext,
+      info: GraphQLResolveInfo
+    ): Promise<ContractorPortfolio[]> => {
+      const { prisma } = context;
+
+      const portfolios = await prisma.contractorPortfolio.findMany({
+        where: { contractorId },
+        include: { images: ifr(info, "images") },
+      });
+
+      return portfolios;
+    },
+  },
   Mutation: {
     addContractorPortfolio: async (
       _: any,
@@ -15,11 +33,12 @@ export default {
       const { prisma, req } = context;
 
       const validatedInput = PortfolioInputSchema.parse(args);
+      const { contractorId, title, description, images } = validatedInput;
 
       const authUser = checkAuth(req);
 
       const cont = await prisma.contractor.findUnique({
-        where: { id: validatedInput.contractorId },
+        where: { id: contractorId },
       });
       if (!cont) throw gqlError({ msg: "Contractor not found!" });
 
@@ -27,11 +46,12 @@ export default {
 
       const portfolio = await prisma.contractorPortfolio.create({
         data: {
-          description: validatedInput.description,
+          title,
+          description,
           images: {
             createMany: {
               data:
-                validatedInput.images?.map((image) => ({
+                images?.map((image) => ({
                   url: image.url,
                   name: image.name,
                   type: image.type,
@@ -39,7 +59,7 @@ export default {
                 })) ?? [],
             },
           },
-          contractor: { connect: { id: validatedInput.contractorId } },
+          contractor: { connect: { id: contractorId } },
         },
       });
 
@@ -51,7 +71,7 @@ export default {
       context: GQLContext
     ): Promise<ContractorPortfolio> => {
       const validatedInput = UpdatePortfolioInputSchema.parse(args);
-      const { id, description, images: newImages = [] } = validatedInput;
+      const { id, title, description, images: newImages = [] } = validatedInput;
 
       const { prisma, req } = context;
       const authUser = checkAuth(req);
@@ -95,7 +115,8 @@ export default {
       const updatedPortfolio = await prisma.contractorPortfolio.update({
         where: { id },
         data: {
-          description,
+          title,
+          description: description || existingPortfolio?.description,
           // Conditional operation for adding new images
           ...(imagesToAdd.length && {
             images: {
@@ -141,7 +162,8 @@ export default {
 
 const PortfolioInputSchema = z.object({
   contractorId: z.string(),
-  description: z.string().min(1),
+  title: z.string().min(1, "Title must not be empty."),
+  description: z.string().optional(),
   images: z
     .array(
       z.object({
@@ -151,13 +173,14 @@ const PortfolioInputSchema = z.object({
         size: z.number().optional(),
       })
     )
-    .optional(),
+    .min(1),
 });
 type PortfolioInput = z.infer<typeof PortfolioInputSchema>;
 
 const UpdatePortfolioInputSchema = z.object({
   id: z.string(),
-  description: z.string().min(1, "Description must not be empty."),
+  title: z.string().min(1, "Title must not be empty."),
+  description: z.string().optional(),
   images: z
     .array(
       z.object({
@@ -167,6 +190,6 @@ const UpdatePortfolioInputSchema = z.object({
         size: z.number().optional(),
       })
     )
-    .optional(),
+    .min(1),
 });
 type UpdatePortfolioInput = z.infer<typeof UpdatePortfolioInputSchema>;

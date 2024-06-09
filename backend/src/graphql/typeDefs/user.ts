@@ -39,7 +39,7 @@ export default gql`
     provider: Provider
     roles: [Role]
     userTypes: [UserType]
-    image: UserImage
+    image: Image
     address: Address
     token: String
     refreshToken: String
@@ -49,7 +49,7 @@ export default gql`
     receivedReviews: [Review]
     averageRating: Float
   }
-  type UserImage {
+  type Image {
     id: ID
     url: String!
     name: String
@@ -63,16 +63,16 @@ export default gql`
     refreshToken: String!
   }
 
-  input UserImageInput {
+  input ImageInput {
     url: String!
-    name: String!
-    size: Float!
-    type: String!
+    name: String
+    size: Float
+    type: String
   }
   input UpdateUserInput {
     name: String
     phoneNum: String
-    image: UserImageInput
+    image: ImageInput
     address: AddressInput
     bio: String
     userTypes: [UserType!]
