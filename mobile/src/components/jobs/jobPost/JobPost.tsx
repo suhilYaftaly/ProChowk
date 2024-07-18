@@ -1,5 +1,4 @@
 import React, { SetStateAction, useEffect, useRef, useState } from 'react';
-import { router, useLocalSearchParams } from 'expo-router';
 import { useUserStates } from '~/src/redux/reduxStates';
 import { JobInput, useCreateJob, useJob, useUpdateJob } from '~/src/graphql/operations/job';
 import { jobConfigs } from '~/src/config/configConst';
@@ -8,20 +7,19 @@ import Toast from 'react-native-toast-message';
 import JobForm from './JobForm';
 import labels from '~/src/constants/labels';
 type Props = {
-  onCancel: () => void;
+  onCancel: (isJobPosted: boolean) => void;
+  jobID?: string | string[];
 };
 
-const JobPost = ({ onCancel }: Props) => {
-  const { jobID } = useLocalSearchParams();
+const JobPost = ({ onCancel, jobID }: Props) => {
   const { user } = useUserStates();
   const { createJobAsync, loading: cLoading, data: createData } = useCreateJob();
   const { updateJobAsync, loading: uLoading } = useUpdateJob();
   const [jobForm, setJobForm] = useState<JobInput>(jobConfigs.defaults.jobForm);
   const [isExistingJob, setIsExistingJob] = useState(false);
   const [jobHasNewChanges, setJobHasNewChanges] = useState(false);
-  const { jobAsync, loading, data: existingJob } = useJob();
+  const { jobAsync, data: existingJob } = useJob();
   const [stepIndex, setStepIndex] = useState(0);
-  const hasShownToast = useRef(false);
   const jobId = createData?.createJob?.id || existingJob?.job?.id;
 
   useEffect(() => {
@@ -42,20 +40,13 @@ const JobPost = ({ onCancel }: Props) => {
             endDate: cj.endDate,
             isDraft: cj.isDraft,
           });
-          setStepIndex(1);
+          setStepIndex(getDraftIndex(cj));
           onJobChange();
           Toast.show({
-            type: 'success',
+            type: 'info',
             text1: `${labels.draftLoaded}`,
             position: 'top',
           });
-          /* if (!hasShownToast.current) {
-            toast.success(
-              "Draft loaded, continue editing to complete this draft.",
-              { position: "bottom-right" }
-            );
-            hasShownToast.current = true;
-          } */
         },
       });
     }
@@ -96,13 +87,7 @@ const JobPost = ({ onCancel }: Props) => {
         },
         onSuccess: () => {
           if (isLastStep) {
-            Toast.show({
-              type: 'success',
-              text1: `${labels.postJobSuccessMsg}`,
-              position: 'top',
-            });
-            router.replace('/');
-            onCancel();
+            onCancel(true);
           } else {
             onJobChange();
             Toast.show({
@@ -128,6 +113,18 @@ const JobPost = ({ onCancel }: Props) => {
     setJobHasNewChanges(true);
   };
 
+  const getDraftIndex = (draftData: any) => {
+    if (draftData) {
+      if (!draftData?.title || draftData?.skill?.length === 0) {
+        return 0;
+      } else if (!draftData?.budget) {
+        return 1;
+      } else if (!draftData?.desc || !draftData?.address) {
+        return 2;
+      } else return 3;
+    } else return 0;
+  };
+
   return (
     <JobForm
       jobForm={jobForm}
@@ -137,7 +134,7 @@ const JobPost = ({ onCancel }: Props) => {
       uLoading={uLoading}
       stepIndex={stepIndex}
       setStepIndex={setStepIndex}
-      onCancel={onCancel}
+      onCancel={() => onCancel(false)}
     />
   );
 };

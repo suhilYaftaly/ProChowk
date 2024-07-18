@@ -1,6 +1,6 @@
 import { Animated, FlatList, ListRenderItem, StyleSheet, View } from 'react-native';
 import React, { useRef, useState } from 'react';
-import colors from '~/src/constants/colors';
+import { useAppTheme } from '~/src/utils/hooks/ThemeContext';
 
 type Props = {
   dataList: any;
@@ -43,6 +43,7 @@ const CustomCarousel = ({ dataList, renderComp }: Props) => {
 };
 
 const PaginatorDots = ({ dataList, currSlideIndex }: any) => {
+  const { theme } = useAppTheme();
   return (
     <View style={styles.dotCont}>
       {dataList?.map((item: any, index: number) => {
@@ -52,7 +53,7 @@ const PaginatorDots = ({ dataList, currSlideIndex }: any) => {
               styles.dot,
               {
                 width: 10,
-                backgroundColor: currSlideIndex === index ? colors.primary : colors.border,
+                backgroundColor: currSlideIndex === index ? theme.primary : theme.border,
               },
             ]}
             key={index.toString()}

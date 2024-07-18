@@ -1,9 +1,8 @@
 import { KeyboardAvoidingView, StyleSheet, Text, View } from 'react-native';
-import React, { useState } from 'react';
-import colors from '~/src/constants/colors';
+import React, { useEffect, useState } from 'react';
 import { Button, Form, Spinner, TextArea, YStack } from 'tamagui';
 import CustomSelectMenu from '../../reusable/CustomSelectMenu';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router } from 'expo-router';
 import { useUserStates } from '~/src/redux/reduxStates';
 import { UserType, useUpdateUser } from '~/src/graphql/operations/user';
 import SkillSelection from './SkillSelection';
@@ -12,6 +11,7 @@ import AddressSearch from './AddressSearch';
 import { AddressInput, IAddress } from '~/src/graphql/operations/address';
 import labels from '~/src/constants/labels';
 import Routes from '~/src/routes/Routes';
+import { useAppTheme } from '~/src/utils/hooks/ThemeContext';
 
 type profileData = {
   userType: UserType;
@@ -19,8 +19,12 @@ type profileData = {
   location?: AddressInput;
   about?: string;
 };
-
-const UserProfileSetup = () => {
+type Props = {
+  userType?: string | string[];
+};
+const UserProfileSetup = ({ userType }: Props) => {
+  const { theme } = useAppTheme();
+  const styles = getStyles(theme);
   const [seleUserType, setSeleUserType] = useState<string>('client');
   const [seleSkills, setSeleSkills] = useState<SkillInput[]>([]);
   const [location, setLocation] = useState<AddressInput>();
@@ -62,18 +66,13 @@ const UserProfileSetup = () => {
               router.replace(`/${Routes.emailVerify}`);
             } else if (newUser.userTypes.length > 0) {
               if (user) {
-                const username = `${user.name}-${user.id}`.replace(/\s/g, '');
-                router.replace({
-                  pathname: `/${Routes.dashboard}`,
-                  params: { username: username },
-                });
+                router.replace(`/${Routes.clientHome}`);
               }
             }
           },
         });
       }
     }
-    /*  router.replace(`/${Routes.emailVerify}`); */
   };
 
   const validateUserProfile = (userProfile: profileData): boolean => {
@@ -93,13 +92,19 @@ const UserProfileSetup = () => {
     return true;
   };
 
+  useEffect(() => {
+    if (userType && typeof userType === 'string') {
+      setSeleUserType(userType);
+    }
+  }, [userType]);
+
   return (
     <KeyboardAvoidingView behavior="position">
       <View style={styles.formCont}>
         <View style={styles.formHeader}>
           <Text style={styles.headerText}>
             {labels.hey}
-            <Text style={[styles.headerText, { color: colors.primary }]}> {firstName} </Text>
+            <Text style={[styles.headerText, { color: theme.primary }]}> {firstName} </Text>
             {labels.weAreAlmostDone}
           </Text>
           <Text style={styles.subHeaderText}>{labels.fillUpProfileText}</Text>
@@ -109,7 +114,7 @@ const UserProfileSetup = () => {
             <YStack space={'$1.5'}>
               <Text style={styles.labelText}>
                 {labels.signUpAs}
-                <Text style={{ color: colors.primary }}>*</Text>
+                <Text style={{ color: theme.primary }}>*</Text>
               </Text>
               <CustomSelectMenu
                 label={labels.selectUserType}
@@ -119,7 +124,7 @@ const UserProfileSetup = () => {
                 setSelectedDDItem={(val: string) => setSeleUserType(val)}
               />
               {!userTypeAvail && (
-                <Text style={{ color: colors.error }}>*{labels.userTypeError}</Text>
+                <Text style={{ color: theme.error }}>*{labels.userTypeError}</Text>
               )}
             </YStack>
             {seleUserType === 'contractor' && (
@@ -151,7 +156,7 @@ const UserProfileSetup = () => {
                 placeholder={labels.tellUsAboutYou}
                 size="$3"
                 borderWidth={1}
-                style={styles.inputText}
+                style={[styles.inputText, { textAlignVertical: 'top' }]}
                 value={about}
                 maxLength={1000}
                 onChangeText={(e) => setAbout(e)}
@@ -160,8 +165,8 @@ const UserProfileSetup = () => {
           </YStack>
           <Form.Trigger asChild>
             <Button
-              backgroundColor={disableSignUpBtn ? '$border' : '$primary'}
-              color={disableSignUpBtn ? '$silver' : '$white'}
+              backgroundColor={disableSignUpBtn ? theme.border : theme.primary}
+              color={disableSignUpBtn ? theme.silver : '#fff'}
               style={styles.button}
               disabled={disableSignUpBtn}
               icon={loading ? () => <Spinner /> : undefined}>
@@ -176,39 +181,50 @@ const UserProfileSetup = () => {
 
 export default UserProfileSetup;
 
-const styles = StyleSheet.create({
-  formCont: {
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 20,
-    elevation: 10,
-    shadowColor: '#000',
-    shadowOffset: { height: 2, width: 0 },
-    shadowOpacity: 0.5,
-    shadowRadius: 2,
-    margin: 2,
-  },
-  formHeader: {
-    alignItems: 'center',
-  },
-  headerText: { fontSize: 20, fontFamily: 'InterExtraBold', textAlign: 'center' },
-  subHeaderText: { fontSize: 13, color: colors.silver, marginTop: 10, fontFamily: 'InterSemiBold' },
-  labelText: { fontFamily: 'InterBold' },
-  inputText: {
-    color: colors.black,
-    backgroundColor: 'transparent',
-  },
-  button: {
-    fontFamily: 'InterBold',
-    fontSize: 15,
-    borderBottomLeftRadius: 50,
-    borderTopRightRadius: 50,
-    borderTopLeftRadius: 50,
-    borderBottomRightRadius: 50,
-    marginTop: 30,
-    marginBottom: 10,
-    justifyContent: 'center',
-    color: colors.white,
-  },
-  footerText: { fontSize: 11, color: colors.silver, marginTop: 20, fontFamily: 'InterSemiBold' },
-});
+const getStyles = (theme: any) =>
+  StyleSheet.create({
+    formCont: {
+      backgroundColor: theme.white,
+      borderRadius: 10,
+      padding: 20,
+      elevation: 10,
+      shadowColor: theme.black,
+      shadowOffset: { height: 2, width: 0 },
+      shadowOpacity: 0.5,
+      shadowRadius: 2,
+      margin: 2,
+    },
+    formHeader: {
+      alignItems: 'center',
+    },
+    headerText: {
+      fontSize: 20,
+      fontFamily: 'InterExtraBold',
+      textAlign: 'center',
+      color: theme.textDark,
+    },
+    subHeaderText: {
+      fontSize: 13,
+      color: theme.silver,
+      marginTop: 10,
+      fontFamily: 'InterSemiBold',
+    },
+    labelText: { fontFamily: 'InterBold', color: theme.textDark },
+    inputText: {
+      color: theme.black,
+      backgroundColor: 'transparent',
+    },
+    button: {
+      fontFamily: 'InterBold',
+      fontSize: 15,
+      borderBottomLeftRadius: 50,
+      borderTopRightRadius: 50,
+      borderTopLeftRadius: 50,
+      borderBottomRightRadius: 50,
+      marginTop: 30,
+      marginBottom: 10,
+      justifyContent: 'center',
+      color: theme.white,
+    },
+    footerText: { fontSize: 11, color: theme.silver, marginTop: 20, fontFamily: 'InterSemiBold' },
+  });

@@ -6,11 +6,12 @@ import {
   Text,
   Pressable,
   KeyboardAvoidingView,
+  TouchableWithoutFeedback,
   Modal,
   DimensionValue,
+  Keyboard,
 } from 'react-native';
-
-import colors from '~/src/constants/colors';
+import { useAppTheme } from '~/src/utils/hooks/ThemeContext';
 
 type Props = {
   headerText: string;
@@ -35,6 +36,8 @@ const CustomModal = ({
   maxHeight = '100%',
   itemCount,
 }: Props) => {
+  const { theme } = useAppTheme();
+  const styles = getStyles(theme);
   return (
     <View>
       <Pressable onPress={() => setIsOpen(!isOpen)}>{triggerBtnCom}</Pressable>
@@ -45,6 +48,7 @@ const CustomModal = ({
           setIsOpen(!isOpen);
         }}
         transparent={true}>
+        {/*  <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}> */}
         <KeyboardAvoidingView behavior={'padding'} style={{ flex: 1 }}>
           <View style={styles.centeredView}>
             <View
@@ -60,13 +64,14 @@ const CustomModal = ({
                   )}
                 </Text>
                 <Pressable onPress={() => setIsOpen(!isOpen)}>
-                  <Ionicons name="close" size={25} color={colors.primary} />
+                  <Ionicons name="close" size={25} color={theme.primary} />
                 </Pressable>
               </View>
               <View style={styles.modalBody}>{dialogCom}</View>
             </View>
           </View>
         </KeyboardAvoidingView>
+        {/*   </TouchableWithoutFeedback> */}
       </Modal>
     </View>
   );
@@ -74,44 +79,46 @@ const CustomModal = ({
 
 export default CustomModal;
 
-const styles = StyleSheet.create({
-  modalCont: {},
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 15,
-    borderBottomColor: colors.border,
-    borderBottomWidth: 1,
-  },
-  headerText: {
-    fontFamily: 'InterExtraBold',
-    fontSize: 15,
-  },
-  modalBody: {
-    padding: 15,
-  },
-  centeredView: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.secondary50,
-  },
-  modalView: {
-    backgroundColor: 'white',
-    borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
+const getStyles = (theme: any) =>
+  StyleSheet.create({
+    modalCont: {},
+    modalHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: 15,
+      borderBottomColor: theme.border,
+      borderBottomWidth: 1,
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  countText: {
-    fontFamily: 'InterExtraBold',
-    fontSize: 15,
-    color: colors.primary,
-  },
-});
+    headerText: {
+      fontFamily: 'InterExtraBold',
+      fontSize: 15,
+      color: theme.textDark,
+    },
+    modalBody: {
+      padding: 15,
+    },
+    centeredView: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: theme.secondary50,
+    },
+    modalView: {
+      backgroundColor: theme.white,
+      borderRadius: 20,
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
+      elevation: 5,
+    },
+    countText: {
+      fontFamily: 'InterExtraBold',
+      fontSize: 15,
+      color: theme.primary,
+    },
+  });

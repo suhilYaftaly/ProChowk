@@ -4,7 +4,7 @@ import { formatISO, subDays, subHours, subMonths } from 'date-fns';
 import { YStack } from 'tamagui';
 import labels from '~/src/constants/labels';
 import CustomRadioGroup from '../../reusable/CustomRadioGroup';
-import colors from '~/src/constants/colors';
+import { useAppTheme } from '~/src/utils/hooks/ThemeContext';
 
 const DayPostedOptions = ['24 Hr', 'This Week', 'This Month', 'More than 1 month'];
 
@@ -20,6 +20,7 @@ type Props = {
 };
 
 const DayPostedSele = ({ onDateChange, seleOption, setSeleOption }: Props) => {
+  const { theme } = useAppTheme();
   useEffect(() => {
     const { startDate, endDate } = getDateRange();
     onDateChange({ startDate, endDate });
@@ -50,9 +51,9 @@ const DayPostedSele = ({ onDateChange, seleOption, setSeleOption }: Props) => {
   };
   return (
     <YStack space={'$1.5'}>
-      <Text style={{ fontFamily: 'InterBold' }}>
+      <Text style={{ fontFamily: 'InterBold', color: theme.textDark }}>
         {labels.dayPosted}
-        <Text style={{ color: colors.primary }}>*</Text>
+        <Text style={{ color: theme.primary }}>*</Text>
       </Text>
       <CustomRadioGroup
         items={DayPostedOptions}

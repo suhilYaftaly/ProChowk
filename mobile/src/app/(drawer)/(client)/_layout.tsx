@@ -1,20 +1,30 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Tabs } from 'expo-router';
-import {
-  AntDesign,
-  FontAwesome,
-  FontAwesome6,
-  Fontisto,
-  Ionicons,
-  MaterialCommunityIcons,
-} from '@expo/vector-icons';
-import colors from '~/src/constants/colors';
+import { FontAwesome, FontAwesome6, Fontisto, Ionicons } from '@expo/vector-icons';
+import { useAppTheme } from '~/src/utils/hooks/ThemeContext';
+import { StyleSheet, Text, View } from 'react-native';
+import { Circle } from 'tamagui';
+import { useUserNotifications } from '~/src/graphql/operations/notification';
+import { useUserStates } from '~/src/redux/reduxStates';
 
 const clientLayout = () => {
+  const { theme } = useAppTheme();
+  const { userId } = useUserStates();
+  const { userNotificationsAsync, data } = useUserNotifications();
+  const notifications = data?.userNotifications?.notifications;
+  const count = notifications?.filter((notification) => !notification.read).length;
+
+  useEffect(() => getUserNotifications(), [userId]);
+  const getUserNotifications = () => {
+    if (userId) {
+      userNotificationsAsync({ variables: { userId } });
+    }
+  };
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: colors.textDark,
+        tabBarStyle: { backgroundColor: theme.white, display: userId ? 'flex' : 'none' },
+        tabBarActiveTintColor: theme.textDark,
         headerShown: false,
         tabBarLabelPosition: 'below-icon',
       }}>
@@ -30,7 +40,10 @@ const clientLayout = () => {
         options={{
           title: 'Message',
           tabBarIcon: ({ color }) => (
-            <Ionicons name="chatbubble-ellipses" size={28} color={color} />
+            <View>
+              <Ionicons name="chatbubble-ellipses" size={28} color={color} />
+              {/*   <Circle backgroundColor={theme.primary} style={styles.badge} size={12} /> */}
+            </View>
           ),
         }}
       />
@@ -48,7 +61,18 @@ const clientLayout = () => {
         name="notifications"
         options={{
           title: 'Notifications',
-          tabBarIcon: ({ color }) => <Fontisto name="bell-alt" size={26} color={color} />,
+          tabBarIcon: ({ color }) => (
+            <View>
+              <Fontisto name="bell-alt" size={26} color={color} />
+              {count && count > 0 ? (
+                <Circle backgroundColor={theme.primary} style={styles.badge} size={20}>
+                  <Text style={{ color: '#fff' }}>{count}</Text>
+                </Circle>
+              ) : (
+                <></>
+              )}
+            </View>
+          ),
         }}
       />
       <Tabs.Screen
@@ -63,3 +87,11 @@ const clientLayout = () => {
 };
 
 export default clientLayout;
+
+const styles = StyleSheet.create({
+  badge: {
+    position: 'absolute',
+    top: -2,
+    right: -4,
+  },
+});

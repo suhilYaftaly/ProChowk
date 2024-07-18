@@ -2,11 +2,11 @@ import { Pressable, StyleSheet, Text, View, Linking } from 'react-native';
 import React, { useState } from 'react';
 import { Circle, Dialog, Button, ScrollView, Spinner } from 'tamagui';
 import { FontAwesome6 } from '@expo/vector-icons';
-import colors from '~/src/constants/colors';
 import labels from '~/src/constants/labels';
 import * as Location from 'expo-location';
 import { userLocationSuccess } from '~/src/redux/slices/userSlice';
 import { useAppDispatch } from '~/src/utils/hooks/hooks';
+import { useAppTheme } from '~/src/utils/hooks/ThemeContext';
 
 type Props = {
   isOpen: boolean;
@@ -16,6 +16,8 @@ type Props = {
 };
 
 const LocationPermission = ({ isOpen, setIsOpen, locPermission, setLocPermission }: Props) => {
+  const { theme } = useAppTheme();
+  const styles = getStyles(theme);
   const dispatch = useAppDispatch();
   const [processLoading, setProcessLoading] = useState(false);
   const [readMore, setReadMore] = useState(false);
@@ -59,11 +61,11 @@ const LocationPermission = ({ isOpen, setIsOpen, locPermission, setLocPermission
           paddingHorizontal={20}
           minHeight={readMore ? '90%' : '45%'}
           width={'85%'}
-          backgroundColor={'$white'}
+          backgroundColor={theme.white}
           paddingVertical={30}>
           <View style={styles.locationCont}>
-            <Circle backgroundColor={colors.primary} size={50}>
-              <FontAwesome6 name="location-dot" size={26} color={colors.white} />
+            <Circle backgroundColor={theme.primary} size={50}>
+              <FontAwesome6 name="location-dot" size={26} color={theme.white} />
             </Circle>
             <Text style={styles.headerText}>{labels.locationRequired}</Text>
             <ScrollView maxHeight={'75%'}>
@@ -84,7 +86,7 @@ const LocationPermission = ({ isOpen, setIsOpen, locPermission, setLocPermission
                 <Text
                   style={{
                     textDecorationLine: 'underline',
-                    color: colors.primary,
+                    color: theme.primary,
                     fontFamily: 'InterSemiBold',
                   }}>
                   {readMore ? labels.readLess : labels.readMore}
@@ -93,7 +95,7 @@ const LocationPermission = ({ isOpen, setIsOpen, locPermission, setLocPermission
             </ScrollView>
             <Button
               style={styles.button}
-              backgroundColor={processLoading ? colors.border : colors.primary}
+              backgroundColor={processLoading ? theme.border : theme.primary}
               onPress={() => enableLocation()}
               icon={processLoading ? <Spinner /> : undefined}
               disabled={processLoading}>
@@ -114,56 +116,57 @@ const LocationPermission = ({ isOpen, setIsOpen, locPermission, setLocPermission
 
 export default LocationPermission;
 
-const styles = StyleSheet.create({
-  locationCont: {
-    flex: 1,
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  headerText: {
-    fontFamily: 'InterExtraBold',
-    fontSize: 18,
-    color: colors.textDark,
-    textAlign: 'center',
-    lineHeight: 25,
-    marginBottom: 10,
-    marginTop: 10,
-  },
-  subHeaderText: {
-    fontSize: 15,
-    fontFamily: 'InterExtraBold',
-    color: colors.textDark,
-    textAlign: 'center',
-    lineHeight: 25,
-    marginTop: 15,
-  },
-  normalText: {
-    fontSize: 15,
-    fontFamily: 'InterMedium',
-    color: colors.textDark,
-    textAlign: 'center',
-    lineHeight: 25,
-  },
-  button: {
-    fontFamily: 'InterBold',
-    fontSize: 15,
-    borderBottomLeftRadius: 50,
-    borderTopRightRadius: 50,
-    borderTopLeftRadius: 50,
-    borderBottomRightRadius: 50,
-    marginTop: 20,
-    marginBottom: 10,
-    justifyContent: 'center',
-    color: colors.white,
-    width: '90%',
-  },
-  skipLink: {
-    margin: 5,
-  },
-  readLink: {
-    justifyContent: 'center',
-    textAlign: 'center',
-    alignItems: 'center',
-    margin: 10,
-  },
-});
+const getStyles = (theme: any) =>
+  StyleSheet.create({
+    locationCont: {
+      flex: 1,
+      flexDirection: 'column',
+      alignItems: 'center',
+    },
+    headerText: {
+      fontFamily: 'InterExtraBold',
+      fontSize: 18,
+      color: theme.textDark,
+      textAlign: 'center',
+      lineHeight: 25,
+      marginBottom: 10,
+      marginTop: 10,
+    },
+    subHeaderText: {
+      fontSize: 15,
+      fontFamily: 'InterExtraBold',
+      color: theme.textDark,
+      textAlign: 'center',
+      lineHeight: 25,
+      marginTop: 15,
+    },
+    normalText: {
+      fontSize: 15,
+      fontFamily: 'InterMedium',
+      color: theme.textDark,
+      textAlign: 'center',
+      lineHeight: 25,
+    },
+    button: {
+      fontFamily: 'InterBold',
+      fontSize: 15,
+      borderBottomLeftRadius: 50,
+      borderTopRightRadius: 50,
+      borderTopLeftRadius: 50,
+      borderBottomRightRadius: 50,
+      marginTop: 20,
+      marginBottom: 10,
+      justifyContent: 'center',
+      color: theme.white,
+      width: '90%',
+    },
+    skipLink: {
+      margin: 5,
+    },
+    readLink: {
+      justifyContent: 'center',
+      textAlign: 'center',
+      alignItems: 'center',
+      margin: 10,
+    },
+  });

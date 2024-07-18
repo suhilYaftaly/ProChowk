@@ -1,12 +1,12 @@
 import { Pressable, StyleSheet, Text } from 'react-native';
 import React from 'react';
 import { Separator, YStack } from 'tamagui';
-import colors from '~/src/constants/colors';
 import { useUserStates } from '~/src/redux/reduxStates';
 import { EmailVerify } from '../../reusable/CustomIcons';
 import { useRequestPasswordReset } from '~/src/graphql/operations/user';
 import Toast from 'react-native-toast-message';
 import labels from '~/src/constants/labels';
+import { useAppTheme } from '~/src/utils/hooks/ThemeContext';
 
 type Props = {
   email: string | string[];
@@ -14,7 +14,8 @@ type Props = {
 
 const EmailVerifyResetPass = ({ email }: Props) => {
   const { user } = useUserStates();
-
+  const { theme } = useAppTheme();
+  const styles = getStyles(theme);
   const { requestPasswordResetAsync } = useRequestPasswordReset();
 
   const resendEmail = () => {
@@ -48,13 +49,13 @@ const EmailVerifyResetPass = ({ email }: Props) => {
       </Text>
       <Text style={[styles.emailText, { textAlign: 'center', width: '80%' }]}>
         {labels.weHaveSentText}{' '}
-        <Text style={{ color: colors.textDark, fontFamily: 'InterBold' }}>{user?.email}. </Text>
+        <Text style={{ color: theme.textDark, fontFamily: 'InterBold' }}>{user?.email}. </Text>
         {labels.checkEmailText}
       </Text>
       <Separator alignSelf="stretch" marginHorizontal={10} marginVertical={10} />
       <Text style={styles.emailText}>{labels.didNotReceiveText}</Text>
       <Pressable onPress={() => resendEmail()}>
-        <Text style={[styles.emailText, { color: colors.primary, fontFamily: 'InterBold' }]}>
+        <Text style={[styles.emailText, { color: theme.primary, fontFamily: 'InterBold' }]}>
           {labels.resendBtnText}
         </Text>
       </Pressable>
@@ -64,39 +65,40 @@ const EmailVerifyResetPass = ({ email }: Props) => {
 
 export default EmailVerifyResetPass;
 
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 20,
-    elevation: 10,
-    shadowColor: '#000',
-    shadowOffset: { height: 2, width: 0 },
-    shadowOpacity: 0.5,
-    shadowRadius: 2,
-    margin: 2,
-    alignItems: 'center',
-  },
-  emailLogo: {
-    height: 100,
-    width: 100,
-  },
-  emailText: {
-    fontFamily: 'InterSemiBold',
-    fontSize: 17,
-    color: colors.textBlue,
-  },
-  button: {
-    fontFamily: 'InterBold',
-    fontSize: 15,
-    borderBottomLeftRadius: 50,
-    borderTopRightRadius: 50,
-    borderTopLeftRadius: 50,
-    borderBottomRightRadius: 50,
-    marginTop: 30,
-    marginBottom: 10,
-    justifyContent: 'center',
-    color: colors.white,
-    width: '80%',
-  },
-});
+const getStyles = (theme: any) =>
+  StyleSheet.create({
+    container: {
+      backgroundColor: theme.white,
+      borderRadius: 10,
+      padding: 20,
+      elevation: 10,
+      shadowColor: theme.black,
+      shadowOffset: { height: 2, width: 0 },
+      shadowOpacity: 0.5,
+      shadowRadius: 2,
+      margin: 2,
+      alignItems: 'center',
+    },
+    emailLogo: {
+      height: 100,
+      width: 100,
+    },
+    emailText: {
+      fontFamily: 'InterSemiBold',
+      fontSize: 17,
+      color: theme.textBlue,
+    },
+    button: {
+      fontFamily: 'InterBold',
+      fontSize: 15,
+      borderBottomLeftRadius: 50,
+      borderTopRightRadius: 50,
+      borderTopLeftRadius: 50,
+      borderBottomRightRadius: 50,
+      marginTop: 30,
+      marginBottom: 10,
+      justifyContent: 'center',
+      color: '#fff',
+      width: '80%',
+    },
+  });

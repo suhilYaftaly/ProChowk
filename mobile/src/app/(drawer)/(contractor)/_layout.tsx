@@ -1,14 +1,30 @@
-import { View, Text } from 'react-native';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Tabs } from 'expo-router';
-import colors from '~/src/constants/colors';
 import { FontAwesome, FontAwesome6, Fontisto, Ionicons } from '@expo/vector-icons';
+import { useAppTheme } from '~/src/utils/hooks/ThemeContext';
+import { StyleSheet, Text, View } from 'react-native';
+import { useUserStates } from '~/src/redux/reduxStates';
+import { useUserNotifications } from '~/src/graphql/operations/notification';
+import { Circle } from 'tamagui';
 
 const contractorLayout = () => {
+  const { theme } = useAppTheme();
+  const { userId } = useUserStates();
+  const { userNotificationsAsync, data } = useUserNotifications();
+  const notifications = data?.userNotifications?.notifications;
+  const count = notifications?.filter((notification) => !notification.read).length;
+
+  useEffect(() => getUserNotifications(), [userId]);
+  const getUserNotifications = () => {
+    if (userId) {
+      userNotificationsAsync({ variables: { userId } });
+    }
+  };
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: colors.textDark,
+        tabBarStyle: { backgroundColor: theme.white, display: userId ? 'flex' : 'none' },
+        tabBarActiveTintColor: theme.textDark,
         headerShown: false,
         tabBarLabelPosition: 'below-icon',
       }}>
@@ -41,7 +57,18 @@ const contractorLayout = () => {
         name="notifications"
         options={{
           title: 'Notifications',
-          tabBarIcon: ({ color }) => <Fontisto name="bell-alt" size={26} color={color} />,
+          tabBarIcon: ({ color }) => (
+            <View>
+              <Fontisto name="bell-alt" size={26} color={color} />
+              {count && count > 0 ? (
+                <Circle backgroundColor={theme.primary} style={styles.badge} size={20}>
+                  <Text style={{ color: '#fff' }}>{count}</Text>
+                </Circle>
+              ) : (
+                <></>
+              )}
+            </View>
+          ),
         }}
       />
       <Tabs.Screen
@@ -56,3 +83,11 @@ const contractorLayout = () => {
 };
 
 export default contractorLayout;
+
+const styles = StyleSheet.create({
+  badge: {
+    position: 'absolute',
+    top: -2,
+    right: -4,
+  },
+});

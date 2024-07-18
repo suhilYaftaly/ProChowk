@@ -3,12 +3,12 @@ import React from 'react';
 import { TUserReviewsData } from '~/src/graphql/operations/review';
 import Card from '../../reusable/Card';
 import labels from '~/src/constants/labels';
-import colors from '~/src/constants/colors';
 import CustomRating from '../../reusable/CustomRating';
 import { Avatar } from 'tamagui';
 import { formatDistanceToNow, parseISO } from 'date-fns';
 import CustomCarousel from '../../reusable/CustomCarousel';
 import { IUser } from '~/src/graphql/operations/user';
+import { useAppTheme } from '~/src/utils/hooks/ThemeContext';
 type Props = {
   user?: IUser;
   userReviews?: TUserReviewsData;
@@ -16,6 +16,8 @@ type Props = {
 };
 const UserReview = ({ userReviews, isMyProfile }: Props) => {
   const { width } = useWindowDimensions();
+  const { theme } = useAppTheme();
+  const styles = getStyles(theme);
   const renderListItem: ListRenderItem<any> = ({ item }) => (
     <View style={[styles.reviewPage, { width: width * 0.8 }]}>
       <View style={styles.reviewerDetails}>
@@ -70,46 +72,47 @@ const UserReview = ({ userReviews, isMyProfile }: Props) => {
 
 export default UserReview;
 
-const styles = StyleSheet.create({
-  carouselCont: {
-    height: '100%',
-    width: '100%',
-  },
-  reviewPage: {
-    flexDirection: 'column',
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 10,
-    padding: 10,
-    marginBottom: 10,
-  },
-  reviewerDetails: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderBottomColor: colors.border,
-    borderBottomWidth: 1,
-    paddingBottom: 10,
-  },
-  reviewerNameCont: {
-    marginLeft: 10,
-  },
-  reviewerName: {
-    fontFamily: 'InterBold',
-    fontSize: 15,
-    color: colors.textDark,
-  },
-  timeStampText: {
-    fontFamily: 'InterMedium',
-    fontSize: 13,
-    color: colors.silver,
-  },
-  reviewCommentText: {
-    fontFamily: 'InterMedium',
-    fontSize: 15,
-    color: colors.textDark,
-  },
-  cardBodyStyle: {
-    alignItems: 'center',
-    paddingBottom: 25,
-  },
-});
+const getStyles = (theme: any) =>
+  StyleSheet.create({
+    carouselCont: {
+      height: '100%',
+      width: '100%',
+    },
+    reviewPage: {
+      flexDirection: 'column',
+      borderWidth: 1,
+      borderColor: theme.border,
+      borderRadius: 10,
+      padding: 10,
+      marginBottom: 10,
+    },
+    reviewerDetails: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      borderBottomColor: theme.border,
+      borderBottomWidth: 1,
+      paddingBottom: 10,
+    },
+    reviewerNameCont: {
+      marginLeft: 10,
+    },
+    reviewerName: {
+      fontFamily: 'InterBold',
+      fontSize: 15,
+      color: theme.textDark,
+    },
+    timeStampText: {
+      fontFamily: 'InterMedium',
+      fontSize: 13,
+      color: theme.silver,
+    },
+    reviewCommentText: {
+      fontFamily: 'InterMedium',
+      fontSize: 15,
+      color: theme.textDark,
+    },
+    cardBodyStyle: {
+      alignItems: 'center',
+      paddingBottom: 25,
+    },
+  });

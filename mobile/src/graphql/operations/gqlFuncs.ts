@@ -30,9 +30,7 @@ export const asyncOps = async ({
     if (showGlobalErr) {
       Toast.show({
         type: 'error',
-        text1: 'Error!',
-        text2: `${error.message}`,
-        position: 'top',
+        text1: `${error.message}`,
       });
       /*  if (error.message === 'Unverified email. Please verify your email.') {
         navigate(paths.verifyEmail);

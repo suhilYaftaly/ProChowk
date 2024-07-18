@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import labels from '~/src/constants/labels';
 import { StyleSheet, Text, View } from 'react-native';
 import { Button, Spinner, YStack } from 'tamagui';
-import colors from '~/src/constants/colors';
 import { Link, router } from 'expo-router';
 import { useRegisterUser } from '~/src/graphql/operations/user';
 import InputWithLabel from '../../reusable/InputWithLabel';
@@ -11,8 +10,11 @@ import { useAppDispatch } from '~/src/utils/hooks/hooks';
 import { logIn, userProfileBegin, userProfileError } from '~/src/redux/slices/userSlice';
 import Routes from '~/src/routes/Routes';
 import Toast from 'react-native-toast-message';
+import { useAppTheme } from '~/src/utils/hooks/ThemeContext';
 
 const UserSignUp = () => {
+  const { theme } = useAppTheme();
+  const styles = getStyles(theme);
   const dispatch = useAppDispatch();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -47,7 +49,6 @@ const UserSignUp = () => {
         },
       });
     }
-    /*  router.replace(`/${Routes.profileSetup}`); */
   };
 
   const validateUser = (userData: User): boolean => {
@@ -148,8 +149,8 @@ const UserSignUp = () => {
         </YStack>
         <Button
           onPress={() => sendData()}
-          backgroundColor={disableSignUpBtn ? '$border' : '$primary'}
-          color={disableSignUpBtn ? '$silver' : '$white'}
+          backgroundColor={disableSignUpBtn ? theme.border : theme.primary}
+          color={disableSignUpBtn ? theme.silver : '#fff'}
           style={styles.button}
           disabled={disableSignUpBtn}
           icon={loading ? () => <Spinner /> : undefined}>
@@ -160,7 +161,7 @@ const UserSignUp = () => {
         <Text style={styles.subHeaderText}>
           {labels.alreadyHaveAnAccount}{' '}
           <Link href={`/${Routes.login}`} replace asChild>
-            <Text style={{ color: colors.primary, textDecorationLine: 'underline' }}>
+            <Text style={{ color: theme.primary, textDecorationLine: 'underline' }}>
               {labels.signInNow}
             </Text>
           </Link>
@@ -168,7 +169,7 @@ const UserSignUp = () => {
         <Text style={styles.footerText}>{labels.bySignedIn}</Text>
         <Text
           style={{
-            color: colors.secondary,
+            color: theme.secondaryDark,
             fontSize: 11,
             fontFamily: 'InterBold',
             textDecorationLine: 'underline',
@@ -182,33 +183,39 @@ const UserSignUp = () => {
 
 export default UserSignUp;
 
-const styles = StyleSheet.create({
-  formCont: {
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 20,
-    elevation: 10,
-    shadowColor: '#000',
-    shadowOffset: { height: 2, width: 0 },
-    shadowOpacity: 0.5,
-    shadowRadius: 2,
-    margin: 2,
-  },
-  formHeader: {
-    alignItems: 'center',
-  },
-  headerText: { fontSize: 20, fontFamily: 'InterExtraBold' },
-  subHeaderText: { fontSize: 13, color: colors.silver, marginTop: 10, fontFamily: 'InterSemiBold' },
-  button: {
-    fontFamily: 'InterBold',
-    fontSize: 15,
-    borderBottomLeftRadius: 50,
-    borderTopRightRadius: 50,
-    borderTopLeftRadius: 50,
-    borderBottomRightRadius: 50,
-    marginTop: 30,
-    marginBottom: 10,
-    justifyContent: 'center',
-  },
-  footerText: { fontSize: 11, color: colors.silver, marginTop: 20, fontFamily: 'InterSemiBold' },
-});
+const getStyles = (theme: any) =>
+  StyleSheet.create({
+    formCont: {
+      backgroundColor: theme.white,
+      borderRadius: 10,
+      padding: 20,
+      elevation: 10,
+      shadowColor: theme.black,
+      shadowOffset: { height: 2, width: 0 },
+      shadowOpacity: 0.5,
+      shadowRadius: 2,
+      margin: 2,
+    },
+    formHeader: {
+      alignItems: 'center',
+    },
+    headerText: { fontSize: 20, fontFamily: 'InterExtraBold', color: theme.textDark },
+    subHeaderText: {
+      fontSize: 13,
+      color: theme.silver,
+      marginTop: 10,
+      fontFamily: 'InterSemiBold',
+    },
+    button: {
+      fontFamily: 'InterBold',
+      fontSize: 15,
+      borderBottomLeftRadius: 50,
+      borderTopRightRadius: 50,
+      borderTopLeftRadius: 50,
+      borderBottomRightRadius: 50,
+      marginTop: 30,
+      marginBottom: 10,
+      justifyContent: 'center',
+    },
+    footerText: { fontSize: 11, color: theme.silver, marginTop: 20, fontFamily: 'InterSemiBold' },
+  });

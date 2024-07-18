@@ -1,7 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { FontAwesome6 } from '@expo/vector-icons';
-import colors from '~/src/constants/colors';
 import { ISkill, SkillInput, useSkills } from '~/src/graphql/operations/skill';
 import { Button, Input, ScrollView, Separator, YStack } from 'tamagui';
 import FullScreenDialog from '../../reusable/FullScreenDialog';
@@ -9,6 +8,7 @@ import Chip from '../../reusable/Chip';
 import labels from '~/src/constants/labels';
 import CustomContentLoader from '../../reusable/CustomContentLoader';
 import NoResultFound from '../../reusable/NoResultFound';
+import { useAppTheme } from '~/src/utils/hooks/ThemeContext';
 
 type Props = {
   isLabelRequire?: boolean;
@@ -25,6 +25,8 @@ const SkillSelection = ({
   isError,
   errorText,
 }: Props) => {
+  const { theme } = useAppTheme();
+  const styles = getStyles(theme);
   const { skillsAsync, data: allSkillsType, loading: allSkillsLoading } = useSkills();
   const allSkillsData = allSkillsType?.skills;
   const [inputValue, setInputValue] = useState('');
@@ -62,7 +64,7 @@ const SkillSelection = ({
       {isLabelRequire && (
         <Text style={styles.labelText}>
           {labels.yourSkills}
-          <Text style={{ color: colors.primary }}>*</Text>
+          <Text style={{ color: theme.primary }}>*</Text>
         </Text>
       )}
       <FullScreenDialog
@@ -72,11 +74,11 @@ const SkillSelection = ({
           <Button
             unstyled
             style={styles.menuButton}
-            borderColor={'$border'}
+            borderColor={theme.border}
             borderWidth={1}
             borderRadius={7}
-            color={colors.textDark}
-            iconAfter={<FontAwesome6 name="angle-down" size={17} color={colors.textDark} />}
+            color={theme.textDark}
+            iconAfter={<FontAwesome6 name="angle-down" size={17} color={theme.textDark} />}
             onPress={() => setIsOpen(true)}>
             {labels.selectSkills}
           </Button>
@@ -85,7 +87,7 @@ const SkillSelection = ({
           <>
             <View style={styles.searchContainer}>
               <Pressable onPress={() => setIsOpen(false)} style={styles.addBtn}>
-                <FontAwesome6 name="angle-left" size={20} color={colors.textDark} />
+                <FontAwesome6 name="angle-left" size={20} color={theme.textDark} />
               </Pressable>
               <Input
                 size={'$3'}
@@ -99,7 +101,7 @@ const SkillSelection = ({
               />
               {inputValue && inputValue !== '' && searchedSkills?.length === 0 && (
                 <Pressable onPress={() => addSkill(inputValue)} style={styles.addBtn}>
-                  <FontAwesome6 name="add" size={20} color={colors.textBlue} />
+                  <FontAwesome6 name="add" size={20} color={theme.textBlue} />
                 </Pressable>
               )}
             </View>
@@ -133,7 +135,7 @@ const SkillSelection = ({
                       key={index}
                       onPress={() => handleSkillSelection({ label: skill?.label })}>
                       <View style={styles.itemCont}>
-                        <Text>{skill?.label}</Text>
+                        <Text style={{ color: theme.textDark }}>{skill?.label}</Text>
                       </View>
                     </Pressable>
                   );
@@ -161,61 +163,62 @@ const SkillSelection = ({
             })}
         </View>
       )}
-      {!isError && <Text style={{ color: colors.error }}>*{errorText}</Text>}
+      {!isError && <Text style={{ color: theme.error }}>*{errorText}</Text>}
     </YStack>
   );
 };
 
 export default SkillSelection;
 
-const styles = StyleSheet.create({
-  labelText: { fontFamily: 'InterBold' },
-  menuButton: {
-    justifyContent: 'space-between',
-    fontFamily: 'InterSemiBold',
-    fontSize: 15,
-    flexDirection: 'row',
-    paddingTop: 7,
-    paddingBottom: 7,
-    paddingLeft: 10,
-    paddingRight: 7,
-    alignItems: 'center',
-  },
-  searchContainer: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 7,
-    marginTop: 30,
-  },
-  inputText: {
-    color: colors.textDark,
-    fontFamily: 'InterSemiBold',
-    fontSize: 15,
-    backgroundColor: 'transparent',
-  },
-  itemCont: {
-    padding: 15,
-    flex: 1,
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderColor: colors.border,
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  addBtn: {
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    borderTopRightRadius: 7,
-    borderBottomRightRadius: 7,
-  },
-  skillsCont: {},
-  chipsCont: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-});
+const getStyles = (theme: any) =>
+  StyleSheet.create({
+    labelText: { fontFamily: 'InterBold', color: theme.textDark },
+    menuButton: {
+      justifyContent: 'space-between',
+      fontFamily: 'InterSemiBold',
+      fontSize: 15,
+      flexDirection: 'row',
+      paddingTop: 7,
+      paddingBottom: 7,
+      paddingLeft: 10,
+      paddingRight: 7,
+      alignItems: 'center',
+    },
+    searchContainer: {
+      alignItems: 'center',
+      flexDirection: 'row',
+      borderWidth: 1,
+      borderColor: theme.border,
+      borderRadius: 7,
+      marginTop: 30,
+    },
+    inputText: {
+      color: theme.textDark,
+      fontFamily: 'InterSemiBold',
+      fontSize: 15,
+      backgroundColor: 'transparent',
+    },
+    itemCont: {
+      padding: 15,
+      flex: 1,
+      flexDirection: 'row',
+      borderBottomWidth: 1,
+      borderColor: theme.border,
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    addBtn: {
+      paddingHorizontal: 15,
+      paddingVertical: 10,
+      borderTopRightRadius: 7,
+      borderBottomRightRadius: 7,
+    },
+    skillsCont: {},
+    chipsCont: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+    },
+  });
 
 export const getNewSkills = ({
   newList,

@@ -11,6 +11,7 @@ import { Provider } from 'react-redux';
 import { store } from '../redux/store';
 import Toast from 'react-native-toast-message';
 import { toastConfig } from '../config/ToastConfig';
+import { ThemeProvider } from '../utils/hooks/ThemeContext';
 
 SplashScreen.preventAutoHideAsync();
 export const unstable_settings = {
@@ -40,25 +41,27 @@ export default function RootLayout() {
   return (
     <ApolloProvider client={client}>
       <Provider store={store}>
-        <TamaguiProvider config={config}>
-          <SafeAreaProvider>
-            <GestureHandlerRootView style={{ flex: 1 }}>
-              <Stack>
-                <Stack.Screen
-                  name="index"
-                  options={{ headerShown: false, gestureEnabled: false }}
-                />
-                <Stack.Screen
-                  name="(drawer)"
-                  options={{ headerShown: false, gestureEnabled: false }}
-                />
-                <Stack.Screen name="user" options={{ headerShown: false }} />
-                <Stack.Screen name="job" options={{ headerShown: false }} />
-              </Stack>
-              <Toast config={toastConfig} />
-            </GestureHandlerRootView>
-          </SafeAreaProvider>
-        </TamaguiProvider>
+        <ThemeProvider>
+          <TamaguiProvider config={config}>
+            <SafeAreaProvider>
+              <GestureHandlerRootView style={{ flex: 1 }}>
+                <Stack>
+                  <Stack.Screen
+                    name="index"
+                    options={{ headerShown: false, gestureEnabled: false }}
+                  />
+                  <Stack.Screen
+                    name="(drawer)"
+                    options={{ headerShown: false, gestureEnabled: false }}
+                  />
+                  <Stack.Screen name="user" options={{ headerShown: false }} />
+                  <Stack.Screen name="job" options={{ headerShown: false }} />
+                </Stack>
+                <Toast config={toastConfig} />
+              </GestureHandlerRootView>
+            </SafeAreaProvider>
+          </TamaguiProvider>
+        </ThemeProvider>
       </Provider>
     </ApolloProvider>
   );

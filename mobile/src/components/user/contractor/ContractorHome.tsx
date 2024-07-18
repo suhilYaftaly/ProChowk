@@ -1,22 +1,20 @@
-import { Linking, ListRenderItem, StyleSheet, Text, View } from 'react-native';
+import { ListRenderItem, StyleSheet, Text, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import LocationPermission from '../../reusable/LocationPermission';
 import * as Location from 'expo-location';
 import { useAppDispatch } from '~/src/utils/hooks/hooks';
 import { useUserStates } from '~/src/redux/reduxStates';
 import { IAddress, ILatLng, LatLngInput } from '~/src/graphql/operations/address';
 import { BudgetType, IJob, useJobsByLocation, useJobsByText } from '~/src/graphql/operations/job';
-import { searchNearbyJobsFilterConfigs as FCC, defaultAddress } from '@config/configConst';
-import { setProjectsFilters, userLocationSuccess } from '~/src/redux/slices/userSlice';
+import { searchNearbyJobsFilterConfigs as FCC } from '@config/configConst';
+import { setProjectsFilters } from '~/src/redux/slices/userSlice';
 import JobCard from '../client/JobCard';
-import { getUserLocation, isFiltersChanged, isProjectFiltersChanged } from '~/src/utils/utilFuncs';
-import colors from '~/src/constants/colors';
+import { isProjectFiltersChanged } from '~/src/utils/utilFuncs';
 import LocDeniedSec from '../../reusable/LocDeniedSec';
 import NoResultFound from '../../reusable/NoResultFound';
 import labels from '~/src/constants/labels';
 import CustomContentLoader from '../../reusable/CustomContentLoader';
 import { FlatList } from 'react-native-gesture-handler';
-import Toast from 'react-native-toast-message';
+import { useAppTheme } from '~/src/utils/hooks/ThemeContext';
 
 export interface INearByJobFilters {
   searchText?: string;
@@ -32,6 +30,8 @@ export interface INearByJobFilters {
 
 const ContractorHome = () => {
   const dispatch = useAppDispatch();
+  const { theme } = useAppTheme();
+  const styles = getStyles(theme);
   const { userLocation, projectFilters, userView } = useUserStates();
   const [locPermission, setLocPermission] = useState<Location.PermissionStatus | undefined>();
   const [locationLoading, setLocationLoading] = useState(false);
@@ -122,7 +122,7 @@ const ContractorHome = () => {
   }, [jByTData]);
 
   return (
-    <View style={{ paddingHorizontal: 20, paddingVertical: 10, backgroundColor: colors.bg }}>
+    <View style={{ paddingHorizontal: 20, paddingVertical: 10, backgroundColor: theme.bg }}>
       {jobsLoading || locationLoading ? (
         <CustomContentLoader type="jobCard" size={18} repeat={6} gap={10} />
       ) : projectsList && projectsList?.length > 0 ? (
@@ -130,7 +130,7 @@ const ContractorHome = () => {
           {projectsList && jobsTotalCount && jobsTotalCount > 0 && (
             <Text style={styles.contractorListLabel}>
               {labels.jobsFound}
-              <Text style={{ color: colors.primary }}> ({jobsTotalCount})</Text>
+              <Text style={{ color: theme.primary }}> ({jobsTotalCount})</Text>
             </Text>
           )}
           <FlatList
@@ -157,11 +157,12 @@ const ContractorHome = () => {
 
 export default ContractorHome;
 
-const styles = StyleSheet.create({
-  contractorListLabel: {
-    fontFamily: 'InterBold',
-    fontSize: 15,
-    color: colors.textDark,
-    marginBottom: 10,
-  },
-});
+const getStyles = (theme: any) =>
+  StyleSheet.create({
+    contractorListLabel: {
+      fontFamily: 'InterBold',
+      fontSize: 15,
+      color: theme.textDark,
+      marginBottom: 10,
+    },
+  });

@@ -1,7 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import React from 'react';
 import { IJob, useDeleteJob, useJobsByLocation } from '~/src/graphql/operations/job';
-import colors from '~/src/constants/colors';
 import { Link, router } from 'expo-router';
 import { Circle, Separator, Spinner, XStack } from 'tamagui';
 import { FontAwesome6, MaterialIcons } from '@expo/vector-icons';
@@ -10,9 +9,9 @@ import { SkillInput } from '~/src/graphql/operations/skill';
 import Chip from '../../reusable/Chip';
 import Toast from 'react-native-toast-message';
 import labels from '~/src/constants/labels';
-import { color } from '@tamagui/themes';
 import { useUserStates } from '~/src/redux/reduxStates';
 import { LatLngInput } from '~/src/graphql/operations/address';
+import { useAppTheme } from '~/src/utils/hooks/ThemeContext';
 
 type Props = {
   job: IJob;
@@ -22,6 +21,8 @@ type Props = {
 };
 
 const JobCard = ({ job, onClick, allowDelete, showDraftExpiry }: Props) => {
+  const { theme } = useAppTheme();
+  const styles = getStyles(theme);
   const { userLocation, projectFilters } = useUserStates();
   const { deleteJobAsync, loading } = useDeleteJob();
   const { jobsByLocationAsync, data: jByLData, loading: jByLLoading } = useJobsByLocation();
@@ -68,34 +69,34 @@ const JobCard = ({ job, onClick, allowDelete, showDraftExpiry }: Props) => {
           </View>
           <View style={styles.actionCont}>
             <View style={styles.timeCont}>
-              <FontAwesome6 name="clock" size={15} color={colors.textDark} />
-              <Text style={{ fontSize: 13, marginLeft: 5 }}>
+              <FontAwesome6 name="clock" size={15} color={theme.textDark} />
+              <Text style={{ fontSize: 13, marginLeft: 5, color: theme.textDark }}>
                 {formatRelativeTime(job.createdAt)}
               </Text>
             </View>
             {allowDelete && (
               <Pressable onPress={() => handleDeleteJob()} style={{ marginLeft: 10 }}>
-                <Circle size={30} borderColor={colors.border} borderWidth={1}>
+                <Circle size={30} borderColor={theme.border} borderWidth={1}>
                   {loading ? (
                     <Spinner />
                   ) : (
-                    <MaterialIcons name="delete" size={20} color={colors.textDark} />
+                    <MaterialIcons name="delete" size={20} color={theme.textDark} />
                   )}
                 </Circle>
               </Pressable>
             )}
           </View>
         </XStack>
-        <Text>
+        <Text style={{ color: theme.textDark }}>
           {job?.budget?.type}:{' '}
-          <Text style={{ color: colors.primary }}>
+          <Text style={{ color: theme.primary }}>
             {isHourly && `$${job?.budget?.from}-`}${job?.budget?.to}
           </Text>
           {isHourly && (
             <Text>
               {' '}
               | {labels.maxHours}:{' '}
-              <Text style={{ color: colors.primary }}>{job?.budget?.maxHours}hr</Text>
+              <Text style={{ color: theme.primary }}>{job?.budget?.maxHours}hr</Text>
             </Text>
           )}
         </Text>
@@ -110,11 +111,11 @@ const JobCard = ({ job, onClick, allowDelete, showDraftExpiry }: Props) => {
           })}
         </View>
       </Pressable>
-      <Separator borderColor={colors.border} />
+      <Separator borderColor={theme.border} />
       <View style={styles.footerCont}>
         <XStack alignItems="center" space={'$2'}>
-          <Circle backgroundColor={colors.bg} borderColor={colors.border} borderWidth={1} size={30}>
-            <FontAwesome6 name="location-dot" size={15} color={colors.silver} />
+          <Circle backgroundColor={theme.bg} borderColor={theme.border} borderWidth={1} size={30}>
+            <FontAwesome6 name="location-dot" size={15} color={theme.silver} />
           </Circle>
           <Text style={styles.cityName}>{job?.address?.city}</Text>
         </XStack>
@@ -133,77 +134,79 @@ const JobCard = ({ job, onClick, allowDelete, showDraftExpiry }: Props) => {
 
 export default JobCard;
 
-const styles = StyleSheet.create({
-  chipsCont: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    paddingVertical: 5,
-  },
-  contractorCardCont: {
-    backgroundColor: colors.white,
-    borderColor: colors.border,
-    borderWidth: 1,
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-  timeCont: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.white,
-    borderColor: colors.border,
-    borderRadius: 20,
-    borderWidth: 1,
-    paddingHorizontal: 5,
-    paddingVertical: 2,
-  },
-  actionCont: {
-    flexDirection: 'row',
-  },
-  infoCont: {
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-  },
-  userNameCont: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  userName: {
-    fontFamily: 'InterBold',
-    fontSize: 15,
-    alignItems: 'center',
-    width: 175,
-    flexWrap: 'wrap',
-  },
-  bioCont: {
-    fontFamily: 'InterMedium',
-    fontSize: 13,
-    color: colors.textDark,
-    marginTop: 5,
-    marginRight: 5,
-  },
-  footerCont: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-  },
-  cityName: {
-    fontFamily: 'InterBold',
-    fontSize: 15,
-    color: colors.textDark,
-  },
-  expiryDateCont: {
-    backgroundColor: colors.primary20,
-    borderColor: colors.primary,
-    borderWidth: 1,
-    paddingVertical: 3,
-    paddingHorizontal: 10,
-    borderRadius: 50,
-  },
-  expiryDateText: {
-    fontFamily: 'InterBold',
-    fontSize: 15,
-    color: colors.primary,
-  },
-});
+const getStyles = (theme: any) =>
+  StyleSheet.create({
+    chipsCont: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      paddingVertical: 5,
+    },
+    contractorCardCont: {
+      backgroundColor: theme.white,
+      borderColor: theme.border,
+      borderWidth: 1,
+      borderRadius: 10,
+      marginBottom: 10,
+    },
+    timeCont: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: theme.white,
+      borderColor: theme.border,
+      borderRadius: 20,
+      borderWidth: 1,
+      paddingHorizontal: 5,
+      paddingVertical: 2,
+    },
+    actionCont: {
+      flexDirection: 'row',
+    },
+    infoCont: {
+      paddingHorizontal: 15,
+      paddingVertical: 10,
+    },
+    userNameCont: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    userName: {
+      fontFamily: 'InterBold',
+      fontSize: 15,
+      alignItems: 'center',
+      width: 175,
+      flexWrap: 'wrap',
+      color: theme.textDark,
+    },
+    bioCont: {
+      fontFamily: 'InterMedium',
+      fontSize: 13,
+      color: theme.textDark,
+      marginTop: 5,
+      marginRight: 5,
+    },
+    footerCont: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: 15,
+      paddingVertical: 10,
+    },
+    cityName: {
+      fontFamily: 'InterBold',
+      fontSize: 15,
+      color: theme.textDark,
+    },
+    expiryDateCont: {
+      backgroundColor: theme.primary20,
+      borderColor: theme.primary,
+      borderWidth: 1,
+      paddingVertical: 3,
+      paddingHorizontal: 10,
+      borderRadius: 50,
+    },
+    expiryDateText: {
+      fontFamily: 'InterBold',
+      fontSize: 15,
+      color: theme.primary,
+    },
+  });

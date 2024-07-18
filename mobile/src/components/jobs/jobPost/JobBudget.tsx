@@ -1,22 +1,23 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import React from 'react';
-import { IJobSteps } from './JobForm';
-import colors from '~/src/constants/colors';
 import { Circle, YStack } from 'tamagui';
 import labels from '~/src/constants/labels';
 import { FontAwesome, FontAwesome6 } from '@expo/vector-icons';
-import InputWithLabel from '../reusable/InputWithLabel';
+import InputWithLabel from '../../reusable/InputWithLabel';
 import { JobInput } from '~/src/graphql/operations/job';
 import { jobConfigs } from '~/src/config/configConst';
+import { useAppTheme } from '~/src/utils/hooks/ThemeContext';
+import { IJobSteps } from './JobForm';
 
 const JobBudget = ({ jobForm, setJobForm, errors }: IJobSteps) => {
   const resets = jobConfigs.defaults.budgetResets;
+  const { theme } = useAppTheme();
+  const styles = getStyles(theme);
   const isFixed = jobForm?.budget?.type === 'Project';
   const isHourly = jobForm?.budget?.type === 'Hourly';
   const onTypeSelect = (type: JobInput['budget']['type']) => {
     setJobForm((prev) => {
       let values = { ...prev };
-
       if (type === 'Hourly') {
         values.budget.from = resets.hourly.from;
         values.budget.to = resets.hourly.to;
@@ -24,9 +25,7 @@ const JobBudget = ({ jobForm, setJobForm, errors }: IJobSteps) => {
         values.budget.from = resets.project.from;
         values.budget.to = resets.project.to;
       }
-
       values.budget.type = type;
-
       return values;
     });
   };
@@ -51,7 +50,7 @@ const JobBudget = ({ jobForm, setJobForm, errors }: IJobSteps) => {
     <View style={styles.formCont}>
       <YStack space={'$2.5'}>
         <Text style={styles.labelText}>
-          {labels.seleProjectBudget} <Text style={{ color: colors.primary }}>*</Text>
+          {labels.seleProjectBudget} <Text style={{ color: theme.primary }}>*</Text>
         </Text>
         <View style={styles.budgetTypeList}>
           <Pressable
@@ -59,30 +58,30 @@ const JobBudget = ({ jobForm, setJobForm, errors }: IJobSteps) => {
             style={[
               styles.budgetTypeCont,
               {
-                borderColor: isFixed ? colors.primary : colors.border,
-                backgroundColor: isFixed ? colors.primary : colors.white,
+                borderColor: isFixed ? theme.primary : theme.border,
+                backgroundColor: isFixed ? theme.primary : theme.white,
               },
             ]}>
             <View style={styles.budgetTypeSymbol}>
               <Circle
                 size={30}
-                borderColor={isFixed ? colors.white : colors.textDark}
+                borderColor={isFixed ? theme.white : theme.textDark}
                 borderWidth={2}>
                 <FontAwesome
                   name="dollar"
                   size={18}
-                  color={isFixed ? colors.white : colors.textDark}
+                  color={isFixed ? theme.white : theme.textDark}
                 />
               </Circle>
               <Circle
                 size={20}
-                borderColor={isFixed ? colors.white : colors.textDark}
+                borderColor={isFixed ? theme.white : theme.textDark}
                 borderWidth={1}>
-                <Circle size={10} backgroundColor={colors.white} />
+                <Circle size={10} backgroundColor={theme.white} />
               </Circle>
             </View>
             <Text
-              style={[styles.budgetTypeText, { color: isFixed ? colors.white : colors.textDark }]}>
+              style={[styles.budgetTypeText, { color: isFixed ? theme.white : theme.textDark }]}>
               {labels.fixedBudget}
             </Text>
           </Pressable>
@@ -91,25 +90,22 @@ const JobBudget = ({ jobForm, setJobForm, errors }: IJobSteps) => {
             style={[
               styles.budgetTypeCont,
               {
-                borderColor: isHourly ? colors.primary : colors.border,
-                backgroundColor: isHourly ? colors.primary : colors.white,
+                borderColor: isHourly ? theme.primary : theme.border,
+                backgroundColor: isHourly ? theme.primary : theme.white,
               },
             ]}>
             <View style={styles.budgetTypeSymbol}>
               <FontAwesome6
                 name="clock"
                 size={30}
-                color={isHourly ? colors.white : colors.textDark}
+                color={isHourly ? theme.white : theme.textDark}
               />
-              <Circle
-                size={20}
-                borderColor={isHourly ? colors.white : colors.border}
-                borderWidth={1}>
-                <Circle size={10} backgroundColor={colors.white} />
+              <Circle size={20} borderColor={isHourly ? theme.white : theme.border} borderWidth={1}>
+                <Circle size={10} backgroundColor={theme.white} />
               </Circle>
             </View>
             <Text
-              style={[styles.budgetTypeText, { color: isHourly ? colors.white : colors.textDark }]}>
+              style={[styles.budgetTypeText, { color: isHourly ? theme.white : theme.textDark }]}>
               {labels.hourlyRate}
             </Text>
           </Pressable>
@@ -167,42 +163,44 @@ const JobBudget = ({ jobForm, setJobForm, errors }: IJobSteps) => {
 
 export default JobBudget;
 
-const styles = StyleSheet.create({
-  formCont: {
-    paddingHorizontal: 15,
-    paddingVertical: 20,
-    backgroundColor: 'white',
-    margin: 20,
-    borderRadius: 10,
-    borderColor: colors.border,
-    borderWidth: 1,
-    rowGap: 20,
-  },
-  labelText: {
-    fontFamily: 'InterBold',
-  },
-  budgetTypeList: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  budgetTypeSymbol: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
-    paddingHorizontal: 10,
-  },
-  budgetTypeCont: {
-    borderWidth: 1,
-    borderRadius: 10,
-    width: '48%',
-    padding: 15,
-  },
-  budgetTypeText: {
-    fontFamily: 'InterSemiBold',
-    fontSize: 17,
-    textAlign: 'center',
-  },
-});
+const getStyles = (theme: any) =>
+  StyleSheet.create({
+    formCont: {
+      paddingHorizontal: 15,
+      paddingVertical: 20,
+      backgroundColor: theme.white,
+      margin: 20,
+      borderRadius: 10,
+      borderColor: theme.border,
+      borderWidth: 1,
+      rowGap: 20,
+    },
+    labelText: {
+      fontFamily: 'InterBold',
+      color: theme.textDark,
+    },
+    budgetTypeList: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 10,
+    },
+    budgetTypeSymbol: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 10,
+      paddingHorizontal: 10,
+    },
+    budgetTypeCont: {
+      borderWidth: 1,
+      borderRadius: 10,
+      width: '48%',
+      padding: 15,
+    },
+    budgetTypeText: {
+      fontFamily: 'InterSemiBold',
+      fontSize: 17,
+      textAlign: 'center',
+    },
+  });

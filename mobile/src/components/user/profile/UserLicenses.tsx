@@ -11,13 +11,13 @@ import React, { useState } from 'react';
 import Card from '../../reusable/Card';
 import labels from '~/src/constants/labels';
 import { IContractor, ILicense } from '~/src/graphql/operations/contractor';
-import colors from '~/src/constants/colors';
 import CustomCarousel from '../../reusable/CustomCarousel';
 import CustomModal from '../../reusable/CustomModal';
 import EditLicenses from './editModals/EditLicenses';
 import AddLicense from './editModals/AddLicense';
 import ImageViewCont from '../../reusable/ImageViewCont';
 import { IImageInfo } from 'react-native-image-zoom-viewer/built/image-viewer.type';
+import { useAppTheme } from '~/src/utils/hooks/ThemeContext';
 type Props = {
   contractorData?: IContractor;
   licenses?: ILicense[];
@@ -26,6 +26,8 @@ type Props = {
 
 const UserLicenses = ({ contractorData, licenses, isMyProfile }: Props) => {
   const { width } = useWindowDimensions();
+  const { theme } = useAppTheme();
+  const styles = getStyles(theme);
   const [addLicensesOpen, setAddLicensesOpen] = useState<boolean>(false);
   const [licensesEditOpen, setLicensesEditOpen] = useState<boolean>(false);
   const [imageViewOpen, setImageViewOpen] = useState<boolean>(false);
@@ -36,7 +38,6 @@ const UserLicenses = ({ contractorData, licenses, isMyProfile }: Props) => {
     <View style={[styles.licensePage, { width: width * 0.8 }]}>
       <Pressable
         onPress={() => {
-          /*  setSeleImageUrl(item?.url); */
           setImageViewOpen(true);
         }}>
         <Image
@@ -113,28 +114,29 @@ const UserLicenses = ({ contractorData, licenses, isMyProfile }: Props) => {
 
 export default UserLicenses;
 
-const styles = StyleSheet.create({
-  carouselCont: {
-    height: '100%',
-    width: '100%',
-  },
-  licensePage: {
-    flexDirection: 'column',
-  },
-  licenseImage: {
-    height: 150,
-    borderColor: colors.border,
-    borderWidth: 1,
-    borderRadius: 7,
-  },
-  licenseName: {
-    fontFamily: 'InterBold',
-    fontSize: 13,
-    color: colors.textDark,
-    marginVertical: 10,
-  },
-  cardBodyStyle: {
-    alignItems: 'center',
-    paddingBottom: 25,
-  },
-});
+const getStyles = (theme: any) =>
+  StyleSheet.create({
+    carouselCont: {
+      height: '100%',
+      width: '100%',
+    },
+    licensePage: {
+      flexDirection: 'column',
+    },
+    licenseImage: {
+      height: 150,
+      borderColor: theme.border,
+      borderWidth: 1,
+      borderRadius: 7,
+    },
+    licenseName: {
+      fontFamily: 'InterBold',
+      fontSize: 13,
+      color: theme.textDark,
+      marginVertical: 10,
+    },
+    cardBodyStyle: {
+      alignItems: 'center',
+      paddingBottom: 25,
+    },
+  });

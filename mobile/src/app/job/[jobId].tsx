@@ -1,4 +1,3 @@
-import { StyleSheet, Text, View } from 'react-native';
 import React from 'react';
 import { useLocalSearchParams } from 'expo-router';
 import ViewJob from '~/src/components/jobs/ViewJob';
@@ -9,5 +8,3 @@ const jobPage = () => {
 };
 
 export default jobPage;
-
-const styles = StyleSheet.create({});

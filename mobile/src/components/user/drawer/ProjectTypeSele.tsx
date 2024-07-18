@@ -3,8 +3,8 @@ import React from 'react';
 import { YStack } from 'tamagui';
 import CustomRadioGroup from '../../reusable/CustomRadioGroup';
 import labels from '~/src/constants/labels';
-import colors from '~/src/constants/colors';
 import { TTypeOption } from './ProjectFilterDrawer';
+import { useAppTheme } from '~/src/utils/hooks/ThemeContext';
 
 const TypeOptions: TTypeOption[] = ['All', 'Hourly', 'Project'];
 type Props = {
@@ -12,11 +12,12 @@ type Props = {
   handleProTypeChange: (val: string) => void;
 };
 const ProjectTypeSele = ({ seleProjectType, handleProTypeChange }: Props) => {
+  const { theme } = useAppTheme();
   return (
     <YStack space={'$1.5'}>
-      <Text style={{ fontFamily: 'InterBold' }}>
+      <Text style={{ fontFamily: 'InterBold', color: theme.textDark }}>
         {labels.projectType}
-        <Text style={{ color: colors.primary }}>*</Text>
+        <Text style={{ color: theme.primary }}>*</Text>
       </Text>
       <CustomRadioGroup
         items={TypeOptions}

@@ -4,17 +4,19 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import colors from '~/src/constants/colors';
+import { useAppTheme } from '~/src/utils/hooks/ThemeContext';
 
 interface Props {
   pageName: string;
 }
 
 const CustomHeader = ({ pageName }: Props) => {
+  const { theme } = useAppTheme();
+  const styles = getStyles(theme);
   return (
     <SafeAreaView edges={['top']}>
       <Pressable style={styles.button} onPress={() => router.back()}>
-        <Ionicons name="chevron-back-circle" size={30} color={colors.textDark} />
+        <Ionicons name="chevron-back-circle" size={30} color={theme.textDark} />
         <Text style={styles.buttonText}>{pageName}</Text>
       </Pressable>
     </SafeAreaView>
@@ -23,11 +25,17 @@ const CustomHeader = ({ pageName }: Props) => {
 
 export default CustomHeader;
 
-const styles = StyleSheet.create({
-  button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  buttonText: { fontSize: 18, fontFamily: 'InterExtraBold', marginLeft: 5, color: colors.textDark },
-});
+const getStyles = (theme: any) =>
+  StyleSheet.create({
+    button: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 20,
+    },
+    buttonText: {
+      fontSize: 18,
+      fontFamily: 'InterExtraBold',
+      marginLeft: 5,
+      color: theme.textDark,
+    },
+  });

@@ -1,4 +1,4 @@
-import { ListRenderItem, StyleSheet, Text, View } from 'react-native';
+import { ListRenderItem, Modal, StyleSheet, Text, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import CustomTabs, { tabType } from '../../reusable/CustomTabs';
 import { useUserStates } from '~/src/redux/reduxStates';
@@ -10,8 +10,10 @@ import NoResultFound from '../../reusable/NoResultFound';
 import labels from '~/src/constants/labels';
 import { FlatList } from 'react-native-gesture-handler';
 import JobCard from '../../user/client/JobCard';
-import colors from '~/src/constants/colors';
 import { router } from 'expo-router';
+import JobPost from '../jobPost/JobPost';
+import { useAppTheme } from '~/src/utils/hooks/ThemeContext';
+import CustomContentLoader from '../../reusable/CustomContentLoader';
 
 export type JobType = 'Posted' | 'Draft' | 'Active' | 'Bidding' | 'Completed';
 interface JobCategorization {
@@ -22,7 +24,10 @@ interface JobCategorization {
 
 const JobListView = () => {
   const { user } = useUserStates();
+  const { theme } = useAppTheme();
   const userId = user?.id;
+  const [draftJobID, setDraftJobID] = useState<string>();
+  const [openDraftJob, setOpenDraftJob] = useState(false);
   const { userJobsAsync, data: userJobs, loading: userJobsLoading } = useUserJobs();
   const { contractorAsync, data: contrData, loading: contactorLoading } = useContractor();
   const contractorId = contrData?.contractor?.id;
@@ -67,8 +72,8 @@ const JobListView = () => {
   );
 
   const handleDraftClick = (job: IJob) => {
-    /* navigate(paths.jobPost(job.id)) */
-    /*  router.replace(`/postJob`) */
+    setDraftJobID(job.id);
+    setOpenDraftJob(true);
   };
 
   const tabs: tabType[] = [
@@ -114,16 +119,35 @@ const JobListView = () => {
       {tabs.map(
         (tab, index) =>
           activeTab === index && (
-            <View style={{ flex: 0.92 }} key={index}>
+            <View style={{ flex: 0.92, backgroundColor: theme.bg }} key={index}>
               {tab?.tabContent}
             </View>
           )
+      )}
+      {user && (
+        <Modal
+          animationType="fade"
+          visible={openDraftJob}
+          onRequestClose={() => {
+            setOpenDraftJob(!openDraftJob);
+          }}>
+          <View style={[styles.modalView]}>
+            <JobPost onCancel={() => setOpenDraftJob(!openDraftJob)} jobID={draftJobID} />
+          </View>
+        </Modal>
       )}
     </View>
   );
 };
 
 export default JobListView;
+
+const styles = StyleSheet.create({
+  modalView: {
+    width: '100%',
+    height: '100%',
+  },
+});
 
 const JobsWrapperCont = (
   jobs?: IJob[],
@@ -132,6 +156,7 @@ const JobsWrapperCont = (
   allowDelete: boolean = false,
   showDraftExpiry: boolean = false
 ) => {
+  const { theme } = useAppTheme();
   const renderListItem: ListRenderItem<IJob> = ({ item }) => (
     <JobCard
       job={item}
@@ -146,9 +171,11 @@ const JobsWrapperCont = (
       style={{
         paddingHorizontal: 20,
         paddingVertical: 10,
-        backgroundColor: colors.bg,
+        backgroundColor: theme.bg,
       }}>
-      {jobs && jobs?.length > 0 ? (
+      {isLoading ? (
+        <CustomContentLoader type="jobCard" size={18} repeat={5} gap={10} />
+      ) : jobs && jobs?.length > 0 ? (
         <FlatList data={jobs} renderItem={renderListItem} showsVerticalScrollIndicator={false} />
       ) : (
         <NoResultFound searchType={labels.jobs.toLowerCase()} />

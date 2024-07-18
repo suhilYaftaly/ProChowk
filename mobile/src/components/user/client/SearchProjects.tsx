@@ -1,6 +1,5 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import colors from '~/src/constants/colors';
 import { AntDesign, FontAwesome, FontAwesome6 } from '@expo/vector-icons';
 import FullScreenDialog from '../../reusable/FullScreenDialog';
 import { Input, ScrollView, Separator, useWindowDimensions } from 'tamagui';
@@ -11,8 +10,11 @@ import { useAppDispatch } from '~/src/utils/hooks/hooks';
 import { useUserStates } from '~/src/redux/reduxStates';
 import { ISkill, useSkills } from '~/src/graphql/operations/skill';
 import { setProjectsFilters } from '~/src/redux/slices/userSlice';
+import { useAppTheme } from '~/src/utils/hooks/ThemeContext';
 
 const SearchProjects = (props: any) => {
+  const { theme } = useAppTheme();
+  const styles = getStyles(theme);
   const { width } = useWindowDimensions();
   const dispatch = useAppDispatch();
   const { projectFilters } = useUserStates();
@@ -77,7 +79,7 @@ const SearchProjects = (props: any) => {
         <FontAwesome
           name="search"
           size={20}
-          color={colors.silver}
+          color={theme.silver}
           style={{ paddingHorizontal: 10 }}
         />
         <FullScreenDialog
@@ -85,7 +87,7 @@ const SearchProjects = (props: any) => {
           setIsOpen={setIsOpen}
           triggerBtnCom={
             <View style={[styles.menuButton, { width: width * 0.6 }]}>
-              <Text>
+              <Text style={{ color: theme.silver }}>
                 {displayValue && displayValue !== '' ? displayValue : labels?.searchForProjects}
               </Text>
             </View>
@@ -99,21 +101,21 @@ const SearchProjects = (props: any) => {
                     setDisplayValue(inputValue);
                   }}
                   style={styles.addBtn}>
-                  <FontAwesome6 name="angle-left" size={20} color={colors.black} />
+                  <FontAwesome6 name="angle-left" size={20} color={theme.black} />
                 </Pressable>
                 <Input
                   size={'$3'}
                   flex={1}
                   borderWidth={0}
                   style={styles.inputText}
-                  placeholder={labels.searchAddress}
+                  placeholder={labels.searchSkills}
                   autoCorrect={false}
                   value={inputValue}
                   onChangeText={(e) => onInputChange(e)}
                 />
                 {inputValue && inputValue !== '' && (
                   <Pressable onPress={() => searchProjects(inputValue)} style={styles.addBtn}>
-                    <FontAwesome name="search" size={20} color={colors.textBlue} />
+                    <FontAwesome name="search" size={20} color={theme.textBlue} />
                   </Pressable>
                 )}
               </View>
@@ -126,7 +128,7 @@ const SearchProjects = (props: any) => {
                     return (
                       <Pressable key={index} onPress={() => handleSearchItemClick(skill?.label)}>
                         <View style={styles.itemCont}>
-                          <Text>{skill?.label}</Text>
+                          <Text style={{ color: theme.textDark }}>{skill?.label}</Text>
                         </View>
                       </Pressable>
                     );
@@ -143,18 +145,18 @@ const SearchProjects = (props: any) => {
             <AntDesign
               name="closecircle"
               size={20}
-              color={colors.textDark}
+              color={theme.textDark}
               style={{ paddingHorizontal: 10 }}
             />
           </Pressable>
         )}
       </View>
-      <Separator vertical={true} height={30} borderColor={colors.border} marginHorizontal={10} />
+      <Separator vertical={true} height={30} borderColor={theme.border} marginHorizontal={10} />
       <Pressable onPress={() => props.navigation.openDrawer()}>
         <FontAwesome
           name="filter"
           size={20}
-          color={colors.textDark}
+          color={theme.textDark}
           style={{ paddingHorizontal: 10 }}
         />
       </Pressable>
@@ -164,52 +166,53 @@ const SearchProjects = (props: any) => {
 
 export default SearchProjects;
 
-const styles = StyleSheet.create({
-  searchBarCont: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: colors.white,
-    padding: 10,
-  },
-  searchBtnContainer: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    width: '85%',
-  },
-  menuButton: {
-    fontFamily: 'InterSemiBold',
-    fontSize: 15,
-    color: colors.silver,
-    padding: 5,
-  },
-  searchContainer: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 7,
-    marginTop: 30,
-  },
-  inputText: {
-    color: colors.textDark,
-    fontFamily: 'InterSemiBold',
-    fontSize: 15,
-    backgroundColor: 'transparent',
-  },
-  itemCont: {
-    padding: 15,
-    flex: 1,
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderColor: colors.border,
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  addBtn: {
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    borderTopRightRadius: 7,
-    borderBottomRightRadius: 7,
-  },
-});
+const getStyles = (theme: any) =>
+  StyleSheet.create({
+    searchBarCont: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      backgroundColor: theme.white,
+      padding: 10,
+    },
+    searchBtnContainer: {
+      alignItems: 'center',
+      flexDirection: 'row',
+      width: '85%',
+    },
+    menuButton: {
+      fontFamily: 'InterSemiBold',
+      fontSize: 15,
+      color: theme.silver,
+      padding: 5,
+    },
+    searchContainer: {
+      alignItems: 'center',
+      flexDirection: 'row',
+      borderWidth: 1,
+      borderColor: theme.border,
+      borderRadius: 7,
+      marginTop: 30,
+    },
+    inputText: {
+      color: theme.textDark,
+      fontFamily: 'InterSemiBold',
+      fontSize: 15,
+      backgroundColor: 'transparent',
+    },
+    itemCont: {
+      padding: 15,
+      flex: 1,
+      flexDirection: 'row',
+      borderBottomWidth: 1,
+      borderColor: theme.border,
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    addBtn: {
+      paddingHorizontal: 15,
+      paddingVertical: 10,
+      borderTopRightRadius: 7,
+      borderBottomRightRadius: 7,
+    },
+  });

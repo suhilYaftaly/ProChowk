@@ -4,12 +4,12 @@ import CustomModal from '../../reusable/CustomModal';
 import QRCode from 'react-native-qrcode-svg';
 import { Button, Spinner } from 'tamagui';
 import { Feather, Octicons } from '@expo/vector-icons';
-import colors from '~/src/constants/colors';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
 import Toast from 'react-native-toast-message';
 import labels from '~/src/constants/labels';
 import { shareAsync } from 'expo-sharing';
+import { useAppTheme } from '~/src/utils/hooks/ThemeContext';
 type Props = {
   userName?: string;
   qrcodeUri: string;
@@ -17,6 +17,8 @@ type Props = {
 };
 
 const QrCodeModal = ({ userName, qrcodeUri, triggerButton }: Props) => {
+  const { theme } = useAppTheme();
+  const styles = getStyles(theme);
   const [isOpen, setIsOpen] = useState(false);
   const [qrSvgRef, setQrSvgRef] = useState<any>();
   const [imageLoading, setImageLoding] = useState(false);
@@ -115,7 +117,7 @@ const QrCodeModal = ({ userName, qrcodeUri, triggerButton }: Props) => {
       triggerBtnCom={triggerButton}
       dialogCom={
         <View style={styles.container}>
-           <QRCode
+          <QRCode
             size={150}
             value={qrcodeUri}
             logo={require('@assets/images/logoWhiteOutline.png')}
@@ -130,13 +132,13 @@ const QrCodeModal = ({ userName, qrcodeUri, triggerButton }: Props) => {
             onPress={() => {
               generateQRImage('share');
             }}
-            backgroundColor={imageLoading ? colors.bg : colors.primary}
+            backgroundColor={imageLoading ? theme.bg : theme.primary}
             disabled={imageLoading}
             icon={
               imageLoading ? (
                 <Spinner />
               ) : (
-                <Octicons name="share-android" size={20} color={colors.white} />
+                <Octicons name="share-android" size={20} color={'#fff'} />
               )
             }>
             {labels.shareQR}
@@ -145,19 +147,19 @@ const QrCodeModal = ({ userName, qrcodeUri, triggerButton }: Props) => {
             onPress={() => generateQRImage('save')}
             style={styles.downLoadButton}
             disabled={imageLoading}
-            backgroundColor={colors.white}
-            color={imageLoading ? colors.bg : colors.textDark}
+            backgroundColor={theme.white}
+            color={imageLoading ? theme.bg : theme.textDark}
             icon={
               imageLoading ? (
                 <Spinner />
               ) : (
-                <Feather name="download" size={24} color={colors.textDark} />
+                <Feather name="download" size={24} color={theme.textDark} />
               )
             }>
             {labels.saveQR}
           </Button>
           {showMediaPerError && (
-            <Text style={{ color: colors.error }}>{labels.fileAccessDenied}</Text>
+            <Text style={{ color: theme.error }}>{labels.fileAccessDenied}</Text>
           )}
         </View>
       }
@@ -167,36 +169,37 @@ const QrCodeModal = ({ userName, qrcodeUri, triggerButton }: Props) => {
 
 export default QrCodeModal;
 
-const styles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-  },
-  boldText: {
-    fontFamily: 'InterExtraBold',
-    fontSize: 15,
-    color: colors.textDark,
-    marginVertical: 20,
-  },
-  normalText: {
-    fontFamily: 'InterMedium',
-    fontSize: 15,
-    color: colors.textDark,
-    textAlign: 'center',
-    marginBottom: 30,
-  },
-  shareBtn: {
-    color: colors.white,
-    borderBottomLeftRadius: 50,
-    borderTopRightRadius: 50,
-    borderTopLeftRadius: 50,
-    borderBottomRightRadius: 50,
-    width: '90%',
-    marginBottom: 15,
-    fontFamily: 'InterExtraBold',
-    fontSize: 15,
-  },
-  downLoadButton: {
-    fontFamily: 'InterExtraBold',
-    fontSize: 15,
-  },
-});
+const getStyles = (theme: any) =>
+  StyleSheet.create({
+    container: {
+      alignItems: 'center',
+    },
+    boldText: {
+      fontFamily: 'InterExtraBold',
+      fontSize: 15,
+      color: theme.textDark,
+      marginVertical: 20,
+    },
+    normalText: {
+      fontFamily: 'InterMedium',
+      fontSize: 15,
+      color: theme.textDark,
+      textAlign: 'center',
+      marginBottom: 30,
+    },
+    shareBtn: {
+      color: '#fff',
+      borderBottomLeftRadius: 50,
+      borderTopRightRadius: 50,
+      borderTopLeftRadius: 50,
+      borderBottomRightRadius: 50,
+      width: '90%',
+      marginBottom: 15,
+      fontFamily: 'InterExtraBold',
+      fontSize: 15,
+    },
+    downLoadButton: {
+      fontFamily: 'InterExtraBold',
+      fontSize: 15,
+    },
+  });

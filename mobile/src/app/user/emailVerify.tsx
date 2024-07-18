@@ -5,7 +5,7 @@ import VerifyEmail from '~/src/components/user/signUp/VerifyEmail';
 
 const emailVerify = () => {
   return (
-    <ScreenContainer pageName={labels.emailVerification}>
+    <ScreenContainer pageName={labels.emailVerification} hideHeader={true}>
       <VerifyEmail />
     </ScreenContainer>
   );

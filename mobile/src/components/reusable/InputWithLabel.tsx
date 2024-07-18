@@ -1,8 +1,8 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import React from 'react';
 import { Input, YStack } from 'tamagui';
-import colors from '~/src/constants/colors';
 import { Ionicons } from '@expo/vector-icons';
+import { useAppTheme } from '~/src/utils/hooks/ThemeContext';
 
 type Props = {
   labelText: string;
@@ -41,10 +41,12 @@ const InputWithLabel = ({
   postfixText,
   isNumeric,
 }: Props) => {
+  const { theme } = useAppTheme();
+  const styles = getStyles(theme);
   return (
     <YStack space={`$${gap}`}>
       <Text style={styles.labelText}>
-        {labelText} <Text style={{ color: colors.primary }}>*</Text>
+        {labelText} <Text style={{ color: theme.primary }}>*</Text>
       </Text>
       {isSecret ? (
         <View style={styles.passwordContainer}>
@@ -54,7 +56,7 @@ const InputWithLabel = ({
             borderWidth={0}
             inputMode={isNumeric ? 'numeric' : undefined}
             style={styles.inputText}
-            backgroundColor={isDisabled ? colors.bg : colors.white}
+            backgroundColor={isDisabled ? theme.bg : theme.white}
             placeholder={placeholder}
             secureTextEntry={hidePass}
             textContentType="newPassword"
@@ -63,7 +65,7 @@ const InputWithLabel = ({
             onChangeText={(e) => onChange(e)}
           />
           <Pressable onPress={() => setHidePass(!hidePass)}>
-            <Ionicons name={hidePass ? 'eye-off' : 'eye'} size={20} color="black" />
+            <Ionicons name={hidePass ? 'eye-off' : 'eye'} size={20} color={theme.textDark} />
           </Pressable>
         </View>
       ) : isWithPostfix || isWithPostfix ? (
@@ -75,7 +77,7 @@ const InputWithLabel = ({
             borderWidth={0}
             inputMode={isNumeric ? 'numeric' : undefined}
             style={styles.inputText}
-            backgroundColor={isDisabled ? colors.bg : colors.white}
+            backgroundColor={isDisabled ? theme.bg : theme.white}
             disabled={isDisabled}
             placeholder={placeholder}
             value={value}
@@ -89,40 +91,41 @@ const InputWithLabel = ({
           placeholder={placeholder}
           inputMode={isNumeric ? 'numeric' : undefined}
           style={styles.inputText}
-          backgroundColor={isDisabled ? colors.bg : colors.white}
-          borderColor={colors.border}
+          backgroundColor={isDisabled ? theme.bg : theme.white}
+          borderColor={theme.border}
           disabled={isDisabled}
           value={value}
           onChangeText={(e) => onChange(e)}
         />
       )}
-      {!isError && <Text style={{ color: colors.error }}>*{errorText}</Text>}
+      {!isError && <Text style={{ color: theme.error }}>*{errorText}</Text>}
     </YStack>
   );
 };
 
 export default InputWithLabel;
 
-const styles = StyleSheet.create({
-  labelText: { fontFamily: 'InterBold' },
-  passwordContainer: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 7,
-    paddingRight: 10,
-  },
-  inputWithLabelsCont: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 7,
-    paddingHorizontal: 10,
-  },
-  inputText: {
-    color: colors.black,
-    fontFamily: 'Inter',
-  },
-});
+const getStyles = (theme: any) =>
+  StyleSheet.create({
+    labelText: { fontFamily: 'InterBold', color: theme.textDark },
+    passwordContainer: {
+      alignItems: 'center',
+      flexDirection: 'row',
+      borderWidth: 1,
+      borderColor: theme.border,
+      borderRadius: 7,
+      paddingRight: 10,
+    },
+    inputWithLabelsCont: {
+      alignItems: 'center',
+      flexDirection: 'row',
+      borderWidth: 1,
+      borderColor: theme.border,
+      borderRadius: 7,
+      paddingHorizontal: 10,
+    },
+    inputText: {
+      color: theme.black,
+      fontFamily: 'Inter',
+    },
+  });

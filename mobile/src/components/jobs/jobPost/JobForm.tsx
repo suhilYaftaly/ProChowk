@@ -12,6 +12,7 @@ import JobBudget from './JobBudget';
 import JobDescription from './JobDescription';
 import JobPreview from './JobPreview';
 import PostJobCont from './PostJobCont';
+import labels from '~/src/constants/labels';
 
 interface Props {
   jobForm: JobInput;
@@ -100,7 +101,7 @@ const JobForm = ({
   const finishDraft = () => {
     const errors = validateFields({ ...valProps, checkAllSteps: true });
     if (errors.length > 0) {
-      Toast.show({ type: 'error', text1: 'Fill all required fields!!', position: 'top' });
+      Toast.show({ type: 'error', text1: labels.fillAllFields, position: 'top' });
       return;
     } else createOrUpdateJob(false);
   };

@@ -1,8 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import colors from '~/src/constants/colors';
 import { AntDesign, FontAwesome, FontAwesome6 } from '@expo/vector-icons';
-import { Input, ScrollView, Separator, useWindowDimensions } from 'tamagui';
+import { Circle, Input, ScrollView, Separator, useWindowDimensions } from 'tamagui';
 import labels from '~/src/constants/labels';
 import FullScreenDialog from '../../reusable/FullScreenDialog';
 import CustomContentLoader from '../../reusable/CustomContentLoader';
@@ -11,11 +10,14 @@ import { ISkill, useSkills } from '~/src/graphql/operations/skill';
 import { useAppDispatch } from '~/src/utils/hooks/hooks';
 import { setContFilters } from '~/src/redux/slices/userSlice';
 import { useUserStates } from '~/src/redux/reduxStates';
+import { useAppTheme } from '~/src/utils/hooks/ThemeContext';
 
 const SearchContractor = (props: any) => {
+  const { theme } = useAppTheme();
+  const styles = getStyles(theme);
   const { width } = useWindowDimensions();
   const dispatch = useAppDispatch();
-  const { contFilters } = useUserStates();
+  const { contFilters, userId } = useUserStates();
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const [displayValue, setDisplayValue] = useState<string>('');
@@ -71,20 +73,30 @@ const SearchContractor = (props: any) => {
   }, [displayValue]);
 
   return (
-    <View style={styles.searchBarCont}>
-      <View style={styles.searchBtnContainer}>
-        <FontAwesome
-          name="search"
-          size={20}
-          color={colors.silver}
-          style={{ paddingHorizontal: 10 }}
-        />
+    <View style={userId ? styles.searchBarCont : styles.homePageSearchCont}>
+      <View
+        style={[
+          styles.searchBtnContainer,
+          { width: userId ? '85%' : '100%', justifyContent: userId ? undefined : 'space-between' },
+        ]}>
+        {userId && (
+          <FontAwesome
+            name="search"
+            size={20}
+            color={theme.silver}
+            style={{ paddingHorizontal: 10 }}
+          />
+        )}
         <FullScreenDialog
           isOpen={isOpen}
           setIsOpen={setIsOpen}
           triggerBtnCom={
-            <View style={[styles.menuButton, { width: width * 0.6 }]}>
-              <Text>
+            <View
+              style={[
+                styles.menuButton,
+                { width: width * 0.6, marginLeft: userId ? undefined : 10 },
+              ]}>
+              <Text style={{ color: theme.silver }}>
                 {displayValue && displayValue !== '' ? displayValue : labels?.searchForContractors}
               </Text>
             </View>
@@ -98,21 +110,21 @@ const SearchContractor = (props: any) => {
                     setDisplayValue(inputValue);
                   }}
                   style={styles.addBtn}>
-                  <FontAwesome6 name="angle-left" size={20} color={colors.black} />
+                  <FontAwesome6 name="angle-left" size={20} color={theme.black} />
                 </Pressable>
                 <Input
                   size={'$3'}
                   flex={1}
                   borderWidth={0}
                   style={styles.inputText}
-                  placeholder={labels.searchAddress}
+                  placeholder={labels.searchSkills}
                   autoCorrect={false}
                   value={inputValue}
                   onChangeText={(e) => onInputChange(e)}
                 />
                 {inputValue && inputValue !== '' && (
                   <Pressable onPress={() => searchContractor(inputValue)} style={styles.addBtn}>
-                    <FontAwesome name="search" size={20} color={colors.textBlue} />
+                    <FontAwesome name="search" size={20} color={theme.textBlue} />
                   </Pressable>
                 )}
               </View>
@@ -125,7 +137,7 @@ const SearchContractor = (props: any) => {
                     return (
                       <Pressable key={index} onPress={() => handleSearchItemClick(skill?.label)}>
                         <View style={styles.itemCont}>
-                          <Text>{skill?.label}</Text>
+                          <Text style={{ color: theme.textDark }}>{skill?.label}</Text>
                         </View>
                       </Pressable>
                     );
@@ -142,73 +154,93 @@ const SearchContractor = (props: any) => {
             <AntDesign
               name="closecircle"
               size={20}
-              color={colors.textDark}
+              color={theme.textDark}
               style={{ paddingHorizontal: 10 }}
             />
           </Pressable>
         )}
+        {!userId && (
+          <Circle size={35} backgroundColor={theme.primary}>
+            <FontAwesome
+              name="search"
+              size={17}
+              color={theme.white}
+              style={{ paddingHorizontal: 10 }}
+            />
+          </Circle>
+        )}
       </View>
-      <Separator vertical={true} height={30} borderColor={colors.border} marginHorizontal={10} />
-      <Pressable onPress={() => props.navigation.openDrawer()}>
-        <FontAwesome
-          name="filter"
-          size={20}
-          color={colors.textDark}
-          style={{ paddingHorizontal: 10 }}
-        />
-      </Pressable>
+      {userId && (
+        <>
+          <Separator vertical={true} height={30} borderColor={theme.border} marginHorizontal={10} />
+          <Pressable onPress={() => props.navigation.openDrawer()}>
+            <FontAwesome
+              name="filter"
+              size={20}
+              color={theme.textDark}
+              style={{ paddingHorizontal: 10 }}
+            />
+          </Pressable>
+        </>
+      )}
     </View>
   );
 };
 
 export default SearchContractor;
 
-const styles = StyleSheet.create({
-  searchBarCont: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: colors.white,
-    padding: 10,
-  },
-  searchBtnContainer: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    width: '85%',
-  },
-  menuButton: {
-    fontFamily: 'InterSemiBold',
-    fontSize: 15,
-    color: colors.silver,
-    padding: 5,
-  },
-  searchContainer: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 7,
-    marginTop: 30,
-  },
-  inputText: {
-    color: colors.textDark,
-    fontFamily: 'InterSemiBold',
-    fontSize: 15,
-    backgroundColor: 'transparent',
-  },
-  itemCont: {
-    padding: 15,
-    flex: 1,
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderColor: colors.border,
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  addBtn: {
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    borderTopRightRadius: 7,
-    borderBottomRightRadius: 7,
-  },
-});
+const getStyles = (theme: any) =>
+  StyleSheet.create({
+    searchBarCont: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      backgroundColor: theme.white,
+      padding: 10,
+    },
+    homePageSearchCont: {
+      backgroundColor: theme.white,
+      borderRadius: 50,
+      paddingHorizontal: 10,
+      paddingVertical: 10,
+    },
+    searchBtnContainer: {
+      alignItems: 'center',
+      flexDirection: 'row',
+    },
+    menuButton: {
+      fontFamily: 'InterSemiBold',
+      fontSize: 15,
+      color: theme.silver,
+      padding: 5,
+    },
+    searchContainer: {
+      alignItems: 'center',
+      flexDirection: 'row',
+      borderWidth: 1,
+      borderColor: theme.border,
+      borderRadius: 7,
+      marginTop: 30,
+    },
+    inputText: {
+      color: theme.textDark,
+      fontFamily: 'InterSemiBold',
+      fontSize: 15,
+      backgroundColor: 'transparent',
+    },
+    itemCont: {
+      padding: 15,
+      flex: 1,
+      flexDirection: 'row',
+      borderBottomWidth: 1,
+      borderColor: theme.border,
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    addBtn: {
+      paddingHorizontal: 15,
+      paddingVertical: 10,
+      borderTopRightRadius: 7,
+      borderBottomRightRadius: 7,
+    },
+  });

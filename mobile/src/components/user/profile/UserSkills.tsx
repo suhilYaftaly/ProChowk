@@ -6,10 +6,10 @@ import { ISkill, SkillInput, useSkills } from '~/src/graphql/operations/skill';
 import Chip from '../../reusable/Chip';
 import CustomModal from '../../reusable/CustomModal';
 import { Button, Spinner } from 'tamagui';
-import colors from '~/src/constants/colors';
 import SkillSelection, { getNewSkills } from '../signUp/SkillSelection';
 import { IContractor, useUpdateContSkills } from '~/src/graphql/operations/contractor';
 import Toast from 'react-native-toast-message';
+import { useAppTheme } from '~/src/utils/hooks/ThemeContext';
 
 type Props = {
   contractor?: IContractor;
@@ -18,6 +18,8 @@ type Props = {
 };
 
 const UserSkills = ({ contractor, userSkills, isMyProfile }: Props) => {
+  const { theme } = useAppTheme();
+  const styles = getStyles(theme);
   const { updateContSkillsAsync, loading } = useUpdateContSkills();
   const { updateCache } = useSkills();
   const [disableSaveBtn, setDisableSaveBtn] = useState(false);
@@ -104,8 +106,8 @@ const UserSkills = ({ contractor, userSkills, isMyProfile }: Props) => {
               errorText={labels.noSkillError}
             />
             <Button
-              backgroundColor={disableSaveBtn ? '$border' : '$primary'}
-              color={disableSaveBtn ? '$silver' : '$white'}
+              backgroundColor={disableSaveBtn ? theme.border : theme.primary}
+              color={disableSaveBtn ? theme.silver : theme.white}
               style={styles.button}
               onPress={() => handleSaveChanges()}
               disabled={disableSaveBtn}
@@ -121,22 +123,23 @@ const UserSkills = ({ contractor, userSkills, isMyProfile }: Props) => {
 
 export default UserSkills;
 
-const styles = StyleSheet.create({
-  chipsCont: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    paddingVertical: 5,
-  },
-  button: {
-    fontFamily: 'InterBold',
-    fontSize: 15,
-    borderBottomLeftRadius: 50,
-    borderTopRightRadius: 50,
-    borderTopLeftRadius: 50,
-    borderBottomRightRadius: 50,
-    marginTop: 30,
-    marginBottom: 10,
-    justifyContent: 'center',
-    color: colors.white,
-  },
-});
+const getStyles = (theme: any) =>
+  StyleSheet.create({
+    chipsCont: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      paddingVertical: 5,
+    },
+    button: {
+      fontFamily: 'InterBold',
+      fontSize: 15,
+      borderBottomLeftRadius: 50,
+      borderTopRightRadius: 50,
+      borderTopLeftRadius: 50,
+      borderBottomRightRadius: 50,
+      marginTop: 30,
+      marginBottom: 10,
+      justifyContent: 'center',
+      color: '#fff',
+    },
+  });

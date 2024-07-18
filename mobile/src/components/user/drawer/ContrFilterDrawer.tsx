@@ -1,7 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
-import colors from '~/src/constants/colors';
 import AddressSearch from '../signUp/AddressSearch';
 import labels from '~/src/constants/labels';
 import { AddressInput, IAddress, LatLngInput } from '~/src/graphql/operations/address';
@@ -13,6 +12,7 @@ import { useAppDispatch } from '~/src/utils/hooks/hooks';
 import { setContFilters } from '~/src/redux/slices/userSlice';
 import { useUserStates } from '~/src/redux/reduxStates';
 import { defaultAddress } from '@config/configConst';
+import { useAppTheme } from '~/src/utils/hooks/ThemeContext';
 
 export interface INearbyContFilters {
   searchText?: string;
@@ -23,6 +23,8 @@ export interface INearbyContFilters {
 
 const ContrFilterDrawer = (props: any) => {
   const dispatch = useAppDispatch();
+  const { theme } = useAppTheme();
+  const styles = getStyles(theme);
   const { user, userLocation, contFilters } = useUserStates();
   const [location, setLocation] = useState<AddressInput>();
   const [locationAvail, setLocationAvail] = useState<boolean>(true);
@@ -75,23 +77,25 @@ const ContrFilterDrawer = (props: any) => {
   }, [contFilters]);
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: theme.white }}>
       <View style={styles.drawerHeader}>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <FontAwesome
-            name="filter"
-            size={20}
-            color={colors.primary}
-            style={{ paddingRight: 10 }}
-          />
+          <FontAwesome name="filter" size={20} color={theme.primary} style={{ paddingRight: 10 }} />
           <Text style={styles.headerLabel}>{labels.filters}</Text>
         </View>
         <Pressable onPress={() => handleResetFilters()}>
-          <MaterialIcons name="refresh" size={25} color={colors.black} />
+          <MaterialIcons name="refresh" size={25} color={theme.black} />
         </Pressable>
       </View>
-      <DrawerContentScrollView {...props} contentContainerStyle={{ paddingTop: 0 }}>
-        <View style={{ padding: 15, borderBottomColor: colors.border, borderBottomWidth: 1 }}>
+      <DrawerContentScrollView
+        {...props}
+        contentContainerStyle={{ paddingTop: 0, backgroundColor: theme.white }}>
+        <View
+          style={{
+            padding: 15,
+            borderBottomColor: theme.border,
+            borderBottomWidth: 1,
+          }}>
           <AddressSearch
             location={location}
             setLocation={(loc: IAddress) => {
@@ -102,11 +106,16 @@ const ContrFilterDrawer = (props: any) => {
             errorText={labels.addressError}
           />
         </View>
-        <View style={{ padding: 15, borderBottomColor: colors.border, borderBottomWidth: 1 }}>
+        <View
+          style={{
+            padding: 15,
+            borderBottomColor: theme.border,
+            borderBottomWidth: 1,
+          }}>
           <YStack space={'$1.5'}>
-            <Text style={{ fontFamily: 'InterBold' }}>
+            <Text style={{ fontFamily: 'InterBold', color: theme.textDark }}>
               {labels.area}
-              <Text style={{ color: colors.primary }}>*</Text>
+              <Text style={{ color: theme.primary }}>*</Text>
             </Text>
             <View style={styles.areaInputCont}>
               <Input
@@ -121,9 +130,7 @@ const ContrFilterDrawer = (props: any) => {
               />
               <Text style={styles.inputText}>{labels.km}</Text>
             </View>
-            {areaError && (
-              <Text style={{ color: colors.error }}>*{labels.areaRadiusErrorText}</Text>
-            )}
+            {areaError && <Text style={{ color: theme.error }}>*{labels.areaRadiusErrorText}</Text>}
             <Slider
               step={1}
               value={areaRadius}
@@ -133,16 +140,16 @@ const ContrFilterDrawer = (props: any) => {
               }}
               minimumValue={CC.minRadius}
               maximumValue={CC.maxRadius}
-              minimumTrackTintColor={colors.primary}
-              maximumTrackTintColor={colors.bg}
-              thumbTintColor={colors.primary}
+              minimumTrackTintColor={theme.primary}
+              maximumTrackTintColor={theme.bg}
+              thumbTintColor={theme.primary}
             />
           </YStack>
         </View>
       </DrawerContentScrollView>
       <View style={styles.drawerFooter}>
         <Button
-          style={[styles.footerBtns, { backgroundColor: 'transparent', color: colors.textDark }]}
+          style={[styles.footerBtns, { backgroundColor: 'transparent', color: theme.textDark }]}
           height={'$3'}
           onPress={() => props.navigation.closeDrawer()}>
           {labels.cancel}
@@ -150,11 +157,11 @@ const ContrFilterDrawer = (props: any) => {
         <Button
           style={styles.footerBtns}
           height={'$3'}
-          backgroundColor={!location || !areaRadius ? colors.silver : colors.primary}
+          backgroundColor={!location || !areaRadius ? theme.silver : theme.primary}
           alignItems="center"
           onPress={() => handleApplyFilter()}
           disabled={!location || !areaRadius}
-          iconAfter={<FontAwesome name="chevron-right" size={15} color={colors.white} />}>
+          iconAfter={<FontAwesome name="chevron-right" size={15} color="#fff" />}>
           {labels.apply}
         </Button>
       </View>
@@ -164,43 +171,44 @@ const ContrFilterDrawer = (props: any) => {
 
 export default ContrFilterDrawer;
 
-const styles = StyleSheet.create({
-  drawerHeader: {
-    flexDirection: 'row',
-    padding: 15,
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderBottomColor: colors.border,
-    borderBottomWidth: 1,
-  },
-  headerLabel: {
-    fontFamily: 'InterExtraBold',
-    fontSize: 18,
-    color: colors.textDark,
-  },
-  areaInputCont: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 7,
-    paddingRight: 10,
-  },
-  inputText: {
-    color: colors.textDark,
-    fontFamily: 'InterSemiBold',
-    backgroundColor: 'transparent',
-  },
-  drawerFooter: {
-    flexDirection: 'row',
-    padding: 10,
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderTopColor: colors.border,
-    borderTopWidth: 1,
-  },
-  footerBtns: {
-    fontFamily: 'InterBold',
-    fontSize: 15,
-  },
-});
+const getStyles = (theme: any) =>
+  StyleSheet.create({
+    drawerHeader: {
+      flexDirection: 'row',
+      padding: 15,
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      borderBottomColor: theme.border,
+      borderBottomWidth: 1,
+    },
+    headerLabel: {
+      fontFamily: 'InterExtraBold',
+      fontSize: 18,
+      color: theme.textDark,
+    },
+    areaInputCont: {
+      alignItems: 'center',
+      flexDirection: 'row',
+      borderWidth: 1,
+      borderColor: theme.border,
+      borderRadius: 7,
+      paddingRight: 10,
+    },
+    inputText: {
+      color: theme.textDark,
+      fontFamily: 'InterSemiBold',
+      backgroundColor: 'transparent',
+    },
+    drawerFooter: {
+      flexDirection: 'row',
+      padding: 10,
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      borderTopColor: theme.border,
+      borderTopWidth: 1,
+    },
+    footerBtns: {
+      fontFamily: 'InterBold',
+      fontSize: 15,
+    },
+  });

@@ -5,16 +5,18 @@ import { Avatar, Button, Spinner, YStack } from 'tamagui';
 import { getImageFromAlbum } from '~/src/utils/utilFuncs';
 import { IImage } from '~/src/types/commonTypes';
 import Toast from 'react-native-toast-message';
-import colors from '~/src/constants/colors';
 import labels from '~/src/constants/labels';
 import InputWithLabel from '~/src/components/reusable/InputWithLabel';
 import AddressSearch from '../../signUp/AddressSearch';
 import { AddressInput, IAddress } from '~/src/graphql/operations/address';
+import { useAppTheme } from '~/src/utils/hooks/ThemeContext';
 type Props = {
   userData?: IUser;
   closeDialog: () => void;
 };
 const ProfileHeaderEdit = ({ userData, closeDialog }: Props) => {
+  const { theme } = useAppTheme();
+  const styles = getStyles(theme);
   const { updateUserAsync, loading: updLoading } = useUpdateUser();
   const [userImage, setUserImage] = useState<IImage | undefined>(userData?.image);
   const [name, setName] = useState<string>(userData?.name ? userData?.name : '');
@@ -115,7 +117,7 @@ const ProfileHeaderEdit = ({ userData, closeDialog }: Props) => {
         <Button
           style={styles.uploadBtn}
           borderWidth={1}
-          borderColor={colors.primary}
+          borderColor={theme.primary}
           onPress={() => handleUploadImage()}>
           {labels.updateProfileImage}
         </Button>
@@ -153,8 +155,8 @@ const ProfileHeaderEdit = ({ userData, closeDialog }: Props) => {
         />
       </YStack>
       <Button
-        backgroundColor={disableSaveBtn ? '$border' : '$primary'}
-        color={disableSaveBtn ? '$silver' : '$white'}
+        backgroundColor={disableSaveBtn ? theme.border : theme.primary}
+        color={disableSaveBtn ? theme.silver : theme.white}
         style={styles.button}
         onPress={() => handleSaveChanges()}
         disabled={disableSaveBtn}
@@ -167,38 +169,39 @@ const ProfileHeaderEdit = ({ userData, closeDialog }: Props) => {
 
 export default ProfileHeaderEdit;
 
-const styles = StyleSheet.create({
-  profileImageCont: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 10,
-    borderColor: colors.border,
-    borderWidth: 1,
-    borderRadius: 10,
-  },
-  uploadBtn: {
-    backgroundColor: colors.white,
-    color: colors.primary,
-    fontFamily: 'InterBold',
-    fontSize: 15,
-    borderWidth: 1,
-    borderColor: colors.primary,
-    borderBottomLeftRadius: 50,
-    borderTopRightRadius: 50,
-    borderTopLeftRadius: 50,
-    borderBottomRightRadius: 50,
-    marginLeft: 15,
-  },
-  button: {
-    fontFamily: 'InterBold',
-    fontSize: 15,
-    borderBottomLeftRadius: 50,
-    borderTopRightRadius: 50,
-    borderTopLeftRadius: 50,
-    borderBottomRightRadius: 50,
-    marginTop: 30,
-    marginBottom: 10,
-    justifyContent: 'center',
-    color: colors.white,
-  },
-});
+const getStyles = (theme: any) =>
+  StyleSheet.create({
+    profileImageCont: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: 10,
+      borderColor: theme.border,
+      borderWidth: 1,
+      borderRadius: 10,
+    },
+    uploadBtn: {
+      backgroundColor: theme.white,
+      color: theme.primary,
+      fontFamily: 'InterBold',
+      fontSize: 15,
+      borderWidth: 1,
+      borderColor: theme.primary,
+      borderBottomLeftRadius: 50,
+      borderTopRightRadius: 50,
+      borderTopLeftRadius: 50,
+      borderBottomRightRadius: 50,
+      marginLeft: 15,
+    },
+    button: {
+      fontFamily: 'InterBold',
+      fontSize: 15,
+      borderBottomLeftRadius: 50,
+      borderTopRightRadius: 50,
+      borderTopLeftRadius: 50,
+      borderBottomRightRadius: 50,
+      marginTop: 30,
+      marginBottom: 10,
+      justifyContent: 'center',
+      color: '#fff',
+    },
+  });

@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { Button, Image, Spinner, YStack } from 'tamagui';
 import InputWithLabel from '~/src/components/reusable/InputWithLabel';
 import labels from '~/src/constants/labels';
-import colors from '~/src/constants/colors';
 import {
   IContractor,
   LicenseInput,
@@ -13,11 +12,15 @@ import { getImageFromAlbum } from '~/src/utils/utilFuncs';
 import { IImage } from '~/src/types/commonTypes';
 import Toast from 'react-native-toast-message';
 import { AntDesign } from '@expo/vector-icons';
+import { useAppTheme } from '~/src/utils/hooks/ThemeContext';
 type Props = {
   contractorData?: IContractor;
   closeDialog: () => void;
 };
+
 const AddLicense = ({ contractorData, closeDialog }: Props) => {
+  const { theme } = useAppTheme();
+  const styles = getStyles(theme);
   const { addContLicAsync, loading } = useAddContractorLicense();
   const [licenseImage, setLicenseImage] = useState<LicenseInput | undefined>();
   const [licenseName, setLicenseName] = useState('');
@@ -101,11 +104,11 @@ const AddLicense = ({ contractorData, closeDialog }: Props) => {
         />
         <YStack space={'$1.5'}>
           <Text style={styles.labelText}>
-            {labels.media} <Text style={{ color: colors.primary }}>*</Text>
+            {labels.media} <Text style={{ color: theme.primary }}>*</Text>
           </Text>
           <Button
             borderWidth={1}
-            borderColor={colors.primary}
+            borderColor={theme.primary}
             borderStyle="dashed"
             onPress={() => handleUploadImage()}
             style={styles.uploadBtn}>
@@ -116,7 +119,7 @@ const AddLicense = ({ contractorData, closeDialog }: Props) => {
               <Pressable
                 style={{ position: 'absolute', right: -10, top: -10 }}
                 onPress={() => setLicenseImage(undefined)}>
-                <AntDesign name="closecircle" size={24} color={colors?.primary} />
+                <AntDesign name="closecircle" size={24} color={theme?.primary} />
               </Pressable>
               <Image
                 source={{
@@ -128,12 +131,12 @@ const AddLicense = ({ contractorData, closeDialog }: Props) => {
             </View>
           )}
           {!licenseImageIsValid && (
-            <Text style={{ color: colors.error }}>*{labels.licenseImageError}</Text>
+            <Text style={{ color: theme.error }}>*{labels.licenseImageError}</Text>
           )}
         </YStack>
         <Button
-          backgroundColor={disableSaveBtn ? '$border' : '$primary'}
-          color={disableSaveBtn ? '$silver' : '$white'}
+          backgroundColor={disableSaveBtn ? theme.border : theme.primary}
+          color={disableSaveBtn ? theme.silver : theme.white}
           style={styles.button}
           onPress={() => handleSaveChanges()}
           disabled={disableSaveBtn}
@@ -147,30 +150,31 @@ const AddLicense = ({ contractorData, closeDialog }: Props) => {
 
 export default AddLicense;
 
-const styles = StyleSheet.create({
-  labelText: { fontFamily: 'InterBold' },
-  uploadBtn: {
-    color: colors.primary,
-    fontFamily: 'InterBold',
-    backgroundColor: colors.white,
-    marginBottom: 15,
-  },
-  button: {
-    fontFamily: 'InterBold',
-    fontSize: 15,
-    borderBottomLeftRadius: 50,
-    borderTopRightRadius: 50,
-    borderTopLeftRadius: 50,
-    borderBottomRightRadius: 50,
-    marginTop: 30,
-    marginBottom: 10,
-    justifyContent: 'center',
-    color: colors.white,
-  },
-  licenseImage: {
-    borderColor: colors.border,
-    borderWidth: 1,
-    borderRadius: 7,
-    margin: 10,
-  },
-});
+const getStyles = (theme: any) =>
+  StyleSheet.create({
+    labelText: { fontFamily: 'InterBold', color: theme.textDark },
+    uploadBtn: {
+      color: theme.primary,
+      fontFamily: 'InterBold',
+      backgroundColor: theme.white,
+      marginBottom: 15,
+    },
+    button: {
+      fontFamily: 'InterBold',
+      fontSize: 15,
+      borderBottomLeftRadius: 50,
+      borderTopRightRadius: 50,
+      borderTopLeftRadius: 50,
+      borderBottomRightRadius: 50,
+      marginTop: 30,
+      marginBottom: 10,
+      justifyContent: 'center',
+      color: '#fff',
+    },
+    licenseImage: {
+      borderColor: theme.border,
+      borderWidth: 1,
+      borderRadius: 7,
+      margin: 10,
+    },
+  });

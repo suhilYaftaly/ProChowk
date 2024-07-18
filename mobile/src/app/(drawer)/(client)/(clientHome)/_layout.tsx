@@ -1,14 +1,18 @@
 import { Drawer } from 'expo-router/drawer';
-import colors from '~/src/constants/colors';
 import ContrFilterDrawer from '~/src/components/user/drawer/ContrFilterDrawer';
 import SearchContractor from '~/src/components/user/contractor/SearchContractor';
+import { useAppTheme } from '~/src/utils/hooks/ThemeContext';
+import { useUserStates } from '~/src/redux/reduxStates';
+import LandingPage from '~/src/components/user/contractor/LandingPage';
 
 const searchContrLayout = () => {
+  const { theme } = useAppTheme();
+  const { userId } = useUserStates();
   return (
     <Drawer
       screenOptions={{
         drawerPosition: 'right',
-        overlayColor: colors.secondary50,
+        overlayColor: theme.secondary50,
       }}
       drawerContent={(props) => <ContrFilterDrawer {...props} />}>
       <Drawer.Screen
@@ -16,7 +20,7 @@ const searchContrLayout = () => {
         options={{
           swipeEnabled: false,
           header(props) {
-            return <SearchContractor {...props} />;
+            return userId ? <SearchContractor {...props} /> : <LandingPage {...props} />;
           },
         }}
       />

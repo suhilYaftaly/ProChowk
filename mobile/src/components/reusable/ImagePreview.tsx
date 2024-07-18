@@ -3,7 +3,7 @@ import React from 'react';
 import { Circle, Image } from 'tamagui';
 import { Ionicons } from '@expo/vector-icons';
 import { IImage } from '~/src/types/commonTypes';
-import colors from '~/src/constants/colors';
+import { useAppTheme } from '~/src/utils/hooks/ThemeContext';
 type imagePrevProps = {
   image: IImage;
   imgHeight: number;
@@ -19,6 +19,8 @@ const ImagePreview = ({
   handleRemoveImage,
   isEditable = false,
 }: imagePrevProps) => {
+  const { theme } = useAppTheme();
+  const styles = getStyles(theme);
   return (
     <View style={styles.jobImage}>
       <Image
@@ -32,8 +34,8 @@ const ImagePreview = ({
         <Pressable
           style={{ position: 'absolute', right: -10, top: -10 }}
           onPress={() => handleRemoveImage(image?.name)}>
-          <Circle size={25} backgroundColor={colors.primary}>
-            <Ionicons name="close" size={20} color={colors?.white} />
+          <Circle size={25} backgroundColor={theme.primary}>
+            <Ionicons name="close" size={20} color={theme?.white} />
           </Circle>
         </Pressable>
       )}
@@ -43,10 +45,11 @@ const ImagePreview = ({
 
 export default ImagePreview;
 
-const styles = StyleSheet.create({
-  jobImage: {
-    borderColor: colors.border,
-    borderWidth: 1,
-    borderRadius: 7,
-  },
-});
+const getStyles = (theme: any) =>
+  StyleSheet.create({
+    jobImage: {
+      borderColor: theme.border,
+      borderWidth: 1,
+      borderRadius: 7,
+    },
+  });

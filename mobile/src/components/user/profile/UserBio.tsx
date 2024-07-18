@@ -2,12 +2,12 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import React, { useState } from 'react';
 import labels from '~/src/constants/labels';
 import Card from '../../reusable/Card';
-import colors from '~/src/constants/colors';
 import CustomModal from '../../reusable/CustomModal';
 import { Button, Spinner, TextArea } from 'tamagui';
 import { IUser, useUpdateUser } from '~/src/graphql/operations/user';
 import { z } from 'zod';
 import Toast from 'react-native-toast-message';
+import { useAppTheme } from '~/src/utils/hooks/ThemeContext';
 
 type Props = {
   user?: IUser;
@@ -17,6 +17,8 @@ type Props = {
 const userBioSchema = z.string().min(5);
 
 const UserBio = ({ user, isMyProfile }: Props) => {
+  const { theme } = useAppTheme();
+  const styles = getStyles(theme);
   const { updateUserAsync, loading: updLoading } = useUpdateUser();
   const [disableSaveBtn, setDisableSaveBtn] = useState(false);
   const [aboutError, setAboutError] = useState<boolean>(false);
@@ -67,14 +69,19 @@ const UserBio = ({ user, isMyProfile }: Props) => {
         children={
           <>
             <Text
-              style={{ fontFamily: 'InterMedium', fontSize: 13, marginBottom: 10 }}
+              style={{
+                fontFamily: 'InterMedium',
+                fontSize: 13,
+                marginBottom: 10,
+                color: theme.textDark,
+              }}
               numberOfLines={bioReadExpanded ? undefined : 4}
               ellipsizeMode={bioReadExpanded ? undefined : 'tail'}>
               {user?.bio?.trim()}
             </Text>
             {user?.bio && user?.bio?.trim()?.length > 150 && (
               <Pressable onPress={() => setBioReadExpanded(!bioReadExpanded)}>
-                <Text style={{ fontFamily: 'InterBold', fontSize: 16, color: colors.primary }}>
+                <Text style={{ fontFamily: 'InterBold', fontSize: 16, color: theme.primary }}>
                   {labels.read} {bioReadExpanded ? labels.less : labels.more}
                 </Text>
               </Pressable>
@@ -93,9 +100,9 @@ const UserBio = ({ user, isMyProfile }: Props) => {
               placeholder={labels.tellUsAboutYou}
               size="$3"
               borderWidth={1}
-              borderColor={colors.border}
+              borderColor={theme.border}
               rows={7}
-              style={styles.inputText}
+              style={[styles.inputText, { textAlignVertical: 'top' }]}
               defaultValue={about}
               onChangeText={(e) => {
                 if (aboutError) {
@@ -104,10 +111,10 @@ const UserBio = ({ user, isMyProfile }: Props) => {
                 setAbout(e);
               }}
             />
-            {aboutError && <Text style={{ color: colors.error }}>*{labels.userBioError}</Text>}
+            {aboutError && <Text style={{ color: theme.error }}>*{labels.userBioError}</Text>}
             <Button
-              backgroundColor={disableSaveBtn ? '$border' : '$primary'}
-              color={disableSaveBtn ? '$silver' : '$white'}
+              backgroundColor={disableSaveBtn ? theme.border : theme.primary}
+              color={disableSaveBtn ? theme.silver : theme.white}
               style={styles.button}
               onPress={() => handleSaveChanges()}
               disabled={disableSaveBtn}
@@ -123,22 +130,23 @@ const UserBio = ({ user, isMyProfile }: Props) => {
 
 export default UserBio;
 
-const styles = StyleSheet.create({
-  inputText: {
-    fontFamily: 'InterSemiBold',
-    color: colors.textDark,
-    backgroundColor: 'transparent',
-  },
-  button: {
-    fontFamily: 'InterBold',
-    fontSize: 15,
-    borderBottomLeftRadius: 50,
-    borderTopRightRadius: 50,
-    borderTopLeftRadius: 50,
-    borderBottomRightRadius: 50,
-    marginTop: 30,
-    marginBottom: 10,
-    justifyContent: 'center',
-    color: colors.white,
-  },
-});
+const getStyles = (theme: any) =>
+  StyleSheet.create({
+    inputText: {
+      fontFamily: 'InterSemiBold',
+      color: theme.textDark,
+      backgroundColor: 'transparent',
+    },
+    button: {
+      fontFamily: 'InterBold',
+      fontSize: 15,
+      borderBottomLeftRadius: 50,
+      borderTopRightRadius: 50,
+      borderTopLeftRadius: 50,
+      borderBottomRightRadius: 50,
+      marginTop: 30,
+      marginBottom: 10,
+      justifyContent: 'center',
+      color: '#fff',
+    },
+  });

@@ -2,7 +2,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import React, { useState } from 'react';
 import { Input, YStack } from 'tamagui';
 import labels from '~/src/constants/labels';
-import colors from '~/src/constants/colors';
+import { useAppTheme } from '~/src/utils/hooks/ThemeContext';
 
 type Props = {
   fromVal: string;
@@ -11,23 +11,25 @@ type Props = {
   setToVal: (val: string) => void;
 };
 const PriceRangeSele = ({ fromVal, toVal, setFromVal, setToVal }: Props) => {
+  const { theme } = useAppTheme();
+  const styles = getStyles(theme);
   const [priceRangeError, setPriceRangeError] = useState(false);
   const handleRangeChange = (val: string, type: 'from' | 'to') => {
     if (type === 'from') {
-      if (!Number(val) || Number(val) < 10) setPriceRangeError(true);
+      if (!Number(val) || Number(val) < 10 || Number(val) > Number(toVal)) setPriceRangeError(true);
       else setPriceRangeError(false);
       setFromVal(val);
     } else {
-      if (!Number(val) || Number(val) > 50000) setPriceRangeError(true);
+      if (!Number(val) || Number(val) < Number(fromVal)) setPriceRangeError(true);
       else setPriceRangeError(false);
       setToVal(val);
     }
   };
   return (
     <YStack space={'$1.5'}>
-      <Text style={{ fontFamily: 'InterBold' }}>
+      <Text style={{ fontFamily: 'InterBold', color: theme.textDark }}>
         {labels.priceRange}
-        <Text style={{ color: colors.primary }}>*</Text>
+        <Text style={{ color: theme.primary }}>*</Text>
       </Text>
       <View style={styles.priceRangeCont}>
         <Input
@@ -49,24 +51,25 @@ const PriceRangeSele = ({ fromVal, toVal, setFromVal, setToVal }: Props) => {
           textAlign="right"
         />
       </View>
-      {priceRangeError && <Text style={{ color: colors.error }}>*{labels.priceRangeError}</Text>}
+      {priceRangeError && <Text style={{ color: theme.error }}>*{labels.priceRangeError}</Text>}
     </YStack>
   );
 };
 
 export default PriceRangeSele;
 
-const styles = StyleSheet.create({
-  priceRangeCont: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  inputText: {
-    backgroundColor: 'transparent',
-    color: colors.textDark,
-    fontFamily: 'InterBold',
-    fontSize: 15,
-    minHeight: 35,
-    minWidth: 100,
-  },
-});
+const getStyles = (theme: any) =>
+  StyleSheet.create({
+    priceRangeCont: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+    },
+    inputText: {
+      backgroundColor: 'transparent',
+      color: theme.textDark,
+      fontFamily: 'InterBold',
+      fontSize: 15,
+      minHeight: 35,
+      minWidth: 100,
+    },
+  });

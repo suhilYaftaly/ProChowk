@@ -1,6 +1,5 @@
 import { FlatList, Linking, ListRenderItem, StyleSheet, Text, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import LocationPermission from '../../reusable/LocationPermission';
 import * as Location from 'expo-location';
 import { useUserStates } from '~/src/redux/reduxStates';
 import {
@@ -8,12 +7,9 @@ import {
   useContractorsByText,
 } from '~/src/graphql/operations/contractor';
 import { IUser } from '~/src/graphql/operations/user';
-import { Button, Circle, YStack } from 'tamagui';
-import colors from '~/src/constants/colors';
-import { FontAwesome6 } from '@expo/vector-icons';
 import ContractorCard from '../contractor/ContractorCard';
 import { IAddress, ILatLng } from '~/src/graphql/operations/address';
-import { getUserLocation, isFiltersChanged } from '~/src/utils/utilFuncs';
+import { isFiltersChanged } from '~/src/utils/utilFuncs';
 import { setContFilters, userLocationSuccess } from '~/src/redux/slices/userSlice';
 import { useAppDispatch } from '~/src/utils/hooks/hooks';
 import CustomContentLoader from '../../reusable/CustomContentLoader';
@@ -22,6 +18,7 @@ import { nearbyContsFilterConfigs as CC, defaultAddress } from '@config/configCo
 import NoResultFound from '../../reusable/NoResultFound';
 import { INearbyContFilters } from '../drawer/ContrFilterDrawer';
 import LocDeniedSec from '../../reusable/LocDeniedSec';
+import { useAppTheme } from '~/src/utils/hooks/ThemeContext';
 
 export interface INearbyContFilterErrors {
   radius: string;
@@ -30,7 +27,9 @@ export interface INearbyContFilterErrors {
 
 const ClientHome = () => {
   const dispatch = useAppDispatch();
-  const { userLocation, contFilters: userFilters } = useUserStates();
+  const { theme } = useAppTheme();
+  const styles = getStyles(theme);
+  const { userLocation, contFilters: userFilters, userId } = useUserStates();
   const [openDialog, setOpenDialog] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -121,15 +120,15 @@ const ClientHome = () => {
 
   return (
     <>
-      <View style={{ paddingHorizontal: 20, paddingVertical: 10, backgroundColor: colors.bg }}>
+      <View style={{ paddingHorizontal: 20, paddingVertical: 10, backgroundColor: theme.bg }}>
         {contsLoading || locationLoading ? (
           <CustomContentLoader type="jobCard" size={18} repeat={6} gap={10} />
         ) : contsList && contsList?.length > 0 ? (
           <>
             {contsList && contsTotalCount && contsTotalCount > 0 && (
               <Text style={styles.contractorListLabel}>
-                {labels.contractorsFound}
-                <Text style={{ color: colors.primary }}> ({contsTotalCount})</Text>
+                {userId ? labels.contractorsFound : labels.nearByContractor}
+                <Text style={{ color: theme.primary }}> ({contsTotalCount})</Text>
               </Text>
             )}
             <FlatList
@@ -159,11 +158,12 @@ const ClientHome = () => {
 
 export default ClientHome;
 
-const styles = StyleSheet.create({
-  contractorListLabel: {
-    fontFamily: 'InterBold',
-    fontSize: 15,
-    color: colors.textDark,
-    marginBottom: 10,
-  },
-});
+const getStyles = (theme: any) =>
+  StyleSheet.create({
+    contractorListLabel: {
+      fontFamily: 'InterBold',
+      fontSize: 15,
+      color: theme.textDark,
+      marginBottom: 10,
+    },
+  });

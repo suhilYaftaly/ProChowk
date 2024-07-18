@@ -1,8 +1,8 @@
 import { StyleSheet, View } from 'react-native';
 import React from 'react';
 import { Label, RadioGroup, XStack } from 'tamagui';
-import colors from '~/src/constants/colors';
 import { getRandomString } from '~/src/utils/utilFuncs';
+import { useAppTheme } from '~/src/utils/hooks/ThemeContext';
 
 type radioProps = {
   items: string[];
@@ -17,6 +17,7 @@ const CustomRadioGroup = ({
   onChange,
   orientation = 'vertical',
 }: radioProps) => {
+  const { theme } = useAppTheme();
   return (
     <View>
       <RadioGroup value={selectedItem} gap="$2" onValueChange={(val: string) => onChange(val)}>
@@ -32,12 +33,12 @@ const CustomRadioGroup = ({
                 <RadioGroup.Item
                   value={item}
                   id={radioId}
-                  backgroundColor={colors.white}
-                  borderColor={colors.border}
+                  backgroundColor={theme.white}
+                  borderColor={theme.border}
                   size={'$3'}>
-                  <RadioGroup.Indicator backgroundColor={colors.primary} />
+                  <RadioGroup.Indicator backgroundColor={theme.primary} />
                 </RadioGroup.Item>
-                <Label color={colors.silver} style={styles.labelText} htmlFor={radioId}>
+                <Label color={theme.silver} style={styles.labelText} htmlFor={radioId}>
                   {item}
                 </Label>
               </XStack>

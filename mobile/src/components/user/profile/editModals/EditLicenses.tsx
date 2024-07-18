@@ -7,10 +7,10 @@ import {
 } from '~/src/graphql/operations/contractor';
 import { Image, ScrollView, Spinner } from 'tamagui';
 import { MaterialIcons } from '@expo/vector-icons';
-import colors from '~/src/constants/colors';
 import { Circle } from 'tamagui';
 import Toast from 'react-native-toast-message';
 import labels from '~/src/constants/labels';
+import { useAppTheme } from '~/src/utils/hooks/ThemeContext';
 
 type Props = {
   contractorData?: IContractor;
@@ -19,15 +19,20 @@ type Props = {
 };
 
 const EditLicenses = ({ contractorData, licenses, closeDialog }: Props) => {
+  const { theme } = useAppTheme();
+  const styles = getStyles(theme);
+  const [delId, setDelId] = useState<string>();
   const [userlicenses, setUSerLicenses] = useState<ILicense[]>(licenses ? licenses : []);
   const { deleteContLicAsync, loading: deleteLoading } = useDeleteContractorLicense();
 
   const handleDeleteLicense = (id: string) => {
     if (id && contractorData?.id) {
+      setDelId(id);
       deleteContLicAsync({
         variables: { licId: id, contId: contractorData?.id },
         onSuccess: () => {
           closeDialog();
+          setDelId('');
           Toast.show({
             type: 'success',
             text1: `${labels.licenseDeleted}`,
@@ -47,11 +52,11 @@ const EditLicenses = ({ contractorData, licenses, closeDialog }: Props) => {
               <View style={styles.licenseHeader}>
                 <Text style={styles.licenseName}>{license?.name}</Text>
                 <Pressable onPress={() => handleDeleteLicense(license?.id)}>
-                  <Circle size={30} borderColor={colors.border} borderWidth={1}>
-                    {deleteLoading ? (
+                  <Circle size={30} borderColor={theme.border} borderWidth={1}>
+                    {deleteLoading && delId === license?.id ? (
                       <Spinner />
                     ) : (
-                      <MaterialIcons name="delete" size={20} color={colors.textDark} />
+                      <MaterialIcons name="delete" size={20} color={theme.textDark} />
                     )}
                   </Circle>
                 </Pressable>
@@ -77,25 +82,26 @@ const EditLicenses = ({ contractorData, licenses, closeDialog }: Props) => {
 
 export default EditLicenses;
 
-const styles = StyleSheet.create({
-  licenseCont: {
-    margin: 10,
-  },
-  licenseHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  licenseImage: {
-    borderColor: colors.border,
-    borderWidth: 1,
-    borderRadius: 7,
-  },
-  licenseName: {
-    fontFamily: 'InterBold',
-    fontSize: 15,
-    color: colors.textDark,
-    marginVertical: 10,
-  },
-});
+const getStyles = (theme: any) =>
+  StyleSheet.create({
+    licenseCont: {
+      margin: 10,
+    },
+    licenseHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 10,
+    },
+    licenseImage: {
+      borderColor: theme.border,
+      borderWidth: 1,
+      borderRadius: 7,
+    },
+    licenseName: {
+      fontFamily: 'InterBold',
+      fontSize: 15,
+      color: theme.textDark,
+      marginVertical: 10,
+    },
+  });

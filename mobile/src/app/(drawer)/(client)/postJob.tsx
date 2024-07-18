@@ -1,11 +1,13 @@
 import { View, Modal, StyleSheet } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { router, useLocalSearchParams, usePathname } from 'expo-router';
-import JobPost from '~/src/components/jobs/JobPost';
+
 import { useUserStates } from '~/src/redux/reduxStates';
 import { Text } from 'tamagui';
 import Routes from '~/src/routes/Routes';
 import labels from '~/src/constants/labels';
+import JobPost from '~/src/components/jobs/jobPost/JobPost';
+import Toast from 'react-native-toast-message';
 
 const postJob = () => {
   const path = usePathname();
@@ -13,9 +15,16 @@ const postJob = () => {
   const { user } = useUserStates();
   const [isOpen, setIsOpen] = useState(true);
 
-  const onCancelPress = () => {
+  const onCancelPress = (isJobPosted: boolean) => {
     setIsOpen(false);
-    router.navigate('/');
+    if (isJobPosted) {
+      Toast.show({
+        type: 'success',
+        text1: `${labels.postJobSuccessMsg}`,
+        position: 'top',
+      });
+    }
+    router.navigate(`/${Routes.clientHome}`);
   };
 
   useEffect(() => {
@@ -35,7 +44,7 @@ const postJob = () => {
             setIsOpen(!isOpen);
           }}>
           <View style={[styles.modalView]}>
-            <JobPost onCancel={() => onCancelPress()} />
+            <JobPost onCancel={onCancelPress} />
           </View>
         </Modal>
       ) : (

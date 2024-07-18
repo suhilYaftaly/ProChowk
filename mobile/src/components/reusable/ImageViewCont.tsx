@@ -2,8 +2,8 @@ import { Modal, StyleSheet } from 'react-native';
 import React from 'react';
 import { Button } from 'tamagui';
 import ImageViewer from 'react-native-image-zoom-viewer';
-import colors from '~/src/constants/colors';
 import { IImageInfo } from 'react-native-image-zoom-viewer/built/image-viewer.type';
+import { useAppTheme } from '~/src/utils/hooks/ThemeContext';
 
 type Props = {
   isOpen: boolean;
@@ -12,6 +12,7 @@ type Props = {
 };
 
 const ImageViewCont = ({ isOpen, setIsOpen, imageUrls }: Props) => {
+  const { theme } = useAppTheme();
   return (
     <Modal
       animationType="fade"
@@ -25,12 +26,12 @@ const ImageViewCont = ({ isOpen, setIsOpen, imageUrls }: Props) => {
         enableSwipeDown={true}
         maxScale={2}
         onSwipeDown={() => setIsOpen(false)}
-        backgroundColor={colors.secondary50}
+        backgroundColor={theme.secondary50}
       />
       <Button
         onPress={() => setIsOpen(false)}
-        backgroundColor={colors.primary}
-        color={colors.white}
+        backgroundColor={theme.primary}
+        color={theme.white}
         style={styles.closeButton}>
         Close
       </Button>

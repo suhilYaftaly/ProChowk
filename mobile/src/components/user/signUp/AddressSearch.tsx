@@ -1,7 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { Button, Input, ScrollView, Separator, Spinner, YStack } from 'tamagui';
-import colors from '~/src/constants/colors';
 import { FontAwesome6, MaterialIcons } from '@expo/vector-icons';
 import { getUserLocation, removeServerMetadata, removeTypename } from '~/src/utils/utilFuncs';
 import {
@@ -21,6 +20,7 @@ import { userLocationSuccess } from '~/src/redux/slices/userSlice';
 import { useAppDispatch } from '~/src/utils/hooks/hooks';
 import NoResultFound from '../../reusable/NoResultFound';
 import { defaultAddress } from '@config/configConst';
+import { useAppTheme } from '~/src/utils/hooks/ThemeContext';
 
 type Props = {
   location: IAddress | undefined;
@@ -31,6 +31,8 @@ type Props = {
 
 const AddressSearch = ({ location, setLocation, isError, errorText }: Props) => {
   const dispatch = useAppDispatch();
+  const { theme } = useAppTheme();
+  const styles = getStyles(theme);
   const { userLocation, userId } = useUserStates();
   const { geocodeAsync, data, loading } = useGeocode();
   const { reverseGeocodeAsync, loading: rGeoLoading } = useReverseGeocode();
@@ -114,7 +116,7 @@ const AddressSearch = ({ location, setLocation, isError, errorText }: Props) => 
     <YStack space={'$1.5'}>
       <Text style={styles.labelText}>
         {labels.location}
-        <Text style={{ color: colors.primary }}>*</Text>
+        <Text style={{ color: theme.primary }}>*</Text>
       </Text>
       <FullScreenDialog
         isOpen={isOpen}
@@ -123,7 +125,7 @@ const AddressSearch = ({ location, setLocation, isError, errorText }: Props) => 
           <Button
             unstyled
             style={styles.menuButton}
-            borderColor={'$border'}
+            borderColor={theme.border}
             borderWidth={1}
             borderRadius={7}
             iconAfter={
@@ -132,9 +134,9 @@ const AddressSearch = ({ location, setLocation, isError, errorText }: Props) => 
                 style={{ paddingVertical: 5, paddingHorizontal: 10 }}
                 onPress={() => getCurrentLocation()}>
                 {rGeoLoading || processLoading ? (
-                  <Spinner color={colors.primary} />
+                  <Spinner color={theme.primary} />
                 ) : (
-                  <MaterialIcons name="my-location" size={20} color="black" />
+                  <MaterialIcons name="my-location" size={20} color={theme.textDark} />
                 )}
               </Pressable>
             }
@@ -146,7 +148,7 @@ const AddressSearch = ({ location, setLocation, isError, errorText }: Props) => 
           <>
             <View style={styles.searchContainer}>
               <Pressable onPress={() => setIsOpen(false)} style={styles.addBtn}>
-                <FontAwesome6 name="angle-left" size={20} color="black" />
+                <FontAwesome6 name="angle-left" size={20} color={theme.textDark} />
               </Pressable>
               <Input
                 size={'$3'}
@@ -173,7 +175,7 @@ const AddressSearch = ({ location, setLocation, isError, errorText }: Props) => 
                         setIsOpen(false);
                       }}>
                       <View style={styles.itemCont}>
-                        <Text>{address?.displayName}</Text>
+                        <Text style={{ color: theme.textDark }}>{address?.displayName}</Text>
                       </View>
                     </Pressable>
                   );
@@ -185,7 +187,7 @@ const AddressSearch = ({ location, setLocation, isError, errorText }: Props) => 
           </>
         }
       />
-      {!isError && <Text style={{ color: colors.error }}>*{errorText}</Text>}
+      {!isError && <Text style={{ color: theme.error }}>*{errorText}</Text>}
       {locPermission && (
         <LocationPermission
           isOpen={openDialog}
@@ -200,53 +202,54 @@ const AddressSearch = ({ location, setLocation, isError, errorText }: Props) => 
 
 export default AddressSearch;
 
-const styles = StyleSheet.create({
-  labelText: { fontFamily: 'InterBold' },
-  menuButton: {
-    justifyContent: 'space-between',
-    fontFamily: 'InterSemiBold',
-    fontSize: 15,
-    flexDirection: 'row',
-    paddingLeft: 10,
-    paddingTop: 4,
-    paddingBottom: 4,
-    alignItems: 'center',
-    color: colors.textDark,
-  },
-  searchContainer: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 7,
-    marginTop: 30,
-  },
-  inputText: {
-    color: colors.textDark,
-    fontFamily: 'InterSemiBold',
-    fontSize: 15,
-    backgroundColor: 'transparent',
-  },
-  itemCont: {
-    padding: 15,
-    flex: 1,
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderColor: colors.border,
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  addBtn: {
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    borderTopRightRadius: 7,
-    borderBottomRightRadius: 7,
-  },
-  skillsCont: {
-    flex: 1,
-    marginTop: 10,
-  },
-});
+const getStyles = (theme: any) =>
+  StyleSheet.create({
+    labelText: { fontFamily: 'InterBold', color: theme.textDark },
+    menuButton: {
+      justifyContent: 'space-between',
+      fontFamily: 'InterSemiBold',
+      fontSize: 15,
+      flexDirection: 'row',
+      paddingLeft: 10,
+      paddingTop: 4,
+      paddingBottom: 4,
+      alignItems: 'center',
+      color: theme.textDark,
+    },
+    searchContainer: {
+      alignItems: 'center',
+      flexDirection: 'row',
+      borderWidth: 1,
+      borderColor: theme.border,
+      borderRadius: 7,
+      marginTop: 30,
+    },
+    inputText: {
+      color: theme.textDark,
+      fontFamily: 'InterSemiBold',
+      fontSize: 15,
+      backgroundColor: 'transparent',
+    },
+    itemCont: {
+      padding: 15,
+      flex: 1,
+      flexDirection: 'row',
+      borderBottomWidth: 1,
+      borderColor: theme.border,
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    addBtn: {
+      paddingHorizontal: 15,
+      paddingVertical: 10,
+      borderTopRightRadius: 7,
+      borderBottomRightRadius: 7,
+    },
+    skillsCont: {
+      flex: 1,
+      marginTop: 10,
+    },
+  });
 
 export const getAddressFormat = (adr: IAddress) => {
   return {

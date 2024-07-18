@@ -1,8 +1,8 @@
 import { View } from 'react-native';
 import React from 'react';
 import ContentLoader, { Circle, Rect } from 'react-content-loader/native';
-import colors from '~/src/constants/colors';
 import { Spinner } from 'tamagui';
+import { useAppTheme } from '~/src/utils/hooks/ThemeContext';
 
 type loaderProps = {
   type: 'list' | 'jobCard';
@@ -12,6 +12,7 @@ type loaderProps = {
 };
 
 const CustomContentLoader = ({ type, size, repeat, gap = 0 }: loaderProps) => {
+  const { theme } = useAppTheme();
   const height = 6 * size;
   const width = 20 * size;
   const keys = [...Array(repeat).keys()];
@@ -24,8 +25,8 @@ const CustomContentLoader = ({ type, size, repeat, gap = 0 }: loaderProps) => {
           height={height}
           width={width}
           speed={1}
-          backgroundColor={colors.bg}
-          foregroundColor={colors.white}
+          backgroundColor={theme.bg}
+          foregroundColor={theme.white}
           viewBox="0 0 200 60">
           <Circle cx={30} cy={30} r={20} />
           <Rect x={60} y={15} rx={5} ry={5} width={120} height={10} />
@@ -40,8 +41,8 @@ const CustomContentLoader = ({ type, size, repeat, gap = 0 }: loaderProps) => {
           height={height}
           width={width}
           viewBox="0 0 200 60"
-          backgroundColor={colors.white}
-          foregroundColor={colors.bg}>
+          backgroundColor={theme.white}
+          foregroundColor={theme.bg}>
           <Circle cx={15} cy={15} r={10} />
           <Rect x={27} y={10} rx={3} ry={3} width={88} height={3} />
           <Rect x={27} y={17} rx={3} ry={3} width={52} height={3} />

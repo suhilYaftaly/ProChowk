@@ -1,17 +1,21 @@
 import { StyleSheet, Text, View } from 'react-native';
 import React from 'react';
 import { IJobSteps } from './JobForm';
-import InputWithLabel from '../reusable/InputWithLabel';
+import InputWithLabel from '../../reusable/InputWithLabel';
 import labels from '~/src/constants/labels';
-import colors from '~/src/constants/colors';
 import { YStack } from 'tamagui';
-import SkillSelection from '../user/signUp/SkillSelection';
+import SkillSelection from '../../user/signUp/SkillSelection';
 import { SkillInput } from '~/src/graphql/operations/skill';
-import CustomDatePicker from '../reusable/CustomDatePicker';
+import CustomDatePicker from '../../reusable/CustomDatePicker';
+import { useAppTheme } from '~/src/utils/hooks/ThemeContext';
 
 const JobBasicDetails = ({ jobForm, setJobForm, errors }: IJobSteps) => {
+  const { theme } = useAppTheme();
+  const styles = getStyles(theme);
   const onValueChange = (name: string, value: any): void => {
-    setJobForm((prev) => ({ ...prev, [name]: value }));
+    if (value?.length <= 100) {
+      setJobForm((prev) => ({ ...prev, [name]: value }));
+    }
   };
   return (
     <View style={styles.formCont}>
@@ -26,7 +30,7 @@ const JobBasicDetails = ({ jobForm, setJobForm, errors }: IJobSteps) => {
       />
       <YStack space={'$2.5'}>
         <Text style={styles.labelText}>
-          {labels.addSkillsJobPost} <Text style={{ color: colors.primary }}>*</Text>
+          {labels.addSkillsJobPost} <Text style={{ color: theme.primary }}>*</Text>
         </Text>
         <SkillSelection
           isLabelRequire={false}
@@ -40,7 +44,7 @@ const JobBasicDetails = ({ jobForm, setJobForm, errors }: IJobSteps) => {
         <Text style={styles.subSectionText}>{labels.projectTimeline}</Text>
         <YStack space={'$2.5'}>
           <Text style={styles.labelText}>
-            Start <Text style={{ color: colors.primary }}>*</Text>
+            Start <Text style={{ color: theme.primary }}>*</Text>
           </Text>
           <CustomDatePicker
             seleDate={jobForm?.startDate}
@@ -66,24 +70,26 @@ const JobBasicDetails = ({ jobForm, setJobForm, errors }: IJobSteps) => {
 
 export default JobBasicDetails;
 
-const styles = StyleSheet.create({
-  formCont: {
-    paddingHorizontal: 15,
-    paddingVertical: 20,
-    backgroundColor: 'white',
-    margin: 20,
-    borderRadius: 10,
-    borderColor: colors.border,
-    borderWidth: 1,
-    rowGap: 30,
-  },
-  subSectionText: {
-    fontFamily: 'InterBold',
-    fontSize: 16,
-    color: colors.textDark,
-    marginBottom: 10,
-  },
-  labelText: {
-    fontFamily: 'InterBold',
-  },
-});
+const getStyles = (theme: any) =>
+  StyleSheet.create({
+    formCont: {
+      paddingHorizontal: 15,
+      paddingVertical: 20,
+      backgroundColor: theme.white,
+      margin: 20,
+      borderRadius: 10,
+      borderColor: theme.border,
+      borderWidth: 1,
+      rowGap: 30,
+    },
+    subSectionText: {
+      fontFamily: 'InterBold',
+      fontSize: 16,
+      color: theme.textDark,
+      marginBottom: 10,
+    },
+    labelText: {
+      fontFamily: 'InterBold',
+      color: theme.textDark,
+    },
+  });

@@ -1,8 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import React, { useState } from 'react';
-import { IJobSteps } from './JobForm';
-import colors from '~/src/constants/colors';
-import AddressSearch from '../user/signUp/AddressSearch';
+import AddressSearch from '../../user/signUp/AddressSearch';
 import { IAddress } from '~/src/graphql/operations/address';
 import { TextArea, YStack } from 'tamagui';
 import labels from '~/src/constants/labels';
@@ -11,9 +9,13 @@ import { getImageFromAlbum, getRandomString } from '~/src/utils/utilFuncs';
 import Toast from 'react-native-toast-message';
 import { IImage, ImageInput } from '~/src/types/commonTypes';
 import { ImagePickerAsset } from 'expo-image-picker';
-import ImagePreview from '../reusable/ImagePreview';
+import ImagePreview from '../../reusable/ImagePreview';
+import { useAppTheme } from '~/src/utils/hooks/ThemeContext';
+import { IJobSteps } from './JobForm';
 
 const JobDescription = ({ jobForm, setJobForm, errors }: IJobSteps) => {
+  const { theme } = useAppTheme();
+  const styles = getStyles(theme);
   const [jobImages, setJobImages] = useState<ImageInput[]>();
   const onValueChange = (name: string, value: string): void => {
     setJobForm((prev) => ({ ...prev, [name]: value }));
@@ -68,25 +70,25 @@ const JobDescription = ({ jobForm, setJobForm, errors }: IJobSteps) => {
       />
       <YStack space={'$1.5'}>
         <Text style={styles.labelText}>
-          {labels.projectDetails} <Text style={{ color: colors.primary }}>*</Text>
+          {labels.projectDetails} <Text style={{ color: theme.primary }}>*</Text>
         </Text>
         <TextArea
           placeholder={descPlaceholder}
           size="$3"
           borderWidth={1}
-          borderColor={colors.border}
+          borderColor={theme.border}
           rows={7}
-          style={styles.inputText}
+          style={[styles.inputText, { textAlignVertical: 'top' }]}
           defaultValue={jobForm?.desc}
           onChangeText={(e) => onValueChange('desc', e)}
         />
-        {Boolean(errors?.desc) && <Text style={{ color: colors.error }}>*{errors.desc}</Text>}
+        {Boolean(errors?.desc) && <Text style={{ color: theme.error }}>*{errors.desc}</Text>}
       </YStack>
       <Pressable style={styles.imageUploadCont} onPress={() => handleUploadImage()}>
         <Ionicons
           name="cloud-upload"
           size={35}
-          color={colors.silver}
+          color={theme.silver}
           style={{ marginVertical: 10 }}
         />
         <Text style={styles.labelText}>{labels.uploadImage}</Text>
@@ -113,43 +115,45 @@ const JobDescription = ({ jobForm, setJobForm, errors }: IJobSteps) => {
 
 export default JobDescription;
 
-const styles = StyleSheet.create({
-  formCont: {
-    paddingHorizontal: 15,
-    paddingVertical: 20,
-    backgroundColor: 'white',
-    margin: 20,
-    borderRadius: 10,
-    borderColor: colors.border,
-    borderWidth: 1,
-    rowGap: 20,
-  },
-  labelText: {
-    fontFamily: 'InterBold',
-  },
-  inputText: {
-    fontFamily: 'InterSemiBold',
-    color: colors.textDark,
-    backgroundColor: 'transparent',
-  },
-  subText: {
-    fontFamily: 'InterSemiBold',
-    color: colors.textDark,
-    textAlign: 'center',
-  },
-  imageUploadCont: {
-    backgroundColor: colors.bg,
-    justifyContent: 'center',
-    borderRadius: 10,
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    alignItems: 'center',
-  },
-  seleImagesCont: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-  },
-});
+const getStyles = (theme: any) =>
+  StyleSheet.create({
+    formCont: {
+      paddingHorizontal: 15,
+      paddingVertical: 20,
+      backgroundColor: theme.white,
+      margin: 20,
+      borderRadius: 10,
+      borderColor: theme.border,
+      borderWidth: 1,
+      rowGap: 20,
+    },
+    labelText: {
+      fontFamily: 'InterBold',
+      color: theme.textDark,
+    },
+    inputText: {
+      fontFamily: 'InterSemiBold',
+      color: theme.textDark,
+      backgroundColor: 'transparent',
+    },
+    subText: {
+      fontFamily: 'InterSemiBold',
+      color: theme.textDark,
+      textAlign: 'center',
+    },
+    imageUploadCont: {
+      backgroundColor: theme.bg,
+      justifyContent: 'center',
+      borderRadius: 10,
+      paddingHorizontal: 20,
+      paddingVertical: 15,
+      alignItems: 'center',
+    },
+    seleImagesCont: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 10,
+    },
+  });
 const descPlaceholder =
   'Example: Renovating kitchen and master bathroom. Looking for a modern style with energy-efficient appliances and fixtures. Kitchen size is approx. 300 sq ft. Interested in quartz countertops and hardwood flooring. Planning to start in early May with a budget around $20,000.';

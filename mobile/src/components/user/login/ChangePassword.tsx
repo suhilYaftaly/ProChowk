@@ -3,16 +3,18 @@ import React, { useState } from 'react';
 import { Button, Spinner, YStack } from 'tamagui';
 import InputWithLabel from '../../reusable/InputWithLabel';
 import labels from '~/src/constants/labels';
-import colors from '~/src/constants/colors';
 import { z } from 'zod';
 import { useResetPassword } from '~/src/graphql/operations/user';
 import { useAppDispatch } from '~/src/utils/hooks/hooks';
 import { router } from 'expo-router';
 import { logIn } from '~/src/redux/slices/userSlice';
 import Toast from 'react-native-toast-message';
+import { useAppTheme } from '~/src/utils/hooks/ThemeContext';
 
 const ChangePassword = () => {
   const dispatch = useAppDispatch();
+  const { theme } = useAppTheme();
+  const styles = getStyles(theme);
   const [password, setPassword] = useState<string>('');
   const [confirmPass, setConfirmPass] = useState<string>('');
   const [isPassValid, setIsPassValid] = useState<boolean>(true);
@@ -92,8 +94,8 @@ const ChangePassword = () => {
 
       <Button
         onPress={() => resetPassword()}
-        backgroundColor={disableProceed ? '$border' : '$primary'}
-        color={disableProceed ? '$silver' : '$white'}
+        backgroundColor={disableProceed ? theme.border : theme.primary}
+        color={disableProceed ? theme.silver : '#fff'}
         style={styles.button}
         disabled={disableProceed}
         icon={resetLoading ? () => <Spinner /> : undefined}>
@@ -105,35 +107,36 @@ const ChangePassword = () => {
 
 export default ChangePassword;
 
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 20,
-    elevation: 10,
-    shadowColor: '#000',
-    shadowOffset: { height: 2, width: 0 },
-    shadowOpacity: 0.5,
-    shadowRadius: 2,
-    margin: 2,
-  },
-  headerText: {
-    fontFamily: 'InterExtraBold',
-    fontSize: 20,
-    textAlign: 'center',
-    color: colors.textBlue,
-    marginBottom: 10,
-    marginTop: 10,
-  },
-  button: {
-    fontFamily: 'InterBold',
-    fontSize: 15,
-    borderBottomLeftRadius: 50,
-    borderTopRightRadius: 50,
-    borderTopLeftRadius: 50,
-    borderBottomRightRadius: 50,
-    marginTop: 10,
-    marginBottom: 10,
-    justifyContent: 'center',
-  },
-});
+const getStyles = (theme: any) =>
+  StyleSheet.create({
+    container: {
+      backgroundColor: theme.white,
+      borderRadius: 10,
+      padding: 20,
+      elevation: 10,
+      shadowColor: theme.black,
+      shadowOffset: { height: 2, width: 0 },
+      shadowOpacity: 0.5,
+      shadowRadius: 2,
+      margin: 2,
+    },
+    headerText: {
+      fontFamily: 'InterExtraBold',
+      fontSize: 20,
+      textAlign: 'center',
+      color: theme.textBlue,
+      marginBottom: 10,
+      marginTop: 10,
+    },
+    button: {
+      fontFamily: 'InterBold',
+      fontSize: 15,
+      borderBottomLeftRadius: 50,
+      borderTopRightRadius: 50,
+      borderTopLeftRadius: 50,
+      borderBottomRightRadius: 50,
+      marginTop: 10,
+      marginBottom: 10,
+      justifyContent: 'center',
+    },
+  });

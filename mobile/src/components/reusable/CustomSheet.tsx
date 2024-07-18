@@ -1,14 +1,15 @@
 import { StyleSheet, Text } from 'react-native';
 import React from 'react';
-import { Sheet } from 'tamagui';
-import colors from '~/src/constants/colors';
+import { Separator, Sheet } from 'tamagui';
+import { useAppTheme } from '~/src/utils/hooks/ThemeContext';
 
 const CustomSheet = (props: any) => {
+  const { theme } = useAppTheme();
+  const styles = getStyles(theme);
   return (
     <Sheet
       modal={true}
       open={props?.isOpen}
-      zIndex={100_000}
       onOpenChange={props?.setIsOpen}
       snapPoints={props?.snapPoints}
       position={0}
@@ -21,12 +22,16 @@ const CustomSheet = (props: any) => {
         enterStyle={{ opacity: 0 }}
         exitStyle={{ opacity: 0 }}
         opacity={0.5}
-        backgroundColor={'$black'}
+        backgroundColor={theme.secondary50}
       />
 
-      <Sheet.Frame flex={1} backgroundColor={'$white'}>
-        <Text style={styles.selectionText}>{props.sheetTitle}</Text>
-        <Sheet.ScrollView paddingHorizontal={'$4'}>{props.children}</Sheet.ScrollView>
+      <Sheet.Frame flex={1} backgroundColor={theme.white}>
+        <Text style={styles.selectionText}>
+          {props.sheetTitle}
+          {props.counter && <Text style={{ color: theme.primary }}>({props.counter})</Text>}
+        </Text>
+        <Separator borderColor={theme.border} />
+        <Sheet.ScrollView paddingHorizontal={10}>{props.children}</Sheet.ScrollView>
       </Sheet.Frame>
     </Sheet>
   );
@@ -34,13 +39,13 @@ const CustomSheet = (props: any) => {
 
 export default CustomSheet;
 
-const styles = StyleSheet.create({
-  selectionText: {
-    fontFamily: 'InterBold',
-    fontSize: 20,
-    color: colors.white,
-    backgroundColor: colors.primary,
-    paddingHorizontal: 30,
-    paddingVertical: 10,
-  },
-});
+const getStyles = (theme: any) =>
+  StyleSheet.create({
+    selectionText: {
+      fontFamily: 'InterBold',
+      fontSize: 18,
+      color: theme.textDark,
+      paddingHorizontal: 10,
+      paddingVertical: 15,
+    },
+  });

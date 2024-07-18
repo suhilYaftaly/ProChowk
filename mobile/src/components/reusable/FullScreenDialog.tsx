@@ -1,6 +1,7 @@
 import React, { ReactElement } from 'react';
 import { KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAppTheme } from '~/src/utils/hooks/ThemeContext';
 
 type Props = {
   triggerBtnCom?: ReactElement;
@@ -11,6 +12,8 @@ type Props = {
 
 const FullScreenDialog = ({ triggerBtnCom, dialogCom, isOpen, setIsOpen }: Props) => {
   const { top } = useSafeAreaInsets();
+  const { theme } = useAppTheme();
+  const styles = getStyles(theme);
   const os = Platform?.OS;
   return (
     <View>
@@ -33,11 +36,13 @@ const FullScreenDialog = ({ triggerBtnCom, dialogCom, isOpen, setIsOpen }: Props
 
 export default FullScreenDialog;
 
-const styles = StyleSheet.create({
-  modalView: {
-    gap: 10,
-    width: '100%',
-    height: '100%',
-    paddingHorizontal: 20,
-  },
-});
+const getStyles = (theme: any) =>
+  StyleSheet.create({
+    modalView: {
+      gap: 10,
+      width: '100%',
+      height: '100%',
+      paddingHorizontal: 20,
+      backgroundColor: theme.white,
+    },
+  });
